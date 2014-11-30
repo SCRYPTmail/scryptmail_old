@@ -109,7 +109,7 @@ Privacy is your right, not a privilege<br>
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
 			Nov, 30<ul>
-				<li>Functions moved into separate files. Please submit bug report if you notice any malfunctions</li>
+				<li>Functions moved into separate files. Please submit bug report if you noticed any malfunctions</li>
 				<li>By users request, scryptmail source code is available for review! <a href="https://github.com/SCRYPTmail/scryptmail" target="_blank">github</a></li>
 			</ul>
 
