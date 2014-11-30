@@ -1,0 +1,10 @@
+.idea
+assets/*
+protected/config/main.php
+protected/config/console.php
+protected/runtime/*
+protected/runtime
+protected/attachments/*
+test/*
+index.php
+/index.php
