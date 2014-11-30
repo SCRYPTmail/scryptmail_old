@@ -467,9 +467,13 @@
       create : function(sc, so, ec, eo) {
         if (arguments.length === 0) { // from Browser Selection
           if (bW3CRangeSupport) { // webkit, firefox
-            var nativeRng = document.getSelection().getRangeAt(0);
-            sc = nativeRng.startContainer, so = nativeRng.startOffset,
-            ec = nativeRng.endContainer, eo = nativeRng.endOffset;
+			 // console.log(document.getSelection().type);
+			 if(document.getSelection().type!='None'){
+				 var nativeRng = document.getSelection().getRangeAt(0);
+				 sc = nativeRng.startContainer, so = nativeRng.startOffset,
+				ec = nativeRng.endContainer, eo = nativeRng.endOffset;
+			 }
+
           } else { // IE8: TextRange
             var textRange = document.selection.createRange();
             var textRangeEnd = textRange.duplicate(); textRangeEnd.collapse(false);

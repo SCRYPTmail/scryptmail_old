@@ -10,7 +10,7 @@ $(document).ready(function () {
 		$this = $(this);
 		$this.hide();
 		$this.parent().parent().parent().parent().parent().next().removeClass("hidden");
-	})
+	});
 
 	var selectDialogueLink = $('<a href="">Select files</a>');
 	fileSelector = $("#ddd");
@@ -79,7 +79,7 @@ function iniEmailBody(pin) {
 	} else {
 		$('.table-wrap').css('height', tableHeight + 'px');
 	}
-	$('.table-wrap').css('margin-right','-8px');
+	//$('.table-wrap').css('margin-right','-8px');
 
 	//$('.inbox-message').css('min-height', $('.table-wrap').css('height')).css('height', '-=220px');
 	//$('.inbox-message').css('max-height', '600px');
@@ -99,7 +99,7 @@ function iniEmailBody(pin) {
 
 				['style', ['bold', 'italic']],
 				['fontsize', ['fontsize']],
-				['color', ['color']],
+				['color', ['color']]
 			]
 		});
 	}else{
@@ -108,7 +108,7 @@ function iniEmailBody(pin) {
 			minHeight: parseInt($('.table-wrap').css('height'), 10),
 			airPopover: [
 				['color', ['color']],
-				['font', ['bold', 'underline',]],
+				['font', ['bold', 'underline']],
 				['para', ['ul', 'paragraph']],
 				['table', ['table']],
 				['insert', ['link']]
@@ -126,8 +126,8 @@ function iniEmailBody(pin) {
 
 		});
 	}
-	//$('.note-editable').css('height',parseInt($('.inbox-message').css('height'), 10)).css('height', '-=70px');
-	//$('.note-editor').css('height',parseInt($('.inbox-message').css('height'), 10)).css('height', '-=70px');
+	$('.note-editable').css('min-height',parseInt($('.inbox-message').css('height'), 10));
+	//$('.note-editor').css('height',parseInt($('.inbox-message').css('height'), 10));
 	//$('#emailbody').css('min-height',parseInt($('#email-compose-form').css('height'), 10));
 
 	if (pin == '') {
@@ -347,7 +347,7 @@ function indoCrypt(value) {
 
 	messaged['key'] = forge.util.bytesToHex(mailPubKey.encrypt(key, 'RSA-OAEP'));
 
-	var dat = {'messaged': messaged, 'modKey': emailPreObj['modKey']}
+	var dat = {'messaged': messaged, 'modKey': emailPreObj['modKey']};
 	return dat;
 
 }
@@ -449,7 +449,7 @@ function encryptWithPin(value) {
 	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 
 	emailPreObj['attachment'] = {};
-	emailPreObj['meta']['subject'] = sanitize($('#subj').val()).substring(0, 150)
+	emailPreObj['meta']['subject'] = sanitize($('#subj').val()).substring(0, 150);
 	emailPreObj['meta']['body'] = sanitize(emailPreObj['body']['text']).substring(0, 50);
 
 	if(Object.keys(fileObject).length>0){
@@ -507,7 +507,7 @@ function encryptWithPin(value) {
 function encryptWithoutPin(value) {
 
 	var d = new Date();
-	var pki = forge.pki;
+	//var pki = forge.pki;
 
 	var pin=Math.floor(Math.random() * 90000) + 10000;
 	var salt = forge.random.getBytesSync(128);
@@ -1076,7 +1076,7 @@ function composeMailRecptCheck() {
 
 	$("#atachFiles").on("select2-selecting", function (e) {
 		e.preventDefault();
-	})
+	});
 
 	$("#atachFiles").on("select2-removed", function (e) {
 

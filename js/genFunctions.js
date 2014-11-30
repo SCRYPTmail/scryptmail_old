@@ -1447,12 +1447,11 @@ function saveDraft() {
 		prehash['to'] = $('#toRcpt').select2("val");
 		prehash['subj'] = sanitize($('#subj').val()).substring(0, 150);
 		prehash['body'] = $('#emailbody').code();
-		//console.log(prehash);
 					//CKEDITOR.instances.emailbody.getData();
 		var key = forge.random.getBytesSync(32);
 
-		if (mailhash != SHA512(JSON.stringify(prehash))) {
-
+		if (mailhash != SHA512(JSON.stringify(prehash)) &&
+			SHA512(JSON.stringify(prehash)) !='6c0823ab0d6fe3ac5592360d4f39a08c66d80efa7c5dc11ec39a04d544be517d88e86933bc87f3c575db1a7c95f45815221769bdfc96712b276064c6d07e134c') {
 			mailhash = SHA512(JSON.stringify(prehash));
 			var d = new Date();
 
