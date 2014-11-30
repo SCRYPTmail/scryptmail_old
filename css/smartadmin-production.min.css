@@ -16740,7 +16740,7 @@ tr.fc-last td {
 .inbox-body.no-content-padding {
     margin-top: 0;
     background: #fff;
-    overflow: hidden;
+  /*  overflow: hidden;*/
 }
 
 .inbox-nav-bar {
@@ -17145,6 +17145,10 @@ tr.highlight td, tr.unread.highlight td {
         display: none !important
     }
 
+    #email-compose-form{
+
+        margin-bottom:40px;
+    }
     .inbox-body .table-wrap {
         margin-left: 0 !important
     }
