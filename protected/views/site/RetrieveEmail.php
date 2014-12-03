@@ -18,7 +18,13 @@
 <!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
 
 <div id="main" role="main">
-
+<div id="incomp" class="alert alert-warning fade in" style="display:none;">
+	<button class="close" data-dismiss="alert">
+		×
+	</button>
+	<i class="fa-fw fa fa-warning"></i>
+	<strong>Warning: </strong><span></span>
+</div>
 <!-- MAIN CONTENT -->
 <div id="container" class="container">
 
@@ -98,7 +104,7 @@
 
 						<section>
 							<label class="checkbox" id="terError">
-								By clicking Register, I agree with the <a href="#" data-toggle="modal" data-target="#myModal"> Terms
+								By clicking Read Email, I agree with the <a href="#" data-toggle="modal" data-target="#myModal"> Terms
 									and Conditions </a></label>
 						</section>
 					</fieldset>

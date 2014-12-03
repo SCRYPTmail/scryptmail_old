@@ -19,6 +19,7 @@
 
 <div id="main" role="main">
 
+
 	<!-- MAIN CONTENT -->
 	<div id="content" class="container">
 
@@ -68,7 +69,7 @@ Privacy is your right, not a privilege<br>
 							<section>
 								<label class="input ">
 									<div class="input-group">
-										<input type="email" name="uN" id="LoginForm_username" placeholder="email">
+										<input type="text" name="uN" id="LoginForm_username" placeholder="email">
 										<span class="input-group-addon" id="cremail">@scryptmail.com</span>
 									</div>
 								</label>

@@ -51,6 +51,10 @@
 
 			</ul>
 
+			<h6> Folders <a href="javascript:void(0);" rel="tooltip" title="" data-placement="top" data-original-title="Add Folder" class="pull-right txt-color-darken"><i class="fa fa-plus" onclick="addCustomFolder()"></i></a></h6>
+			<ul class="inbox-menu-lg" id="folderulcustom">
+
+			</ul>
 		</div>
 		<div class="air air-bottom fetch-space" style="bottom:40px;width: 185px;display:none">
 		</div>
@@ -68,10 +72,42 @@
 
 </div>
 
+<div id="contextMenu" class="dropdown clearfix">
+	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+		<li><a tabindex="-1" href="javascript:void(0);" id="customRename">Rename</a></li>
+		<li><a tabindex="-1" href="javascript:void(0);" id="customDelete">Delete</a></li>
+		<li class="divider"></li>
+		<li><a tabindex="-1" href="javascript:void(0);" onclick="$('#contextMenu').css('display','none')">Cancel</a></li>
+	</ul>
+</div>
+
 <script type="text/javascript">
 
 
 	$(document).ready(function () {
+
+		$(document).on("contextmenu","ul li", function(event) {
+				event.preventDefault();
+				$("#contextMenu").css({
+					display: "block",
+					left:  event.pageX,
+					top: event.pageY-110
+				});
+			$("#contextMenu").data('originalElement', event.target);
+		});
+
+		$('#customRename').click(function(e){
+			var originalElement = $("#contextMenu").data('originalElement');
+			renameCustomFolder(originalElement.text,originalElement.id);
+			$("#contextMenu").css('display','none');
+		});
+
+		$('#customDelete').click(function(e){
+			var originalElement = $("#contextMenu").data('originalElement');
+			deleteCustomFolder(originalElement.text,originalElement.id);
+			$("#contextMenu").css('display','none');
+		});
+
 
 		loadInitialPage();
 		displayFolder();

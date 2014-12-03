@@ -15,7 +15,14 @@
 
 overflow-x:hidden;
 }
-
+#virtualization{
+    border:0px solid;
+}
+#contextMenu{
+    position:absolute;
+    display:none;
+    z-index:999;
+}
 .md-editor .md-footer, .md-editor>.md-header {
     display: block;
     padding: 6px 4px;
@@ -17131,12 +17138,17 @@ tr.highlight td, tr.unread.highlight td {
 }
 
 @media (max-width:1280px) {
+
+
     .inbox-compose-footer, .inbox-info-bar, .inbox-message {
         margin-right: 0
     }
 
     .email-infobox {
         display: none
+    }
+    .inbox-message {
+        margin-bottom: 40px;
     }
 }
 

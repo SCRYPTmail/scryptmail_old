@@ -10,12 +10,39 @@ class Crawler extends CFormModel
 {
 	public function united()
 	{
-		Crawler::postOffice(); //reading ready to send mail
+		Crawler::postOffice(); //send mail
+		Crawler::houseCleaner(); //deleting expired emails
+
 	}
 
+	public function houseCleaner()
+	{
+		if (!Yii::app()->db->createCommand("SELECT * FROM crawler WHERE action='cleaningHouse'")->queryRow()) {
+			Yii::app()->db->createCommand("INSERT INTO crawler (action,active) VALUES('cleaningHouse',1)")->execute();
+
+			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()) {
+
+				foreach($emailsToClean as $row){
+					$emailToDeleteId[]=$row['id'];
+
+					if($files=json_decode($row['file'],true)){
+						foreach($files as $filename){
+							@unlink(Yii::app()->basePath . '/attachments/' . $filename);
+						}
+					}
+				}
+				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode($emailToDeleteId,',').")")->execute();
+
+			}
+
+			Yii::app()->db->createCommand("DELETE FROM crawler WHERE action ='cleaningHouse'")->execute();
+		}
+		echo 'success
+		';
+	}
 	public function postOffice()
 	{
-		set_time_limit(0);
+		set_time_limit(600);
 		//check if available
 		if (!Yii::app()->db->createCommand("SELECT * FROM crawler WHERE action='takingMail'")->queryRow()) {
 
@@ -100,7 +127,8 @@ class Crawler extends CFormModel
 			Yii::app()->db->createCommand("DELETE FROM crawler WHERE action ='takingMail'")->execute();
 
 		}
-		echo 'success';
+		echo 'success
+		';
 
 	}
 

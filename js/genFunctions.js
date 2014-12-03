@@ -8,6 +8,9 @@
 // Globals define
 $(document).ready(function () {
 
+	console.log(navigator.userAgent);
+	isCompatible();
+
 	if (window.location.hostname != "encrypt-mail1.com") {
 		window.onerror = function(message, url, lineNumber) {
 			var errorObj={'url':url,'line':lineNumber,'message':message};
@@ -42,6 +45,78 @@ $(document).ready(function () {
 	});
 
 });
+function isCompatible(){
+	var compatible=['Chrome','Firefox'];
+	var inCompatible=['Safari','iPad','iPhone','iPod','MSIE 8.0'];
+	var checkCapability=$.Deferred();
+	bug=false;
+	error=false;
+
+	//return (navigator.userAgent.indexOf("iPad") != -1);
+	if(navigator.userAgent.indexOf("Chrome") != -1 || navigator.userAgent.indexOf("Firefox") != -1){
+
+		if(
+		navigator.userAgent.indexOf("iPad") != -1||
+		navigator.userAgent.indexOf("iPod") != -1||
+		navigator.userAgent.indexOf("iPhone") != -1||
+		navigator.userAgent.indexOf("MSIE 8.0") != -1){
+
+		bug=true;
+	}
+		try{
+			forge.util.hexToBytes('3df5');
+		}catch (err) {
+			error=true;
+		}
+
+		if(window.FileReader) {
+			//do this
+		} else {
+			error=true;
+		}
+		checkCapability.resolve();
+	}else{
+		if(navigator.userAgent.indexOf("Safari") != -1 ||
+			navigator.userAgent.indexOf("iPad") != -1||
+			navigator.userAgent.indexOf("iPod") != -1||
+			navigator.userAgent.indexOf("iPhone") != -1||
+			navigator.userAgent.indexOf("MSIE 8.0") != -1){
+
+			bug=true;
+		}
+
+		try{
+			forge.util.hexToBytes('3df5');
+		}catch (err) {
+			error=true;
+		}
+
+		if(window.FileReader) {
+			//do this
+		} else {
+			error=true;
+		}
+		checkCapability.resolve();
+
+	}
+console.log(bug);
+	console.log(error);
+	checkCapability.done(function () {
+		if(bug){
+			$('#incomp').css('display','block');
+			$('#incomp span').html('Your browser/device not 100% compatible with this service. Please refer to our list of <a href="http://blog.scryptmail.com/post/103842937050/scryptmail-browser-compatibility" target="_blank">compatible browsers</a>');
+			//alert('Your browser/device not 100% compatible with this website. Please read list of compatible devices and browser at our blog');
+		}
+		if(error){
+			$('#incomp').css('display','block');
+			$('#incomp span').html('Your browser/device may not be compatible with this service, and your connection may not be secure. Please refer to our list of <a href="http://blog.scryptmail.com/post/103842937050/scryptmail-browser-compatibility" target="_blank">compatible browsers</a>');
+			//alert('');
+		}
+
+	});
+
+}
+
 resetRawTokenHash='';
 fileSelector='';
 resetAesTokenHash='';
@@ -662,7 +737,7 @@ function provideSecret(success, cancel) {
 //disable asking secret everyrefresh;
 	//success('aaaaaa');
 	if (window.location.hostname == "encrypt-mail1.com") {
-		success('aaaaaa');
+		success('61saksak');
 		console.log('Secret Phrase')
 	} else {
 		$('#dialog-form').dialog('open');
@@ -1015,37 +1090,6 @@ function checkProfile() {
 }
 
 
-function checkFolders() {
-
-	checkState(function () {
-
-		if (SHA512(JSON.stringify(folder)) != folderHash) {
-
-			var fold = folderToDb(folder);
-
-			$.ajax({
-				type: "POST",
-				url: '/saveFolders',
-				data: {
-					'folderObj': fold,
-					'modKey': userModKey
-				},
-				success: function (data, textStatus) {
-					folderHash = SHA512(JSON.stringify(folder));
-					checkProfile();
-					showLimits();
-				},
-				error: function (data, textStatus) {
-				},
-				dataType: 'json'
-			});
-		}
-	}, function () {
-	});
-
-}
-
-
 function validateUserRole() {
 
 	//console.log(roleData['role']);
@@ -1160,8 +1204,10 @@ function getDataFromFolder(thisObj) {
 
 			var folNav = thisObj;//thisObj.text().trim();
 
-
 			$('#folderul').children().removeClass("active");
+
+			$('#folderulcustom').children().removeClass("active");
+
 
 			$('#fl_' + folNav).addClass('active');
 
@@ -1179,6 +1225,8 @@ function getDataFromFolder(thisObj) {
 				if ($('#mail-table').parents('#mail-table_wrapper').length == 0) {
 					$.get('getFolder/' + folNav, function (data) {
 						$('#inbox-content > .table-wrap').html(data);
+
+
 						initializeMailList();
 					});
 				}
@@ -1192,6 +1240,7 @@ function getDataFromFolder(thisObj) {
 					$('.deletebutton').attr('data-original-title', 'Trash');
 					$('.deletebutton').css('color', '#333');
 				}
+			//	console.log('jjjj');
 				displayFolderContent(folNav);
 
 			}, function () {
@@ -1204,6 +1253,15 @@ function getDataFromFolder(thisObj) {
 	});
 }
 
+function customMessageIds(folder){
+	var keys = [];
+
+	for(var k in folder){
+		if(k!='name')keys.push(k);
+	}
+
+	return keys;
+}
 function displayFolderContent(folderName) {
 
 	folderDecoded.done(function () {
@@ -1218,6 +1276,12 @@ function displayFolderContent(folderName) {
 				messagesId = Object.keys(folder[folderName]);
 			}
 
+		}else if(folderName in folder['Custom']){
+			if (customMessageIds(folder['Custom'][folderName]).length == 0) {
+				messagesId = [];
+			} else {
+				messagesId = customMessageIds(folder['Custom'][folderName]);
+			}
 		}
 
 		if (messagesId.length != 0) {
@@ -1259,7 +1323,7 @@ function renderMessages(data) {
 	t.clear();
 	var dfd = $.Deferred();
 	modkeyToMessag = {};
-	$('.table-wrap').css('margin-right','-8px');
+	//$('.table-wrap').css('margin-right','-8px');
 
 	if (data['results'].length > 0 && $.isArray(data['results'])) {
 		var count = data['results'].length;
@@ -1269,7 +1333,12 @@ function renderMessages(data) {
 			try {
 				//value['meta']=from64(value['meta']);
 				//console.log(from64unsafe(value['meta']));
-				var key = forge.util.hexToBytes(folder[folder_navigate][value['messageHash']]['p']);
+				if(folder_navigate in folder['Custom']){
+					var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][value['messageHash']]['p']);
+
+				}else{
+					var key = forge.util.hexToBytes(folder[folder_navigate][value['messageHash']]['p']);
+				}
 
 				//console.log(fromAes(key, iv, value['meta']));
 				var z = fromAes(key, value['meta']);
@@ -1291,17 +1360,27 @@ function renderMessages(data) {
 				} else {
 					var from = meta['from'];
 				}
+				if(folder_navigate in folder['Custom']){
+					var mesHash=folder['Custom'][folder_navigate][value['messageHash']]['opened'];
+				}else{
+					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
+				}
 
 				var addId = t.row.add([
 					'<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
-					'<div id="' + value['messageHash'] + '"' + (!folder[folder_navigate][value['messageHash']]['opened'] ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
-					'<div id="' + value['messageHash'] + '"' + (!folder[folder_navigate][value['messageHash']]['opened'] ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
+					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
+					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
 					(meta['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
 					new Date(parseInt(meta['timeSent'] + '000')).getTime()
 				]);
 
 			} catch (err) {
-				delete folder[folder_navigate][parseInt(value['messageHash'])];
+				if(folder_navigate in folder['Custom']){
+					delete folder['Custom'][folder_navigate][parseInt(value['messageHash'])];
+				}else{
+					delete folder[folder_navigate][parseInt(value['messageHash'])];
+				}
+
 				checkFolders();
 			}
 			if (!--count) dfd.resolve();
@@ -1602,7 +1681,13 @@ function detectMessage(datas) {
 	$('.emailMob1').css('display', 'none');
 	$('#mobFooter').css('height', '60px');
 
-	var key = forge.util.hexToBytes(folder[folder_navigate][datas['messageHash']]['p']);
+	if(folder_navigate in folder['Custom']){
+		var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][datas['messageHash']]['p']);
+	}else{
+		var key = forge.util.hexToBytes(folder[folder_navigate][datas['messageHash']]['p']);
+	}
+
+
 
 
 	var z = fromAes(key, datas['meta']);
@@ -1898,41 +1983,32 @@ function renderMessageUnreg(body, meta) {
 
 		if(body['body']['html']!=''){
 
-/*
-	var editor22=CKEDITOR.replace('emailbody', {
-		startupShowBorders: false,
-		contentsCss : 'body {overflow:hidden;} p{margin:0;padding:0;}',
-		allowedContent: {
-			$1: {
-				// Use the ability to specify elements as an object.
-				elements: CKEDITOR.dtd,
-				attributes: true,
-				styles: true,
-				classes: true
-			}
-		},
-		disallowedContent: 'script; *[on*];iframe; form;canvas;audio;embed;source;track;video;base;meta;input;*[formaction*];math;*[background](javascript);comment;svg;object;style;xml;scriptlet;implements;payload;import;t;img[data-cke-saved-src]'
-	});
 
-	editor22.setData(body['body']['html']);
-*/
 	var dfd1 = new $.Deferred();
 	var bod='';
-			/*
-	CKEDITOR.on("instanceReady", function (event) {
-		bod=CKEDITOR.instances.emailbody.getData();
-		CKEDITOR.instances.emailbody.destroy();
-		dfd1.resolve();
-		event.removeListener();
-	});
-*/
-	//dfd1.done(function () {
-	//	if (CKEDITOR.instances.emailbody==undefined)
-			//$('#emailbody').html(filterXSS(body['body']['html']));
-			$('#emailbody').html(filterXSS(body['body']['html']));
+
+			$('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">').appendTo('#emailbody')
+				.contents().find('body').append(
+					filterXSS(body['body']['html'],{
+						onTagAttr: function (tag, name, value, isWhiteAttr) {
+							if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+								return name+'="https:'+value.substr(5)+'"';
+
+							}
+							if(tag=='a' && name=='href')
+								return name+'="'+value+'"'+' target="_blank"';
+						},
+						onTag: function(tag, html, options) {
+							if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
+								return " ";
+							}
+						}
+					}));
+			$("#virtualization").height($("#virtualization").contents().find("html").height());
 
 
-	//});
+					//$('#emailbody').html(filterXSS(body['body']['html']));
+
 
 		}else{
 			$('#emailbody').text(body['body']['text']);
@@ -2228,13 +2304,7 @@ function initializeMailList() {
 	//});
 	//
 
-	var follist = $("#mvtofolder");
-
-	$.each(folder, function (key, value) {
-		if (key != 'Custom' && key != 'Draft' && key != 'Sent') {
-			follist.append('<li><a href="javascript:void(0);" onclick="movetofolder(\''+key+'\');">'+key+'</a></li>');
-		}
-	});
+	renderMoveFolder();
 
 	$(".deletebutton").click(function () {
 		//console.log(modkeyToMessag);
@@ -2269,9 +2339,30 @@ function movetofolder(tofolder) {
 	var select = 0;
 	$.each(selected, function (index, value) {
 
-		folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-		delete folder[folder_navigate][parseInt(value['id'])];
-		select++;
+		if(folder_navigate==tofolder){
+			noAnswer('Can not move to same folder');
+		}else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
+			folder['Custom'][tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+			delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+			select++;
+		}else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
+
+			folder[tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+			delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+			select++;
+		}else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
+			folder['Custom'][tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+			delete folder[folder_navigate][parseInt(value['id'])];
+			select++;
+		}else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
+			folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+			delete folder[folder_navigate][parseInt(value['id'])];
+			select++;
+		}else{
+			noAnswer('Error occurred. Please report a bug');
+		}
+
+
 	});
 	checkFolders();
 
@@ -2443,11 +2534,13 @@ function checkEmailAmount() {
 function displayFolder() {
 	//console.log(profileSettings);
 
-
 	if (folder != {}) {
 		var list = $("#folderul");
+		list.html('');
 		var mlist = $("#mobfolder");
-		var follist = $("#mvtofolder");
+		mlist.html('');
+		var folderulcustom=$("#folderulcustom");
+		folderulcustom.html('');
 
 		//  console.log(typeof(folder));
 		//	console.log(folder);
@@ -2464,11 +2557,27 @@ function displayFolder() {
 					mlist.append('<li id="mfl_' + key + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + key + "'" + ');">' + key + '</a></li>');
 				}
 
+			}else if(key == 'Custom'){
+				//console.log(folder);
+				if(Object.keys(value).length>0){
+
+					bySortedValue(folder['Custom'], function(keyC, valueC) {
+						//folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');" oncontextmenu="context($(this),\''+keyC+'\',\''+valueC['name']+'\')">' + valueC['name'] + '</a></li>');
+						folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" id="'+keyC+'" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');">' + valueC['name'] + '</a></li>');
+						//alert(keyC + ": " + valueC);
+					});
+
+					//$.each(value, function (keyC, valueC) {
+					//	folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');" oncontextmenu="context($(this),\''+keyC+'\',\''+valueC['name']+'\')">' + valueC['name'] + '</a></li>');
+					//});
+				}
 
 
 			}
 
 		});
+
+		renderMoveFolder();
 
 		$('#fl_' + folder_navigate).addClass('active');
 		var dfd = $.Deferred();
@@ -2483,7 +2592,209 @@ function displayFolder() {
 
 
 }
+function renderMoveFolder(){
+	var follist = $("#mvtofolder");
+	follist.html('');
 
+	$.each(folder, function (key, value) {
+		if (key != 'Custom' && key != 'Draft' && key != 'Sent') {
+			follist.append('<li><a href="javascript:void(0);" onclick="movetofolder(\''+key+'\');">'+key+'</a></li>');
+		}else if(key == 'Custom'){
+			follist.append('<li class="divider"></li>');
+			bySortedValue(folder['Custom'], function(keyC, valueC) {
+				follist.append('<li><a href="javascript:void(0);" onclick="movetofolder(\''+keyC+'\');">'+valueC['name']+'</a></li>');
+			});
+		}
+	});
+}
+
+function sortObject(data){
+	var newdata={};
+if(Object.keys(data).length>0){
+	$.each(data, function (key, value) {
+
+	});
+}else
+return data;
+
+}
+
+function bySortedValue(obj, callback, context) {
+	var tuples = [];
+
+	for (var key in obj){
+		tuples.push([obj[key]['name'], obj[key],key]);
+	}
+	tuples.sort(function(a, b) { return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0 });
+
+	var length = tuples.length;
+	while (length--) callback.call(context, tuples[length][2], tuples[length][1]);
+
+}
+
+function renameCustomFolder(name,id){
+	$('#addFolder').dialog({
+		autoOpen: false,
+		height: 150,
+		width: 250,
+		modal: true,
+		title:'Rename Folder',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Add",
+				"class": "btn btn-primary",
+				"id": 'folderok',
+				click: function () {
+					var fname = escapeTags($('#newFolder').val().trim());
+					if(fname.length>=1 && fname.length<=25){
+
+						folder['Custom'][id]['name'] =fname;
+						folder['Custom'][SHA1(fname)] = folder['Custom'][id];
+						delete folder['Custom'][id];
+
+						checkFolders();
+						displayFolder();
+						$(this).dialog("close");
+						$('#newFolder').val('');
+
+
+					}else{
+						noAnswer('Please enter a value between 1 and 30 characters long.');
+					}
+
+
+				}
+			}
+		]
+	});
+	$('#newFolder').val(name);
+	$('#addFolder').dialog('open');
+
+}
+
+function context(e,id,name){
+
+}
+function deleteCustomFolder(name,id)
+{
+
+	console.log(id);
+if(customMessageIds(folder['Custom'][id]).length>0){
+	$("#dialog-confirm").html("<p>Folder you about to delete is not empty, if you continue all messages inside this folder will be lost.</p> Are you sure?");
+
+	$("#dialog-confirm").dialog({
+		resizable: false,
+		modal: true,
+		title: "Delete Folder: "+name+' ?',
+		height: 200,
+		width: 300,
+		resizable: false,
+		buttons: {
+			"Continue": function () {
+				$(this).dialog('close');
+				callback(true);
+			},
+			"Cancel": function () {
+				$(this).dialog('close');
+				callback(false);
+			}
+		}
+	});
+	$('#dialog-confirm').dialog('open');
+
+}else{
+	delete folder['Custom'][id];
+	checkFolders();
+	displayFolder();
+}
+
+
+
+}
+
+function SHA1(text){
+	var md = forge.md.sha1.create();
+	md.update(text,'utf8');
+	return md.digest().toHex()
+}
+function removeCustomFolder(name){
+	console.log(name);
+	delete folder['Custom'][name];
+	checkFolders();
+	displayFolder();
+}
+function addCustomFolder(){
+
+	$('#addFolder').dialog({
+		autoOpen: false,
+		height: 150,
+		width: 250,
+		modal: true,
+		title:'Add Folder',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Add",
+				"class": "btn btn-primary",
+				"id": 'folderok',
+				click: function () {
+					var fname = escapeTags($('#newFolder').val().trim());
+					console.log(fname);
+					if(fname.length>=1 && fname.length<=25){
+						console.log(folder);
+						folder['Custom'][SHA1(fname)] = {'name':fname};
+						//folder['Custom']=sortObject(folder['Custom']);
+						checkFolders();
+						displayFolder();
+
+						$('#newFolder').val('');
+						$(this).dialog("close");
+
+
+					}else{
+						noAnswer('Please enter a value between 1 and 30 characters long.');
+					}
+
+
+				}
+			}
+		]
+	});
+
+	$('#addFolder').dialog('open');
+
+}
+
+function checkFolders() {
+
+	checkState(function () {
+
+		if (SHA512(JSON.stringify(folder)) != folderHash) {
+
+			var fold = folderToDb(folder);
+
+			$.ajax({
+				type: "POST",
+				url: '/saveFolders',
+				data: {
+					'folderObj': fold,
+					'modKey': userModKey
+				},
+				success: function (data, textStatus) {
+					folderHash = SHA512(JSON.stringify(folder));
+					checkProfile();
+					showLimits();
+				},
+				error: function (data, textStatus) {
+				},
+				dataType: 'json'
+			});
+		}
+	}, function () {
+	});
+
+}
 
 function showLog(success, cancel) {
 
@@ -2809,8 +3120,9 @@ function retrieveSecret() {
 			userModKey = user1['modKey'];
 
 			folder = dbToFolder(userObj);
-			contacts = dbToContacts();
 
+			contacts = dbToContacts();
+			console.log(folder);
 			blackList = dbToBlackList();
 			//console.log(blackList);
 			profileSettings = dbToProfileSetting();

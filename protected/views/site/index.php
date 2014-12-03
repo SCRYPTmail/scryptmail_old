@@ -60,7 +60,7 @@ Use search to find needed section.
 	* 'fixed-footer'      - Fixes footer
 	* 'container'         - boxed layout mode (non-responsive: will not work with fixed-navigation & fixed-ribbon)
 -->
-<body class="minified fixed-header fixed-navigation" style="overflow-x:hidden;">
+<body class="minified fixed-header fixed-navigation" style="overflow-x:hidden;" <!--oncontextmenu="return false;"-->>
 
 <!-- #HEADER -->
 <header id="header">
@@ -290,12 +290,9 @@ Use search to find needed section.
 
 	<script type="text/javascript" src="/js/plugin/summernote/summernote.js?r=<?php echo $version;?>">></script>
 
-	<!--[if IE 8]>
-	<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
-	<![endif]-->
-
 	<!-- MAIN APP JS FILE -->
 	<script src="js/app.js"></script>
+
 	<div id="dialog-form" title="Provide Secret" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
 		<p class="validateTips" style="display:block;border:0px;">Please provide secret.</p>
 
@@ -309,6 +306,15 @@ Use search to find needed section.
 		</div>
 
 	</div>
+
+	<div id="addFolder" title="Add Folder" style="display:none;" onkeydown="if (event.keyCode == 13) $('#folderok').click();">
+		<fieldset>
+			<input type="text" name="foldername" maxlength="30" id="newFolder" placeholder="30 max"
+				   class="text ui-widget-content ui-corner-all col col-xs-12">
+		</fieldset>
+
+	</div>
+	<div id="dialog-confirm"></div>
 
 	<div id="dialog-form-login" title="Login Form" style="display:none;">
 		<p class="validateTips" style="display:block;border:0px;">Your session have been expired. Please login.</p>

@@ -15,10 +15,22 @@ function renderMessage(body, meta, datas) {
 	body['from'] = from64(body['from']);
 	body['subj'] = from64(body['subj']);
 
-	if (!folder[folder_navigate][datas['messageHash']]['opened']) {
+	if(folder_navigate in folder['Custom']){
+		var ifOpen=folder['Custom'][folder_navigate][datas['messageHash']]['opened'];
+	}else{
+		var ifOpen=folder[folder_navigate][datas['messageHash']]['opened'];
+	}
+
+
+	if (!ifOpen) {
 
 		opener = setTimeout(function () {
-			folder[folder_navigate][datas['messageHash']]['opened'] = true;
+			if(folder_navigate in folder['Custom']){
+				folder['Custom'][folder_navigate][datas['messageHash']]['opened'] = true;
+			}else{
+				folder[folder_navigate][datas['messageHash']]['opened'] = true;
+			}
+
 			checkFolders();
 			getNewEmailsCount();
 			//console.log('fff');
@@ -90,10 +102,33 @@ function renderMessage(body, meta, datas) {
 	}
 	$('#rcptHeader').html(rcphead);
 
+	function resizeIframeToFitContent(iframe) {
+		$('#'+iframe).height = document.frames[iframe.id].document.body.scrollHeight;
+	}
 
 	if(folder_navigate!='Spam'){
 		if(body['body']['html']!=''){
 
+			$('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">').appendTo('#emailbody')
+				.contents().find('body').append(
+					filterXSS(body['body']['html'],{
+					onTagAttr: function (tag, name, value, isWhiteAttr) {
+						if(name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+							return name+'="https:'+value.substr(5)+'"';
+						}
+						if(tag=='a' && name=='href')
+							return name+'="'+value+'"'+' target="_blank"';
+					},
+					onTag: function(tag, html, options) {
+						if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
+							return " ";
+						}
+					}
+				}));
+			$("#virtualization").height($("#virtualization").contents().find("html").height());
+
+			//resizeIframeToFitContent(virtualization);
+			/*
 			$('#emailbody').html(filterXSS(body['body']['html'],{
 				onTagAttr: function (tag, name, value, isWhiteAttr) {
 					if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
@@ -108,8 +143,9 @@ function renderMessage(body, meta, datas) {
 						return " ";
 					}
 				}
-			}));
-
+			})
+			);
+*/
 			//$('#emailbody').append(body['body']['html']);
 
 			var dfd1 = new $.Deferred();
