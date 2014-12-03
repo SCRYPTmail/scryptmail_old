@@ -91,8 +91,7 @@ function iniEmailBody(pin) {
 				['color', ['color']],
 				['font', ['bold', 'underline', 'clear']],
 				['para', ['ul', 'paragraph']],
-				['table', ['table']],
-				['insert', ['link']]
+				['table', ['table']]
 			],
 			toolbar: [
 				//[groupname, [button list]]
@@ -110,8 +109,7 @@ function iniEmailBody(pin) {
 				['color', ['color']],
 				['font', ['bold', 'underline']],
 				['para', ['ul', 'paragraph']],
-				['table', ['table']],
-				['insert', ['link']]
+				['table', ['table']]
 			],
 			toolbar: [
 				//[groupname, [button list]]
@@ -120,8 +118,7 @@ function iniEmailBody(pin) {
 				['fontsize', ['fontsize']],
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],
-				['height', ['height']],
-				['insert', ['link']]
+				['height', ['height']]
 			]
 
 		});

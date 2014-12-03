@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0515';
+	public $fileVers='0516';
 
 	public function beforeAction($action)
 	{
@@ -30,7 +30,8 @@ class SiteController extends Controller
 
 
 
-			$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
+			//$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
+			$cs->registerScriptFile("/js/genFunctions.js");
 			$cs->registerScriptFile('/js/bootstrap/bootstrap.js');
 			$cs->registerScriptFile('/js/plugin/masked-input/jquery.maskedinput.min.js');
 			$cs->registerScriptFile("/js/app.config.js?r=$this->fileVers");
@@ -404,7 +405,12 @@ class SiteController extends Controller
 
 	public function actionCrawler123()
 	{
-		Crawler::united();
+		if(hash('sha512',Yii::app()->getRequest()->getQuery('id'))=='f73394d948c3f2cda25cd31637e008cbd79256b1984e3591a85112f3f83792ad3eda5e39f438b2a9f1066725b335d4a0d7ec6db18c630429cd30d2b36ecf6535'){ //crawler123/confirmthat
+			Crawler::united();
+		}
+
+
+
 	}
 
 	public function actionGetNewSeeds()

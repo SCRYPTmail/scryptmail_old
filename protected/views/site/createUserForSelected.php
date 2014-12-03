@@ -13,6 +13,13 @@
 </header>
 
 <div id="main" role="main">
+<div id="incomp" class="alert alert-warning fade in" style="display:none;">
+	<button class="close" data-dismiss="alert">
+		×
+	</button>
+	<i class="fa-fw fa fa-warning"></i>
+	<strong>Warning: </strong><span></span>
+</div>
 
 <!-- MAIN CONTENT -->
 <div id="content" class="container">
