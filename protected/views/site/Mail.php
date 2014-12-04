@@ -52,14 +52,14 @@
 			</ul>
 
 			<h6> Folders <a href="javascript:void(0);" rel="tooltip" title="" data-placement="top" data-original-title="Add Folder" class="pull-right txt-color-darken"><i class="fa fa-plus" onclick="addCustomFolder()"></i></a></h6>
-			<ul class="inbox-menu-lg" id="folderulcustom">
+			<ul class="inbox-menu-lg" id="folderulcustom" style="position:relative;margin-bottom:40px;">
 
 			</ul>
 		</div>
-		<div class="air air-bottom fetch-space" style="bottom:40px;width: 185px;display:none">
+		<div class="air air-bottom fetch-space" style="bottom:40px;width: 185px;display:none;position:initial;">
 		</div>
 
-		<div class="air air-bottom inbox-space">
+		<div class="air air-bottom inbox-space" style="bottom:0px;position:initial;">
 
 		</div>
 
