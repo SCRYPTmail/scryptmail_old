@@ -405,7 +405,7 @@ class SiteController extends Controller
 
 	public function actionCrawler123()
 	{
-		if(hash('sha512',Yii::app()->getRequest()->getQuery('id'))=='f73394d948c3f2cda25cd31637e008cbd79256b1984e3591a85112f3f83792ad3eda5e39f438b2a9f1066725b335d4a0d7ec6db18c630429cd30d2b36ecf6535'){ //crawler123/confirmthat
+		if(hash('sha512',Yii::app()->getRequest()->getQuery('id'))=='f73394d948c3f2cda25cd31637e008cbd79256b1984e3591a85112f3f83792ad3eda5e39f438b2a9f1066725b335d4a0d7ec6db18c630429cd30d2b36ecf6535'){
 			Crawler::united();
 		}
 
