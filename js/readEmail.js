@@ -107,33 +107,20 @@ function renderMessage(body, meta, datas) {
 	}
 
 	if(folder_navigate!='Spam'){
+
 		if(body['body']['html']!=''){
 
-			$('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">').appendTo('#emailbody')
-				.contents().find('body').append(
-					filterXSS(body['body']['html'],{
-					onTagAttr: function (tag, name, value, isWhiteAttr) {
-						if(name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
-							return name+'="https:'+value.substr(5)+'"';
-						}
-						if(tag=='a' && name=='href')
-							return name+'="'+value+'"'+' target="_blank"';
-					},
-					onTag: function(tag, html, options) {
-						if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
-							return " ";
-						}
-					}
-				}));
-			$("#virtualization").height($("#virtualization").contents().find("html").height());
+		$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">');
 
-			//resizeIframeToFitContent(virtualization);
-			/*
-			$('#emailbody').html(filterXSS(body['body']['html'],{
+			var target = $('#virtualization').contents()[0];
+			target.open();
+			target.write('<!doctype html><html><head></head><body></body></html>');
+			target.close();
+
+			$('#virtualization').contents().find("html").html(filterXSS(body['body']['html'],{
 				onTagAttr: function (tag, name, value, isWhiteAttr) {
-					if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+					if(name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
 						return name+'="https:'+value.substr(5)+'"';
-
 					}
 					if(tag=='a' && name=='href')
 						return name+'="'+value+'"'+' target="_blank"';
@@ -143,13 +130,11 @@ function renderMessage(body, meta, datas) {
 						return " ";
 					}
 				}
-			})
-			);
-*/
-			//$('#emailbody').append(body['body']['html']);
+			}));
 
-			var dfd1 = new $.Deferred();
-			var bod='';
+
+			$("#virtualization").height($("#virtualization").contents().find("html").height());
+
 
 		}else{
 			$('#emailbody').text(body['body']['text']);

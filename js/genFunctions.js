@@ -8,7 +8,7 @@
 // Globals define
 $(document).ready(function () {
 
-	console.log(navigator.userAgent);
+	//console.log(navigator.userAgent);
 	isCompatible();
 
 	if (window.location.hostname != "encrypt-mail1.com") {
@@ -47,7 +47,7 @@ $(document).ready(function () {
 });
 function isCompatible(){
 	var compatible=['Chrome','Firefox'];
-	var inCompatible=['Safari','iPad','iPhone','iPod','MSIE 8.0'];
+	var inCompatible=['Safari','iPad','iPhone','iPod','MSIE 8.0','MSIE 9.0'];
 	var checkCapability=$.Deferred();
 	bug=false;
 	error=false;
@@ -59,7 +59,8 @@ function isCompatible(){
 		navigator.userAgent.indexOf("iPad") != -1||
 		navigator.userAgent.indexOf("iPod") != -1||
 		navigator.userAgent.indexOf("iPhone") != -1||
-		navigator.userAgent.indexOf("MSIE 8.0") != -1){
+		navigator.userAgent.indexOf("MSIE 8.0") != -1 ||
+		navigator.userAgent.indexOf("MSIE 9.0") != -1){
 
 		bug=true;
 	}
@@ -80,7 +81,8 @@ function isCompatible(){
 			navigator.userAgent.indexOf("iPad") != -1||
 			navigator.userAgent.indexOf("iPod") != -1||
 			navigator.userAgent.indexOf("iPhone") != -1||
-			navigator.userAgent.indexOf("MSIE 8.0") != -1){
+			navigator.userAgent.indexOf("MSIE 8.0") != -1||
+			navigator.userAgent.indexOf("MSIE 9.0") != -1){
 
 			bug=true;
 		}
@@ -99,8 +101,8 @@ function isCompatible(){
 		checkCapability.resolve();
 
 	}
-console.log(bug);
-	console.log(error);
+//console.log(bug);
+	//console.log(error);
 	checkCapability.done(function () {
 		if(bug){
 			$('#incomp').css('display','block');
@@ -737,7 +739,7 @@ function provideSecret(success, cancel) {
 //disable asking secret everyrefresh;
 	//success('aaaaaa');
 	if (window.location.hostname == "encrypt-mail1.com") {
-		success('61saksak');
+		success('aaaaaa');
 		console.log('Secret Phrase')
 	} else {
 		$('#dialog-form').dialog('open');
@@ -1700,27 +1702,38 @@ function detectMessage(datas) {
 	body = JSON.parse(body.substring(0, body.lastIndexOf('}') + 1));
 
 	if (meta['type'] == 'draft') {
-		var jqxhr = $.get('getFolder/composeMail', function (data) {
-			$('#inbox-content > .table-wrap').html(data);
-			$('#paginator').html('');
-			$('#custPaginator').html('');
-			activePage = 'composeMail';
-			showSavedDraft(body, meta, datas);
-			emailTimer();
-		})
-			.fail(function () {
-				noAnswer('Error occurred. Please try again5');
-			})
-	} else {
 
-		var jqxhr = $.get('getFolder/1', function (data) {
-			$('#inbox-content > .table-wrap').html(data);
-			//console.log(datas);
-			renderMessage(body, meta, datas);
-		})
-			.fail(function () {
-				noAnswer('Error occurred. Please try again6');
-			})
+		$.ajax({
+			type: "GET",
+			url: '/getFolder/composeMail',
+			success: function (data, textStatus) {
+				$('#inbox-content > .table-wrap').html(data);
+				$('#paginator').html('');
+				$('#custPaginator').html('');
+				activePage = 'composeMail';
+				showSavedDraft(body, meta, datas);
+				emailTimer();
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error occurred. Please try again');
+			},
+			dataType: 'html'
+		});
+
+	} else {
+		$.ajax({
+			type: "GET",
+			url: '/getFolder/1',
+			success: function (data, textStatus) {
+				$('#inbox-content > .table-wrap').html(data);
+				renderMessage(body, meta, datas);
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error occurred. Please try again');
+			},
+			dataType: 'html'
+		});
+
 
 	}
 }
@@ -1904,11 +1917,20 @@ function readEmail() {
 						var body = JSON.parse(body);
 						var mesId=data['messageId'];
 
-						var jqxhr = $.get('/html/BlankMailUnreg.html', function (data) {
-							$('#main > #container').html(data);
-							$('#delmail').attr('onclick',"deleteMailUnreg('"+mesId+"','"+meta['modKey']+"');");
 
-							renderMessageUnreg(body, meta);
+						$.ajax({
+							type: "GET",
+							url: '/html/BlankMailUnreg.html',
+							success: function (data, textStatus) {
+								$('#main > #container').html(data);
+								$('#delmail').attr('onclick',"deleteMailUnreg('"+mesId+"','"+meta['modKey']+"');");
+
+								renderMessageUnreg(body, meta);
+							},
+							error: function (data, textStatus) {
+								noAnswer('Error occurred. Please try again');
+							},
+							dataType: 'html'
 						});
 
 						//onclick="deleteMailUnreg();" id="delmail"
@@ -1987,27 +2009,32 @@ function renderMessageUnreg(body, meta) {
 	var dfd1 = new $.Deferred();
 	var bod='';
 
-			$('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">').appendTo('#emailbody')
-				.contents().find('body').append(
-					filterXSS(body['body']['html'],{
-						onTagAttr: function (tag, name, value, isWhiteAttr) {
-							if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
-								return name+'="https:'+value.substr(5)+'"';
 
-							}
-							if(tag=='a' && name=='href')
-								return name+'="'+value+'"'+' target="_blank"';
-						},
-						onTag: function(tag, html, options) {
-							if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
-								return " ";
-							}
-						}
-					}));
+			$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">');
+
+			var target = $('#virtualization').contents()[0];
+			target.open();
+			target.write('<!doctype html><html><head></head><body></body></html>');
+			target.close();
+
+			$('#virtualization').contents().find("html").html(filterXSS(body['body']['html'],{
+				onTagAttr: function (tag, name, value, isWhiteAttr) {
+					if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+						return name+'="https:'+value.substr(5)+'"';
+
+					}
+					if(tag=='a' && name=='href')
+						return name+'="'+value+'"'+' target="_blank"';
+				},
+				onTag: function(tag, html, options) {
+					if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
+						return " ";
+					}
+				}
+			}));
+
+
 			$("#virtualization").height($("#virtualization").contents().find("html").height());
-
-
-					//$('#emailbody').html(filterXSS(body['body']['html']));
 
 
 		}else{
@@ -2080,32 +2107,38 @@ function replyToMail() {
 	clearInterval(mailt);
 	clearComposeMail();
 
-	var jqxhr = $.get('getFolder/composeMail', function (data) {
-		$('#inbox-content > .table-wrap').html(data);
-		$('#paginator').html('');
-		$('#custPaginator').html('');
-		delete body['to'];
-		body['to'] = [];
-		body['to'].push(body['from']);
-		//console.log(body);
+	$.ajax({
+		type: "GET",
+		url: '/getFolder/composeMail',
+		success: function (data, textStatus) {
+			$('#inbox-content > .table-wrap').html(data);
+			$('#paginator').html('');
+			$('#custPaginator').html('');
+			delete body['to'];
+			body['to'] = [];
+			body['to'].push(body['from']);
+			//console.log(body);
 
-		body['to'] = to64(body['to']);
-		meta['from'] = from64(meta['from']);
+			body['to'] = to64(body['to']);
+			meta['from'] = from64(meta['from']);
 
-		body['subj'] = to64(body['subj']);
+			body['subj'] = to64(body['subj']);
 
-		body['body']['html'] = '<br><br>---------------------------------<br>' +
-			'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
-			body['body']['html'];
-		body['body']['text'] = to64(body['body']['text']);
-		body['body']['html'] = to64(body['body']['html']);
-		activePage = 'composeMail';
-		emailTimer();
-		showSavedDraft(body, meta, '');
-	})
-		.fail(function () {
-			noAnswer('Error occurred. Please try again5');
-		})
+			body['body']['html'] = '<br><br>---------------------------------<br>' +
+				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
+				body['body']['html'];
+			body['body']['text'] = to64(body['body']['text']);
+			body['body']['html'] = to64(body['body']['html']);
+			activePage = 'composeMail';
+			emailTimer();
+			showSavedDraft(body, meta, '');
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error occurred. Please try again');
+		},
+		dataType: 'html'
+	});
+
 }
 
 function forwardMail() {
@@ -2116,25 +2149,31 @@ function forwardMail() {
 	clearInterval(mailt);
 	clearComposeMail();
 
-	var jqxhr = $.get('getFolder/composeMail', function (data) {
-		$('#inbox-content > .table-wrap').html(data);
-		$('#paginator').html('');
-		$('#custPaginator').html('');
-		delete body['to'];
-		body['to'] = [];
-		body['to'].push('');
-		//console.log(body);
-		body['body']['text'] = to64(body['body']['text']);
-		body['body']['html'] = to64(body['body']['html']);
-		body['subj'] = to64(body['subj']);
-		activePage = 'composeMail';
-		emailTimer();
-		showSavedDraft(body, meta, '');
 
-	})
-		.fail(function () {
-			noAnswer('Error occurred. Please try again5');
-		})
+	$.ajax({
+		type: "GET",
+		url: '/getFolder/composeMail',
+		success: function (data, textStatus) {
+			$('#inbox-content > .table-wrap').html(data);
+			$('#paginator').html('');
+			$('#custPaginator').html('');
+			delete body['to'];
+			body['to'] = [];
+			body['to'].push('');
+			//console.log(body);
+			body['body']['text'] = to64(body['body']['text']);
+			body['body']['html'] = to64(body['body']['html']);
+			body['subj'] = to64(body['subj']);
+			activePage = 'composeMail';
+			emailTimer();
+			showSavedDraft(body, meta, '');
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error occurred. Please try again');
+		},
+		dataType: 'html'
+	});
+
 }
 
 function markSpam() {
@@ -2158,7 +2197,7 @@ function deleteMail() {
 		var selected = {};
 		selected['0'] = {'id': emailObj['mailId'], 'modKey': emailObj['meta']['modKey']};
 		//console.log(selected);
-		deleteMessage(selected);
+		deleteMessage(selected,folder_navigate);
 		getDataFromFolder(folder_navigate);
 		clearComposeMail();
 
@@ -2316,7 +2355,7 @@ function initializeMailList() {
 			elem['modKey'] = modkeyToMessag[elem['id']];
 			selected.push(elem);
 		});
-		deleteMessage(selected);
+		deleteMessage(selected,folder_navigate);
 
 	});
 
@@ -2379,18 +2418,15 @@ function movetofolder(tofolder) {
 	//console.log(selected);
 }
 
-function deleteMessage(selected) {
-//console.log('navigate');
-
+function deleteMessage(selected,selectedFolder, callback) {
 	checkState(function () {
-		if (folder_navigate != "Trash" && folder_navigate != "Draft" && folder_navigate != "Spam"  && activePage != 'composeMail') {
+		if (selectedFolder != "Trash" && selectedFolder != "Draft" && selectedFolder != "Spam"  && activePage != 'composeMail' && !(selectedFolder in folder['Custom'])) {
 			var select = 0;
 			$.each(selected, function (index, value) {
-				folder['Trash'][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-				delete folder[folder_navigate][parseInt(value['id'])];
+				folder['Trash'][parseInt(value['id'])] = folder[selectedFolder][parseInt(value['id'])];
+				delete folder[selectedFolder][parseInt(value['id'])];
 				select++;
 			});
-
 
 			if (select > 0){
 				checkFolders();
@@ -2404,7 +2440,16 @@ function deleteMessage(selected) {
 			}
 
 
-		} else {
+		}else if(selectedFolder in folder['Custom']){
+			selected.forEach(function(messageId) {
+				folder['Trash'][parseInt(messageId)] = folder['Custom'][selectedFolder][parseInt(messageId)];
+				delete folder['Custom'][selectedFolder][parseInt(messageId)];
+			});
+			if (callback) {
+				callback();
+			}
+
+		} else if(selectedFolder == "Trash" && selectedFolder == "Draft" && selectedFolder == "Spam") {
 			var select = 0;
 			$.ajax({
 				type: "POST",
@@ -2523,7 +2568,7 @@ function checkEmailAmount() {
 		totalcount += Object.keys(folder[index]).length;
 		if (index == 'Custom') {
 			$.each(folder[index], function (index1, value1) {
-				totalcount += Object.keys(folder[index][index1]).length;
+				totalcount =totalcount-2+ Object.keys(folder[index][index1]).length;
 			});
 		}
 	});
@@ -2673,31 +2718,37 @@ function renameCustomFolder(name,id){
 
 }
 
-function context(e,id,name){
 
-}
 function deleteCustomFolder(name,id)
 {
 
-	console.log(id);
+	//console.log(id);
 if(customMessageIds(folder['Custom'][id]).length>0){
-	$("#dialog-confirm").html("<p>Folder you about to delete is not empty, if you continue all messages inside this folder will be lost.</p> Are you sure?");
+	$("#dialog-confirm").html("<p>Folder is not empty, all messages inside this folder will be moved to Trash.</p> Do you want to continue?");
 
 	$("#dialog-confirm").dialog({
 		resizable: false,
 		modal: true,
 		title: "Delete Folder: "+name+' ?',
-		height: 200,
+		height: 180,
 		width: 300,
 		resizable: false,
 		buttons: {
-			"Continue": function () {
+			"Yes": function () {
 				$(this).dialog('close');
-				callback(true);
+				deleteMessage(customMessageIds(folder['Custom'][id]),id, function() {
+					delete folder['Custom'][id];
+					checkFolders();
+					displayFolder();
+					if(folder_navigate==id){
+						getDataFromFolder('Inbox');
+					}
+					Answer('Deleted');
+				});
+
 			},
-			"Cancel": function () {
+			"No": function () {
 				$(this).dialog('close');
-				callback(false);
 			}
 		}
 	});
@@ -2707,6 +2758,10 @@ if(customMessageIds(folder['Custom'][id]).length>0){
 	delete folder['Custom'][id];
 	checkFolders();
 	displayFolder();
+	if(folder_navigate==id){
+		getDataFromFolder('Inbox');
+	}
+	Answer('Deleted');
 }
 
 
@@ -2719,7 +2774,7 @@ function SHA1(text){
 	return md.digest().toHex()
 }
 function removeCustomFolder(name){
-	console.log(name);
+	//console.log(name);
 	delete folder['Custom'][name];
 	checkFolders();
 	displayFolder();
@@ -2740,9 +2795,9 @@ function addCustomFolder(){
 				"id": 'folderok',
 				click: function () {
 					var fname = escapeTags($('#newFolder').val().trim());
-					console.log(fname);
+					//console.log(fname);
 					if(fname.length>=1 && fname.length<=25){
-						console.log(folder);
+						//console.log(folder);
 						folder['Custom'][SHA1(fname)] = {'name':fname};
 						//folder['Custom']=sortObject(folder['Custom']);
 						checkFolders();
@@ -3122,7 +3177,7 @@ function retrieveSecret() {
 			folder = dbToFolder(userObj);
 
 			contacts = dbToContacts();
-			console.log(folder);
+			//console.log(folder);
 			blackList = dbToBlackList();
 			//console.log(blackList);
 			profileSettings = dbToProfileSetting();

@@ -9,9 +9,9 @@
 	<div class="inbox-info-bar no-padding">
 		<div class="row">
 			<div class="form-group">
-				<label class="control-label col-md-1 col-xs-1"><strong>To</strong></label>
+				<label class="control-label col col-xs-1"><strong>To</strong></label>
 
-				<div class="col-md-11 col-xs-10">
+				<div class="col col-xs-10">
 					<input type="hidden" id="toRcpt" style="width:100%;"/>
 				</div>
 			</div>
@@ -21,9 +21,9 @@
 	<div class="inbox-info-bar no-padding">
 		<div class="row">
 			<div class="form-group">
-				<label class="control-label col-md-1 col-xs-1"><strong>Subject</strong></label>
+				<label class="control-label col col-xs-1"><strong>Subject</strong></label>
 
-				<div class="col-md-11 col-xs-10">
+				<div class="col col-xs-11">
 					<input class="form-control" placeholder="Email Subject" type="text" id="subj" maxlength="150">
 					<em><a href="javascript:void(0);" class="show-next" rel="tooltip" data-placement="bottom"
 						   data-original-title="Attachments"><i class="fa fa-paperclip fa-lg"></i></a></em>
@@ -36,10 +36,10 @@
 		<div class="row">
 			<div class="form-group">
 
-				<label class="control-label col-md-1"><strong onclick="fileSelector.click()"
-															  class="btn btn-primary btn-xs">Attachments</strong></label>
+				<label class="control-label pull-left" style="margin-left:15px;">
+					<button onclick="fileSelector.click()" class="btn btn-primary btn-xs">Attachments</button></label>
 
-				<div class="col-md-11 col-xs-10">
+				<div class="col col-xs-10 pull-left">
 					<input type="hidden" id="atachFiles" style="width:100%;margin-top:2px;"/>
 				</div>
 				<div class="col-md-11">

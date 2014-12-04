@@ -73,7 +73,7 @@
 </div>
 
 <div id="contextMenu" class="dropdown clearfix">
-	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+	<ul class="dropdown-menu" id="contextMenuList" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
 		<li><a tabindex="-1" href="javascript:void(0);" id="customRename">Rename</a></li>
 		<li><a tabindex="-1" href="javascript:void(0);" id="customDelete">Delete</a></li>
 		<li class="divider"></li>
@@ -85,15 +85,17 @@
 
 
 	$(document).ready(function () {
-
 		$(document).on("contextmenu","ul li", function(event) {
+			if($(event.target).parent().parent().attr('id')=="folderulcustom"){
 				event.preventDefault();
 				$("#contextMenu").css({
 					display: "block",
 					left:  event.pageX,
 					top: event.pageY-110
 				});
-			$("#contextMenu").data('originalElement', event.target);
+				$("#contextMenu").data('originalElement', event.target);
+			}
+
 		});
 
 		$('#customRename').click(function(e){

@@ -16,10 +16,17 @@
 			account</a> </span>
 
 </header>
-
 <div id="main" role="main">
-
-
+<!--[if IE 8]>
+<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download.<br> Or use Google Chrome / Firefox</h1>
+<![endif]-->
+<div id="incomp" class="alert alert-warning fade in" style="display:none;">
+	<button class="close" data-dismiss="alert">
+		×
+	</button>
+	<i class="fa-fw fa fa-warning"></i>
+	<strong>Warning: </strong><span></span>
+</div>
 	<!-- MAIN CONTENT -->
 	<div id="content" class="container">
 
@@ -109,16 +116,13 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
+			Dec,4 <ul>
+				<li>Custom Folders is here! Extra options with right click or long press for smartphones</li>
+				<li>Firefox bug with opening email is fixed.</li>
+			</ul>
 			Nov, 30<ul>
 				<li>Functions moved into separate files. Please submit bug report if you noticed any malfunctions</li>
 				<li>By users request, scryptmail source code is available for review! <a href="https://github.com/SCRYPTmail/scryptmail" target="_blank">github</a></li>
-			</ul>
-
-			Nov, 28<ul>
-				<li>Android phones should be able to send and receive emails with attachments.</li>
-				<li>Compose email redesign, new editor.</li>
-				<li>Secret token show as text, if download fail</li>
-
 			</ul>
 
 			<a href="http://blog.scryptmail.com/private/103537130180/tumblr_nfl3u9uT3n1u3cx2k" target="_blank">Older updates</a>

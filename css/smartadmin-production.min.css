@@ -12,8 +12,10 @@
 .cke_show_borders {
 }
 #email-compose-form{
-
 overflow-x:hidden;
+}
+.note-editable{
+    overflow:hidden;
 }
 #virtualization{
     border:0px solid;
@@ -6625,7 +6627,7 @@ background-color: #3276b1
 
 .note-editor .note-editable {
     padding: 10px;
-    overflow: scroll;
+   /* overflow: scroll;*/
     outline: 0
 }
 
