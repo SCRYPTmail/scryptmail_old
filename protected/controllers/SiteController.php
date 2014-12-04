@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0516';
+	public $fileVers='0517';
 
 	public function beforeAction($action)
 	{
@@ -30,8 +30,8 @@ class SiteController extends Controller
 
 
 
-			//$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
-			$cs->registerScriptFile("/js/genFunctions.js");
+			$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
+			//$cs->registerScriptFile("/js/genFunctions.js");
 			$cs->registerScriptFile('/js/bootstrap/bootstrap.js');
 			$cs->registerScriptFile('/js/plugin/masked-input/jquery.maskedinput.min.js');
 			$cs->registerScriptFile("/js/app.config.js?r=$this->fileVers");
