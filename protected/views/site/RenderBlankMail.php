@@ -1,3 +1,5 @@
+<h2 class="email-open-header">
+</h2>
 <div class="inbox-info-bar">
 	<div class="row">
 		<div class="col-sm-9" id="rcptHeader">

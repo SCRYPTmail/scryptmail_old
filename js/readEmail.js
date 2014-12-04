@@ -15,10 +15,22 @@ function renderMessage(body, meta, datas) {
 	body['from'] = from64(body['from']);
 	body['subj'] = from64(body['subj']);
 
-	if (!folder[folder_navigate][datas['messageHash']]['opened']) {
+	if(folder_navigate in folder['Custom']){
+		var ifOpen=folder['Custom'][folder_navigate][datas['messageHash']]['opened'];
+	}else{
+		var ifOpen=folder[folder_navigate][datas['messageHash']]['opened'];
+	}
+
+
+	if (!ifOpen) {
 
 		opener = setTimeout(function () {
-			folder[folder_navigate][datas['messageHash']]['opened'] = true;
+			if(folder_navigate in folder['Custom']){
+				folder['Custom'][folder_navigate][datas['messageHash']]['opened'] = true;
+			}else{
+				folder[folder_navigate][datas['messageHash']]['opened'] = true;
+			}
+
 			checkFolders();
 			getNewEmailsCount();
 			//console.log('fff');
@@ -90,15 +102,25 @@ function renderMessage(body, meta, datas) {
 	}
 	$('#rcptHeader').html(rcphead);
 
+	function resizeIframeToFitContent(iframe) {
+		$('#'+iframe).height = document.frames[iframe.id].document.body.scrollHeight;
+	}
 
 	if(folder_navigate!='Spam'){
+
 		if(body['body']['html']!=''){
 
-			$('#emailbody').html(filterXSS(body['body']['html'],{
-				onTagAttr: function (tag, name, value, isWhiteAttr) {
-					if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
-						return name+'="https:'+value.substr(5)+'"';
+		$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">');
 
+			var target = $('#virtualization').contents()[0];
+			target.open();
+			target.write('<!doctype html><html><head></head><body></body></html>');
+			target.close();
+
+			$('#virtualization').contents().find("html").html(filterXSS(body['body']['html'],{
+				onTagAttr: function (tag, name, value, isWhiteAttr) {
+					if(name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+						return name+'="https:'+value.substr(5)+'"';
 					}
 					if(tag=='a' && name=='href')
 						return name+'="'+value+'"'+' target="_blank"';
@@ -110,10 +132,9 @@ function renderMessage(body, meta, datas) {
 				}
 			}));
 
-			//$('#emailbody').append(body['body']['html']);
 
-			var dfd1 = new $.Deferred();
-			var bod='';
+			$("#virtualization").height($("#virtualization").contents().find("html").height());
+
 
 		}else{
 			$('#emailbody').text(body['body']['text']);
