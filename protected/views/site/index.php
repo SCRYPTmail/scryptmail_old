@@ -60,7 +60,7 @@ Use search to find needed section.
 	* 'fixed-footer'      - Fixes footer
 	* 'container'         - boxed layout mode (non-responsive: will not work with fixed-navigation & fixed-ribbon)
 -->
-<body class="minified fixed-header fixed-navigation" style="overflow-x:hidden;" <!--oncontextmenu="return false;"-->>
+<body class="minified fixed-header fixed-navigation" style="overflow-x:hidden;">
 
 <!-- #HEADER -->
 <header id="header">

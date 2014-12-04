@@ -13,6 +13,9 @@
 </header>
 
 <div id="main" role="main">
+<!--[if IE 8]>
+<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download.<br> Or use Google Chrome / Firefox</h1>
+<![endif]-->
 <div id="incomp" class="alert alert-warning fade in" style="display:none;">
 	<button class="close" data-dismiss="alert">
 		×
