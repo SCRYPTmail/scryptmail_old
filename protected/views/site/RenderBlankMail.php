@@ -27,7 +27,7 @@
 						<a href="javascript:void(0);" onclick="markSpam();"><i class="fa fa-ban"></i> Mark as spam!</a>
 					</li>-->
 					<li>
-						<a href="javascript:void(0);" onclick="deleteMail();"><i class="fa fa-trash-o"></i> Move to Trash</a>
+						<a href="javascript:void(0);" id="trashList" onclick="deleteMail();"><i class="fa fa-trash-o"></i> Move to Trash</a>
 					</li>
 				</ul>
 			</div>

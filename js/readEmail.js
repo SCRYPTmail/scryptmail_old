@@ -21,7 +21,6 @@ function renderMessage(body, meta, datas) {
 		var ifOpen=folder[folder_navigate][datas['messageHash']]['opened'];
 	}
 
-
 	if (!ifOpen) {
 
 		opener = setTimeout(function () {
@@ -160,6 +159,9 @@ function renderMessage(body, meta, datas) {
 		$('#defMailOption').children().eq(0).html('<i class="fa fa-mail-forward"></i> Forward');
 		$('#defMailOption').children().eq(0).attr('onclick', 'forwardMail()');
 
+	}
+	if(folder_navigate=='Spam' || folder_navigate=='Trash'){
+		$('#trashList').html('<i class="fa fa-trash-o"></i>&nbsp; Delete')
 	}
 
 	emailObj['meta'] = meta;

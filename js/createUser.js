@@ -151,6 +151,7 @@ function createAccount() {
 				};
 				setTimeout(step);
 			});
+
 			var sigpair='';
 			dfdmail.done(function () {
 

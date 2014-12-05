@@ -33,7 +33,7 @@
 					<div class="pull-left">
 						Regain your online privacy, it just takes a minute<br>
 						<h4 class="paragraph-header">
-							We are now in private beta. Please request an invitation or follow us on twitter. <br> We invite new users every day</h4>
+							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. <br> We will invite new users, based on our server availability</h4>
 						<div class="login-app-icons">
 							<a href="http://blog.scryptmail.com/post/103536268805/scryptmail-features" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
 							<a href="http://blog.scryptmail.com" target="_blank" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>

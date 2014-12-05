@@ -5,7 +5,7 @@
 <body>
 <p style="font-family:'Calibri',sans-serif">Hello *|RECIPIENT|*,</p><br>
 <p style="font-family:'Calibri',sans-serif">*|SENDER|* sent you a encrypted email using <a href='https://scryptmail.com'>SCRYPTmail</a>.
-<br>You can read this email by clicking the following link:<a href='*|LINK_TO_MESSAGE|*'>Show email</a></p>
+<br>You can read this email by clicking the following link: <a href='*|LINK_TO_MESSAGE|*'>Show email</a></p>
 <br>
 <p style="font-family:'Calibri',sans-serif">*|LINK_TO_MESSAGE|*</p>
 

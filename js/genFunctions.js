@@ -192,7 +192,7 @@ mailRetrievePromises = [];
 
 var timer;
 var newMailer;
-opener;
+var opener;
 var mailt;
 
 function resetGlobal() {
@@ -738,12 +738,8 @@ function provideSecret(success, cancel) {
 	});
 //disable asking secret everyrefresh;
 	//success('aaaaaa');
-	if (window.location.hostname == "encrypt-mail1.com") {
-		success('aaaaaa');
-		console.log('Secret Phrase')
-	} else {
 		$('#dialog-form').dialog('open');
-	}
+
 }
 function logOut() {
 	resetGlobal();
@@ -2419,6 +2415,7 @@ function movetofolder(tofolder) {
 }
 
 function deleteMessage(selected,selectedFolder, callback) {
+
 	checkState(function () {
 		if (selectedFolder != "Trash" && selectedFolder != "Draft" && selectedFolder != "Spam"  && activePage != 'composeMail' && !(selectedFolder in folder['Custom'])) {
 			var select = 0;
@@ -2449,7 +2446,8 @@ function deleteMessage(selected,selectedFolder, callback) {
 				callback();
 			}
 
-		} else if(selectedFolder == "Trash" && selectedFolder == "Draft" && selectedFolder == "Spam") {
+		} else if(selectedFolder == "Trash" || selectedFolder == "Draft" || selectedFolder == "Spam") {
+
 			var select = 0;
 			$.ajax({
 				type: "POST",
@@ -2816,8 +2814,12 @@ function addCustomFolder(){
 			}
 		]
 	});
+	if(Object.keys(folder['Custom']).length<roleData['role']['customFolderLimit']){
+		$('#addFolder').dialog('open');
+	}else{
+		noAnswer('You\'ve reached limit for custom folders.');
+	}
 
-	$('#addFolder').dialog('open');
 
 }
 
@@ -3331,77 +3333,6 @@ function calcPerformance() {
 	$('#optimalspeed').text(optimalspeed.toFixed() + ' sec.');
 	$('#paranoidspeed').text(paranoidspeed.toFixed() + ' sec.');
 
-}
-
-function narrowSelections(seedKey) {
-
-	if (seedKey == 0) {
-
-		$('#UpdateKeys_mode_0').attr('disabled', 'disabled');
-		$('#label512').css('color', '#bbb');
-		$('#label512').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
-		$('#label1024').css('color', '#bbb');
-		$('#label1024').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
-		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
-		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
-
-	}
-
-	if (seedKey == 512) {
-
-		$('#UpdateKeys_mode_0').attr('checked', 'checked');
-
-		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
-		$('#label1024').css('color', '#bbb');
-		$('#label1024').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
-		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
-		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
-
-	}
-
-	if (seedKey == 1024) {
-
-		$('#UpdateKeys_mode_1').attr('checked', 'checked');
-
-		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
-		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
-
-		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
-		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
-
-	}
-
-	if (seedKey >= 2048) {
-
-		$('#UpdateKeys_mode_2').attr('checked', 'checked');
-
-		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
-		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
-
-	}
-	if (roleData['role']['importKeys'] == "1") {
-		$('#UpdateKeys_seedPrK').removeProp('disabled');
-		$('#UpdateKeys_mailPrK').removeProp('disabled');
-		$('#UpdateKeys_seedPubK').removeProp('disabled');
-		$('#UpdateKeys_mailPubK').removeProp('disabled');
-	}
 }
 
 

@@ -14,6 +14,77 @@ $(document).ready(function () {
 
 });
 
+function narrowSelections(seedKey) {
+
+	if (seedKey == 0) {
+
+		$('#UpdateKeys_mode_0').attr('disabled', 'disabled');
+		$('#label512').css('color', '#bbb');
+		$('#label512').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
+		$('#label1024').css('color', '#bbb');
+		$('#label1024').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
+		$('#labelcustom').css('color', '#bbb');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
+		$('#label2048').css('color', '#bbb')
+		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+
+	}
+
+	if (seedKey == 512) {
+
+		$('#UpdateKeys_mode_0').attr('checked', 'checked');
+
+		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
+		$('#label1024').css('color', '#bbb');
+		$('#label1024').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
+		$('#labelcustom').css('color', '#bbb');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
+		$('#label2048').css('color', '#bbb')
+		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+
+	}
+
+	if (seedKey == 1024) {
+
+		$('#UpdateKeys_mode_1').attr('checked', 'checked');
+
+		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
+		$('#labelcustom').css('color', '#bbb');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+
+		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
+		$('#label2048').css('color', '#bbb')
+		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+
+	}
+
+	if (seedKey >= 2048) {
+
+		$('#UpdateKeys_mode_2').attr('checked', 'checked');
+
+		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
+		$('#labelcustom').css('color', '#bbb');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+
+	}
+	if (roleData['role']['importKeys'] == "1") {
+		$('#UpdateKeys_seedPrK').removeProp('disabled');
+		$('#UpdateKeys_mailPrK').removeProp('disabled');
+		$('#UpdateKeys_seedPubK').removeProp('disabled');
+		$('#UpdateKeys_mailPubK').removeProp('disabled');
+	}
+}
+
 function changeTimeout(tim){
 
 	if (!isNaN(tim.val())) {
@@ -37,7 +108,6 @@ function gotoUpdateKeys() {
 		var user = validateUserObject();
 		var role = validateUserRole();
 		var seedKey = role['role']['seedMaxKeyLength'];
-		console.log(role['role']['seedMaxKeyLength']);
 		var mailKey = role['role']['mailMaxKeyLength'];
 
 		$('#UpdateKeys_seedPrK').attr('name', makerandom());
@@ -149,38 +219,83 @@ function validateMailKeys() {
 
 function generateKeys() {
 
+	$('#profileGenerateKeys').prop('disabled',true);
+	$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
+
+	var dfdseed = new $.Deferred();
+	var dfdmail = new $.Deferred();
+
+
 	var selected = 0;
 	var rsa = forge.pki.rsa;
 	var pki = forge.pki;
+	var seedStrength=0;
+	var mailStrength=0;
 
 	if ($('#UpdateKeys_mode_0').is(':checked')) {
-		var seedpair = rsa.generateKeyPair({bits: 512, e: 0x10001});
-		var mailpair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
+		seedStrength=512;
+		mailStrength=1024;
 		selected = 1;
 
 	}
 	if ($('#UpdateKeys_mode_1').is(':checked')) {
-		var seedpair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
-		var mailpair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
+		seedStrength=1024;
+		mailStrength=2048;
 		selected = 1;
 	}
 	if ($('#UpdateKeys_mode_2').is(':checked')) {
-		var seedpair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
-		var mailpair = rsa.generateKeyPair({bits: 4096, e: 0x10001});
+		seedStrength=2048;
+		mailStrength=4096;
 		selected = 1;
 	}
 
 	if (selected == 0) {
 		noAnswer('Please select Key Strength');
 	} else {
-		$('#UpdateKeys_seedPrK').val(pki.privateKeyToPem(seedpair.privateKey));
-		$('#UpdateKeys_seedPubK').val(pki.publicKeyToPem(seedpair.publicKey));
 
-		$('#UpdateKeys_mailPrK').val(pki.privateKeyToPem(mailpair.privateKey));
-		$('#UpdateKeys_mailPubK').val(pki.publicKeyToPem(mailpair.publicKey));
+		var seedpair = rsa.createKeyPairGenerationState(seedStrength,0x10001);
+		var mailpair='';
+		var step = function() {
+			if(!rsa.stepKeyPairGenerationState(seedpair, 100)) {
+				setTimeout(step, 1);
+			}
+			else {
+				$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Mail keys..");
+				dfdseed.resolve();
+			}
+		};
+		setTimeout(step);
+
+
+		dfdseed.done(function () {
+
+			mailpair = rsa.createKeyPairGenerationState(mailStrength, 0x10001);
+
+			var step = function() {
+				if(!rsa.stepKeyPairGenerationState(mailpair, 100)) {
+					setTimeout(step, 1);
+				}
+				else {
+					$('#profileGenerateKeys').prop('disabled',false);
+					$('#profileGenerateKeys').html("<i class='fa fa-cog'></i>&nbsp;Generate Keys");
+
+					dfdmail.resolve();
+				}
+			};
+			setTimeout(step);
+		});
+
+		dfdmail.done(function () {
+			$('#UpdateKeys_seedPrK').val(pki.privateKeyToPem(seedpair.keys.privateKey));
+			$('#UpdateKeys_seedPubK').val(pki.publicKeyToPem(seedpair.keys.publicKey));
+
+			$('#UpdateKeys_mailPrK').val(pki.privateKeyToPem(mailpair.keys.privateKey));
+			$('#UpdateKeys_mailPubK').val(pki.publicKeyToPem(mailpair.keys.publicKey));
+
+			validateSeedKeys();
+			validateMailKeys();
+		});
 	}
-	validateSeedKeys();
-	validateMailKeys();
 
 }
 

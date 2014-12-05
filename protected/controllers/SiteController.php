@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0517';
+	public $fileVers='0518';
 
 	public function beforeAction($action)
 	{
@@ -287,6 +287,7 @@ class SiteController extends Controller
 
 	public function actionSubmitBug()
 	{
+
 		$model = new SubmitBug();
 		if(isset($_POST['email'])){
 			$model->attributes =$_POST;
@@ -337,7 +338,10 @@ class SiteController extends Controller
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
 
-		$this->renderPartial('index', array('version'=>$this->fileVers), '', true, true);
+		$this->renderPartial('index', array('version'=>$this->fileVers,
+			'user'=>Yii::app()->params['user'],
+			'pass'=>Yii::app()->params['pass'],
+			'secret'=>Yii::app()->params['secret']), '', true, true);
 	}
 
 	/**
@@ -708,7 +712,7 @@ class SiteController extends Controller
 
 		$time=false;
 
-		if(date_format($tm,'Y-m-d')>='2014-11-18'){
+		if(date_format($tm,'Y-m-d')<'2014-12-05'){
 			$time=true;
 		}
 
@@ -718,6 +722,23 @@ class SiteController extends Controller
 
 	public function actionCreateSelectedUser()
 	{
+		//print_r(date('Y-m-d'));
+		$totalUser=CountRegistered::getReg();
+
+		$datetime = new DateTime; // current time = server time
+		$otherTZ  = new DateTimeZone('America/Los_Angeles');
+		//$otherTZ  = new DateTimeZone('UTC');
+		$datetime->setTimezone($otherTZ); // calculates with new TZ now
+		$tm=$datetime->setTimezone($otherTZ);
+		//print_r(date_format($tm,'Y-m-d'));
+
+		//print_r(date('Y-m-d'),strtotime($datetime->setTimezone($otherTZ)));
+
+
+		if(date_format($tm,'Y-m-d')>'2014-12-04'){
+			$this->redirect('/createUser');
+		}
+
 		$cs = Yii::app()->clientScript;
 		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
