@@ -84,34 +84,6 @@ class UserGroupManager extends CFormModel
 		}else
 			echo '{"result":"fail"}';
 
-
-		/*
-		 * $current_pass=Yii::app()->db->createCommand("SELECT password,created,seed FROM user WHERE id=$id")->queryRow();
-
-			$pass1=GlobalFunctions::dataDecrypt($current_pass);
-
-			if($pass1['password']==crypt($this->old_password,$pass1['password']))
-			{
-				$pass2=GlobalFunctions::dataEncrypt(array(
-					'newpas'=>crypt($this->new_password),
-					'created'=>$pass1['created'],
-					'seed'=>$pass1['seed']
-				));
-			$params[':id']=$id;
-			$params[':newpas']=$pass2['newpas'];
-
-			//$params[':oldpas']=crypt($this->old_password);
-			Yii::app()->db->createCommand("UPDATE user SET password=:newpas WHERE id=:id")->execute($params);
-				$sendmessage->printJSON('', 77);
-			}else
-				$sendmessage->printError(array(16 => 'Failed to save'), 0); //saving errors
-
-			}
-
-		 */
-		//$oldP=$this->oldPass;
-		//$nP=$this->newPass;
-		//print_r($oldP);
 	}
 
 	public function savegroup($userId, $groupId, $started, $end)

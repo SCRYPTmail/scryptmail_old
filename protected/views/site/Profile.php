@@ -242,11 +242,9 @@
 							</div>
 							<div class="row">
 							<div class="buttons pull-left col col-sm-6">
-								<a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="generateKeys()"
-								   rel="popover-hover" data-placement="top" data-original-title="Caution:"
-								   data-content="During RSA key generation, page will not be responsive!"><i
+								<button class="btn btn-primary btn-sm" onclick="generateKeys()" id="profileGenerateKeys"><i
 										class="fa fa-cog"></i>
-									Generate</a>
+									Generate Keys</button>
 
 							</div>
 

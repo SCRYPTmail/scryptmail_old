@@ -39,12 +39,10 @@ return array(
 			'cacheTableName' => 'cache_data',
 		),
 		'session' => array(
-			'sessionName' => 'scryptmail',
+			'sessionName' => 'sessionname',
 			'class' => 'application.components.MyDbHttpSession',
 			'autoStart' => 'false',
 			'cookieMode' => 'only',
-			//'savePath' => 'D:\minapsys\newminapsys\tmp\session',
-
 			'connectionID' => 'db',
 			'sessionTableName' => 'cache_session',
 			'autoCreateSessionTable' => true,
@@ -67,17 +65,12 @@ return array(
 				'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
 			),
 		),
-		/*
-		'db'=>array(
-			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
-		),
-		// uncomment the following to use a MySQL database
-		*/
+
 		'db' => array(
 			'connectionString' => 'mysql:host=localhost;dbname=encrypted',
 			'emulatePrepare' => true,
-			'username' => 'root',
-			'password' => '61saksak',
+			'username' => 'user',
+			'password' => 'password',
 			'charset' => 'utf8',
 			'class' => 'CDbConnection',
 			//'enableProfiling'=>true,
@@ -116,7 +109,7 @@ return array(
 	'params' => array(
 		// this is used in contact page
 		'params' => include(dirname(__FILE__) . '/params.php'), //<– our internal params
-		'adminEmail' => 'sergyk17@yahoo.com',
+		'adminEmail' => 'admin@example.com',
 		'production' => false
 	),
 );

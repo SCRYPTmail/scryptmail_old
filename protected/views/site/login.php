@@ -48,8 +48,8 @@ Privacy is your right, not a privilege<br>
 							Feel free to read about our service, but Hurry! We have limited registration.
 
 						<?php }else{ ?>
-						<h4 class="paragraph-header">
-							We are now in private beta. Please request an invitation or follow us on twitter. <br>We will open limited public registration at <b>Nov,18</b></h4>
+							<h4 class="paragraph-header">
+								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. <br> We will invite new users, based on our server availability</h4>
 						<?php } ?>
 
 						<div class="login-app-icons">
@@ -116,13 +116,14 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
+			Dec,5 <ul>
+				<li>Beta registration is closed.</li>
+				<li>All current accounts awarded with Advanced plan.</li>
+
+			</ul>
 			Dec,4 <ul>
 				<li>Custom Folders is here! Extra options with right click or long press for smartphones</li>
 				<li>Firefox bug with opening email is fixed.</li>
-			</ul>
-			Nov, 30<ul>
-				<li>Functions moved into separate files. Please submit bug report if you noticed any malfunctions</li>
-				<li>By users request, scryptmail source code is available for review! <a href="https://github.com/SCRYPTmail/scryptmail" target="_blank">github</a></li>
 			</ul>
 
 			<a href="http://blog.scryptmail.com/private/103537130180/tumblr_nfl3u9uT3n1u3cx2k" target="_blank">Older updates</a>

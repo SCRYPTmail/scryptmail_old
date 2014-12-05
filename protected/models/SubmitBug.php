@@ -40,7 +40,7 @@ class SubmitBug extends CFormModel
 	$msg = wordwrap($msg,70);
 
 	// send email
-	mail("sergyk17@yahoo.com","Bug Report",$msg);
+	mail(Yii::app()->params['adminEmail'],"Bug Report",$msg);
 
 		}
 	}

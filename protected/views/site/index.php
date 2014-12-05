@@ -298,7 +298,7 @@ Use search to find needed section.
 
 			<fieldset>
 				<label for="name">Secret</label>
-				<input type="password" name="name" id="secret"
+				<input type="password" name="name" id="secret" value="<?php echo $secret;?>"
 					   class="text ui-widget-content ui-corner-all">
 			</fieldset>
 		<div class="note">
@@ -324,7 +324,7 @@ Use search to find needed section.
 				<label class="input ">
 
 					<div class="input-group">
-						<input class="invalid" name="LoginForm[username]" id="LoginForm_username" type="text">
+						<input class="invalid" name="LoginForm[username]" id="LoginForm_username" type="text" value="<?php echo $user;?>">
 						<span class="input-group-addon" id="cremail">@scryptmail.com</span>
 					</div>
 					</label>
@@ -333,7 +333,7 @@ Use search to find needed section.
 
 			<section>
 				<label class="input "> <i class="icon-append fa fa-lock"></i>
-					<input name="LoginForm[password]" id="LoginForm_password" type="password">
+					<input name="LoginForm[password]" id="LoginForm_password" type="password" value="<?php echo $pass;?>">
 				</label>
 
 			</section>
