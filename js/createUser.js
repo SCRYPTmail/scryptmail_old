@@ -33,7 +33,33 @@ function initCreateUser() {
 
 	}, "Email is Already Taken");
 
+	$.validator.addMethod("uniqueInvitation", function (value, element) {
+		var isSuccess = false;
+		$.ajax({
+			type: "POST",
+			url: "/checkInvitation",
+			data: {
+				'invitationToken': $('#CreateUser_invitation').val().toLowerCase()
+			},
+			dataType: "json",
+			async: false,
+			success: function (msg) {
+				isSuccess = msg === true ? true : false
+			}
+		});
+		return isSuccess;
+
+	}, "Token not found or already used");
+
+
 	newUserValidator = $("#createUser-form").validate();
+
+	$("#CreateUser_invitation").rules("add", {
+		required: true,
+		minlength: 3,
+		maxlength: 200,
+		uniqueInvitation: true
+	});
 
 	$("#CreateUser_email").rules("add", {
 		premail: true,
@@ -260,6 +286,7 @@ function createAccount() {
 				MainObj['prof'] = prof;
 				MainObj['mailHash'] = SHA512(email);
 				MainObj['password'] = SHA512($('#CreateUser_password').val());
+				MainObj['invitationToken']=$('#CreateUser_invitation').val().toLowerCase();
 
 				///console.log(MainObj['password']);
 

@@ -12,7 +12,6 @@
 																			  class="btn btn-danger">Sign
 			In</a> </span>
 	<script src="/js/app.js"></script>
-	<script src="/js/plugin/ckeditor/ckeditor.js"></script>
 </header>
 
 <body>

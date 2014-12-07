@@ -53,7 +53,7 @@ function submitLogin() {
 						}
 					},
 					error: function (data, textStatus) {
-						cancel();
+						//cancel();
 						noAnswer('Error. Please try again9')
 					},
 					dataType: 'json'
@@ -62,7 +62,7 @@ function submitLogin() {
 			}
 		},
 		error: function (data, textStatus) {
-			cancel();
+			//cancel();
 			noAnswer('Error. Please try again9')
 		},
 		dataType: 'json'

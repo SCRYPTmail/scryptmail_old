@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0518';
+	public $fileVers='0519';
 
 	public function beforeAction($action)
 	{
@@ -93,7 +93,8 @@ class SiteController extends Controller
 					'forgotPassword',
 					'verifyToken',
 					'verifyRawToken',
-					'ResetPass'
+					'ResetPass',
+					'checkInvitation'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -154,7 +155,9 @@ class SiteController extends Controller
 					'forgotSecret',
 					'forgotPassword',
 					'resetUserObject',
-					'generateNewToken'
+					'generateNewToken',
+					'checkInvitation',
+					'inviteFriend'
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
 			),
@@ -175,6 +178,15 @@ class SiteController extends Controller
 	 * when an action is not explicitly requested by users.
 	 */
 
+	public function actionInviteFriend()
+	{
+		$model = new InviteFriend();
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate())
+			$model->invite();
+		else
+			echo json_encode($model->getErrors());
+	}
 	public function actionVerifyRawToken()
 	{
 		$model = new VerifyToken();
@@ -201,6 +213,15 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate()) //validating json data according to action
 			$model->resetUser();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionCheckInvitation()
+	{
+		$model = new CheckInvitation();
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->verifyToken();
 		else
 			echo json_encode($model->getErrors());
 	}
@@ -341,7 +362,9 @@ class SiteController extends Controller
 		$this->renderPartial('index', array('version'=>$this->fileVers,
 			'user'=>Yii::app()->params['user'],
 			'pass'=>Yii::app()->params['pass'],
-			'secret'=>Yii::app()->params['secret']), '', true, true);
+			'secret'=>Yii::app()->params['secret'],
+			'invitationsLeft'=>CountRegistered::getReg()
+		), '', true, true);
 	}
 
 	/**
@@ -722,6 +745,7 @@ class SiteController extends Controller
 
 	public function actionCreateSelectedUser()
 	{
+
 		//print_r(date('Y-m-d'));
 		$totalUser=CountRegistered::getReg();
 
@@ -735,9 +759,9 @@ class SiteController extends Controller
 		//print_r(date('Y-m-d'),strtotime($datetime->setTimezone($otherTZ)));
 
 
-		if(date_format($tm,'Y-m-d')>'2014-12-04'){
-			$this->redirect('/createUser');
-		}
+		//if(date_format($tm,'Y-m-d')>'2014-12-04'){
+		//	$this->redirect('/createUser');
+		//}
 
 		$cs = Yii::app()->clientScript;
 		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
@@ -773,7 +797,7 @@ class SiteController extends Controller
 			Yii::app()->end();
 		}
 
-		$this->render('createUserForSelected', array('model' => $model,'totalUser'=>$totalUser));
+		$this->render('createUserForSelected', array('model' => $model,'token'=>Yii::app()->getRequest()->getQuery('id')));
 	}
 
 

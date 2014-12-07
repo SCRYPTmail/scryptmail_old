@@ -34,7 +34,7 @@ function renderMessage(body, meta, datas) {
 			getNewEmailsCount();
 			//console.log('fff');
 
-		}, 5000);
+		}, 2000);
 	}
 
 	$('.email-open-header').text(stripHTML((body['subj'])));

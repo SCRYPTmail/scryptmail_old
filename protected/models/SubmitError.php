@@ -30,7 +30,7 @@ class SubmitError extends CFormModel
 	$msg = wordwrap($this->errorObj.'userAgent:'.$_SERVER['HTTP_USER_AGENT'].'ID:'.Yii::app()->user->getId(),70);
 
 	// send email
-	mail("sergyk17@yahoo.com","Bug Report Javascript",$msg);
+	mail(Yii::app()->params['adminEmail'],"Bug Report Javascript",$msg);
 
 		}
 	}

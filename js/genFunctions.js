@@ -758,7 +758,7 @@ function myTimer() {
 				if (ismobile)
 					$('#timeout').text('Expire in ' + (sec--) + ' sec');
 				else
-					$('#timeout').text('You session will expire in ' + (sec--) + ' sec');
+					$('#timeout').text('Session will expire in ' + (sec--) + ' sec');
 
 
 
@@ -1402,6 +1402,88 @@ function renderMessages(data) {
 
 }
 
+function inviteFriend()
+{
+	var from=(profileSettings['name']==''?'FROM: '+profileSettings['email']:'FROM: '+profileSettings['name']+'<'+profileSettings['email']+'>');
+	$('#fromfr').text(from);
+
+	$('#textInvite').text((profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ')+' invites you to try scryptmail.com - encrypted email service. Please follow the link attached to the bottom of this email.');
+	$('#dialog-form-invite').dialog({
+		autoOpen: false,
+		height:430,
+		width: 300,
+		modal: true,
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Send",
+				"class": "btn btn-primary",
+				"id": 'inviteok',
+				click: function () {
+					var inviteValidator= $("#login-form-invite").validate();
+
+					$("#invite_email").rules("add", {
+						email: true,
+						required: true,
+						minlength: 3,
+						maxlength: 200
+					});
+
+					$("#textInvite").rules("add", {
+						required: true,
+						minlength: 3,
+						maxlength: 300
+					});
+
+					inviteValidator= $("#login-form-invite").validate();
+					inviteValidator.element( "#invite_email" );
+					$("#login-form-invite").submit(function (e) {
+						e.preventDefault();
+					});
+
+					if(inviteValidator.element( "#invite_email" ) && inviteValidator.element( "#textInvite" )){
+						var email={'from':from,'to':$('#invite_email').val().toLowerCase(),'message':$.trim($('#textInvite').val())};
+
+						$.ajax({
+							type: "POST",
+							url: '/inviteFriend',
+							data: {
+								'message': JSON.stringify(email)
+							},
+							success: function (data, textStatus) {
+								if (data.results == 'ok') {
+									Answer('Invitation Sent');
+									$('#invite_email').val('')
+									$('#dialog-form-invite').dialog('close');
+								} else {
+									noAnswer(data.results);
+								}
+
+							},
+							error: function (data, textStatus) {
+								noAnswer('Error occurred. Please try again');
+							},
+							dataType: 'json'
+						});
+
+
+					}
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$(this).dialog("close");
+				}
+
+			}
+		]
+	});
+	$('#dialog-form-invite').dialog('open');
+
+
+}
 function getNewEmailsCount() {
 	var newMes = 0;
 	$.each(folder['Inbox'], function (index, value) {

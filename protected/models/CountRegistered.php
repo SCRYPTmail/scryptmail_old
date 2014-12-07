@@ -14,7 +14,8 @@ class CountRegistered extends CFormModel
 
 	public function getReg()
 	{
-		return Yii::app()->db->createCommand("SELECT count(id) FROM user")->queryScalar();
+
+		return 5-Yii::app()->db->createCommand("SELECT count(id) FROM invites WHERE date(requsted)=curdate() AND invitationCode IS NOT NULL")->queryScalar();
 
 	}
 

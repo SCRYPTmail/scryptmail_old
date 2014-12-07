@@ -4,9 +4,9 @@
 <header id="header">
 	<!--<span id="logo"></span>-->
 
-	<span id="logo"> <a href="/"> <img src="img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a> </span>
+	<span id="logo"> <a href="/"> <img src="/img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a> </span>
 
-	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login"
+	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="/login"
 																								 class="btn btn-default">Sign
 			In</a> </span>
 
@@ -50,9 +50,9 @@
 				</div>
 
 
-					<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12 hidden-xs hidden-sm" style="border:0px solid;">
-					<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> Did you know that the first 500 registered users will get a Free Advanced account for a year?
-					</div>
+				<!--<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12 hidden-xs hidden-sm" style="border:0px solid;">
+				<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> Did you know that the first 500 registered users will get a Free Advanced account for a year?
+					</div>-->
 
 
 			</div>
@@ -63,11 +63,16 @@
 				<form action="/submitBug" id="createUser-form" class="smart-form" novalidate="novalidate" method="POST">
 
 					<header>
-						Limited public registration until<span class="text-danger pull-right"><?php echo $totalUser;?> <span class="txt-color-blueDark"></span></span>
-						<br><a href="http://blog.scryptmail.com/post/103842937050/scryptmail-browser-compatibility" target="_blank"> Supported Browsers</a>
+						Registration Form
+						<span class="pull-right"><a href="http://blog.scryptmail.com/post/103842937050/scryptmail-browser-compatibility" target="_blank"> Supported Browsers</a></span>
 					</header>
 
 					<fieldset>
+						<section>
+							<label class="input">
+								<input placeholder="Enter invitation code"
+									   name="CreateUser[invitation]" id="CreateUser_invitation" type="text" value="<?php echo $token;?>"> </label>
+						</section>
 
 						<section>
 							<label class="input" id="userError">

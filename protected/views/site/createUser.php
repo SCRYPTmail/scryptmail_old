@@ -19,7 +19,9 @@
 </header>
 
 <div id="main" role="main">
-
+	<!--[if IE 8]>
+	<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download.<br> Or use Google Chrome / Firefox</h1>
+	<![endif]-->
 <!-- MAIN CONTENT -->
 <div id="content" class="container">
 
@@ -31,7 +33,7 @@
 				<div class="hero">
 
 					<div class="pull-left">
-						Regain your online privacy, it just takes a minute<br>
+						Privacy is your right, not a privilege<br><br>
 						<h4 class="paragraph-header">
 							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. <br> We will invite new users, based on our server availability</h4>
 						<div class="login-app-icons">

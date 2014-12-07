@@ -167,14 +167,22 @@ Use search to find needed section.
 				</span>
 
 		<div id='sestime' class="breadcrumb" style="float:right;" rel="popover-hover" data-placement="bottom"
-			 data-original-title="" data-content="After 15 min of inactivity, you will be required to re-enter secret">
+			 data-original-title="" data-content="You will be required to re-enter secret">
 			<span id="timeout"></span></div>
 
 		<!-- breadcrumb -->
 
-<span class="ribbon-button-alignment pull-left" style="margin-right:25px">
+<span class="ribbon-button-alignment pull-left" style="margin-right:15px">
 		<a href="/submitBug" target="_blank""><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
+
 	</span>
+		<?php if($invitationsLeft>0){ ?>
+			<a href="javascript:void(0);" onclick="inviteFriend()";><span class="ribbon-button-alignment pull-left" style="margin-right:15px" rel="popover-hover" data-placement="bottom"
+																		  data-original-title="" data-content="We have limited availability every day to invite new users">
+		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends (<?php echo $invitationsLeft;?>)</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends (<?php echo $invitationsLeft;?>)</span>
+			</span></a>
+		<?php }?>
+
 		<!-- end breadcrumb -->
 
 		<!-- You can also add more buttons to the
@@ -293,6 +301,7 @@ Use search to find needed section.
 	<!-- MAIN APP JS FILE -->
 	<script src="js/app.js"></script>
 
+
 	<div id="dialog-form" title="Provide Secret" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
 		<p class="validateTips" style="display:block;border:0px;">Please provide secret.</p>
 
@@ -315,6 +324,7 @@ Use search to find needed section.
 
 	</div>
 	<div id="dialog-confirm"></div>
+
 
 	<div id="dialog-form-login" title="Login Form" style="display:none;">
 		<p class="validateTips" style="display:block;border:0px;">Your session have been expired. Please login.</p>
@@ -340,10 +350,35 @@ Use search to find needed section.
 
 		</form>
 	</div>
+
+
+	<div id="dialog-form-invite" title="Invite Friend" style="display:none;">
+		<p class="validateTips" style="display:block;border:0px;">Every day we make few slots available for you to invite your friend</p>
+
+		<form class="smart-form" id="login-form-invite" action="/" method="post" onkeydown="if (event.keyCode == 13) $('#inviteok').click();">
+
+			<section>
+				<label class="input" id="fromfr">
+				</label>
+
+			</section>
+			<section>
+				<label class="input "> <i class="icon-append fa fa-envelope"></i>
+					<input name="fremail" id="invite_email" type="email" placeholder="Friend email">
+				</label>
+
+			</section>
+			<section class="col col-xs-12" style="float:left;">
+				<textarea class="form-control" id="textInvite" rows="5">
+				</textarea>
+			</section>
+
+		</form>
+
 </div>
 
 
-
+</div>
 
 
 
