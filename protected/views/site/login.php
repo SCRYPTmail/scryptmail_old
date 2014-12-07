@@ -116,6 +116,11 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
+			Dec,6 <ul>
+				<li>Registered users can invite their friends</li>
+				<li>Email delivery improve. Less mail should be mark as spam</li>
+
+			</ul>
 			Dec,5 <ul>
 				<li>Beta registration is closed.</li>
 				<li>All current accounts awarded with Advanced plan.</li>
