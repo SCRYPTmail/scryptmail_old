@@ -43,13 +43,13 @@ class InviteFriend extends CFormModel
 			$message .= "Content-type: text/plain;charset=utf-8".$eol.$eol;
 
 
-				$message .= $obj['message'].'
+				$message .= strip_tags($obj['message']).'
 				Invitation Link: '.'https://scryptmail.com/createSelectedUser/'.$param[':invitationCode'].$eol.$eol;
 
 				$message .=$eol.$eol."--$boundary".$eol;
 
 				$message .= "Content-type: text/html;charset=utf-8".$eol.$eol;
-				$message .= $obj['message'].'<br><br><a href="https://scryptmail.com/createSelectedUser/'.$param[':invitationCode'].'" target="_blank">Invitation Link</a>'.$eol.$eol;
+				$message .= strip_tags($obj['message']).'<br><br><a href="https://scryptmail.com/createSelectedUser/'.$param[':invitationCode'].'" target="_blank">Invitation Link</a>'.$eol.$eol;
 				$message .=$eol.$eol."--$boundary--";
 
 			if (mail($obj['to'], $obj['from'].' Invites you to use scryptmail', $message, $headers, "-f" . 'support@scryptmail.com')){

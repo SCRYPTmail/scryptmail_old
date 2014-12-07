@@ -1441,8 +1441,9 @@ function inviteFriend()
 						e.preventDefault();
 					});
 
+					var fr=profileSettings['name']==''?profileSettings['email']:profileSettings['name']+'<'+profileSettings['email']+'>';
 					if(inviteValidator.element( "#invite_email" ) && inviteValidator.element( "#textInvite" )){
-						var email={'from':from,'to':$('#invite_email').val().toLowerCase(),'message':$.trim($('#textInvite').val())};
+						var email={'from':fr,'to':$('#invite_email').val().toLowerCase(),'message':$.trim($('#textInvite').val())};
 
 						$.ajax({
 							type: "POST",
