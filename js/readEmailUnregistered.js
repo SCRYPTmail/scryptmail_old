@@ -1,0 +1,236 @@
+/**
+ * User: Sergei Krutov
+ * https://scryptmail.com
+ * Date: 12/7/14
+ * Time: 10:35 PM
+ */
+
+function readEmail() {
+	var error = false;
+
+	if ($('#emailHashtag').val() == '') {
+		$('#hserror').html("Provide email hash");
+		$('#hserror').parent().parent().addClass('state-error');
+		error = true;
+	} else {
+		$('#hserror').html("");
+	}
+
+	if ($('#emailHashpass').val() == "") {
+		$('#pserror').html("Provide PIN");
+		$('#pserror').parent().parent().addClass('state-error');
+		error = true;
+	}
+
+	if (error == 0) {
+		$.ajax({
+			type: "POST",
+			url: '/retrieveEmail',
+			data: {
+				'ajax': 'retrieve-mail',
+				'emailHash': $('#emailHashtag').val(),
+				'pinHash':SHA512($('#emailHashpass').val())
+
+			},
+			success: function (data, textStatus) {
+
+				if (data.emailHash != undefined) {
+					$('#hserror').html(data.emailHash);
+					$('#hserror').parent().parent().addClass('state-error');
+				}
+				if (data.success) {
+					//console.log($('#emailHashpass').val());
+
+					var key = forge.pkcs5.pbkdf2(SHA512($('#emailHashpass').val()), '', 256, 32);
+					pin = key;
+
+					try {
+						var meta = fromAes(key, data['email']['meta']);
+						var body = fromAes(key, data['email']['body']);
+						//z = z.substring(0, z.lastIndexOf('}') + 1);
+
+						var meta = JSON.parse(meta);
+						var body = JSON.parse(body);
+						var mesId=data['messageId'];
+
+
+						$.ajax({
+							type: "GET",
+							url: '/html/BlankMailUnreg.html',
+							success: function (data, textStatus) {
+								$('#main > #container').html(data);
+								$('#delmail').attr('onclick',"deleteMailUnreg('"+mesId+"','"+meta['modKey']+"');");
+
+								renderMessageUnreg(body, meta);
+							},
+							error: function (data, textStatus) {
+								noAnswer('Error occurred. Please try again');
+							},
+							dataType: 'html'
+						});
+
+						//onclick="deleteMailUnreg();" id="delmail"
+						//console.log(meta);
+						//console.log(body);
+
+					} catch (err) {
+						$('#pserror').html("PIN is invalid");
+						$('#pserror').parent().parent().addClass('state-error');
+					}
+				}
+
+			},
+			dataType: 'json'
+		});
+	}
+}
+
+function renderMessageUnreg(body, meta) {
+
+	body['body']['text'] = from64(body['body']['text']);
+	body['body']['html'] = from64(body['body']['html']);
+	body['to'] = from64(body['to']);
+	body['from'] = from64(body['from']);
+	body['subj'] = from64(body['subj']);
+
+	$('.replyunsec').attr('href', 'mailto:' + body['from']);
+
+
+	$('.email-open-header').text(sanitize(body['subj']));
+
+	var from = body['from'];
+
+	if (meta['attachment'] != "") {
+		if (Object.keys(body['attachment']).length > 0) {
+			file = body['attachment'];
+			$('.inbox-download').html('<ul class="inbox-download-list"></ul>');
+
+			$.each(body['attachment'], function (fname, fdata) {
+
+				var size = from64(fdata['size']);
+				size = (size > 1000000) ? Math.round(size / 10000) / 100 + ' Mb' : Math.round(size / 10) / 100 + ' Kb';
+				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + from64(fdata['name']) + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFileUnreg(' + "'" + fdata['name'] + "'" + ')"> Download</a></div></li>');
+
+			});
+		}
+	}
+
+	var rcphead = '';
+	if (from.indexOf('<') != -1) {
+		rcphead = 'From: <strong>' + escapeTags(from.substring(0, from.indexOf('<'))) + '</strong>' +
+			'<span class="hidden-mobile">' + escapeTags(from.substring(from.indexOf('<'), from.lastIndexOf('>') + 1));
+	} else {
+		rcphead = 'From: <span class="hidden-mobile">' + escapeTags(from);
+	}
+	rcphead = rcphead + '<br>To: ';
+
+	var value = body['to'];
+	if (value.indexOf('<') != -1) {
+		rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> ' + escapeTags(value.substring(value.indexOf('<'), value.lastIndexOf('>') + 1)) + "; ";
+	} else {
+		rcphead = rcphead + escapeTags(value) + "; ";
+	}
+
+	rcphead = rcphead.substring(0, rcphead.length - 2);
+
+	rcphead = rcphead + '<br>on: <i>' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ', ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + '</i></span>';
+
+	$('#rcptHeader').html(rcphead);
+
+
+
+	if(body['body']['html']!=''){
+
+
+		var dfd1 = new $.Deferred();
+		var bod='';
+
+
+		$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">');
+
+		var target = $('#virtualization').contents()[0];
+		target.open();
+		target.write('<!doctype html><html><head></head><body></body></html>');
+		target.close();
+
+		$('#virtualization').contents().find("html").html(filterXSS(body['body']['html'],{
+			onTagAttr: function (tag, name, value, isWhiteAttr) {
+				if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
+					return name+'="https:'+value.substr(5)+'"';
+
+				}
+				if(tag=='a' && name=='href')
+					return name+'="'+value+'"'+' target="_blank"';
+			},
+			onTag: function(tag, html, options) {
+				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
+					return " ";
+				}
+			}
+		}));
+
+
+		$("#virtualization").height($("#virtualization").contents().find("html").height());
+
+
+	}else{
+		$('#emailbody').text(body['body']['text']);
+		$('#emailbody').prepend('<style>#emailbody{white-space: pre;}</style>');
+	}
+}
+
+
+function readFileUnreg(fileName) {
+
+	var span = from64(file[fileName]['filename']);
+
+	$('#' + span + ' i').removeClass('fa-file');
+	$('#' + span + ' i').addClass('fa-refresh');
+	$('#' + span + ' i').addClass('fa-spin');
+
+	//fa-refresh fa-spin
+	var fd = new FormData();
+	fd.append('fileName', span);
+
+	var key = pin;
+
+	$.ajax({
+		type: "POST",
+		url: '/GetFile',
+		data: fd,
+		//dataType:'blob',
+		processData: false,
+		contentType: false
+	}).done(function (blob) {
+			if(blob.length!=0){
+
+				try {
+					decrypt = fromAesBinary(key, blob);
+
+					decrypt = from64binary(decrypt);
+
+					var oMyBlob = new Blob([decrypt], {type: from64(file[fileName]['type'])});
+
+					var a = document.createElement('a');
+					a.href = window.URL.createObjectURL(oMyBlob.slice(0, from64(file[fileName]['size'])));
+					a.download = from64(file[fileName]['name']);
+					document.body.appendChild(a);
+					a.click();
+
+					$('#' + span + ' i').addClass('fa-file');
+					$('#' + span + ' i').removeClass('fa-refresh');
+					$('#' + span + ' i').removeClass('fa-spin');
+				} catch (err) {
+					$('#' + span).html('Error. Try again<i></i>');
+					$('#' + span).addClass('label-danger<i></i>');
+
+
+				}
+			}else{
+				$('#' + span).html('Error. File not found<i></i>');
+				$('#' + span).addClass('label-danger<i></i>');
+			}
+
+		});
+
+}

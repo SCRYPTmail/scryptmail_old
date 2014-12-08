@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0519';
+	public $fileVers='0520';
 
 	public function beforeAction($action)
 	{
@@ -258,11 +258,14 @@ class SiteController extends Controller
 	}
 	public function actionRetrieveEmail()
 	{
+		$cs = Yii::app()->clientScript;
+		$cs->registerScriptFile("/js/readEmailUnregistered.js?r=$this->fileVers");
+
 		$model = new RetrieveEmail('initialOpen');
 		$model->emailHash=Yii::app()->getRequest()->getQuery('id');
 
 		if (isset($_POST['ajax']) && $_POST['ajax'] === 'retrieve-mail') {
-			$model->emailHash=$_POST['emailHash'];
+			$model->attributes=$_POST;
 			if($model->validate()){
 				$model->initialOpen();
 			}else

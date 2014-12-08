@@ -263,6 +263,7 @@ function sendMail() {
 
 }
 
+//encrypt message in same domain
 function indoCrypt(value) {
 	var d = new Date();
 	var pki = forge.pki;
@@ -349,6 +350,7 @@ function indoCrypt(value) {
 
 }
 
+//message created when recipient not found
 function indoCryptFail(value, key) {
 	var d = new Date();
 	var pki = forge.pki;
@@ -418,6 +420,7 @@ function indoCryptFail(value, key) {
 
 }
 
+//encrypt email with pin to outside users
 function encryptWithPin(value) {
 
 	var d = new Date();
@@ -492,7 +495,7 @@ function encryptWithPin(value) {
 	messaged['meta'] = toAes(key, meta);
 	messaged['from'] = profileSettings['email'];
 	messaged['to'] = value['mail'];
-
+	messaged['pinHash']=SHA512(value['pin']);
 	messaged['ModKey'] = SHA512(emailPreObj['modKey']);
 
 	//console.log(emailPreObj);
@@ -501,6 +504,7 @@ function encryptWithPin(value) {
 
 }
 
+//send clear text message to outside
 function encryptWithoutPin(value) {
 
 	var d = new Date();
@@ -582,6 +586,7 @@ function encryptWithoutPin(value) {
 
 }
 
+//save message in sent folder
 function encryptMessageForSent(badRcpt, senderMod, key) {
 	var d = new Date();
 	var pki = forge.pki;

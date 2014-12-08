@@ -57,14 +57,15 @@ class Crawler extends CFormModel
 					if ($row['outside'] == 1) {
 						if ($row['pass'] == '') {
 							if (Crawler::sendMailOutWithPin($row)) {
-								$par['id'] = $row['id'];
-								$par['meta'] = $row['meta'];
-								$par['body'] = $row['body'];
-								$par['modKey'] = $row['modKey'];
-								$par['file'] = $row['file'];
-								$par['expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
+								$par[':id'] = $row['id'];
+								$par[':meta'] = $row['meta'];
+								$par[':body'] = $row['body'];
+								$par[':modKey'] = $row['modKey'];
+								$par[':file'] = $row['file'];
+								$par[':pinHash'] = $row['pinHash'];
+								$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
 								$trans = Yii::app()->db->beginTransaction();
-								if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,modKey,file,expired) VALUES (:id,:meta,:body,:modKey,:file,:expired)")->execute($par)) {
+								if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,modKey,file,expired,pinHash) VALUES (:id,:meta,:body,:modKey,:file,:expired,:pinHash)")->execute($par)) {
 									if (Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()) {
 										$trans->commit();
 									} else
@@ -78,10 +79,10 @@ class Crawler extends CFormModel
 
 							if (Crawler::sendMailOutWithoutPin($row)) {
 								if(isset($row['file']) &&$row['file']!=''){
-									$par['id'] = $row['id'];
-									$par['modKey'] = $row['modKey'];
-									$par['file'] = $row['file'];
-									$par['expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
+									$par[':id'] = $row['id'];
+									$par[':modKey'] = $row['modKey'];
+									$par[':file'] = $row['file'];
+									$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
 									Yii::app()->db->createCommand("INSERT INTO mailTable (id,modKey,file,expired) VALUES (:id,:modKey,:file,:expired)")->execute($par);
 								}
 								//print_r($row);
@@ -96,18 +97,18 @@ class Crawler extends CFormModel
 					) {
 						$trans = Yii::app()->db->beginTransaction();
 
-						$par['id'] = $row['id'];
-						$par['meta'] = $row['seedMeta'];
-						$par['modKey'] = $row['modKeySeed'];
+						$par[':id'] = $row['id'];
+						$par[':meta'] = $row['seedMeta'];
+						$par[':modKey'] = $row['modKeySeed'];
 
 						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey) VALUES (:id,:meta,:modKey)")->execute($par)) {
 
-							$par1['id'] = $row['id'];
-							$par1['meta'] = $row['meta'];
-							$par1['body'] = $row['body'];
-							$par1['pass'] = $row['pass'];
-							$par1['modKey'] = $row['modKey'];
-							$par1['file'] = $row['file'];
+							$par1[':id'] = $row['id'];
+							$par1[':meta'] = $row['meta'];
+							$par1[':body'] = $row['body'];
+							$par1[':pass'] = $row['pass'];
+							$par1[':modKey'] = $row['modKey'];
+							$par1[':file'] = $row['file'];
 							if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,pass,modKey,file) VALUES (:id,:meta,:body,:pass,:modKey,:file)")->execute($par1)) {
 
 								if (Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()) {

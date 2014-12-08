@@ -108,6 +108,10 @@ Privacy is your right, not a privilege<br>
 
 				<div><a href="https://twitter.com/scryptmail" target="_blank" class="twitter-follow-button pull-right btn btn-default btn-xs" data-show-count="false"><i class="fa fa-twitter txt-color-blue"></i> Follow us @scryptmail</a></div>
 			</div>
+
+			<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border:0px solid;">
+				<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> SCRYPTmail looking for writer to help us with our blog. If you believe privacy important and want to be part of scryptmail please contact us: support@scryptmail.com
+					</div>
 		</div>
 
 
@@ -116,19 +120,14 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
+			Dec,7 <ul>
+				<li>Email send with pin to gmail or other emails can not be bruteforced anymore, after 3 wrong pin, email get deleted</li>
+			</ul>
+
 			Dec,6 <ul>
 				<li>Registered users can invite their friends</li>
 				<li>Email delivery improve. Less mail should be mark as spam</li>
 
-			</ul>
-			Dec,5 <ul>
-				<li>Beta registration is closed.</li>
-				<li>All current accounts awarded with Advanced plan.</li>
-
-			</ul>
-			Dec,4 <ul>
-				<li>Custom Folders is here! Extra options with right click or long press for smartphones</li>
-				<li>Firefox bug with opening email is fixed.</li>
 			</ul>
 
 			<a href="http://blog.scryptmail.com/private/103537130180/tumblr_nfl3u9uT3n1u3cx2k" target="_blank">Older updates</a>

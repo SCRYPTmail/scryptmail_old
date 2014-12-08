@@ -18,6 +18,7 @@ class SaveEmail extends CFormModel
 	public $mailHash;
 	public $meta;
 	public $from;
+	public $pinHash;
 
 	public $messageId;
 	public $modKeySeed;
@@ -38,7 +39,7 @@ class SaveEmail extends CFormModel
 			array('modKeySeed,modKeyMail,messageId,meta', 'required', 'on' => 'sendLocalSeed'),
 			array('messageId', 'numerical', 'integerOnly' => true, 'allowEmpty' => false, 'on' => 'sendLocalSeed'),
 
-			array('mail,ModKey,meta,from,to', 'required', 'on' => 'sendOutPin'),
+			array('mail,ModKey,meta,from,to,pinHash', 'required', 'on' => 'sendOutPin'),
 			array('mail,ModKey,key,meta', 'required', 'on' => 'sendOutNoPin'),
 
 			//array('mail,ModKey,iv,key,meta', 'required','on'=>'saveMailInSentWithErrors'),
@@ -175,6 +176,8 @@ class SaveEmail extends CFormModel
 		$params[':whens'] = Date("Y-m-d H:i:s");
 		$params[':fromt'] = $this->from;
 		$params[':tot'] = $this->to;
+		$params[':pinHash'] = $this->pinHash;
+
 
 		if(isset($this->files)){
 			foreach($this->files as $row){
@@ -189,7 +192,7 @@ class SaveEmail extends CFormModel
 			$params[':file'] = null;
 
 
-		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,fromt,tot,modKey,whens,outside,file) VALUES(:meta,:body,:fromt,:tot,:modKey,:whens,:outside,:file)")->execute($params))
+		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,fromt,tot,modKey,whens,outside,file,pinHash) VALUES(:meta,:body,:fromt,:tot,:modKey,:whens,:outside,:file,:pinHash)")->execute($params))
 			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
 		else
 			echo '{"messageId":"fail"}';
