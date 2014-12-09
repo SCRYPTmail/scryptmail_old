@@ -10,6 +10,7 @@ class getDomains extends CFormModel
 
 	public function retrieveDomains()
 	{
+
 		$f = Yii::app()->params['params']['allowedDomains'];
 		//foreach($f as $i=>$row){
 		//	$f[$i]=base64_encode($row);

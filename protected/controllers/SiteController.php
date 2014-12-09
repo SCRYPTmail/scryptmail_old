@@ -855,6 +855,8 @@ class SiteController extends Controller
 
 	public function actionGetFolder()
 	{
+		Yii::app()->db->createCommand("UPDATE user SET active=1 WHERE id=".Yii::app()->user->getId())->execute();
+
 		if (Yii::app()->request->getQuery('id') == "composeMail")
 			$this->renderPartial('ComposeMail',array('version'=>$this->fileVers));
 		else if (is_numeric(Yii::app()->request->getQuery('id'))) {

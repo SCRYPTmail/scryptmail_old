@@ -49,7 +49,8 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
-								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. <br> We will invite new users, based on our server availability</h4>
+								Due to our initial bug with <a href="http://blog.scryptmail.com/post/103399097090/bugs-hashes-and-special-characters" target="_blank">password hashes</a> and to make more space on server, we will delete inactive accounts in Dec, 22. More info <a href="http://blog.scryptmail.com/post/104740790090/corrupted-account-cleanup" target="_blank">here</a><br>
+								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
 						<?php } ?>
 
 						<div class="login-app-icons">
