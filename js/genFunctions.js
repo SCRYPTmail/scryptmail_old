@@ -1585,19 +1585,8 @@ function showSavedDraft(body, meta, datas) {
 	{
 		$('#emailbody').code(filterXSS(from64(body['body']['html']),{
 			onTagAttr: function (tag, name, value, isWhiteAttr) {
-				if(name=='src' && (value.indexOf('https:')==-1 && value.indexOf('http:')!=-1)){
-					return name+'="https:'+value.substr(5)+'"';
-				}else if(name=='src' && (value.indexOf('https:')==-1 && value.indexOf('http:')==-1)){
-					return ' ';
-
-				}
-
-				if(name=='style' && (value.indexOf('background-image')!=-1 || value.indexOf('content')!=-1 || value.indexOf('behavior')!=-1|| value.indexOf('url')!=-1)){
-					return name;
-				}
-
 				if(tag=='a' && name=='href')
-					return name+'="'+value+'"'+' target="_blank"';
+					return name+'='+value+'target="_blank"';
 			},
 			onTag: function(tag, html, options) {
 				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
@@ -2051,9 +2040,10 @@ function forwardMail() {
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push('');
+
 			//console.log(body);
-			body['body']['text'] = to64(body['body']['text']);
-			body['body']['html'] = to64(body['body']['html']);
+			body['body']['text'] = to64(messageDisplayedBody);
+			body['body']['html'] = to64(messageDisplayedBody);
 			body['subj'] = to64(body['subj']);
 			activePage = 'composeMail';
 			emailTimer();
