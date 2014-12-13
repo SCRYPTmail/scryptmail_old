@@ -105,7 +105,7 @@ function renderMessageUnreg(body, meta) {
 				var size = from64(fdata['size']);
 				var fname=escapeTags(from64(fdata['name']));
 				size = (size > 1000000) ? Math.round(size / 10000) / 100 + ' Mb' : Math.round(size / 10) / 100 + ' Kb';
-				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + fname + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFileUnreg(\'' + fname + '\')"> Download</a></div></li>');
+				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + fname + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFileUnreg(\'' + fdata['name'] + '\')"> Download</a></div></li>');
 
 			});
 		}
