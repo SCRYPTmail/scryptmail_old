@@ -156,7 +156,7 @@ function saniziteEmailAttachment(body,meta)
 				},
 				onTagAttr: function (tag, name, value, isWhiteAttr) {
 					if(tag=='a' && name=='href')
-						return name+'="'+value+'"'+' target="_blank"';
+						return name+'='+value+' target="_blank"';
 					if(name=='style' && value.indexOf('http')!=-1)
 						return tag;
 					//console.log(value);
@@ -198,7 +198,7 @@ function renderImages()
 		messageDisplayedBody=filterXSS(bdhtml,{
 			onTagAttr: function (tag, name, value, isWhiteAttr) {
 				if(tag=='a' && name=='href')
-					return name+'='+'="'+value+'"'+' target="_blank"';;
+					return name+'='+value+' target="_blank"';
 			},
 			onTag: function(tag, html, options) {
 				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
