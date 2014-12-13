@@ -159,7 +159,8 @@ emailObj = {
 	'modKey': '',
 	'mailId': ''
 };
-
+messageBody='';
+messageDisplayedBody='';
 fileObject = {};
 fileSize = 0;
 
@@ -215,6 +216,8 @@ function resetGlobal() {
 	mailhash = '';
 	fileSelector='';
 	contactHash = '';
+	messageBody='';
+	messageDisplayedBody='';
 	blackListHash = '';
 	profileHash = '';
 	folderHash = '';
@@ -974,6 +977,18 @@ function profileSettingToDb(prof) {
 
 }
 
+function getEmailsFromString(input) {
+	var ret = [];
+	var email = /\<([^\>]+)\>/g
+
+	var match;
+	while (match = email.exec(input))
+		if(IsEmail(match[1]))
+			ret=match[1];
+
+	return ret;
+}
+
 
 function contactsToDb(contObj) {
 
@@ -1540,16 +1555,18 @@ function showSavedDraft(body, meta, datas) {
 
 		var cont = [];
 		$.each(to, function (index, value) {
-			var res = value.split("<");
-			//console.log(value);
-			//console.log(res);
-			if (res.length > 1) {
-				var name = $.trim(res[0]);
-				var em = $.trim(res[1].substring(0, res[1].lastIndexOf('>')));
+
+
+			if (value.indexOf('<') != -1) {
+				var toEmail=getEmailsFromString(value);
+				var name = escapeTags(value.substring(0, value.indexOf('<')));
+				var em =toEmail;
 				cont.push(name + "<" + em + ">");
 			} else {
-				cont.push($.trim(value));
+				var toEmail=getEmailsFromString(value);
+				cont.push($.trim(toEmail));
 			}
+
 		});
 
 		$('#toRcpt').select2('val', cont);
@@ -1558,7 +1575,7 @@ function showSavedDraft(body, meta, datas) {
 	}
 
 	if (body['subj'] != '') {
-		$('#subj').val(from64(body['subj']));
+		$('#subj').val(stripHTML(from64(body['subj'])));
 	}
 
 	if (body['body']['text'] != '' && body['body']['html'] == '') {
@@ -1566,7 +1583,29 @@ function showSavedDraft(body, meta, datas) {
 
 	}else if(body['body']['html'] != '')
 	{
-		$('#emailbody').code(filterXSS(from64(body['body']['html'])));
+		$('#emailbody').code(filterXSS(from64(body['body']['html']),{
+			onTagAttr: function (tag, name, value, isWhiteAttr) {
+				if(name=='src' && (value.indexOf('https:')==-1 && value.indexOf('http:')!=-1)){
+					return name+'="https:'+value.substr(5)+'"';
+				}else if(name=='src' && (value.indexOf('https:')==-1 && value.indexOf('http:')==-1)){
+					return ' ';
+
+				}
+
+				if(name=='style' && (value.indexOf('background-image')!=-1 || value.indexOf('content')!=-1 || value.indexOf('behavior')!=-1|| value.indexOf('url')!=-1)){
+					return name;
+				}
+
+				if(tag=='a' && name=='href')
+					return name+'="'+value+'"'+' target="_blank"';
+			},
+			onTag: function(tag, html, options) {
+				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
+					return " ";
+				}
+			}
+		}));
+
 
 
 	}
@@ -1978,7 +2017,7 @@ function replyToMail() {
 
 			body['body']['html'] = '<br><br>---------------------------------<br>' +
 				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
-				body['body']['html'];
+				messageDisplayedBody;
 			body['body']['text'] = to64(body['body']['text']);
 			body['body']['html'] = to64(body['body']['html']);
 			activePage = 'composeMail';
@@ -2660,22 +2699,23 @@ function addCustomFolder(){
 						$('#newFolder').val('');
 						$(this).dialog("close");
 
-
 					}else{
 						noAnswer('Please enter a value between 1 and 30 characters long.');
 					}
-
 
 				}
 			}
 		]
 	});
-	if(Object.keys(folder['Custom']).length<roleData['role']['customFolderLimit']){
-		$('#addFolder').dialog('open');
+	if(folder['Custom']==undefined){
+		retrieveSecret();
 	}else{
-		noAnswer('You\'ve reached limit for custom folders.');
+		if(Object.keys(folder['Custom']).length<roleData['role']['customFolderLimit']){
+			$('#addFolder').dialog('open');
+		}else{
+			noAnswer('You\'ve reached limit for custom folders.');
+		}
 	}
-
 
 }
 

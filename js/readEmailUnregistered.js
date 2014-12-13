@@ -95,11 +95,6 @@ function renderMessageUnreg(body, meta) {
 
 	$('.replyunsec').attr('href', 'mailto:' + body['from']);
 
-
-	$('.email-open-header').text(sanitize(body['subj']));
-
-	var from = body['from'];
-
 	if (meta['attachment'] != "") {
 		if (Object.keys(body['attachment']).length > 0) {
 			file = body['attachment'];
@@ -108,75 +103,16 @@ function renderMessageUnreg(body, meta) {
 			$.each(body['attachment'], function (fname, fdata) {
 
 				var size = from64(fdata['size']);
+				var fname=escapeTags(from64(fdata['name']));
 				size = (size > 1000000) ? Math.round(size / 10000) / 100 + ' Mb' : Math.round(size / 10) / 100 + ' Kb';
-				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + from64(fdata['name']) + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFileUnreg(' + "'" + fdata['name'] + "'" + ')"> Download</a></div></li>');
+				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + fname + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFileUnreg(\'' + fname + '\')"> Download</a></div></li>');
 
 			});
 		}
 	}
-
-	var rcphead = '';
-	if (from.indexOf('<') != -1) {
-		rcphead = 'From: <strong>' + escapeTags(from.substring(0, from.indexOf('<'))) + '</strong>' +
-			'<span class="hidden-mobile">' + escapeTags(from.substring(from.indexOf('<'), from.lastIndexOf('>') + 1));
-	} else {
-		rcphead = 'From: <span class="hidden-mobile">' + escapeTags(from);
-	}
-	rcphead = rcphead + '<br>To: ';
-
-	var value = body['to'];
-	if (value.indexOf('<') != -1) {
-		rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> ' + escapeTags(value.substring(value.indexOf('<'), value.lastIndexOf('>') + 1)) + "; ";
-	} else {
-		rcphead = rcphead + escapeTags(value) + "; ";
-	}
-
-	rcphead = rcphead.substring(0, rcphead.length - 2);
-
-	rcphead = rcphead + '<br>on: <i>' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ', ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + '</i></span>';
-
-	$('#rcptHeader').html(rcphead);
+	saniziteEmailAttachment(body,meta);
 
 
-
-	if(body['body']['html']!=''){
-
-
-		var dfd1 = new $.Deferred();
-		var bod='';
-
-
-		$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%" sandbox="allow-same-origin allow-scripts">');
-
-		var target = $('#virtualization').contents()[0];
-		target.open();
-		target.write('<!doctype html><html><head></head><body></body></html>');
-		target.close();
-
-		$('#virtualization').contents().find("html").html(filterXSS(body['body']['html'],{
-			onTagAttr: function (tag, name, value, isWhiteAttr) {
-				if(tag=='img' && name=='src' && (value.indexOf('http:')!=-1 && value.indexOf('https:')==-1)){
-					return name+'="https:'+value.substr(5)+'"';
-
-				}
-				if(tag=='a' && name=='href')
-					return name+'="'+value+'"'+' target="_blank"';
-			},
-			onTag: function(tag, html, options) {
-				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
-					return " ";
-				}
-			}
-		}));
-
-
-		$("#virtualization").height($("#virtualization").contents().find("html").height());
-
-
-	}else{
-		$('#emailbody').text(body['body']['text']);
-		$('#emailbody').prepend('<style>#emailbody{white-space: pre;}</style>');
-	}
 }
 
 

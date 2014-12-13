@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0520';
+	public $fileVers='0521';
 
 	public function beforeAction($action)
 	{
@@ -260,6 +260,7 @@ class SiteController extends Controller
 	{
 		$cs = Yii::app()->clientScript;
 		$cs->registerScriptFile("/js/readEmailUnregistered.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/renderMail.js?r=$this->fileVers");
 
 		$model = new RetrieveEmail('initialOpen');
 		$model->emailHash=Yii::app()->getRequest()->getQuery('id');

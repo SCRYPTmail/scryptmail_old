@@ -49,12 +49,12 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
-								Due to our initial bug with <a href="http://blog.scryptmail.com/post/103399097090/bugs-hashes-and-special-characters" target="_blank">password hashes</a> and to make more space on server, we will delete inactive accounts in Dec, 22. More info <a href="http://blog.scryptmail.com/post/104740790090/corrupted-account-cleanup" target="_blank">here</a><br>
+								Due to our initial bug with <a href="http://blog.scryptmail.com/2014/12/bugs-hashes-and-special-characters.html" target="_blank">password hashes</a> and to make more space on server, we will delete inactive accounts in Dec, 22. More info <a href="http://blog.scryptmail.com/2014/12/corrupted-accounts-cleanup.html" target="_blank">here</a><br>
 								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
 						<?php } ?>
 
 						<div class="login-app-icons">
-							<a href="http://blog.scryptmail.com/post/103536268805/scryptmail-features" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
+							<a href="http://blog.scryptmail.com/2014/11/scryptmail-encrypted-email-service.html" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
 							<a href="http://blog.scryptmail.com" target="_blank" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
 						</div>
 					</div>
@@ -69,7 +69,7 @@ Privacy is your right, not a privilege<br>
 
 						<header>
 							Sign In
-							<h5 style="margin-top:10px;"><small><a href="http://blog.scryptmail.com/post/103842937050/scryptmail-browser-compatibility" target="_blank"> Supported Browsers</a></small></h5>
+							<h5 style="margin-top:10px;"><small><a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank"> Supported Browsers</a></small></h5>
 						</header>
 
 						<fieldset>
@@ -120,18 +120,16 @@ Privacy is your right, not a privilege<br>
 		<div class="row" style="text-align:center;margin-top:40px;margin-bottom:40px;">
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
-			<a href="http://blog.scryptmail.com/post/103537538335/feature-request">Recommend new feature</a><br>
+			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
+			Dec,12 <ul>
+				<li>To protect our users from tracking, all images in email has been disabled</li>
+				<li>Moved to a new blog.</li>
+			</ul>
 			Dec,7 <ul>
 				<li>Email send with pin to gmail or other emails can not be bruteforced anymore, after 3 wrong pin, email get deleted</li>
 			</ul>
 
-			Dec,6 <ul>
-				<li>Registered users can invite their friends</li>
-				<li>Email delivery improve. Less mail should be mark as spam</li>
-
-			</ul>
-
-			<a href="http://blog.scryptmail.com/private/103537130180/tumblr_nfl3u9uT3n1u3cx2k" target="_blank">Older updates</a>
+			<a href="http://blog.scryptmail.com/2014/12/scryptmail-changelog.html" target="_blank">Older updates</a>
 
 		</div>
 		</div>

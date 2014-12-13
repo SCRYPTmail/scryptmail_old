@@ -479,6 +479,7 @@ function encryptWithPin(value) {
 	emailPreObj['body']['text'] = to64(emailPreObj['body']['text']);
 	emailPreObj['body']['html'] = to64(emailPreObj['body']['html']);
 
+
 	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 	emailPreObj['meta']['to'] = to64(emailPreObj['meta']['to']);

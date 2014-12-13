@@ -84,6 +84,9 @@
 		// do nothing
 	}
 
+	function onStyle (tag,  html, options) {
+		// do nothing
+	}
 	/**
 	 * 匹配到不在白名单上的标签时的处理方法
 	 *
@@ -95,6 +98,7 @@
 	function onIgnoreTag (tag, html, options) {
 		// do nothing
 	}
+
 
 	/**
 	 * 匹配到标签属性时的处理方法
@@ -119,6 +123,7 @@
 	function onIgnoreTagAttr (tag, name, value) {
 		// do nothing
 	}
+
 
 	/**
 	 * HTML转义
@@ -475,6 +480,7 @@
 	 * @param {Function} escapeHtml 对HTML进行转义的韩松
 	 * @return {String}
 	 */
+
 	function parseTag (html, onTag, escapeHtml) {
 		'user strict';
 
@@ -609,6 +615,8 @@
 	}
 
 	exports.parseTag = parseTag;
+
+
 	exports.parseAttr = parseAttr;
 
 },{}],4:[function(require,module,exports){
@@ -621,6 +629,8 @@
 	var DEFAULT = require('./default');
 	var parser = require('./parser');
 	var parseTag = parser.parseTag;
+
+
 	var parseAttr = parser.parseAttr;
 
 
@@ -678,6 +688,7 @@
 
 		options.whiteList = options.whiteList || DEFAULT.whiteList;
 		options.onTag = options.onTag || DEFAULT.onTag;
+
 		options.onTagAttr = options.onTagAttr || DEFAULT.onTagAttr;
 		options.onIgnoreTag = options.onIgnoreTag || DEFAULT.onIgnoreTag;
 		options.onIgnoreTagAttr = options.onIgnoreTagAttr || DEFAULT.onIgnoreTagAttr;
@@ -697,6 +708,7 @@
 		var options = me.options;
 		var whiteList = options.whiteList;
 		var onTag = options.onTag;
+
 		var onIgnoreTag = options.onIgnoreTag;
 		var onTagAttr = options.onTagAttr;
 		var onIgnoreTagAttr = options.onIgnoreTagAttr;
@@ -727,6 +739,7 @@
 			// 调用onTag处理
 			var ret = onTag(tag, html, info);
 			if (!isNull(ret)) return ret;
+
 
 			// 默认标签处理方法
 			if (info.isWhite) {

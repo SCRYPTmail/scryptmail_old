@@ -13,6 +13,7 @@
 										<label class="select">
 											<select onchange="changeTimeout($(this));">
 												<option value="0" selected="" disabled="">Select Session Time Out</option>
+												<option value="30">0.5 Minute</option>
 												<option value="600">10 Minutes - Shared Facilities</option>
 												<option value="1800">30 Minutes - Personal Office</option>
 												<option value="3600">1 Hour - Home</option>
