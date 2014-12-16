@@ -384,6 +384,7 @@
 			<div id="collapseSix" class="panel-collapse collapse">
 				<div class="panel-body">
 					<div class="table-responsive">
+						URL to safe: https://scryptmail.com/safeBox/[MY FILE NAME].kdbx  <a class="pull-right" href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Help</a></li>
 						<table class="table table-striped table-hover" id="safeList">
 						</table>
 					</div>
