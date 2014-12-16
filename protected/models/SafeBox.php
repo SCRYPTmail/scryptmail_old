@@ -14,8 +14,8 @@ class SafeBox extends CFormModel
 	{
 		return array(
 			array('file,filename,username,password,action', 'checkFile','on'=>'safeFile'),
-			array('modKey', 'match', 'pattern'=>'/^([a-z0-9_]){32}+$/','on'=>'retrieveList'),
-			array('modKey', 'match', 'pattern'=>'/^([a-z0-9_]){32}+$/','on'=>'deleteFileFromSafe'),
+			array('modKey', 'match', 'pattern'=>'/^([a-z0-9_]){32,64}+$/','on'=>'retrieveList'),
+			array('modKey', 'match', 'pattern'=>'/^([a-z0-9_]){32,64}+$/','on'=>'deleteFileFromSafe'),
 			array('fileId', 'match', 'pattern'=>'/^([a-z0-9_]){128}+$/','on'=>'deleteFileFromSafe'),
 
 
