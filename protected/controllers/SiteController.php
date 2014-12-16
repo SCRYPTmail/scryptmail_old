@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0521';
+	public $fileVers='0522';
 
 	public function beforeAction($action)
 	{
@@ -94,7 +94,8 @@ class SiteController extends Controller
 					'verifyToken',
 					'verifyRawToken',
 					'ResetPass',
-					'checkInvitation'
+					'checkInvitation',
+					'safeBox',
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -157,7 +158,11 @@ class SiteController extends Controller
 					'resetUserObject',
 					'generateNewToken',
 					'checkInvitation',
-					'inviteFriend'
+					'inviteFriend',
+					'getSafeBoxList',
+					'safeBox',
+					'deleteFileFromSafe'
+
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
 			),
@@ -195,6 +200,49 @@ class SiteController extends Controller
 			$model->checkRawToken();
 		else
 			echo json_encode($model->getErrors());
+	}
+
+	public function actionDeleteFileFromSafe()
+	{
+		$model = new SafeBox('deleteFileFromSafe');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate())
+			$model->deleteFileFromSafe(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionGetSafeBoxList()
+	{
+		$model = new SafeBox('retrieveList');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate())
+			$model->retrieveList(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+	}
+
+	public function actionSafeBox()
+	{
+
+		$model = new SafeBox('safeFile');
+		$model->file=file_get_contents("php://input");
+		$model->filename=Yii::app()->getRequest()->getQuery('fileName');
+		$model->username=isset($_SERVER['PHP_AUTH_USER'])?$_SERVER['PHP_AUTH_USER']:'';
+		$model->password=isset($_SERVER['PHP_AUTH_PW'])?$_SERVER['PHP_AUTH_PW']:'';
+		$model->action=isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'';
+
+		if(strlen($model->filename)!=0)
+		{
+			if ($model->validate())
+					$model->fileWorks();
+
+		}else
+			{
+				header($_SERVER['SERVER_PROTOCOL'] . ' 500 Please provide File name', true, 500);
+				echo ' ';
+
+			}
+
 	}
 
 	public function actionVerifyToken()
@@ -856,7 +904,7 @@ class SiteController extends Controller
 
 	public function actionGetFolder()
 	{
-		Yii::app()->db->createCommand("UPDATE user SET active=1 WHERE id=".Yii::app()->user->getId())->execute();
+		Yii::app()->db->createCommand("UPDATE user SET active=NOW() WHERE id=".Yii::app()->user->getId())->execute();
 
 		if (Yii::app()->request->getQuery('id') == "composeMail")
 			$this->renderPartial('ComposeMail',array('version'=>$this->fileVers));

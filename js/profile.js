@@ -11,6 +11,7 @@ $(document).ready(function () {
 	$('#newFname').attr('name',makerandom());
 
 	contactListProfileInitialized=false;
+	safeBoxProfileInitialized=false;
 
 });
 
@@ -660,6 +661,122 @@ function saveSecret() {
 	}
 }
 
+function delSafeFile(row,id){
+
+	checkState(function () {
+		$.ajax({
+			type: "POST",
+			url: '/deleteFileFromSafe',
+			data: {
+				'modKey':userModKey,
+				'fileId':id
+			},
+			success: function (data, textStatus) {
+				if (data['result'] == 'success') {
+					$('#safeList').DataTable().row($(row).parents('tr')).remove().draw(false);
+				}
+			},
+			error: function (data, textStatus) {
+
+			},
+			dataType: 'json'
+		});
+
+
+	}, function () {
+	});
+
+
+
+}
+
+function initSafeBox() {
+	if (!safeBoxProfileInitialized) {
+		var dfd = $.Deferred();
+		var dataSet = [];
+		var fileList={};
+
+		checkState(function () {
+			$.ajax({
+				type: "POST",
+				url: '/getSafeBoxList',
+				data: {
+					'modKey':userModKey
+				},
+				success: function (data, textStatus) {
+					if (data['response'] == 'success') {
+						fileList=data['data'];
+						dfd.resolve();
+						//tryDecryptSeed(data.data);
+					}
+				},
+				error: function (data, textStatus) {
+
+				},
+				dataType: 'json'
+			});
+
+
+		}, function () {
+		});
+
+		dfd.done(function () {
+			//console.log(fileList);
+			if (Object.keys(fileList).length > 0) {
+				//console.log(fileList);
+				$.each(fileList, function (index, value) {
+					var el = [from64(value['name']),value['modified'],value['created'], '<a class="delete" href="javascript:void(0);" onclick="delSafeFile($(this),\'' + value['index'] + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+					dataSet.push(el);
+				});
+
+			} else
+				dataSet = [];
+
+			contactTable = $('#safeList').dataTable({
+				"sDom": "R<'dt-toolbar'" +
+					"r>t" +
+					"<'dt-toolbar-footer'" +
+					"<'col-sm-6 col-xs-2'i>" +
+					"<'#safepaginator'p>" +
+					">",
+				"columnDefs": [
+					{ "sClass": 'col col-xs-4', "targets": 0},
+					{ "sClass": 'col col-xs-4', "targets": 1 },
+					{ "sClass": 'col col-xs-1 text-align-center', "targets": 2},
+					{ 'bSortable': false, 'aTargets': [ 2 ] },
+					{ "orderDataType": "data-sort", "targets": 1 }
+				],
+				"order": [
+					[ 1, "asc" ]
+				],
+				"iDisplayLength": 10,
+				"data": dataSet,
+				columns: [
+					{ "title": "name" },
+					{ "title": "modified" },
+					{ "title": "created"},
+					{ "title": "delete"}
+
+				],
+				"language": {
+					"emptyTable": "No Files"
+				}
+
+			});
+
+			safeBoxProfileInitialized = true;
+			$('#safeIcons').css('float', 'left');
+
+
+		});
+
+
+
+
+	}
+
+}
+
 function initContacts() {
 	if (!contactListProfileInitialized) {
 
@@ -710,7 +827,7 @@ function initContacts() {
 		});
 
 		contactListProfileInitialized = true;
-		$('#contactIcons').html('<a class="btn btn-primary" style="width:50px;" href="javascript:void(0);" rel="tooltip" data-original-title="Add Contact" data-placement="bottom" onclick="addNewContact();"><i class="fa fa-plus"></i>&nbsp;&nbsp;<i class="fa fa-user"></i></a>')
+		$('#contactIcons').html('<a class="btn btn-primary" style="width:50px;" href="javascript:void(0);" rel="tooltip" data-original-title="Add Contact" data-placement="bottom" onclick="addNewContact();"><i class="fa fa-plus"></i>&nbsp;&nbsp;<i class="fa fa-user"></i></a>');
 		$('#contactIcons').css('float', 'left');
 
 

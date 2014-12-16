@@ -60,16 +60,16 @@ $.SmartMessageBox = function (settings, callback) {
     // SmallBox Sound
     if (isIE8orlower() == 0) {
         var audioElement = document.createElement('audio');
-        audioElement.setAttribute('src', $.sound_path + 'messagebox.mp3');
-        $.get();
-        audioElement.addEventListener("load", function () {
-            audioElement.play();
-        }, true);
+       // audioElement.setAttribute('src', $.sound_path + 'messagebox.mp3');
+       // $.get();
+      //  audioElement.addEventListener("load", function () {
+         //   audioElement.play();
+       // }, true);
 
-        if ($.sound_on) {
-            audioElement.pause();
-            audioElement.play();
-        }
+       // if ($.sound_on) {
+      //      audioElement.pause();
+      //      audioElement.play();
+      //  }
 
     }
 

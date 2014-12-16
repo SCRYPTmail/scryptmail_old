@@ -11,11 +11,9 @@ class Acceptemailfrompostfix extends CFormModel
 	public function accept($current)
 	{
 
-
 		if (Yii::app()->params['production']) {
 			set_time_limit(300);
 			$rr = json_decode($current['mandrill_events'], true);
-
 		} else {
 			set_time_limit(300);
 			$current = file_get_contents('newfile.txt');
@@ -66,13 +64,14 @@ class Acceptemailfrompostfix extends CFormModel
 					$mailKey = $mailhash['mailKey'];
 
 					$emailPreObj['from'] = (isset($row['msg']['from_name']) && $row['msg']['from_name'] != $row['msg']['from_email']) ? $row['msg']['from_name'] . '<' . $row['msg']['from_email'] . '>' : $row['msg']['from_email'];
-					$emailPreObj['subj'] = htmlentities($row['msg']['subject']);
+					$emailPreObj['subj'] = htmlspecialchars(is_array($row['msg']['subject'])?$row['msg']['subject'][0]:$row['msg']['subject'], ENT_QUOTES, "UTF-8");
+
 					$text=isset($row['msg']['text']) ? strip_tags($row['msg']['text']):'';
 					$html=isset($row['msg']['html'])?$row['msg']['html']:'';
 
 					$emailPreObj['body']['text'] =  $text;
 					$emailPreObj['body']['html'] = $html;
-					$emailPreObj['meta']['subject'] = substr(htmlentities($row['msg']['subject']), 0, 150);
+					$emailPreObj['meta']['subject'] = substr(htmlentities(is_array($row['msg']['subject'])?$row['msg']['subject'][0]:$row['msg']['subject']), 0, 150);
 					$emailPreObj['meta']['from'] = strip_tags($emailPreObj['from']);
 					$metb=($text!='')?$text:$html;
 					$emailPreObj['meta']['body'] = substr(strip_tags($metb), 0, 50);

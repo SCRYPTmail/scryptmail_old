@@ -375,6 +375,22 @@
 			</div>
 		</div>
 
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseSix" onclick="initSafeBox();"
+										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+							class="fa fa-lg fa-angle-up pull-right"></i> SafeBox </a></h4>
+			</div>
+			<div id="collapseSix" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-hover" id="safeList">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!--<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseSix"
@@ -424,3 +440,9 @@
 </form>
 
 <script src="/js/profile.js?r=<?php echo $version;?>"></script>
+<script>
+	$(document).ready(function () {
+		activePage='profile';
+	});
+
+	</script>
