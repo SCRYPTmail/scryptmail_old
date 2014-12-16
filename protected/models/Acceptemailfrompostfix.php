@@ -66,13 +66,13 @@ class Acceptemailfrompostfix extends CFormModel
 					$mailKey = $mailhash['mailKey'];
 
 					$emailPreObj['from'] = (isset($row['msg']['from_name']) && $row['msg']['from_name'] != $row['msg']['from_email']) ? $row['msg']['from_name'] . '<' . $row['msg']['from_email'] . '>' : $row['msg']['from_email'];
-					$emailPreObj['subj'] = htmlspecialchars($row['msg']['subject'], ENT_QUOTES, "UTF-8");
+					$emailPreObj['subj'] = is_array($row['msg']['subject'])?htmlspecialchars($row['msg']['subject'][0], ENT_QUOTES, "UTF-8"):htmlspecialchars($row['msg']['subject'], ENT_QUOTES, "UTF-8");
 					$text=isset($row['msg']['text']) ? strip_tags($row['msg']['text']):'';
 					$html=isset($row['msg']['html'])?$row['msg']['html']:'';
 
 					$emailPreObj['body']['text'] =  $text;
 					$emailPreObj['body']['html'] = $html;
-					$emailPreObj['meta']['subject'] = substr(htmlspecialchars($row['msg']['subject'], ENT_QUOTES, "UTF-8"), 0, 150);
+					$emailPreObj['meta']['subject'] = substr(is_array($row['msg']['subject'])?htmlspecialchars($row['msg']['subject'][0], ENT_QUOTES, "UTF-8"):htmlspecialchars($row['msg']['subject'], ENT_QUOTES, "UTF-8"), 0, 150);
 					$emailPreObj['meta']['from'] = strip_tags($emailPreObj['from']);
 					$metb=($text!='')?$text:$html;
 					$emailPreObj['meta']['body'] = substr(strip_tags($metb), 0, 50);
