@@ -105,6 +105,10 @@ $result['response']='success';
 			$result['data']=$userList;
 			echo json_encode($result);
 
+		}else{
+			$result['response']='success';
+			$result['data']=array();
+			echo json_encode($result);
 		}
 
 	}

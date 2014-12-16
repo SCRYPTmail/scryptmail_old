@@ -121,12 +121,12 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
+			Dec,15 <ul>
+				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read</a></li>
+			</ul>
 			Dec,12 <ul>
 				<li>To protect our users from tracking, all images in email has been disabled</li>
 				<li>Moved to a new blog.</li>
-			</ul>
-			Dec,7 <ul>
-				<li>Email send with pin to gmail or other emails can not be bruteforced anymore, after 3 wrong pin, email get deleted</li>
 			</ul>
 
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-changelog.html" target="_blank">Older updates</a>

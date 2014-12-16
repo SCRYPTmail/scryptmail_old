@@ -740,14 +740,15 @@ function initSafeBox() {
 					"<'#safepaginator'p>" +
 					">",
 				"columnDefs": [
-					{ "sClass": 'col col-xs-4', "targets": 0},
-					{ "sClass": 'col col-xs-4', "targets": 1 },
-					{ "sClass": 'col col-xs-1 text-align-center', "targets": 2},
-					{ 'bSortable': false, 'aTargets': [ 2 ] },
-					{ "orderDataType": "data-sort", "targets": 1 }
+					{ "sClass": 'col col-xs-6', "targets": 0},
+					{ "sClass": 'col col-xs-2', "targets": 1 },
+					{ "sClass": 'col col-xs-2', "targets": 2 },
+					{ "sClass": 'col col-xs-1 text-align-center', "targets": 3},
+					{ 'bSortable': false, 'aTargets': [ 3 ] },
+					{ "orderDataType": "data-sort", "targets": 0 }
 				],
 				"order": [
-					[ 1, "asc" ]
+					[ 0, "asc" ]
 				],
 				"iDisplayLength": 10,
 				"data": dataSet,
