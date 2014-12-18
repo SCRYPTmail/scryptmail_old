@@ -145,14 +145,14 @@ Privacy is your right, not a privilege<br>
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2><span class="glyphicon glyphicon-heart-empty text-danger"></span> Genuine</h2>
 			<h5>We promise not to confuse or misrepresent your security risks</h5>
-						<p>Trust is cornerstone of any business, but many companies fall short by trying to emphasize benefits and hide downsides. We promise to be clear and open as we can to provide you objective information about our technologies.  </p>
+						<p>Trust is cornerstone of any business, but many companies fall short by trying to emphasize benefits and hide downsides. We promise to be clear and open to provide you objective information about our technologies. </p>
 						</div>
 
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2><span class="glyphicon glyphicon-eye-close"></span> Private</h2>
 						<h5>Your emails and data are encrypted from the beginning, with a secret phrase that never leaves your computer, so we can't scan or read your emails</h5>
-						<p>SCRYPTmail users have a 2-step verification process to access your account.
+						<p>SCRYPTmail users have a 2-step verification process to access their account.
 						<ul>
 							<li>Password verification</li>
 							<li>Secret Phrase verification</li>
