@@ -84,7 +84,6 @@ class SiteController extends Controller
 					'privacypolicy',
 					'reportBug',
 					'submitBug',
-					'blog',
 					'createSelectedUser',
 					'checkMail',
 					'saveInvite',
@@ -145,7 +144,6 @@ class SiteController extends Controller
 					'privacypolicy',
 					'reportBug',
 					'submitBug',
-					'blog',
 					'createSelectedUser',
 					'checkMail',
 					'saveInvite',
@@ -336,11 +334,6 @@ class SiteController extends Controller
 		}else
 			echo json_encode($model->getErrors());
 
-	}
-	public function actionBlog()
-	{
-		$cs = Yii::app()->getClientScript();
-		$this->render('blog');
 	}
 	public function actionPrivacypolicy()
 	{

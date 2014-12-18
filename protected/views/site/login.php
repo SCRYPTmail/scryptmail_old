@@ -49,7 +49,7 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
-								Due to our initial bug with <a href="http://blog.scryptmail.com/2014/12/bugs-hashes-and-special-characters.html" target="_blank">password hashes</a> and to make more space on server, we will delete inactive accounts in Dec, 22. More info <a href="http://blog.scryptmail.com/2014/12/corrupted-accounts-cleanup.html" target="_blank">here</a><br>
+								Due to the initial bug with <a href="http://blog.scryptmail.com/2014/12/bugs-hashes-and-special-characters.html" target="_blank">password hashes</a> and to make more space on our servers, we will delete inactive accounts on December, the 22nd. More info <a href="http://blog.scryptmail.com/2014/12/corrupted-accounts-cleanup.html" target="_blank">here</a><br>
 								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
 						<?php } ?>
 
@@ -111,7 +111,7 @@ Privacy is your right, not a privilege<br>
 			</div>
 
 			<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border:0px solid;">
-				<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> SCRYPTmail looking for writer to help us with our blog. If you believe privacy important and want to be part of scryptmail please contact us: support@scryptmail.com
+				<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> SCRYPTmail is looking for writers to help with the blog. If you believe privacy is important and want to be part of scryptmail, please contact us: support@scryptmail.com
 					</div>
 		</div>
 
@@ -125,7 +125,7 @@ Privacy is your right, not a privilege<br>
 				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read</a></li>
 			</ul>
 			Dec,12 <ul>
-				<li>To protect our users from tracking, all images in email has been disabled</li>
+				<li>To protect our users from tracking, all images in email have been disabled</li>
 				<li>Moved to a new blog.</li>
 			</ul>
 
@@ -151,7 +151,7 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2><span class="glyphicon glyphicon-eye-close"></span> Private</h2>
-						<h5>Your email and data encrypted from the beginning, with secret phrase that never leaves your computer, so we can't scan or read your emails</h5>
+						<h5>Your emails and data are encrypted from the beginning, with a secret phrase that never leaves your computer, so we can't scan or read your emails</h5>
 						<p>SCRYPTmail users have a 2-step verification process to access your account.
 						<ul>
 							<li>Password verification</li>
