@@ -141,10 +141,19 @@ $result['response']='success';
 		}
 
 		if($correct){
+			if(isset($this->filename)){
+				$fileBreak=explode('.',$this->filename);
+				foreach($fileBreak as $row){
+					$fname1[]=$row;
+					if($row=='kdbx')
+						break;
+				}
+				$fname=implode($fname1,'.');
+			}
+
 			if($this->action=='PUT'){
 				if($userObj=Yii::app()->db->createCommand("SELECT fileObjects FROM safeBoxStorage WHERE userId=:id")->queryRow(true,array(':id'=>$user['id']))){
 					$decodedHexObject=json_decode($userObj['fileObjects'],true);
-					$fname=str_replace('.tmp','',$this->filename);
 
 					if(isset($decodedHexObject[hash('sha512',$fname)])){
 						$decodedHexObject[hash('sha512',$fname)]=array(
@@ -158,7 +167,7 @@ $result['response']='success';
 						echo ' ';
 
 					}else if(count($decodedHexObject)<$user['filePerSafeBox']){
-						$fname=str_replace('.tmp','',$this->filename);
+
 						$decodedHexObject[hash('sha512',$fname)]=array(
 							'name'=>base64_encode($fname),
 							'file'=>base64_encode($this->file),
@@ -170,7 +179,7 @@ $result['response']='success';
 						echo ' ';
 						//Yii::app()->end();
 					}else if(count($decodedHexObject)>=$user['filePerSafeBox']){
-						header($_SERVER['SERVER_PROTOCOL'] . ' 406 Maximum File limit of'.$user['filePerSafeBox'], true, 406);
+						header($_SERVER['SERVER_PROTOCOL'] . ' 406 Maximum File limit of '.$user['filePerSafeBox'], true, 406);
 						//header($_SERVER['SERVER_PROTOCOL'] . ' 500 File Save Failed4', true, 500);
 						echo ' ';
 						Yii::app()->end();
@@ -186,13 +195,12 @@ $result['response']='success';
 						echo ' ';
 						Yii::app()->end();
 					}else{
-						header($_SERVER['SERVER_PROTOCOL'] . ' 500 File Save Failed4', true, 500);
+						header($_SERVER['SERVER_PROTOCOL'] . ' 500 File Save Failed', true, 500);
 						echo ' ';
 						Yii::app()->end();
 					}
 
 				}else{
-					$fname=str_replace('.tmp','',$this->filename);
 					$userObj[hash('sha512',$fname)]=array(
 						'name'=>base64_encode($fname),
 						'file'=>base64_encode($this->file),
@@ -210,26 +218,26 @@ $result['response']='success';
 				if($userObj=Yii::app()->db->createCommand("SELECT fileObjects FROM safeBoxStorage WHERE userId=:id")->queryRow(true,array(':id'=>$user['id']))){
 					$decodedHexObject=json_decode($userObj['fileObjects'],true);
 
-					if(isset($decodedHexObject[hash('sha512',$this->filename)])){
+					if(isset($decodedHexObject[hash('sha512',$fname)])){
 
-						$file=base64_decode($decodedHexObject[hash('sha512',$this->filename)]['file']);
+						$file=base64_decode($decodedHexObject[hash('sha512',$fname)]['file']);
 
 						header("Cache-Control: public");
 						header("Content-Description: File Transfer");
-						header("Content-Disposition: attachment; filename=".$this->filename);
+						header("Content-Disposition: attachment; filename=".$fname);
 						header("Content-Type: octet/stream");
 						header("Content-Transfer-Encoding: binary");
 						echo $file;
 						Yii::app()->end();
 
 					}else{
-						header($_SERVER['SERVER_PROTOCOL'] . ' 404 File not found 1', true, 404);
+						header($_SERVER['SERVER_PROTOCOL'] . ' 404 File not found', true, 404);
 						echo ' ';
 						Yii::app()->end();
 					}
 
 				}else{
-					header($_SERVER['SERVER_PROTOCOL'] . ' 404 File not founds 2', true, 404);
+					header($_SERVER['SERVER_PROTOCOL'] . ' 404 File not founds', true, 404);
 					echo ' ';
 					Yii::app()->end();
 				}
