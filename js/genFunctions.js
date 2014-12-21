@@ -354,7 +354,10 @@ function delContact(row, email) {
 
 }
 
-
+function toggleMenu(){
+	$('body').toggleClass("hidden-menu");
+	//$('body').toggleClass("minified");
+}
 
 function checkState(success, cancel) {
 
@@ -1220,6 +1223,7 @@ function getDataFromFolder(thisObj) {
 					$('#inbox-content > .table-wrap').html(data);
 					$('#paginator').html('');
 					$('#custPaginator').html('');
+					$('#sendMaildiv').css('display','block');
 					iniEmailBody('');
 					emailTimer();
 				});
@@ -1248,6 +1252,7 @@ function getDataFromFolder(thisObj) {
 			// $('#mobfolder >li').eq(thisObj.parent().index()).children().append(' <i class="fa fa-check"></i>');
 
 			clearInterval(mailt);
+			$('#sendMaildiv').css('display','none');
 			clearComposeMail();
 			checkState(function () {
 				//  console.log($('#mail-table').parents('#mail-table_wrapper').length);
@@ -1350,7 +1355,10 @@ function renderMessages(data) {
 	var to, subj, time, body;
 	var d = new Date();
 	var t = $('#mail-table').DataTable();
+
 	t.clear();
+	var dataSet = [];
+
 	var dfd = $.Deferred();
 	modkeyToMessag = {};
 	//$('.table-wrap').css('margin-right','-8px');
@@ -2011,6 +2019,8 @@ function replyToMail() {
 		success: function (data, textStatus) {
 			$('#inbox-content > .table-wrap').html(data);
 			$('#paginator').html('');
+			$('#sendMaildiv').css('display','block');
+
 			$('#custPaginator').html('');
 			delete body['to'];
 			body['to'] = [];
@@ -2020,7 +2030,7 @@ function replyToMail() {
 			body['to'] = to64(body['to']);
 			meta['from'] = from64(meta['from']);
 
-			body['subj'] = to64(body['subj']);
+			body['subj'] = to64('Re: '+body['subj']);
 
 			body['body']['html'] = '<br><br>---------------------------------<br>' +
 				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
@@ -2055,6 +2065,7 @@ function forwardMail() {
 			$('#inbox-content > .table-wrap').html(data);
 			$('#paginator').html('');
 			$('#custPaginator').html('');
+			$('#sendMaildiv').css('display','block');
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push('');
@@ -2062,7 +2073,7 @@ function forwardMail() {
 			//console.log(body);
 			body['body']['text'] = to64(messageDisplayedBody);
 			body['body']['html'] = to64(messageDisplayedBody);
-			body['subj'] = to64(body['subj']);
+			body['subj'] = to64('Fw: '+body['subj']);
 			activePage = 'composeMail';
 			emailTimer();
 			showSavedDraft(body, meta, '');
@@ -2096,6 +2107,7 @@ function deleteMail() {
 		var selected = {};
 		selected['0'] = {'id': emailObj['mailId'], 'modKey': emailObj['meta']['modKey']};
 		//console.log(selected);
+		$('#sendMaildiv').css('display','none');
 		deleteMessage(selected,folder_navigate);
 		getDataFromFolder(folder_navigate);
 		clearComposeMail();

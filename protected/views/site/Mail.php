@@ -18,16 +18,16 @@
 <div class="inbox-nav-bar no-content-padding">
 	<h1 class="page-title txt-color-blueDark visible-lg visible-md pull-left"><i class="fa fa-fw fa-inbox"></i> Inbox &nbsp;</h1>
 
-	<div class="btn-group hidden-lg hidden-md">
+	<div class="btn-group hidden-lg hidden-md col col-xs-6">
 		<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 			<span id="folderSelect"></span> <i class="fa fa-caret-down"></i>
 		</button>
 		<ul class="dropdown-menu pull-left" id="mobfolder">
 		</ul>
 
+		<a href="javascript:void(0);" class="btn btn-primary" style="margin-left:10px;" onclick="getDataFromFolder('composeMail')"><strong>Compose</strong></a>
 	</div>
 
-	<a href="javascript:void(0);" class="btn btn-primary hidden-lg hidden-md" onclick="getDataFromFolder('composeMail')"><strong>Compose</strong></a>
 
 	<div id='pag' class="pull-right">
 	<div class="btn-group pull-right inbox-paging" id='paginator'>
@@ -36,6 +36,20 @@
 
 	<span class="pull-right" id="custPaginator" style="margin-top:5px;"></span>
 	</div>
+
+	<div id="sendMaildiv" class="col col-xs-6 text-align-right pull-right" style="display:none;">
+		<button class="btn btn-primary sendMailButton"
+				type="button" onclick="sendMail()">
+			Send
+		</button>
+
+
+		<button class="btn btn-danger" style="margin-left:30px;" type="button" rel="tooltip" data-placement="top"
+				data-original-title="Discard" onclick="deleteMail()"><i class="fa fa-trash-o"></i>
+		</button>
+
+	</div>
+
 </div>
 <div id="inbox-content" class="inbox-body no-content-padding">
 
