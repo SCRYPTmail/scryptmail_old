@@ -49,6 +49,7 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
+
 								Due to the initial bug with <a href="http://blog.scryptmail.com/2014/12/bugs-hashes-and-special-characters.html" target="_blank">password hashes</a> and to make more space on our servers, we will delete inactive accounts on December, the 22nd. More info <a href="http://blog.scryptmail.com/2014/12/corrupted-accounts-cleanup.html" target="_blank">here</a><br>
 								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
 						<?php } ?>
@@ -122,7 +123,7 @@ Privacy is your right, not a privilege<br>
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
 			Dec,15 <ul>
-				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read</a></li>
+				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read more</a></li>
 			</ul>
 			Dec,12 <ul>
 				<li>To protect our users from tracking, all images in email have been disabled</li>
@@ -144,20 +145,21 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2><span class="glyphicon glyphicon-heart-empty text-danger"></span> Genuine</h2>
-			<h5>We promise not to confuse or misrepresent your security risks</h5>
-						<p>Trust is cornerstone of any business, but many companies fall short by trying to emphasize benefits and hide downsides. We promise to be clear and open to provide you objective information about our technologies. </p>
-						</div>
+			<h5>We promise not to confuse nor misrepresent your security risks.</h5>
+						<p>Trust is the cornerstone of any business, but many companies fall short by trying to emphasize benefits and hide downsides. We promise to be transparent and open in order to provide you with objective information about our technologies.</p>
+			 						</div>
 
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2><span class="glyphicon glyphicon-eye-close"></span> Private</h2>
-						<h5>Your emails and data are encrypted from the beginning, with a secret phrase that never leaves your computer, so we can't scan or read your emails</h5>
-						<p>SCRYPTmail users have a 2-step verification process to access their account.
+						<h5>Your emails and data are encrypted from the beginning with a secret phrase that never leaves your computer. As a result, we can't scan nor read your emails.</h5>
+
+						<p>SCRYPTmail users have a 2-step verification process to access their account:
 						<ul>
 							<li>Password verification</li>
 							<li>Secret Phrase verification</li>
 						</ul>
-						Every SCRYPTmail user will need to complete the 2-step verification process in order to send and read emails. </p>
+						Every SCRYPTmail user will need to complete the 2-step verification process in order to send and read emails.</p>
 					</div>
 				<div class="col col-lg-12 text-align-center">
 				<span class="btn btn-info" id="rdm" onclick='$("#morepriv" ).slideToggle( "slow", function(){$( "#rdm" ).remove();});'> Read more</span>

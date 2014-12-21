@@ -97,7 +97,7 @@ class SafeBox extends CFormModel
 				$userList[]=array(
 					'index'=> $i,
 					'name'=>$row['name'],
-					'created'=>isset($row['created'])?$row['created']:date('Y-m-d h:i'),
+					'created'=>$row['created'],//isset($row['created'])?$row['created']:date('Y-m-d h:i'),
 					'modified'=>$row['modified']
 				);
 			}
@@ -156,14 +156,11 @@ $result['response']='success';
 					$decodedHexObject=json_decode($userObj['fileObjects'],true);
 
 					if(isset($decodedHexObject[hash('sha512',$fname)])){
-						$decodedHexObject[hash('sha512',$fname)]=array(
-							'name'=>base64_encode($fname),
-							'file'=>base64_encode($this->file),
-							'modified'=>date('Y-m-d h:i')
-						);
+						$decodedHexObject[hash('sha512',$fname)]['name']=base64_encode($fname);
+						$decodedHexObject[hash('sha512',$fname)]['file']=base64_encode($this->file);
+						$decodedHexObject[hash('sha512',$fname)]['modified']=date('Y-m-d h:i');
 
 						header($_SERVER['SERVER_PROTOCOL'] . ' 200 OK', true, 200);
-						//header($_SERVER['SERVER_PROTOCOL'] . ' 500 File Save Failed1', true, 500);
 						echo ' ';
 
 					}else if(count($decodedHexObject)<$user['filePerSafeBox']){
