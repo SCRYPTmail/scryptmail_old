@@ -246,28 +246,8 @@ var calc_navbar_height = function() {
 
                 },
 
-                // MINIFY MENU
-                minifyMenu: function($this){
-                    if (!$.root_.hasClass("menu-on-top")){
-                        $.root_.toggleClass("minified");
-                        $.root_.removeClass("hidden-menu");
-                        $('html').removeClass("hidden-menu-mobile-lock");
-                        $this.effect("highlight", {}, 500);
-                    }
-                },
 
                 // TOGGLE MENU
-                toggleMenu: function(){
-                    if (!$.root_.hasClass("menu-on-top")){
-                        $('html').toggleClass("hidden-menu-mobile-lock");
-                        $.root_.toggleClass("hidden-menu");
-                        $.root_.toggleClass("minified");
-                    } else if ( $.root_.hasClass("menu-on-top") && $.root_.hasClass("mobile-view-activated") ) {
-                        $('html').toggleClass("hidden-menu-mobile-lock");
-                        $.root_.toggleClass("hidden-menu");
-                        $.root_.toggleClass("minified");
-                    }
-                },
 
                 // TOGGLE SHORTCUT
                 toggleShortcut: function(){

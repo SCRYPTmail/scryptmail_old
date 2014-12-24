@@ -16,6 +16,7 @@ $(document).ready(function () {
 	fileSelector = $("#ddd");
 
 	composeMailRecptCheck();
+
 });
 
 function attachFile() {
@@ -118,17 +119,19 @@ function iniEmailBody(pin) {
 				['fontsize', ['fontsize']],
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],
-				['height', ['height']]
+				['height', ['height']],
+				['insert', ['link']], // no insert buttons
 			]
 
 		});
 	}
 	$('.note-editable').css('min-height',parseInt($('.inbox-message').css('height'), 10));
+	$('.note-editable').focus();
 	//$('.note-editor').css('height',parseInt($('.inbox-message').css('height'), 10));
 	//$('#emailbody').css('min-height',parseInt($('#email-compose-form').css('height'), 10));
 
 	if (pin == '') {
-		var cheboxpin = '<div class="well-md well-light smart-form" style="float:left;">		' +
+		var cheboxpin = '<div class="well-md well-light smart-form">		' +
 			'<ul class="list-inline" id="mailOptions">		' +
 			'<li>			' +
 			'<label class="checkbox">				' +
@@ -139,7 +142,7 @@ function iniEmailBody(pin) {
 			'</div>';
 
 	} else {
-		var cheboxpin = '<div class="well-md well-light smart-form" style="float:left;">		' +
+		var cheboxpin = '<div class="well-md well-light smart-form">		' +
 			'<ul class="list-inline" id="mailOptions">		' +
 			'<li>			' +
 			'<label class="checkbox">				' +
@@ -195,8 +198,8 @@ function emailParser(emails) {
 function sendMail() {
 
 
-	$('#send').html('<i class="fa fa-refresh fa-spin"></i>&nbsp; Sending...');
-	$('#send').prop('disabled',true);
+	$('.sendMailButton').html('<i class="fa fa-refresh fa-spin"></i>&nbsp; Sending...');
+	$('.sendMailButton').prop('disabled',true);
 	var canceled = false;
 	checkState(function () {
 
@@ -205,8 +208,8 @@ function sendMail() {
 
 		if (emails == "") {
 			noAnswer('Please include at least one recipient');
-			$('#send').html('Send');
-			$('#send').prop('disabled',false);
+			$('.sendMailButton').html('Send');
+			$('.sendMailButton').prop('disabled',false);
 
 			$('#toRcpt').select2('open');
 
@@ -806,8 +809,8 @@ function encryptMessageToRecipient(emailparsed) {
 
 		if (rec.length == Object.keys(badRcpt).length) {
 			noAnswer('Please check recepient address and try again');
-			$('#send').html('Send');
-			$('#send').prop('disabled',false);
+			$('.sendMailButton').html('Send');
+			$('.sendMailButton').prop('disabled',false);
 
 		} else if (Object.keys(badRcpt).length > 0) {
 			var key = forge.random.getBytesSync(32);
@@ -827,8 +830,8 @@ function encryptMessageToRecipient(emailparsed) {
 					omgAnswer('<span style="">Email sent, but with some errors. See message in "Sent" folder for details</span>');
 				} else {
 					noAnswer('<span style="">Email Sent with error. Unable to move message to Sent folder. Please report a bug</span>');
-					$('#send').html('Send');
-					$('#send').prop('disabled',false);
+					$('.sendMailButton').html('Send');
+					$('.sendMailButton').prop('disabled',false);
 				}
 			});
 			getDataFromFolder('Inbox');
@@ -868,7 +871,10 @@ function encryptMessageToRecipient(emailparsed) {
 					checkContacts();
 					checkFolders();
 
-					Answer('Email successfully send');
+					Answer('Email send');
+					$('.sendMailButton').html('Send');
+					$('.sendMailButton').prop('disabled',false);
+					$('#sendMaildiv').css('display','none');
 					getDataFromFolder('Inbox');
 				} else {
 					if (Object.keys(senderMod).length > 0) {
@@ -891,8 +897,8 @@ function encryptMessageToRecipient(emailparsed) {
 					checkContacts();
 
 					noAnswer('<span style="">Email Sent with error. Unable to move message to Sent folder. Please report a bug</span>');
-					$('#send').html('Send');
-					$('#send').prop('disabled',false);
+					$('.sendMailButton').html('Send');
+					$('.sendMailButton').prop('disabled',false);
 					getDataFromFolder('Inbox');
 				}
 			});
@@ -1042,15 +1048,15 @@ function retrievePublicKeys(success, cancel, mails, emailparsed) {
 
 				success(data);
 			} else {
-				$('#send').html('Send');
-				$('#send').prop('disabled',false);
+				$('.sendMailButton').html('Send');
+				$('.sendMailButton').prop('disabled',false);
 				noAnswer('Error occurred. Please try again.');
 			}
 
 		},
 		error: function (data, textStatus) {
-			$('#send').html('Send');
-			$('#send').prop('disabled',false);
+			$('.sendMailButton').html('Send');
+			$('.sendMailButton').prop('disabled',false);
 			noAnswer('Error occurred. Please try again.');
 			cancel();
 

@@ -37,7 +37,10 @@
 					<div class="pull-left">
 						Privacy is your right, not a privilege<br><br>
 						<h4 class="paragraph-header">
-							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. <br> We will invite new users, based on our server availability<br><br> If you have invitation code, please provide it in order to create an account</h4>
+							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates on registration
+							<br>
+							We will invite new users based on our server availability
+							<br><br> Please provide your invitation code in order to create an account.</h4>
 
 						<div class="login-app-icons">
 							<a href="http://blog.scryptmail.com/2014/11/scryptmail-encrypted-email-service.html" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
@@ -112,8 +115,8 @@
 							</label>
 
 
-							<p class="note">Secret Word used to encrypt your keys before sending it to server (6-80
-								characters). We are strongly recommend to use special characters!</p>
+							<p class="note">
+								Secret Phrase is used to encrypt your keys before sending it to the server (6-80 characters). We strongly recommend to use special characters!</p>
 						</section>
 
 						<section>
@@ -166,8 +169,8 @@
 
 				<div id="left">
 					<!--Please login to your account.-->
-					Before login, please <b>download secret token</b>. You will need this token, to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/post/103615273685/guide-to-reset-secret-phrase-password" target="_blank">blog</a><br><br>
-<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> If your browser can't save this file, please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
+					Before logging in, please <b>download the secret token</b>. You will need this token to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">blog</a>.<br><br>
+<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> If your browser can't save this file, please save this string:<br> <b class="text-default" style="word-break:break-all;"></b></span>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="token"

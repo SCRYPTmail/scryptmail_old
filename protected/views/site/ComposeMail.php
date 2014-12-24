@@ -1,11 +1,9 @@
 <div class="form-horizontal" id="email-compose-form">
 
-	<div>
-	<h2 class="email-open-header">
+		<h2  class="row email-open-header">
 		Compose Email
 	</h2>
 
-		</div>
 	<div class="inbox-info-bar no-padding">
 		<div class="row">
 			<div class="form-group">
@@ -49,25 +47,16 @@
 			</div>
 		</div>
 	</div>
-	<div class="inbox-message no-padding" onclick="$('.note-editable').focus();">
+	<div class="inbox-message no-padding">
 
 		<div id="emailbody">
 
 		</div>
 	</div>
 
-<div class="row padding-5" ><span id="composeEmailPin" style="border-bottom:"></span></div>
 	<div class="inbox-compose-footer">
 
-		<button class="btn btn-primary"
-				type="button" id="send" onclick="sendMail()">
-			Send
-		</button>
-
-
-		<button class="btn btn-danger pull-right" type="button" rel="tooltip" data-placement="top"
-				data-original-title="Discard" onclick="deleteMail()"><i class="fa fa-trash-o"></i>
-		</button>
+		<span id="composeEmailPin"></span>
 
 	</div>
 
@@ -122,4 +111,3 @@
 		registered in our system. In such case you may REMOVE recipient or click cancel to edit.</p>
 </div>
 <script src="/js/composeEmail.js?r=<?php echo $version;?>"></script>
-

@@ -156,6 +156,8 @@ sessionTimeOut=40;
 toFile='';
 
 contactListProfileInitialized = false;
+blackListProfileInitialized=false;
+safeBoxProfileInitialized=false;
 folder_navigate = 'Inbox';
 activePage = 'mail';
 modKeys = [];
@@ -196,7 +198,7 @@ userData = '';
 roleData = '';
 original = true;
 inner = 0;
-blackList = [];
+blackList = {};
 profileSettings = {};
 
 lastAvailableSeed = 0;
@@ -227,7 +229,7 @@ function resetGlobal() {
 	folderKey = '';
 	userModKey = '';
 	contacts = {};
-	blackList = [];
+	blackList = {};
 	profileSettings = {};
 	folderDecoded = $.Deferred();
 	mailhash = '';
@@ -345,16 +347,10 @@ function getMainData() {
 }
 
 
-function delContact(row, email) {
-
-	$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
-
-	delete contacts[email];
-	checkContacts();
-
+function toggleMenu(){
+	$('body').toggleClass("hidden-menu");
+	//$('body').toggleClass("minified");
 }
-
-
 
 function checkState(success, cancel) {
 
@@ -624,7 +620,23 @@ function moveMessagestoInbox(newMessages) {
 							profileSettings['lastSeed'] = parseInt(index);
 
 							if (decrypted != '') {
-								folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+								var key = forge.util.hexToBytes(decrypted);
+								var z = fromAes(key, value['meta']);
+								var meta=JSON.parse(z)
+								var from=from64(meta['from']);
+
+								if (from.indexOf('<') != -1) {
+									var toEmail=getEmailsFromString(from);
+								} else {
+									var toEmail=stripHTML(from);
+								}
+
+								if(SHA256(toEmail) in blackList){
+									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+								}else{
+									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+								}
+
 								getNewEmailsCount();
 							}
 						});
@@ -646,7 +658,24 @@ function moveMessagestoInbox(newMessages) {
 							profileSettings['lastSeed'] = parseInt(index);
 
 							if (decrypted != '') {
-								folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+
+								var key = forge.util.hexToBytes(decrypted);
+								var z = fromAes(key, value['meta']);
+								var meta=JSON.parse(z)
+								var from=from64(meta['from']);
+
+								if (from.indexOf('<') != -1) {
+									var toEmail=getEmailsFromString(from);
+								} else {
+									var toEmail=stripHTML(from);
+								}
+
+								if(SHA256(toEmail) in blackList){
+									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+								}else{
+									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+								}
+
 								getNewEmailsCount();
 							}
 						});
@@ -1080,6 +1109,7 @@ function populateProfile() {
 }
 
 
+
 function checkProfile() {
 
 	checkState(function () {
@@ -1204,11 +1234,15 @@ function emailTimer() {
 function getDataFromFolder(thisObj) {
 
 
-
 	folderDecoded.done(function () {
 		//console.log(folder);
-		clearTimeout(opener);
-		clearInterval(mailt);
+		try{
+			clearTimeout(opener);
+			clearInterval(mailt);
+		} catch (err) {
+
+		}
+
 		clearComposeMail();
 		//if (thisObj !== undefined) {
 
@@ -1220,6 +1254,7 @@ function getDataFromFolder(thisObj) {
 					$('#inbox-content > .table-wrap').html(data);
 					$('#paginator').html('');
 					$('#custPaginator').html('');
+					$('#sendMaildiv').css('display','block');
 					iniEmailBody('');
 					emailTimer();
 				});
@@ -1248,6 +1283,7 @@ function getDataFromFolder(thisObj) {
 			// $('#mobfolder >li').eq(thisObj.parent().index()).children().append(' <i class="fa fa-check"></i>');
 
 			clearInterval(mailt);
+			$('#sendMaildiv').css('display','none');
 			clearComposeMail();
 			checkState(function () {
 				//  console.log($('#mail-table').parents('#mail-table_wrapper').length);
@@ -1350,7 +1386,10 @@ function renderMessages(data) {
 	var to, subj, time, body;
 	var d = new Date();
 	var t = $('#mail-table').DataTable();
+
 	t.clear();
+	var dataSet = [];
+
 	var dfd = $.Deferred();
 	modkeyToMessag = {};
 	//$('.table-wrap').css('margin-right','-8px');
@@ -1396,13 +1435,13 @@ function renderMessages(data) {
 					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
 				}
 
-				var addId = t.row.add([
-					'<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
+				var el = ['<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
 					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
 					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
 					(meta['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
-					new Date(parseInt(meta['timeSent'] + '000')).getTime()
-				]);
+					new Date(parseInt(meta['timeSent'] + '000')).getTime()];
+				dataSet.push(el);
+
 
 			} catch (err) {
 				if(folder_navigate in folder['Custom']){
@@ -1417,16 +1456,19 @@ function renderMessages(data) {
 		});
 
 		dfd.done(function () {
+			t.rows.add(dataSet);
 			t.draw();
 
+
 			if ($('#mail-table').children().get(1) === undefined) {
-				t.draw();
+				//t.draw();
 				//noAnswer('Fail to render table, please try again')
 				setTimeout(
 					function () {
 						getDataFromFolder(folder_navigate);
 					}, 1000);
 			}
+
 		});
 
 
@@ -1439,7 +1481,7 @@ function inviteFriend()
 	var from=(profileSettings['name']==''?'FROM: '+profileSettings['email']:'FROM: '+profileSettings['name']+'<'+profileSettings['email']+'>');
 	$('#fromfr').text(from);
 
-	$('#textInvite').text((profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ')+' invites you to try scryptmail.com - encrypted email service. Please follow the link attached to the bottom of this email.');
+	$('#textInvite').text((profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ')+' invites you to try scryptmail.com - an encrypted email service. Please follow the link at the bottom of the mail.');
 	$('#dialog-form-invite').dialog({
 		autoOpen: false,
 		height:430,
@@ -2011,6 +2053,8 @@ function replyToMail() {
 		success: function (data, textStatus) {
 			$('#inbox-content > .table-wrap').html(data);
 			$('#paginator').html('');
+			$('#sendMaildiv').css('display','block');
+
 			$('#custPaginator').html('');
 			delete body['to'];
 			body['to'] = [];
@@ -2020,7 +2064,7 @@ function replyToMail() {
 			body['to'] = to64(body['to']);
 			meta['from'] = from64(meta['from']);
 
-			body['subj'] = to64(body['subj']);
+			body['subj'] = to64('Re: '+body['subj']);
 
 			body['body']['html'] = '<br><br>---------------------------------<br>' +
 				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
@@ -2055,6 +2099,7 @@ function forwardMail() {
 			$('#inbox-content > .table-wrap').html(data);
 			$('#paginator').html('');
 			$('#custPaginator').html('');
+			$('#sendMaildiv').css('display','block');
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push('');
@@ -2062,7 +2107,7 @@ function forwardMail() {
 			//console.log(body);
 			body['body']['text'] = to64(messageDisplayedBody);
 			body['body']['html'] = to64(messageDisplayedBody);
-			body['subj'] = to64(body['subj']);
+			body['subj'] = to64('Fw: '+body['subj']);
 			activePage = 'composeMail';
 			emailTimer();
 			showSavedDraft(body, meta, '');
@@ -2083,7 +2128,7 @@ function markSpam() {
 		em = em.substring(em.indexOf('<') + 1, em.indexOf('>'));
 	}
 
-	blackList.push(em);
+//	blackList.push(em);
 
 	//console.log(blackList);
 	clearComposeMail();
@@ -2096,13 +2141,21 @@ function deleteMail() {
 		var selected = {};
 		selected['0'] = {'id': emailObj['mailId'], 'modKey': emailObj['meta']['modKey']};
 		//console.log(selected);
+		$('#sendMaildiv').css('display','none');
 		deleteMessage(selected,folder_navigate);
 		getDataFromFolder(folder_navigate);
 		clearComposeMail();
+		setTimeout(function() {
+			getNewEmailsCount();
+		}, 1000);
 
 	} else {
 		getDataFromFolder(folder_navigate);
+		setTimeout(function() {
+			getNewEmailsCount();
+		}, 1000);
 	}
+	
 }
 function deleteMailUnreg(messageId,modKey){
 
@@ -2162,7 +2215,7 @@ function initializeMailList() {
 		"order": [
 			[ 4, "desc" ]
 		],
-		"iDisplayLength": 10,
+		"iDisplayLength": profileSettings['mailPerPage'],
 		"sDom": "R<'dt-toolbar'" +
 			"<'#mailSearch'f>" +
 			"<'#mailIcons'>" +
@@ -2205,12 +2258,14 @@ function initializeMailList() {
 	$('#mailList').css('float', 'right');
 
 
-	var trash = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"  class="deletebutton btn btn-default"><strong><i class="fa fa-trash-o fa-lg"></i></strong></a>';
+	var trash = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"  class="deletebutton btn btn-default" style="margin-left:0px;"><strong><i class="fa fa-trash-o fa-lg"></i></strong></a>';
 
 	var move = '<a href="javascript:void(0);" rel="tooltip" data-toggle="dropdown" title="" data-placement="left" data-original-title="Move to Folder"  class="movebutton btn btn-default"><i class="fa  fa-folder-open-o fa-lg"></i> Move</a>' +
 		'<ul id="mvtofolder" class="dropdown-menu"></ul>';
 
-	$('#mailIcons').html(' <div class="inbox-checkbox-triggered"><div class="btn-group"> ' + move + ' ' + trash + '</div></div>');
+	var spam = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"  class="spambutton btn btn-default" onclick="movetofolder(\'Spam\');"><i class="fa fa-ban fa-lg"></i> Spam</a>';
+
+	$('#mailIcons').html(' <div class="inbox-checkbox-triggered"><div class="btn-group"> ' + move + ' '+spam+' ' + trash + '</div></div>');
 
 
 	$('#mail-table tbody').on('mouseover', 'td.inbox-data-from', function () {
@@ -2263,8 +2318,114 @@ function initializeMailList() {
 	finishRendering();
 
 }
+function getEmailSender(messagesId,callback){
+	var dfd = $.Deferred();
+	var metas='';
+	var emails={};
+
+	$.ajax({
+		type: "POST",
+		//url: '/retrieveFoldersMeta',
+		url: '/retrieveFoldersData',
+		data: {
+			'messageIds': JSON.stringify(messagesId)
+		},
+		success: function (data, textStatus) {
+			if (data.results !== undefined) {
+				metas=data;
+				dfd.resolve();
+			} else {
+				noAnswer('Error occurred. Please try again');
+			}
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error occurred. Please try again');
+		},
+		dataType: 'json'
+	});
+
+	dfd.done(function () {
+		//console.log(metas['results']);
+		if(metas['results'].length>0){
+			$.each(metas['results'], function (index, value) {
+
+				//try {
+
+					if(folder_navigate in folder['Custom']){
+						var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][value['messageHash']]['p']);
+					}else{
+						var key = forge.util.hexToBytes(folder[folder_navigate][value['messageHash']]['p']);
+					}
+
+					var z = fromAes(key, value['body']);
+					var body = JSON.parse(z);
+					var fr=from64(body['from']);
+					if (fr.indexOf('<') != -1) {
+						var toEmail=getEmailsFromString(fr);
+						var em =toEmail.toLowerCase();
+					} else
+						var em =fr.toLowerCase();
+
+					emails[SHA256(em)]={'id':value['messageHash'],'email':em};
+
+
+				//} catch (err) {
+
+				//}
+
+
+
+			});
+				callback(emails);
+			//return emails;
+
+		}
+
+	});
+}
+
+function checkBlackList() {
+
+	delete blackList[SHA256(profileSettings['email'].toLowerCase())];
+
+	checkState(function () {
+
+		var curr =SHA512(JSON.stringify(blackList));
+		if (curr != blackListHash) {
+			var prof =BlackListToDb();
+
+			$.ajax({
+				type: "POST",
+				url: '/saveBlackList',
+				data: {
+					'blackObj': prof,
+					'modKey': userModKey
+				},
+				success: function (data, textStatus) {
+					if (data.response == 'success') {
+						blackListHash = curr;
+					} else
+						noAnswer('Error occurred. Try again');
+
+				},
+				error: function (data, textStatus) {
+					noAnswer('Error occurred. Try again');
+				},
+				dataType: 'json'
+			});
+
+		}
+
+	}, function () {
+	});
+
+}
+
 
 function movetofolder(tofolder) {
+	var dfd = $.Deferred();
+
 	var selected = [];
 
 	$('#mail-table td input:checked').each(function () {
@@ -2275,46 +2436,85 @@ function movetofolder(tofolder) {
 		selected.push(elem);
 	});
 	var select = 0;
-	$.each(selected, function (index, value) {
+	if(selected.length>0){
+	if(tofolder=="Spam"){
+		messagesIds=[];
+		$.each(selected, function (index, value) {
+			var el=value['id'];
+			messagesIds.push(el);
+		});
 
-		if(folder_navigate==tofolder){
-			noAnswer('Can not move to same folder');
-		}else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
-			folder['Custom'][tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
-			delete folder['Custom'][folder_navigate][parseInt(value['id'])];
-			select++;
-		}else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
+		getEmailSender(messagesIds,function(emails){
+			//console.log(emails);
+			$.each(emails, function (index, value) {
 
-			folder[tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
-			delete folder['Custom'][folder_navigate][parseInt(value['id'])];
-			select++;
-		}else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
-			folder['Custom'][tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-			delete folder[folder_navigate][parseInt(value['id'])];
-			select++;
-		}else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
-			folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-			delete folder[folder_navigate][parseInt(value['id'])];
-			select++;
-		}else{
-			noAnswer('Error occurred. Please report a bug');
-		}
+				blackList[index]={'email':value['email']};
+
+			});
+
+			//console.log(emails); //get emails id for abstract use in filter
+			checkBlackList();
+			dfd.resolve();
+		});
+
+	}else{
+		dfd.resolve();
+	}
+
+		dfd.done(function () {
+			$.each(selected, function (index, value) {
+
+				if(folder_navigate==tofolder){
+					noAnswer('Can not move to same folder');
+				}else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
+					folder['Custom'][tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+					delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+					select++;
+				}else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
+
+					folder[tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+					delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+					select++;
+				}else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
+					folder['Custom'][tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+					delete folder[folder_navigate][parseInt(value['id'])];
+					select++;
+				}else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
+					folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+					delete folder[folder_navigate][parseInt(value['id'])];
+					select++;
+				}else{
+					noAnswer('Error occurred. Please report a bug');
+				}
 
 
-	});
-	checkFolders();
+			});
 
-	if (select > 0){
-		checkFolders();
-		$('#mail-table').DataTable()
-			.row($('#mail-table td input:checkbox:checked').parents('tr'))
-			.remove()
-			.draw();
-		$("#selectAll").prop('checked', '');
-		Answer('Moved');
+			checkFolders();
+			setTimeout(function() {
+				getNewEmailsCount();
+			}, 1000);
+
+			if (select > 0){
+				checkFolders();
+				$('#mail-table').DataTable()
+					.row($('#mail-table td input:checkbox:checked').parents('tr'))
+					.remove()
+					.draw();
+				$("#selectAll").prop('checked', '');
+				Answer('Moved');
+			}
+
+		});
+
+
+
+	}else{
+		noAnswer('Select at least one message');
 	}
 	//console.log(from);
 	//console.log(selected);
+
 }
 
 function deleteMessage(selected,selectedFolder, callback) {
@@ -2392,7 +2592,9 @@ function deleteMessage(selected,selectedFolder, callback) {
 		}
 	}, function () {
 	});
-	getNewEmailsCount();
+	setTimeout(function() {
+		getNewEmailsCount();
+	}, 1000);
 }
 
 function enableDeleteButton() {
@@ -2416,6 +2618,14 @@ function SHA512(data) {
 	md.update(data, 'utf8');
 	return md.digest().toHex();
 }
+
+function SHA256(data) {
+
+	var md = forge.md.sha256.create();
+	md.update(data, 'utf8');
+	return md.digest().toHex();
+}
+
 function SHA512old(data) {
 
 	var md = forge.md.sha512.create();
@@ -3033,7 +3243,7 @@ function fromAes(key, text) {
 function dbToContacts() {
 	var f = fromAes(folderKey, userData['contacts']);
 
-	s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
+	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
 	contactHash = SHA512(s);
 	return JSON.parse(s);
 
@@ -3044,11 +3254,20 @@ function dbToBlackList() {
 
 	var f = fromAes(folderKey, userData['blackList']);
 
-	s = f.substring(f.indexOf('['), f.indexOf(']') + 1);
-
+	if(f.indexOf('[')!=-1){
+		var s='{}';
+	}else{
+		var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
+	}
 	blackListHash = SHA512(s);
 	return JSON.parse(s);
 
+}
+
+function BlackListToDb() {
+	var f = toAes(folderKey, makerandom() + JSON.stringify(blackList) + makerandom());
+
+	return f;
 }
 
 
@@ -3092,6 +3311,9 @@ function retrieveSecret() {
 			//console.log(profileSettings);
 			profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 			sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+
+			profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
+			profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
 			//console.log(user1);
 			myTimer();
 

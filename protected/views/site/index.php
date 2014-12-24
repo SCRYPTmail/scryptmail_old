@@ -76,7 +76,7 @@ Use search to find needed section.
 	<div class="pull-right">
 		<!-- collapse menu button -->
 		<div id="hide-menu" class="btn-header pull-right">
-			<span> <a href="javascript:void(0);" data-action="toggleMenu" title="Collapse Menu"><i class="fa fa-reorder"></i></a> </span>
+			<span> <a href="javascript:void(0);" title="Collapse Menu" onclick="toggleMenu()"><i class="fa fa-reorder"></i></a> </span>
 		</div>
 		<!-- end collapse menu -->
 
@@ -173,7 +173,7 @@ Use search to find needed section.
 		<!-- breadcrumb -->
 
 <span class="ribbon-button-alignment pull-left" style="margin-right:15px">
-		<a href="/submitBug" target="_blank""><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
+		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
 
 	</span>
 		<?php if($invitationsLeft>0){ ?>

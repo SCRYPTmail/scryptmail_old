@@ -8,21 +8,6 @@
 					<div class="col-sm-12">
 						<div class="panel-body">
 							<div class="row">
-								<div class="col-xs-6 pull-right">
-									<div id="smart-form-session-time" class="smart-form">
-										<label class="select">
-											<select onchange="changeTimeout($(this));">
-												<option value="0" selected="" disabled="">Select Session Time Out</option>
-												<option value="30">0.5 Minute</option>
-												<option value="600">10 Minutes - Shared Facilities</option>
-												<option value="1800">30 Minutes - Personal Office</option>
-												<option value="3600">1 Hour - Home</option>
-												<option value="10800">3 Hours - Home Alone (Unsafe)</option>
-											</select> <i></i> </label>
-
-
-									</div>
-								</div>
 								<div class="col-xs-6" id="userFLName">
 									<h1></h1>
 
@@ -140,7 +125,49 @@
 		<div class="widget-body">
 
 		<div class="panel-group smart-accordion-default" id="accordion">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse7"
+										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+							class="fa fa-lg fa-angle-up pull-right"></i> Settings </a></h4>
+			</div>
+			<div id="collapse7" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-xs-3">
+							<div id="smart-form-session-time" class="smart-form">
+								<label class="select">
+									<select onchange="changeTimeout($(this));">
+										<option value="0" selected="" disabled="">Select Session Time Out</option>
+										<option value="30">0.5 Minute</option>
+										<option value="600">10 Minutes - Shared Facilities</option>
+										<option value="1800">30 Minutes - Personal Office</option>
+										<option value="3600">1 Hour - Home</option>
+										<option value="10800">3 Hours - Home Alone (Unsafe)</option>
+									</select> <i></i> </label>
 
+
+							</div>
+						</div>
+						<div class="col-xs-3">
+							<div id="smart-form-session-time" class="smart-form">
+								<label class="select">
+									<select onchange="changeMessagesPerPage($(this));">
+										<option value="0" selected="" disabled="">Emails per page</option>
+										<option value="10">10</option>
+										<option value="25">25</option>
+										<option value="50">50</option>
+										<option value="100">100</option>
+									</select> <i></i> </label>
+
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="collapsed"
@@ -392,25 +419,23 @@
 			</div>
 		</div>
 
-		<!--<div class="panel panel-default">
+
+
+		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseSix"
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse8" onclick="initBlackList();"
 										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
-							class="fa fa-lg fa-angle-up pull-right"></i> Black List </a></h4>
+							class="fa fa-lg fa-angle-up pull-right"></i> Spam List </a></h4>
 			</div>
-			<div id="collapseSix" class="panel-collapse collapse">
+			<div id="collapse8" class="panel-collapse collapse">
 				<div class="panel-body">
-					<div id="smart-form-register" class="smart-form">
-
-						<a class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="retrieveKeys();"
-						   rel="popover-hover" data-placement="bottom" data-original-title=""
-						   data-content="Retrieve Key for off-line storage or verification"
-
-							><i class="fa fa-save"></i> Save</a>
+					<div class="table-responsive">
+						<table class="table table-striped table-hover" id="blackListTable">
+						</table>
 					</div>
 				</div>
 			</div>
-		</div>-->
+		</div>
 
 		</div>
 

@@ -12,6 +12,7 @@ $(document).ready(function () {
 
 	contactListProfileInitialized=false;
 	safeBoxProfileInitialized=false;
+	blackListProfileInitialized=false;
 
 });
 
@@ -95,6 +96,15 @@ function changeTimeout(tim){
 		Answer('Saved');
 	}
 	//console.log(tim.val());
+}
+
+function changeMessagesPerPage(tim)
+{
+	if (!isNaN(tim.val())) {
+		profileSettings['mailPerPage']=parseInt(tim.val());
+			checkProfile();
+		Answer('Saved');
+	}
 }
 
 function saveProfileName() {
@@ -773,6 +783,75 @@ function initSafeBox() {
 
 
 
+
+	}
+
+}
+
+function delContact(row, email) {
+
+	$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+
+	delete contacts[email];
+	checkContacts();
+
+}
+
+function delFromBlackList(row, email)
+{
+	$('#blackListTable').DataTable().row($(row).parents('tr')).remove().draw(false);
+	delete blackList[email];
+	checkBlackList();
+}
+function initBlackList()
+{
+	if (!blackListProfileInitialized) {
+
+		var dataSet = [];
+		//console.log(contacts);
+		if (Object.keys(blackList).length > 0) {
+			$.each(blackList, function (index, value) {
+				var el = [value['email'], '<a class="delete" href="javascript:void(0);" onclick="delFromBlackList($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+
+		contactTable = $('#blackListTable').dataTable({
+			"sDom": "R<'dt-toolbar'" +
+				"<'#contactSearch'f>" +
+				"<'#contactIcons'>" +
+				"<'col-sm-3 pull-right'l>" +
+				"r>t" +
+				"<'dt-toolbar-footer'" +
+				"<'col-sm-6 col-xs-2'i>" +
+				"<'#paginator'p>" +
+				">",
+			"columnDefs": [
+				{ "sClass": 'col col-xs-10', "targets": 0},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
+				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ "orderDataType": "data-sort", "targets": 0 }
+			],
+			"order": [
+				[ 0, "asc" ]
+			],
+			"iDisplayLength": 10,
+			"data": dataSet,
+			columns: [
+				{ "title": "email"},
+				{ "title": "delete"}
+
+			],
+			"language": {
+				"emptyTable": "Empty"
+			}
+
+		});
+
+		blackListProfileInitialized = true;
 
 	}
 

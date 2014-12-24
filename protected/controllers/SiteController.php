@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0523';
+	public $fileVers='0524';
 
 	public function beforeAction($action)
 	{
@@ -159,7 +159,9 @@ class SiteController extends Controller
 					'inviteFriend',
 					'getSafeBoxList',
 					'safeBox',
-					'deleteFileFromSafe'
+					'deleteFileFromSafe',
+					'retrieveFoldersData',
+					'saveBlackList'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -329,6 +331,8 @@ class SiteController extends Controller
 		$model = new downloadFile();
 		$model->fileHash=Yii::app()->getRequest()->getQuery('id');
 		$model->fileData= Yii::app()->getRequest()->getQuery('name');
+
+		//print_r(Yii::app()->getRequest()->getQuery('fileName'));
 		if($model->validate()){
 			$model->download();
 		}else
@@ -602,7 +606,7 @@ class SiteController extends Controller
 
 	public function actionSaveFolders()
 	{
-		$model = new SaveFolders();
+		$model = new SaveFolders('saveFolder');
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate()) //validating json data according to action
 			$model->save();
@@ -610,6 +614,17 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 
 	}
+
+	public function actionSaveBlackList()
+	{
+		$model = new SaveFolders('saveBlack');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->saveBlackList();
+		else
+			echo json_encode($model->getErrors());
+	}
+
 
 	public function actionSaveEmail()
 	{
@@ -684,6 +699,15 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 	}
 
+	public function actionRetrieveFoldersData()
+	{
+		$model = new RetrieveFoldersMeta();
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->getData();
+		else
+			echo json_encode($model->getErrors());
+	}
 	public function actionRetrieveFoldersMeta()
 	{
 		$model = new RetrieveFoldersMeta();
