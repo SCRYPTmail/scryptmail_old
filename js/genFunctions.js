@@ -1622,7 +1622,6 @@ function showSavedDraft(body, meta, datas) {
 				var em =toEmail;
 				cont.push(name + "<" + em + ">");
 			} else {
-				console.log(value);
 				var toEmail=stripHTML(value);
 				cont.push($.trim(toEmail));
 			}
@@ -1880,6 +1879,7 @@ function detectMessage(datas) {
 				activePage = 'composeMail';
 				showSavedDraft(body, meta, datas);
 				emailTimer();
+				$('#sendMaildiv').css('display','block');
 			},
 			error: function (data, textStatus) {
 				noAnswer('Error occurred. Please try again');
