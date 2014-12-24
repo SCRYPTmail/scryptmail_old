@@ -50,7 +50,6 @@ Privacy is your right, not a privilege<br>
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
 
-								Due to the initial bug with <a href="http://blog.scryptmail.com/2014/12/bugs-hashes-and-special-characters.html" target="_blank">password hashes</a> and to make more space on our servers, we will delete inactive accounts on December, the 22nd. More info <a href="http://blog.scryptmail.com/2014/12/corrupted-accounts-cleanup.html" target="_blank">here</a><br>
 								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
 						<?php } ?>
 
@@ -111,9 +110,9 @@ Privacy is your right, not a privilege<br>
 				<div><a href="https://twitter.com/scryptmail" target="_blank" class="twitter-follow-button pull-right btn btn-default btn-xs" data-show-count="false"><i class="fa fa-twitter txt-color-blue"></i> Follow us @scryptmail</a></div>
 			</div>
 
-			<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border:0px solid;">
+			<!--<div class="well col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border:0px solid;">
 				<i class="fa fa-exclamation txt-color-yellow fa-lg"></i> SCRYPTmail is looking for writers to help with the blog. If you believe privacy is important and want to be part of scryptmail, please contact us: support@scryptmail.com
-					</div>
+					</div>-->
 		</div>
 
 
@@ -122,12 +121,14 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
+			Dec,23 <ul>
+				<li>Typos fix</li>
+				<li>Send button now on the top</li>
+				<li>Spam filtering</li>
+				<li>Unused accounts deleted</li>
+			</ul>
 			Dec,15 <ul>
 				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read more</a></li>
-			</ul>
-			Dec,12 <ul>
-				<li>To protect our users from tracking, all images in email have been disabled</li>
-				<li>Moved to a new blog.</li>
 			</ul>
 
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-changelog.html" target="_blank">Older updates</a>
@@ -171,13 +172,15 @@ Privacy is your right, not a privilege<br>
 						<h2><i class="fa fa-times txt-color-red"></i> No scripts from third party servers</h2>
 						<h5>Protect yourself</h5>
 						<p>Ever wonder who knows you are here?</p>
-						We deliver all scripts from our servers. No Google Analytics, Facebook or twitter. When such scripts can be useful for us as service to track usage, they leak user information, location and more.
+						<p>We deliver all scripts from our servers. No Google Analytics, Facebook or twitter. While such scripts can be useful to us as service to track usage, they leak items like user information, location and more.</p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2> PGP standards and NIST recommendations</h2>
 						<h5>Standard protocol to exchange public keys between users</h5>
-						<p>Email you about to send, will be encrypted by AES with random 256 bit key, and key encrypted with public key of intended recipient, so only person having corresponding private key will be able to decrypt it. We use only open source encryption libraries, to ensure public audit.</p>
+						<p>
+						The email you are about to send will be encrypted by AES with random 256 bit key and then key encrypted with the public key of intended recipient. Only the person with whom you are corresponding private key to will be able to decrypt it. We use only open source encryption libraries to ensure public audit.
+						</p>
 					</div>
 
 
@@ -185,34 +188,37 @@ Privacy is your right, not a privilege<br>
 					<div class="well col col-lg-10 col-md-12 col-sm-12 text-align-left pull-left">
 						<h2>Grade <strong class="text-success">A</strong> HTTPS encryption *</h2>
 						<h5>Heartbleed attack? POODLE or BEAST? - We got you covered</h5>
-						<p>We are regularly testing our service with third party security services, to ensure up to date communication protection<br>
+						<p>We are regularly testing our service with third party security services to ensure up to date communication protection.
+							<br>
 						* Based on Qualys SSL <a href="https://www.ssllabs.com/ssltest/index.html" target="_blank">evaluation</a>. </p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2>Anonymous</h2>
 						<h5>Can you be truly anonymous on internet?</h5>
-						<p>Unfortunately answer is no. In order to establish connection with server, you have to provide IP address, that can be tracked back to your computer. It does not matter if we store logs or not, your provider does that.</p>
+						<p>Unfortunately, the answer is no. In order to establish connection with server, you have to provide an IP address that can be tracked back to your computer. It does not matter if we store logs or not because that is what your provider does.
+						</p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2>Freedom and Simplicity</h2>
 						<h5>Who told you, that privacy should be compromised for simplicity?</h5>
-						<p>We spent a lot of time making simple but well protected tool. We won't overwhelm you with knobs and switches, but we won't repel you either. Features added to your settings panel, and have default values until you decide to change them.<br> We also give you access to regenerate your RSA keys anytime you want, or even let you save them offline</p>
+						<p>We spent a lot of time making a simple but well protected tool. We won't overwhelm you with knobs and switches, but we won't repel you either. Features will be added to your settings panel and will have default values until you decide to change them.
+							<br>We also will give you access to regenerate your RSA keys anytime you want or even let you save them offline.
+						</p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2>Communication with Gmail or YAHOO</h2>
-						<h5>Send email in clear text or encrypted</h5>
-						<p>Clear text message will be deleted from our servers immediately after successful delivery to the recipient domain.
-							Encrypted message will require PIN to unlock and decrypt email, that you provide via another means of communication like a phone call, text or in person.</p>
+						<h5>Send email in clear text or encrypted text</h5>
+						<p>Clear text messages will be deleted from our servers immediately after successful delivery to the recipient’s domain. Encrypted messages will require PIN to unlock and decrypt. You provide this PIN via another means of communication like in a phone call, via text or in person.</p>
 					</div>
 
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2>Encrypted</h2>
 						<h5>We mean it, no half measures. Your message encrypted from start to finish</h5>
-						<p>Many similar services advertise email encryption, but not all of them truly encrypt your email. Attachments, recipients, other metadata often left in clear text. We encrypt all of it.*
+						<p>Many similar services advertise email encryption, but not all of them truly encrypt your emails. Attachments, recipients, other metadata often are left in clear text. We encrypt all of it!*
 						<br>
 						* Not applicable if you sending email to third servers.</p>
 					</div>

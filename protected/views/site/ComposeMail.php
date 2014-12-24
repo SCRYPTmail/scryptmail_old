@@ -47,7 +47,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="inbox-message no-padding" onclick="$('.note-editable').focus();">
+	<div class="inbox-message no-padding">
 
 		<div id="emailbody">
 
@@ -111,4 +111,3 @@
 		registered in our system. In such case you may REMOVE recipient or click cancel to edit.</p>
 </div>
 <script src="/js/composeEmail.js?r=<?php echo $version;?>"></script>
-

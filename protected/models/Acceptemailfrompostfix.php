@@ -63,7 +63,7 @@ class Acceptemailfrompostfix extends CFormModel
 					$seedKey = $mailhash['seedKey'];
 					$mailKey = $mailhash['mailKey'];
 
-					$emailPreObj['from'] = (isset($row['msg']['from_name']) && $row['msg']['from_name'] != $row['msg']['from_email']) ? $row['msg']['from_name'] . '<' . $row['msg']['from_email'] . '>' : $row['msg']['from_email'];
+					$emailPreObj['from'] = (isset($row['msg']['from_name']) && $row['msg']['from_name'] != $row['msg']['from_email']) ? strip_tags($row['msg']['from_name']) . '<' . $row['msg']['from_email'] . '>' : $row['msg']['from_email'];
 					$emailPreObj['subj'] = htmlspecialchars(is_array($row['msg']['subject'])?$row['msg']['subject'][0]:$row['msg']['subject'], ENT_QUOTES, "UTF-8");
 
 					$text=isset($row['msg']['text']) ? strip_tags($row['msg']['text']):'';
@@ -72,7 +72,7 @@ class Acceptemailfrompostfix extends CFormModel
 					$emailPreObj['body']['text'] =  $text;
 					$emailPreObj['body']['html'] = $html;
 					$emailPreObj['meta']['subject'] = substr(htmlentities(is_array($row['msg']['subject'])?$row['msg']['subject'][0]:$row['msg']['subject']), 0, 150);
-					$emailPreObj['meta']['from'] = strip_tags($emailPreObj['from']);
+					$emailPreObj['meta']['from'] = $emailPreObj['from'];
 					$metb=($text!='')?$text:$html;
 					$emailPreObj['meta']['body'] = substr(strip_tags($metb), 0, 50);
 					$emailPreObj['meta']['timeRcvd'] = $row['ts'];

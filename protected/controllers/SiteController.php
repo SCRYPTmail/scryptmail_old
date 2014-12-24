@@ -159,7 +159,9 @@ class SiteController extends Controller
 					'inviteFriend',
 					'getSafeBoxList',
 					'safeBox',
-					'deleteFileFromSafe'
+					'deleteFileFromSafe',
+					'retrieveFoldersData',
+					'saveBlackList'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -604,7 +606,7 @@ class SiteController extends Controller
 
 	public function actionSaveFolders()
 	{
-		$model = new SaveFolders();
+		$model = new SaveFolders('saveFolder');
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate()) //validating json data according to action
 			$model->save();
@@ -612,6 +614,17 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 
 	}
+
+	public function actionSaveBlackList()
+	{
+		$model = new SaveFolders('saveBlack');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->saveBlackList();
+		else
+			echo json_encode($model->getErrors());
+	}
+
 
 	public function actionSaveEmail()
 	{
@@ -686,6 +699,15 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 	}
 
+	public function actionRetrieveFoldersData()
+	{
+		$model = new RetrieveFoldersMeta();
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->getData();
+		else
+			echo json_encode($model->getErrors());
+	}
 	public function actionRetrieveFoldersMeta()
 	{
 		$model = new RetrieveFoldersMeta();

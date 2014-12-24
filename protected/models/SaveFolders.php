@@ -10,6 +10,7 @@ class SaveFolders extends CFormModel
 {
 
 	public $folderObj;
+	public $blackObj;
 	public $modKey;
 
 
@@ -17,7 +18,8 @@ class SaveFolders extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('folderObj,modKey', 'required'),
+			array('folderObj,modKey', 'required','on'=>'saveFolder'),
+			array('blackObj,modKey', 'required','on'=>'saveBlack'),
 			//	array('mailHash', 'numerical','integerOnly'=>true,'allowEmpty'=>true),
 		);
 	}
@@ -36,4 +38,17 @@ class SaveFolders extends CFormModel
 
 	}
 
+
+	public function saveBlackList()
+	{
+		$params[':blackList'] = $this->blackObj;
+		$params[':modKey'] = hash('sha512', $this->modKey);
+		$params[':id'] = Yii::app()->user->getId();
+
+		if (Yii::app()->db->createCommand("UPDATE user SET blackList=:blackList WHERE modKey=:modKey AND id=:id")->execute($params))
+			echo '{"response":"success"}';
+		else
+			echo '{"response":"fail"}';
+
+	}
 }

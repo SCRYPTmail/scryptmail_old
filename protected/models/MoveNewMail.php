@@ -60,11 +60,12 @@ class MoveNewMail extends CFormModel
 					$pass[$row['modKey']] = $row['pass'];
 				}
 				if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey,file) VALUES " . implode($par, ','))->execute($params)) {
-					if ($newMessages = Yii::app()->db->createCommand("SELECT messageHash,modKey FROM personalFolders WHERE modKey IN (" . implode($gets, ',') . ")")->queryAll(true, $mods)) {
+					if ($newMessages = Yii::app()->db->createCommand("SELECT messageHash,body,modKey FROM personalFolders WHERE modKey IN (" . implode($gets, ',') . ")")->queryAll(true, $mods)) {
 
 						foreach ($newMessages as $index => $row) {
 							$results['data'][$index]['id'] = $row['messageHash'];
 							$results['data'][$index]['pass'] = $pass[$row['modKey']];
+							$results['data'][$index]['meta'] = $row['body'];
 						}
 					}
 					$results['response'] = 'success';

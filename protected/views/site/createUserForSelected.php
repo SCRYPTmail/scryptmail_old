@@ -169,8 +169,8 @@
 
 				<div id="left">
 					<!--Please login to your account.-->
-					Before login, please <b>download secret token</b>. You will need this token, to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/post/103615273685/guide-to-reset-secret-phrase-password" target="_blank">blog</a><br><br>
-<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> If your browser can't save this file, please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
+					Before logging in, please <b>download the secret token</b>. You will need this token to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">blog</a>.<br><br>
+<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> If your browser can't save this file, please save this string:<br> <b class="text-default" style="word-break:break-all;"></b></span>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" id="token"

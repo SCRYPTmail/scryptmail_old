@@ -16,6 +16,7 @@ $(document).ready(function () {
 	fileSelector = $("#ddd");
 
 	composeMailRecptCheck();
+
 });
 
 function attachFile() {
@@ -118,12 +119,14 @@ function iniEmailBody(pin) {
 				['fontsize', ['fontsize']],
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],
-				['height', ['height']]
+				['height', ['height']],
+				['insert', ['link']], // no insert buttons
 			]
 
 		});
 	}
 	$('.note-editable').css('min-height',parseInt($('.inbox-message').css('height'), 10));
+	$('.note-editable').focus();
 	//$('.note-editor').css('height',parseInt($('.inbox-message').css('height'), 10));
 	//$('#emailbody').css('min-height',parseInt($('#email-compose-form').css('height'), 10));
 

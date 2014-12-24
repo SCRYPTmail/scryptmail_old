@@ -79,7 +79,7 @@
 
 	</div>
 
-	<div class="table-wrap animated fast fadeInRight">
+	<div class="table-wrap fadeInRight">
 		<!-- ajax will fill this area -->
 		LOADING...
 	</div>
