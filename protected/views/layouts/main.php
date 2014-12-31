@@ -20,7 +20,7 @@
 <header id="header">
 
 
-	<span id="logo"><a href="/"> <img src="img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a></span>
+	<span id="logo"><a href="/"> <img src="/img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a></span>
 
 	<span id="extr-page-header-space"> <a href='createUser'
 										  class="btn btn-danger">Create

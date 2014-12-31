@@ -166,6 +166,7 @@ class SiteController extends Controller
 					'canary',
 					'verifyEmail',
 					'saveDisposableEmail',
+					'ResetPass',
 					'deleteDisposableEmail'
 
 				),

@@ -331,7 +331,6 @@ function resetForgotSecret(count)
 
 						}else if(data.email == 'error'){
 							count++;
-							console.log(count);
 							resetForgotSecret(count);
 
 						}else{
@@ -343,6 +342,9 @@ function resetForgotSecret(count)
 
 
 					},
+					error: function (data, textStatus) {
+					noAnswer('Error occurred. Please try again');
+				},
 					dataType: 'json'
 				});
 
