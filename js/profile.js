@@ -8,11 +8,12 @@ $(document).ready(function () {
 
 	activePage = 'profile';
 	currentTab();
-	$('#newFname').attr('name',makerandom());
+	$('#newFname').attr('name', makerandom());
 
-	contactListProfileInitialized=false;
-	safeBoxProfileInitialized=false;
-	blackListProfileInitialized=false;
+	contactListProfileInitialized = false;
+	safeBoxProfileInitialized = false;
+	blackListProfileInitialized = false;
+	disposableListProfileInitialized = false;
 
 });
 
@@ -87,22 +88,21 @@ function narrowSelections(seedKey) {
 	}
 }
 
-function changeTimeout(tim){
+function changeTimeout(tim) {
 
 	if (!isNaN(tim.val())) {
-		profileSettings['sessionExpiration']=parseInt(tim.val());
-		sessionTimeOut=parseInt(tim.val());
+		profileSettings['sessionExpiration'] = parseInt(tim.val());
+		sessionTimeOut = parseInt(tim.val());
 		checkProfile();
 		Answer('Saved');
 	}
 	//console.log(tim.val());
 }
 
-function changeMessagesPerPage(tim)
-{
+function changeMessagesPerPage(tim) {
 	if (!isNaN(tim.val())) {
-		profileSettings['mailPerPage']=parseInt(tim.val());
-			checkProfile();
+		profileSettings['mailPerPage'] = parseInt(tim.val());
+		checkProfile();
 		Answer('Saved');
 	}
 }
@@ -230,7 +230,7 @@ function validateMailKeys() {
 
 function generateKeys() {
 
-	$('#profileGenerateKeys').prop('disabled',true);
+	$('#profileGenerateKeys').prop('disabled', true);
 	$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
 
 	var dfdseed = new $.Deferred();
@@ -240,23 +240,23 @@ function generateKeys() {
 	var selected = 0;
 	var rsa = forge.pki.rsa;
 	var pki = forge.pki;
-	var seedStrength=0;
-	var mailStrength=0;
+	var seedStrength = 0;
+	var mailStrength = 0;
 
 	if ($('#UpdateKeys_mode_0').is(':checked')) {
-		seedStrength=512;
-		mailStrength=1024;
+		seedStrength = 512;
+		mailStrength = 1024;
 		selected = 1;
 
 	}
 	if ($('#UpdateKeys_mode_1').is(':checked')) {
-		seedStrength=1024;
-		mailStrength=2048;
+		seedStrength = 1024;
+		mailStrength = 2048;
 		selected = 1;
 	}
 	if ($('#UpdateKeys_mode_2').is(':checked')) {
-		seedStrength=2048;
-		mailStrength=4096;
+		seedStrength = 2048;
+		mailStrength = 4096;
 		selected = 1;
 	}
 
@@ -264,10 +264,10 @@ function generateKeys() {
 		noAnswer('Please select Key Strength');
 	} else {
 
-		var seedpair = rsa.createKeyPairGenerationState(seedStrength,0x10001);
-		var mailpair='';
-		var step = function() {
-			if(!rsa.stepKeyPairGenerationState(seedpair, 100)) {
+		var seedpair = rsa.createKeyPairGenerationState(seedStrength, 0x10001);
+		var mailpair = '';
+		var step = function () {
+			if (!rsa.stepKeyPairGenerationState(seedpair, 100)) {
 				setTimeout(step, 1);
 			}
 			else {
@@ -282,12 +282,12 @@ function generateKeys() {
 
 			mailpair = rsa.createKeyPairGenerationState(mailStrength, 0x10001);
 
-			var step = function() {
-				if(!rsa.stepKeyPairGenerationState(mailpair, 100)) {
+			var step = function () {
+				if (!rsa.stepKeyPairGenerationState(mailpair, 100)) {
 					setTimeout(step, 1);
 				}
 				else {
-					$('#profileGenerateKeys').prop('disabled',false);
+					$('#profileGenerateKeys').prop('disabled', false);
 					$('#profileGenerateKeys').html("<i class='fa fa-cog'></i>&nbsp;Generate Keys");
 
 					dfdmail.resolve();
@@ -317,13 +317,14 @@ function generateSigKeys() {
 
 	var sigpair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
 
-	sigPrivateKey = sigpair.privateKey;
-	sigPubKey = sigpair.publicKey;
+	sigPubKeyTemp = sigpair.publicKey;
+	sigPrivateKeyTemp = sigpair.privateKey;
 
 
 }
 
 function saveKeys() {
+
 	if ($('#UpdateKeys_seedPubK').val() != '' && $('#UpdateKeys_mailPubK').val() != '') {
 
 
@@ -342,28 +343,61 @@ function saveKeys() {
 					var NuserObj = [];
 					NuserObj['userObj'] = {};
 
-					NuserObj['userObj']['SeedPublic'] = to64($('#UpdateKeys_seedPubK').val()); //seedPb
-					NuserObj['userObj']['SeedPrivate'] = to64($('#UpdateKeys_seedPrK').val()); //seedPr
-					NuserObj['userObj']['MailPublic'] = to64($('#UpdateKeys_mailPubK').val()); //mailPb
-					NuserObj['userObj']['MailPrivate'] = to64($('#UpdateKeys_mailPrK').val()); //mailPr
+
+					var seedp = pki.publicKeyFromPem($('#UpdateKeys_seedPubK').val());
+					NuserObj['userObj']['SeedPublic'] = to64(pki.publicKeyToPem(seedp)); //seedPb
+
+					var seedpr = pki.privateKeyFromPem($('#UpdateKeys_seedPrK').val());
+					NuserObj['userObj']['SeedPrivate'] = to64(pki.privateKeyToPem(seedpr)); //seedPr
+
+
+					var mailp = pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
+					NuserObj['userObj']['MailPublic'] = to64(pki.publicKeyToPem(mailp)); //mailPb
+
+					var mailpr = pki.privateKeyFromPem($('#UpdateKeys_mailPrK').val());
+					NuserObj['userObj']['MailPrivate'] = to64(pki.privateKeyToPem(mailpr)); //mailPr
+
+					//sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
+					//sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
+
 
 					try {
-						NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKey));
-						NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKey));
+
+						if (sigPubKeyTemp != '' && sigPrivateKeyTemp != '') {
+
+							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKeyTemp));
+							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKeyTemp));
+							var sigKHash = SHA512(pki.publicKeyToPem(sigPubKeyTemp));
+						} else {
+							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKey));
+							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKey));
+							var sigKHash = SHA512(pki.publicKeyToPem(sigPubKey));
+						}
 					} catch (err) {
 						noAnswer('Keys are corrupted. Please generate new signature keys');
 					}
 
 
 					NuserObj['userObj']['folderKey'] = to64(forge.util.bytesToHex(folderKey));
-					NuserObj['userObj']['modKey'] = makeModKey(userObj['saltS']);
+					NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
 
 					NuserObj['secret'] = secret;
 					NuserObj['saltS'] = userObj['saltS'];
 
 					var NewObj = profileToDb(NuserObj);
 
-					var presend = {'OldModKey': userModKey, 'mailKey': NuserObj['userObj']['MailPublic'], 'seedKey': NuserObj['userObj']['SeedPublic'], 'sigKey': NuserObj['userObj']['SignaturePublic'], 'userObj': NewObj.toString(), 'NewModKey': SHA512(NuserObj['userObj']['modKey']), 'mailHash': SHA512(profileSettings['email'])};
+					var presend = {
+						'OldModKey': userModKey,
+						'mailKey': NuserObj['userObj']['MailPublic'],
+						'seedKey': NuserObj['userObj']['SeedPublic'],
+						'sigKey': NuserObj['userObj']['SignaturePublic'],
+						'userObj': NewObj.toString(),
+						'NewModKey': SHA512(NuserObj['userObj']['modKey']),
+						'mailHash': SHA512(profileSettings['email']),
+						'seedKHash': SHA512(pki.publicKeyToPem(seedp)),
+						'mailKHash': SHA512(pki.publicKeyToPem(mailp)),
+						'sigKHash': sigKHash
+					};
 
 					$.ajax({
 						type: "POST",
@@ -372,12 +406,15 @@ function saveKeys() {
 							'sendObj': presend
 						},
 						success: function (data, textStatus) {
-							if (data.email != 'good') {
-								noAnswer('Error occurred. Please try again or report a bug');
-							} else {
+							if (data.email == 'good') {
 								userModKey = NuserObj['userObj']['modKey'];
 								Answer('Successfully Saved!');
 								dfd.resolve();
+							} else if (data.email == 'Keys are not saved, please try another keys or report a bug') {
+								noAnswer('Error occurred. Please try generate keys again');
+							} else {
+								noAnswer('Error occurred. Please try again or report a bug');
+
 							}
 
 						},
@@ -389,7 +426,20 @@ function saveKeys() {
 
 					dfd.done(function () {
 						$('#keyGenForm')[0].reset();
-						console.log('ddddd');
+
+						mailPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['MailPrivate']));
+						mailPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['MailPublic']));
+
+						seedPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['SeedPrivate']));
+						seedPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['SeedPublic']));
+
+						if (sigPubKeyTemp != '' && sigPrivateKeyTemp != '') {
+							sigPubKey = sigPubKeyTemp;
+							sigPrivateKey = sigPrivateKeyTemp;
+							sigPubKeyTemp = '';
+							sigPrivateKeyTemp = '';
+						}
+
 						getMainData();
 					});
 
@@ -516,8 +566,7 @@ function initSaveSecret() {
 
 }
 
-function downloadTokenProfile()
-{
+function downloadTokenProfile() {
 	checkState(function () {
 		provideSecret(function (secret) {
 			getObjects()
@@ -526,22 +575,21 @@ function downloadTokenProfile()
 						var tempPro = JSON.parse(dbToProfile(data['userData'], secret));
 
 						var secretnew = secret;
-						var salt=forge.util.hexToBytes(data.userData['saltS']);
+						var salt = forge.util.hexToBytes(data.userData['saltS']);
 						var derivedKey = makeDerived(secretnew, salt);
 						var Test = forge.util.bytesToHex(derivedKey);
 						var Part2 = Test.substr(64, 128);
 						var keyA = forge.util.hexToBytes(Part2);
 						var token = forge.random.getBytesSync(256);
-						var tokenHash=SHA512(token);
-						var tokenAes=toAesToken(keyA, token);
-						var tokenAesHash=SHA512(tokenAes);
-
+						var tokenHash = SHA512(token);
+						var tokenAes = toAesToken(keyA, token);
+						var tokenAesHash = SHA512(tokenAes);
 
 
 						var presend = {
 							'OldModKey': tempPro['modKey'],
-							'tokenHash':tokenHash,
-							'tokenAesHash':tokenAesHash,
+							'tokenHash': tokenHash,
+							'tokenAesHash': tokenAesHash,
 							'mailHash': SHA512(profileSettings['email'])
 						};
 						$.ajax({
@@ -554,7 +602,7 @@ function downloadTokenProfile()
 								if (data.email != 'good') {
 									noAnswer('Error occurred. Please try again or report a bug');
 								} else {
-									toFile=tokenAes;
+									toFile = tokenAes;
 									downloadToken();
 									Answer('Saved!');
 								}
@@ -601,7 +649,7 @@ function saveSecret() {
 							NuserObj['userObj']['SignaturePublic'] = tempPro['SignaturePublic'];
 
 							NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
-							NuserObj['userObj']['modKey'] = makeModKey(data.userData['saltS']);
+							NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
 
 							NuserObj['secret'] = $('#newSec').val();
 							NuserObj['saltS'] = data.userData['saltS'];
@@ -610,7 +658,7 @@ function saveSecret() {
 							//----------------------------------------------------
 
 							var secretnew = $('#newSec').val();
-							var salt=forge.util.hexToBytes(data.userData['saltS']);
+							var salt = forge.util.hexToBytes(data.userData['saltS']);
 
 							var derivedKey = makeDerived(secretnew, salt);
 
@@ -620,11 +668,10 @@ function saveSecret() {
 							var keyA = forge.util.hexToBytes(Part2);
 
 							var token = forge.random.getBytesSync(256);
-							var tokenHash=SHA512(token);
+							var tokenHash = SHA512(token);
 
-							var tokenAes=toAesToken(keyA, token);
-							var tokenAesHash=SHA512(tokenAes);
-
+							var tokenAes = toAesToken(keyA, token);
+							var tokenAesHash = SHA512(tokenAes);
 
 
 							var presend = {
@@ -632,8 +679,8 @@ function saveSecret() {
 								'userObj': NewObj.toString(),
 								'NewModKey': SHA512(NuserObj['userObj']['modKey']),
 								'mailHash': SHA512(profileSettings['email']),
-								'tokenHash':tokenHash,
-								'tokenAesHash':tokenAesHash
+								'tokenHash': tokenHash,
+								'tokenAesHash': tokenAesHash
 							};
 							$.ajax({
 								type: "POST",
@@ -648,7 +695,7 @@ function saveSecret() {
 										userModKey = NuserObj['userObj']['modKey'];
 										$('#smart-form-secret')[0].reset();
 
-										toFile=tokenAes;
+										toFile = tokenAes;
 										downloadToken();
 										Answer('Saved!');
 										//dfd.resolve();
@@ -671,15 +718,15 @@ function saveSecret() {
 	}
 }
 
-function delSafeFile(row,id){
+function delSafeFile(row, id) {
 
 	checkState(function () {
 		$.ajax({
 			type: "POST",
 			url: '/deleteFileFromSafe',
 			data: {
-				'modKey':userModKey,
-				'fileId':id
+				'modKey': userModKey,
+				'fileId': id
 			},
 			success: function (data, textStatus) {
 				if (data['result'] == 'success') {
@@ -697,25 +744,24 @@ function delSafeFile(row,id){
 	});
 
 
-
 }
 
 function initSafeBox() {
 	if (!safeBoxProfileInitialized) {
 		var dfd = $.Deferred();
 		var dataSet = [];
-		var fileList={};
+		var fileList = {};
 
 		checkState(function () {
 			$.ajax({
 				type: "POST",
 				url: '/getSafeBoxList',
 				data: {
-					'modKey':userModKey
+					'modKey': userModKey
 				},
 				success: function (data, textStatus) {
 					if (data['response'] == 'success') {
-						fileList=data['data'];
+						fileList = data['data'];
 						dfd.resolve();
 						//tryDecryptSeed(data.data);
 					}
@@ -735,7 +781,7 @@ function initSafeBox() {
 			if (Object.keys(fileList).length > 0) {
 				//console.log(fileList);
 				$.each(fileList, function (index, value) {
-					var el = [from64(value['name']),value['modified'],value['created'], '<a class="delete" href="javascript:void(0);" onclick="delSafeFile($(this),\'' + value['index'] + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+					var el = [from64(value['name']), value['modified'], value['created'], '<a class="delete" href="javascript:void(0);" onclick="delSafeFile($(this),\'' + value['index'] + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
 					dataSet.push(el);
 				});
 
@@ -782,29 +828,54 @@ function initSafeBox() {
 		});
 
 
-
-
 	}
 
 }
 
+
 function delContact(row, email) {
 
-	$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+	$('#dialog_simple >p').html('<b>' + email + '</b> will be deleted. Continue?');
 
-	delete contacts[email];
-	checkContacts();
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 300,
+		resizable: false,
+		modal: true,
+		title: "Delete contact",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				click: function () {
+					$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+					delete contacts[email];
+					checkContacts();
+
+					$(this).dialog("close");
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$(this).dialog("close");
+				}
+			}
+		]
+	});
+
+	$('#dialog_simple').dialog('open');
 
 }
 
-function delFromBlackList(row, email)
-{
+
+function delFromBlackList(row, email) {
 	$('#blackListTable').DataTable().row($(row).parents('tr')).remove().draw(false);
 	delete blackList[email];
 	checkBlackList();
 }
-function initBlackList()
-{
+function initBlackList() {
 	if (!blackListProfileInitialized) {
 
 		var dataSet = [];
@@ -857,6 +928,210 @@ function initBlackList()
 
 }
 
+function initdisposable() {
+	//disposableListProfileInitialized
+	if (!disposableListProfileInitialized) {
+		var dataSet = [];
+		//console.log(contacts);
+		if (Object.keys(profileSettings['disposableEmails']).length > 0) {
+
+			$.each(profileSettings['disposableEmails'], function (index, value) {
+				var el = [value['name'], '<a class="delete" href="javascript:void(0);" onclick="delDisposedEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+
+		contactTable = $('#disposeList').dataTable({
+			"sDom": "R<'dt-toolbar'" +
+				"<'#disposeSearch'f>" +
+				"<'#disposeIcons'>" +
+				"<'col-sm-3 pull-right'l>" +
+				"r>t" +
+				"<'dt-toolbar-footer'" +
+				"<'col-sm-6 col-xs-2'i>" +
+				"<'#paginator'p>" +
+				">",
+			"columnDefs": [
+				{ "sClass": 'col col-xs-10', "targets": 0},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
+				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ "orderDataType": "data-sort", "targets": 0 }
+			],
+			"order": [
+				[ 0, "asc" ]
+			],
+			"iDisplayLength": 10,
+			"data": dataSet,
+			columns: [
+				{ "title": "email"},
+				{ "title": "delete"}
+
+			],
+			"language": {
+				"emptyTable": "No Emails"
+			}
+
+		});
+
+		disposableListProfileInitialized = true;
+		$('#disposeIcons').html('<a class="btn btn-primary" style="width:50px;" href="javascript:void(0);" rel="tooltip" data-original-title="Add Disposable Email" data-placement="bottom" onclick="addNewDisposableEmail();"><i class="fa fa-plus"></i></a>');
+		$('#disposeIcons').css('float', 'left');
+
+		$("[rel=tooltip]").tooltip();
+
+	}
+}
+
+function makerandomEmail() {
+	var text = "";
+	var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+	for (var i = 0; i < 27; i++)
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+	return text;
+}
+
+function addNewDisposableEmail(count) {
+	count = typeof count !== 'undefined' ? count : 0;
+	if (count <= 2) {
+		if (Object.keys(profileSettings['disposableEmails']).length < roleData['role']['dispAddPerBox']) {
+			var email = makerandomEmail() + '@scryptmail.com';
+			$.ajax({
+				type: "POST",
+				url: '/verifyEmail',
+				data: {
+					'email': SHA512(email)
+				},
+				success: function (data, textStatus) {
+					if (data===true) {
+						saveNewDisposableEmail(email);
+					} else if (!data) {
+						count++;
+						addNewDisposableEmail(count);
+					}
+
+				},
+				error: function (data, textStatus) {
+					noAnswer('Error occurred. Please try again');
+				},
+				dataType: 'json'
+			});
+
+		} else {
+			noAnswer('Limit of disposable email addresses reached.');
+		}
+	} else {
+		noAnswer('Error occurred. Please try again');
+	}
+
+
+}
+function delDisposedEmail(row, email)
+{
+	$('#dialog_simple >p').html('<b>' + profileSettings['disposableEmails'][email]['name'] + '</b><br> will be deleted. Continue?');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		modal: true,
+		title: "Delete Email",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				click: function () {
+
+					checkState(function () {
+						$.ajax({
+							type: "POST",
+							url: '/deleteDisposableEmail',
+							data: {
+								'email': email,
+								'modKey': userModKey
+							},
+							success: function (data, textStatus) {
+								if (data===true) {
+									$('#disposeList').DataTable().row($(row).parents('tr')).remove().draw(false);
+									delete profileSettings['disposableEmails'][email];
+									checkProfile();
+									$('#dialog_simple').dialog('close');
+									Answer('Email Removed');
+
+								} else {
+									noAnswer('Error occurred. Please try again');
+								}
+
+							},
+							error: function (data, textStatus) {
+								noAnswer('Error occurred. Please try again');
+							},
+							dataType: 'json'
+						});
+
+
+					}, function () {
+					});
+
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$('#dialog_simple').dialog('close');
+				}
+			}
+		]
+	});
+
+	$('#dialog_simple').dialog('open');
+}
+
+function saveNewDisposableEmail(email) {
+
+	checkState(function () {
+		$.ajax({
+			type: "POST",
+			url: '/saveDisposableEmail',
+			data: {
+				'email': SHA512(email),
+				'modKey': userModKey
+			},
+			success: function (data, textStatus) {
+				if (data===true) {
+					var t = $('#disposeList').DataTable();
+					t.clear();
+					profileSettings['disposableEmails'][SHA512(email)] = {'name':email};
+					checkProfile();
+					var dataSet = [];
+					$.each(profileSettings['disposableEmails'], function (index, value) {
+						var el = [value['name'], '<a class="delete" href="javascript:void(0);" onclick="delDisposedEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+						dataSet.push(el);
+					});
+					var addId = t.rows.add(dataSet)
+					t.draw();
+
+				} else {
+					noAnswer('Error occurred. Please try again');
+				}
+
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error occurred. Please try again');
+			},
+			dataType: 'json'
+		});
+
+
+	}, function () {
+	});
+
+}
 function initContacts() {
 	if (!contactListProfileInitialized) {
 
@@ -910,7 +1185,7 @@ function initContacts() {
 		$('#contactIcons').html('<a class="btn btn-primary" style="width:50px;" href="javascript:void(0);" rel="tooltip" data-original-title="Add Contact" data-placement="bottom" onclick="addNewContact();"><i class="fa fa-plus"></i>&nbsp;&nbsp;<i class="fa fa-user"></i></a>');
 		$('#contactIcons').css('float', 'left');
 
-
+		$("[rel=tooltip]").tooltip();
 	}
 
 }
@@ -980,7 +1255,7 @@ function addNewContact() {
 
 	$("#newClientEmail").rules("add", {
 		required: true,
-		email:true,
+		email: true,
 		minlength: 6,
 		maxlength: 200
 	});

@@ -3,26 +3,6 @@
 /* @var $model LoginForm */
 /* @var $form CActiveForm */
 ?>
-<header id="header">
-	<!--<span id="logo"></span>-->
-
-	<span id="logo"> <img src="/img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"> </span>
-
-	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="/login"
-																			  class="btn btn-danger">Sign
-			In</a> </span>
-	<script src="/js/app.js"></script>
-</header>
-
-<body>
-<!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
-
-<div id="main" role="main">
-
-<!-- MAIN CONTENT -->
-<div id="container" class="container">
-
-
 
 		<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-md-offset-3 col-lg-offset-3">
 			<div class="well no-padding">
@@ -53,9 +33,7 @@
 								<input type="text" name ='secTok' id="showToken" placeholder="2. secret token" readonly="">
 							</label>
 							<div class="note">
-								<a href="javascript:void(0);" rel="popover"
-								   data-placement="bottom" data-original-title=" Secret Token"
-								   data-content=" File, that was generated when you created an account. This file is required to reset your password">Secret what?</a>
+								<a href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">Secret what?</a>
 							</div>
 						</section>
 
@@ -94,15 +72,13 @@
 
 			</div>
 		</div>
-	</div>
-
-</div>
-
 
 <script>
 	$(document).ready(function () {
 		initialResetPassword();
 	$("[rel=popover]").popover();
+		$('#extr-page-header-space').html('<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login" class="btn btn-default">Sign In</a> </span>');
+
 	});
 	</script>
 </body>

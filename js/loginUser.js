@@ -29,36 +29,7 @@ function submitLogin() {
 				$(window).unbind('beforeunload');
 				window.location = '/';
 			} else {
-				//remove in future
-				$.ajax({
-					type: "POST",
-					url: '/ModalLogin',
-					data: {
-						'LoginForm[username]': SHA512singl(email),
-						'LoginForm[password]': SHA512old($('#LoginForm_password').val())
-
-					},
-					success: function (data, textStatus) {
-						if (data.answer == "welcome") {
-							window.name = data.data;
-
-							$(window).unbind('beforeunload');
-							setTimeout(function(){
-								window.location = '/#profile';
-							},5000);
-
-							noAnswer('Password with old HASH, Please update your password in settings');
-						} else {
-							noAnswer('Wrong Usernaim or password. Please try again');
-						}
-					},
-					error: function (data, textStatus) {
-						//cancel();
-						noAnswer('Error. Please try again9')
-					},
-					dataType: 'json'
-				});
-				//end remove in 2 weeks
+				noAnswer('Wrong Usernaim or password. Please try again');
 			}
 		},
 		error: function (data, textStatus) {

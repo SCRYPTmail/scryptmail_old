@@ -45,96 +45,7 @@ $(document).ready(function () {
 	});
 
 });
-function get_browser_version(){
-	var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-	if(/trident/i.test(M[1])){
-		tem=/\brv[ :]+(\d+)/g.exec(ua) || [];
-		return 'IE '+(tem[1]||'');
-	}
-	if(M[1]==='Chrome'){
-		tem=ua.match(/\bOPR\/(\d+)/)
-		if(tem!=null)   {return 'Opera '+tem[1];}
-	}
-	M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-	if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
-	return M[1];
-}
 
-function isCompatible(){
-	var compatible=['Chrome','Firefox'];
-	var inCompatible=['Safari','iPad','iPhone','iPod','MSIE 8.0','MSIE 9.0'];
-	var checkCapability=$.Deferred();
-	bug=false;
-	error=false;
-
-	//return (navigator.userAgent.indexOf("iPad") != -1);
-	var browser_version=get_browser_version();
-	if(navigator.userAgent.indexOf("Chrome") != -1 || navigator.userAgent.indexOf("Firefox") != -1){
-		if(
-		navigator.userAgent.indexOf("iPad") != -1||
-		navigator.userAgent.indexOf("iPod") != -1||
-		navigator.userAgent.indexOf("iPhone") != -1||
-		navigator.userAgent.indexOf("MSIE 8.0") != -1 ||
-		navigator.userAgent.indexOf("MSIE 9.0") != -1 ||
-		browser_version<33
-			){
-
-		bug=true;
-	}
-		try{
-			forge.util.hexToBytes('3df5');
-		}catch (err) {
-			error=true;
-		}
-
-		if(window.FileReader) {
-			//do this
-		} else {
-			error=true;
-		}
-		checkCapability.resolve();
-	}else{
-		if(navigator.userAgent.indexOf("Safari") != -1 ||
-			navigator.userAgent.indexOf("iPad") != -1||
-			navigator.userAgent.indexOf("iPod") != -1||
-			navigator.userAgent.indexOf("iPhone") != -1||
-			navigator.userAgent.indexOf("MSIE 8.0") != -1||
-			navigator.userAgent.indexOf("MSIE 9.0") != -1){
-
-			bug=true;
-		}
-
-		try{
-			forge.util.hexToBytes('3df5');
-		}catch (err) {
-			error=true;
-		}
-
-		if(window.FileReader) {
-			//do this
-		} else {
-			error=true;
-		}
-		checkCapability.resolve();
-
-	}
-//console.log(bug);
-	//console.log(error);
-	checkCapability.done(function () {
-		if(bug){
-			$('#incomp').css('display','block');
-			$('#incomp span').html('Your browser/device not 100% compatible with this service. Please refer to our list of <a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank">compatible browsers</a>');
-			//alert('Your browser/device not 100% compatible with this website. Please read list of compatible devices and browser at our blog');
-		}
-		if(error){
-			$('#incomp').css('display','block');
-			$('#incomp span').html('Your browser/device may not be compatible with this service, and your connection may not be secure. Please refer to our list of <a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank">compatible browsers</a>');
-			//alert('');
-		}
-
-	});
-
-}
 
 resetRawTokenHash='';
 fileSelector='';
@@ -171,7 +82,7 @@ message = {
 	'iv': '',
 	'mailHash': ''
 };
-checkMailTime=10000;
+checkMailTime=30000;
 emailObj = {
 	'meta': {},
 	'body': {},
@@ -212,6 +123,7 @@ mailRetrievePromises = [];
 
 var timer;
 var newMailer;
+var logOuttimer;
 var opener;
 var mailt;
 
@@ -226,6 +138,11 @@ function resetGlobal() {
 	seedPublickKey = '';
 	sigPubKey = '';
 	sigPrivateKey = '';
+
+	sigPubKeyTemp = '';
+	sigPrivateKeyTemp = '';
+
+	contactTable = '';
 	folderKey = '';
 	userModKey = '';
 	contacts = {};
@@ -245,6 +162,7 @@ function resetGlobal() {
 	lastParsedEmail = 0;
 
 	$("#folderul").empty();
+	$("#folderulcustom").empty();
 	$("#mobfolder").empty();
 	$(".table-wrap").empty();
 	//$("#content").html('');
@@ -272,6 +190,7 @@ function initialFunction() {
 			if (result == 1) {
 				getObjects()
 					.always(function (data) {
+						logOutTime();
 						if (data.userData && data.userRole) {
 							userData = data.userData;
 							roleData = data.userRole;
@@ -447,8 +366,9 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 
 		var value = parseChunk[index];
 		try {
-			//console.log(value);
+			console.log(value);
 			var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
+			console.log(decrypted);
 			decrypted = forge.util.bytesToHex(decrypted);
 			sucessfull[value['id']] = {'mod': decrypted};
 		} catch (err) {
@@ -764,7 +684,7 @@ function provideSecret(success, cancel) {
 						$('#secret').val('');
 						$('#key').css('display', 'none');
 						$(this).dialog("close");
-						Answer('Thank You');
+						//Answer('Thank You');
 					} else {
 						noAnswer('Incorrect Secret');
 					}
@@ -795,6 +715,21 @@ function logOut() {
 	$(window).unbind('beforeunload');
 	window.location = 'logout';
 }
+function logOutTime() {
+	var secs = 300;
+	clearInterval(logOuttimer);
+
+	if (seedPrivateKey == '') {
+
+		logOuttimer = setInterval(function () {
+			if (secs < 0) {
+				window.location='logout';
+			}
+			secs--;
+		}, 1000);
+	}
+
+}
 
 function myTimer() {
 	var sec = sessionTimeOut;
@@ -814,6 +749,7 @@ function myTimer() {
 			if (sec < 0) {
 				resetGlobal();
 				initialFunction();
+				logOutTime();
 			}
 		}, 1000);
 	}
@@ -891,40 +827,6 @@ function verifySecret(secret) {
 		return false;
 	}
 }
-
-function noAnswer(text) {
-
-	$.smallBox({
-		title: text,
-		content: "",
-		color: "#A65858",
-		iconSmall: "fa fa-times",
-		timeout: 5000
-	});
-};
-
-function omgAnswer(text) {
-
-	$.smallBox({
-		title: text,
-		content: "",
-		color: "#B4990D",
-		iconSmall: "fa fa-times",
-		timeout: 8000
-	});
-};
-
-
-function Answer(text) {
-
-	$.smallBox({
-		title: text,
-		content: "",
-		color: "green",
-		iconSmall: "fa fa-check",
-		timeout: 2000
-	});
-};
 
 //function enterPassword
 
@@ -1912,24 +1814,7 @@ function escapeTags(html) {
 	return escape.innerHTML;
 }
 
-function to64(data) {
 
-	if (data instanceof Array) {
-		$.each(data, function (index, value) {
-			data[index] = to64(value);
-		});
-		return data;
-	} else if (data instanceof Object) {
-		$.each(data, function (index, value) {
-			//console.log(index);
-			//console.log(value);
-			data[index] = to64(value);
-		});
-		return data;
-	} else
-		return forge.util.encode64(forge.util.encodeUtf8(String(data)));
-
-}
 function from64(data) {
 	if (data instanceof Array) {
 		$.each(data, function (index, value) {
@@ -2067,8 +1952,7 @@ function replyToMail() {
 			body['subj'] = to64('Re: '+body['subj']);
 
 			body['body']['html'] = '<br><br>---------------------------------<br>' +
-				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' +
-				messageDisplayedBody;
+				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' + '<br><br>'+messageDisplayedBody;
 			body['body']['text'] = to64(body['body']['text']);
 			body['body']['html'] = to64(body['body']['html']);
 			activePage = 'composeMail';
@@ -3095,141 +2979,6 @@ function showLog(success, cancel) {
 
 }
 
-function requestInitInvitiation() {
-	$('#inviteemail').attr('name', makerandom());
-
-	$.validator.addMethod("uniqueUserName", function (value, element) {
-		var isSuccess = false;
-		$.ajax({
-			type: "POST",
-			url: "/checkMail",
-			data: {'email': $('#inviteemail').val().toLowerCase(), 'ajax': 'smart-form-register'},
-			dataType: "json",
-			async: false,
-			success: function (msg) {
-				isSuccess = msg === true ? true : false
-			}
-		});
-		return isSuccess;
-
-	}, "Already Registered");
-
-	newinvitation = $("#request-invitiation").validate();
-
-	$("#inviteemail").rules("add", {
-		email: true,
-		required: true,
-		minlength: 3,
-		maxlength: 200,
-		uniqueUserName: true
-	});
-
-}
-function requestInvitiation() {
-	newinvitation.form();
-
-	if (newinvitation.numberOfInvalids() == 0) {
-
-		$.ajax({
-			type: "POST",
-			url: '/saveInvite',
-			data: {
-				'email': $('#inviteemail').val().toLowerCase()
-			},
-			success: function (data, textStatus) {
-				if (data.response === true) {
-					Answer('Your request has been submitted');
-					$('#inviteemail').val('');
-				} else {
-					noAnswer('Error occurred. Please try again, or submit a bug report');
-
-				}
-
-			},
-			dataType: 'json'
-		});
-
-	}
-
-}
-
-
-
-
-function downloadToken(){
-	try{
-		var oMyBlob = new Blob([toFile], {type:'text/html'});
-
-		var a = document.createElement('a');
-		a.href = window.URL.createObjectURL(oMyBlob);
-		a.download = 'ScryptmailToken.key';
-		document.body.appendChild(a);
-		a.click();
-	} catch (err) {
-		$('#browsfailed').css('display','block');
-		$('#browsfailed b').text(toFile);
-	}
-
-
-	$('#y-agree').prop('disabled',false);
-}
-
-function toAesToken(key, text) {
-
-	var vector = forge.random.getBytesSync(16);
-
-	var cipher = forge.cipher.createCipher('AES-CBC', key);
-	cipher.start({iv: vector});
-
-	cipher.update(forge.util.createBuffer(text));
-	cipher.finish();
-
-	return forge.util.bytesToHex(vector) + cipher.output.toHex();
-
-}
-
-function fromAesToken(key, text) {
-
-	var vector = forge.util.hexToBytes(text.substring(0, 32));
-	var encrypted = text.substring(32);
-
-	var cipher = forge.cipher.createDecipher('AES-CBC', key);
-	var new_buffer = forge.util.createBuffer(forge.util.hexToBytes(encrypted));
-
-	cipher.start({iv: vector});
-	cipher.update(new_buffer);
-	cipher.finish();
-
-	return (cipher.output.data);
-}
-
-
-function toAes(key, text) {
-
-	var vector = forge.random.getBytesSync(16);
-
-	var cipher = forge.cipher.createCipher('AES-CBC', key);
-	cipher.start({iv: vector});
-
-	var usUtf8 = forge.util.encodeUtf8(text);
-	cipher.update(forge.util.createBuffer(usUtf8));
-	cipher.finish();
-
-	return forge.util.bytesToHex(vector) + cipher.output.toHex();
-
-}
-
-function toFish(keyT, text) {
-
-	var vector = CryptoJS.lib.WordArray.random(16);
-	var cipher = CryptoJS.TwoFish.encrypt(text, keyT, { iv: vector });
-
-	//console.log(keyT.toString());
-
-	return vector.toString() + cipher.toString();
-
-}
-
 function fromFish(keyT, text) {
 
 	var vector = CryptoJS.enc.Hex.parse(text.substring(0, 32));
@@ -3330,10 +3079,15 @@ function retrieveSecret() {
 			profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 			sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
 
+			if(typeof profileSettings['disposableEmails'] == 'undefined'){
+				profileSettings['disposableEmails']={};
+			}
+
 			profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
 			profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
 			//console.log(user1);
 			myTimer();
+			clearInterval(logOuttimer);
 
 			newMailCheckRoutine();
 			getNewEmailsCount();
@@ -3477,21 +3231,6 @@ function calcPerformance() {
 	$('#optimalspeed').text(optimalspeed.toFixed() + ' sec.');
 	$('#paranoidspeed').text(paranoidspeed.toFixed() + ' sec.');
 
-}
-
-
-function makerandom() {
-	var text = "";
-	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-	for (var i = 0; i < Math.floor(Math.random() * 15) + 1; i++)
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-	return text;
-}
-
-function makeDerived(secret, salt) {
-	return forge.pkcs5.pbkdf2(secret, salt, 4096, 64);
 }
 
 /*

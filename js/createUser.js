@@ -22,7 +22,7 @@ function initCreateUser() {
 		$.ajax({
 			type: "POST",
 			url: "",
-			data: {'CreateUser[email]': SHA512($('#CreateUser_email').val().toLowerCase() + '@scryptmail.com'), 'ajax': 'smart-form-register'},
+			data: {'CreateUser[email]': SHA512singl($('#CreateUser_email').val().toLowerCase() + '@scryptmail.com'), 'ajax': 'smart-form-register'},
 			dataType: "json",
 			async: false,
 			success: function (msg) {
@@ -32,7 +32,7 @@ function initCreateUser() {
 		return isSuccess;
 
 	}, "Email is Already Taken");
-
+/* invitation part
 	$.validator.addMethod("uniqueInvitation", function (value, element) {
 		var isSuccess = false;
 		$.ajax({
@@ -50,17 +50,17 @@ function initCreateUser() {
 		return isSuccess;
 
 	}, "Token not found or already used");
-
+*/
 
 	newUserValidator = $("#createUser-form").validate();
-
+/*
 	$("#CreateUser_invitation").rules("add", {
 		required: true,
 		minlength: 3,
 		maxlength: 200,
 		uniqueInvitation: true
 	});
-
+*/
 	$("#CreateUser_email").rules("add", {
 		premail: true,
 		required: true,
@@ -222,7 +222,6 @@ function createAccount() {
 				userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
 				userObj['MailPublic'] = to64(pki.publicKeyToPem(mailpair.keys.publicKey)); //mailPb
 				userObj['MailPrivate'] = to64(pki.privateKeyToPem(mailpair.keys.privateKey)); //mailPr
-
 				userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
 				userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
 
@@ -257,6 +256,7 @@ function createAccount() {
 				prof_setting['email'] = email;
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
+				prof_setting['disposableEmails'] = {};
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
 
@@ -267,9 +267,9 @@ function createAccount() {
 				var MainObj = {};
 
 				var token = forge.random.getBytesSync(256);
-				var tokenHash=SHA512(token);
+				var tokenHash=SHA512singl(token);
 				var tokenAes=toAesToken(keyA, token);
-				var tokenAesHash=SHA512(tokenAes);
+				var tokenAesHash=SHA512singl(tokenAes);
 				toFile=tokenAes;
 
 				MainObj['salt'] = forge.util.bytesToHex(salt);
@@ -277,16 +277,22 @@ function createAccount() {
 				MainObj['tokenAesHash'] = tokenAesHash;
 				MainObj['UserObject'] = usObFish.toString();
 				MainObj['FolderObject'] = flObAesCipher.toString();
-				MainObj['ModKey'] = SHA512(userObj['modKey']);
+				MainObj['ModKey'] = SHA512singl(userObj['modKey']);
 				MainObj['contacts'] = contact.toString();
 				MainObj['blackList'] = blackList.toString();
 				MainObj['seedKey'] = userObj['SeedPublic'];
 				MainObj['mailKey'] = userObj['MailPublic'];
 				MainObj['sigKey'] = userObj['SignaturePublic'];
+
+
+				MainObj['seedKHash'] = SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
+				MainObj['mailKHash'] = SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
+				MainObj['sigKHash'] = SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
+
 				MainObj['prof'] = prof;
-				MainObj['mailHash'] = SHA512(email);
-				MainObj['password'] = SHA512($('#CreateUser_password').val());
-				MainObj['invitationToken']=$('#CreateUser_invitation').val().toLowerCase();
+				MainObj['mailHash'] = SHA512singl(email);
+				MainObj['password'] = SHA512singl($('#CreateUser_password').val());
+				//MainObj['invitationToken']=$('#CreateUser_invitation').val().toLowerCase();
 
 				///console.log(MainObj['password']);
 
@@ -327,3 +333,5 @@ function createAccount() {
 		}
 	}
 }
+
+

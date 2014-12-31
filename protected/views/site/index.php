@@ -218,9 +218,11 @@ Use search to find needed section.
 			<div class="col-xs-12 col-sm-12 col-md-12 text-align-center">
 				<span class="txt-color-white">SCRYPTmail © 2014 - </span>
 
-				<a href="/termofservice" target="_blank"><span class="txt-color-black">ToS</span></a>
+				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">ToS</span></a>
 
 				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
+
+				<a href="/canary" target="_blank""><span id="add" class="" data-title="add">Canary</span></a>
 			</div>
 
 		</div>
@@ -233,9 +235,11 @@ Use search to find needed section.
 			<div class="col-lg-12 text-align-center">
 				<span class="txt-color-white">SCRYPTmail © 2014 - </span>
 
-				<a href="/termofservice" target="_blank"><span class="txt-color-black">ToS</span></a>
+				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">ToS</span></a>
 
 				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
+
+				<a href="/canary" target="_blank""><span id="add" class="" data-title="add">Canary</span></a>
 			</div>
 
 		</div>

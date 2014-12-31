@@ -117,6 +117,25 @@
 
 		</div>
 		!-->
+		<div class="widget-body">
+		<div class="panel-group smart-accordion-default" id="accordion1" onclick="initdisposable();">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse1l"
+											   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+								class="fa fa-lg fa-angle-up pull-right"></i> Disposable emails</a></h4>
+				</div>
+				<div id="collapse1l" class="panel-collapse collapse">
+					<div class="panel-body">
+						<div class="table-responsive">
+							<table class="table table-striped table-hover" id="disposeList">
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
 	</article>
 
 
@@ -370,7 +389,7 @@
 							<div class="col col-sm-6">
 						<a class="btn btn-primary btn-sm pull-left" href="javascript:void(0);" id="token" onclick="downloadTokenProfile();">
 							<i class="fa fa-save"></i> Download Token</a><br><br>
-						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/post/103615273685/guide-to-reset-secret-phrase-password" target="_blank">What it is?</a>
+						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
 								</div>
 							<div class="col col-sm-6">
 						<a class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="saveSecret();">
@@ -464,6 +483,12 @@
 
 
 </form>
+
+<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons ui-draggable" tabindex="-1" role="dialog" aria-describedby="dialog_simple" aria-labelledby="ui-id-22" style="display: none;"><div id="dialog_simple" class="ui-dialog-content ui-widget-content">
+		<p class="padding-5" style="word-break: break-all;">
+		</p>
+	</div>
+</div>
 
 <script src="/js/profile.js?r=<?php echo $version;?>"></script>
 <script>

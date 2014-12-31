@@ -64,11 +64,15 @@ class Acceptemailfrompostfix extends CFormModel
 
 			if(isset($row['msg']['to']) || isset($row['email'])){
 
-				$recipient=isset($row['msg']['to'])?$row['msg']['to']:array(0=>$row['email']);
+				$recipient=isset($row['msg']['to'])?$row['msg']['to']:array(0=>array(0=>$row['email']));
 				foreach ($recipient as $i => $rcpt) {
 
 					//print_r($rcpt);
-					if ($mailhash = Yii::app()->db->createCommand("SELECT seedKey,mailKey FROM public_exchange WHERE mailHash='" . hash('sha512', $rcpt[0]) . "'")->queryRow()) {
+					if ($mailhash = Yii::app()->db->createCommand(
+						"SELECT user.seedKey,user.mailKey
+			FROM addresses
+			LEFT JOIN user ON user.id=addresses.userId
+			WHERE addresses.addressHash= '" . hash('sha512', $rcpt[0]) . "'")->queryRow()) {
 						$seedKey = $mailhash['seedKey'];
 						$mailKey = $mailhash['mailKey'];
 

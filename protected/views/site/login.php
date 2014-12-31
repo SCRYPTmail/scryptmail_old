@@ -1,34 +1,3 @@
-<?php
-/* @var $this SiteController */
-/* @var $model LoginForm */
-/* @var $form CActiveForm */
-
-?>
-<body class="animated fadeInDown">
-
-<header id="header">
-
-
-	<span id="logo"><a href="/"> <img src="img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a></span>
-
-	<span id="extr-page-header-space"> <a href='createUser'
-																							  class="btn btn-danger">Create
-			account</a> </span>
-
-</header>
-<div id="main" role="main">
-<!--[if IE 8]>
-<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download.<br> Or use Google Chrome / Firefox</h1>
-<![endif]-->
-<div id="incomp" class="alert alert-warning fade in" style="display:none;">
-	<button class="close" data-dismiss="alert">
-		×
-	</button>
-	<i class="fa-fw fa fa-warning"></i>
-	<strong>Warning: </strong><span></span>
-</div>
-	<!-- MAIN CONTENT -->
-	<div id="content" class="container">
 
 		<div class="row">
 
@@ -49,8 +18,12 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
-
-								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
+								<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
+								SCRYPTmail wish you stay safe in 2015.<br> Enjoy advanced account for a year if you registered before January 2nd, 2015!
+							<!--
+								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates.
+							-->
+							</h4>
 						<?php } ?>
 
 						<div class="login-app-icons">
@@ -121,14 +94,18 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
-			Dec,23 <ul>
+			Dec 31 <ul>
+				<li><a href="/TermsAndConditions" target="_blank">Term of Service</a> and <a href="/privacypolicy" target="_blank">Privacy Policy</a> Updated</li>
+				<li>Become SCRYPTmail <a href="http://blog.scryptmail.com/2014/12/become-scryptmail-ninja.html" target="_blank">Ninja</a> with self signed certificate and pinning</li>
+				<li>Improved protection. If you not enter secret within 5 minutes, it will log you out automatically</li>
+				<li>Scripts optimization to speedup loading time</li>
+
+			</ul>
+			Dec 23 <ul>
 				<li>Typos fix</li>
 				<li>Send button now on the top</li>
 				<li>Spam filtering</li>
 				<li>Unused accounts deleted</li>
-			</ul>
-			Dec,15 <ul>
-				<li>Password Manager(KeePass) file storage. Easier and more convenient than dropbox. <a href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Read more</a></li>
 			</ul>
 
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-changelog.html" target="_blank">Older updates</a>
@@ -228,28 +205,3 @@ Privacy is your right, not a privilege<br>
 			</div>
 
 
-		</div>
-		<div class="" style="margin-top:100px;">
-			<div class="row">
-				<div class="col-lg-12 text-align-center">
-					<span class="txt-color-black">SCRYPTmail © 2014 - </span>
-					<a href="/termofservice" target="_blank"><span class="txt-color-black">Term of Service</span></a>
-
-					<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
-
-					<a href="/submitBug" target="_blank""><span id="add" class="" data-title="add">Report bug</span></a>
-
-				</div>
-
-			</div>
-			<!-- end row -->
-		</div>
-	</div>
-
-</div>
-
-
-<!--[if IE 8]>
-<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
-<![endif]-->
-</body>

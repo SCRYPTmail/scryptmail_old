@@ -55,9 +55,9 @@ function saniziteEmailAttachment(body,meta)
 	if (value.indexOf('<') != -1) {
 		var toEmail=getEmailsFromString(value);
 
-		rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> &lt;' + toEmail +"&gt;; ";
+		rcphead = rcphead + '<strong>Me </strong>' + ' &lt;' + toEmail +"&gt;; ";
 	} else {
-		rcphead = rcphead + escapeTags(value) + "; ";
+		rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
 	}
 
 	rcphead = rcphead.substring(0, rcphead.length - 2);

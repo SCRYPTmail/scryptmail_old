@@ -3,28 +3,6 @@
 /* @var $model LoginForm */
 /* @var $form CActiveForm */
 ?>
-
-<body id="login">
-<!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
-<header id="header">
-	<!--<span id="logo"></span>-->
-
-	<span id="logo"> <a href="/"> <img src="img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a> </span>
-
-
-	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login"
-																								 class="btn btn-default">Sign
-			In</a> </span>
-
-</header>
-
-<div id="main" role="main">
-	<!--[if IE 8]>
-	<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download.<br> Or use Google Chrome / Firefox</h1>
-	<![endif]-->
-<!-- MAIN CONTENT -->
-<div id="content" class="container">
-
 	<div class="row">
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7 hidden-xs hidden-sm">
@@ -82,31 +60,18 @@
 			<div><a href="https://twitter.com/scryptmail" target="_blank" class="twitter-follow-button pull-right btn btn-default btn-xs" data-show-count="false"><i class="fa fa-twitter txt-color-blue"></i> Follow us @scryptmail</a></div>
 		</div>
 	</div>
-	<div class="" style="margin-top:100px;">
-		<div class="row">
-			<div class="col-lg-12 text-align-center">
-				<span class="txt-color-black">SCRYPTmail © 2014 - </span>
-				<a href="/termofservice" target="_blank"><span class="txt-color-black">Term of Service</span></a>
-
-				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
-
-				<a href="/submitBug" target="_blank""><span id="add" class="" data-title="add">Report bug</span></a>
-			</div>
-
-		</div>
-		<!-- end row -->
-	</div>
-</div>
 
 <script src="js/plugin/jquery-validate/jquery.validate.min.js"></script>
 <script src="js/plugin/jquery-form/jquery-form.min.js"></script>
 
 <script type="text/javascript">
 
-	$( document ).ready(function() {requestInitInvitiation();});
+	$( document ).ready(function() {
+		isCompatible();
+		requestInitInvitiation();
+		$('#extr-page-header-space').html('<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login" class="btn btn-default">Sign		In</a> </span>');
+
+
+	});
 
 </script>
-
-</div>
-
-</body>

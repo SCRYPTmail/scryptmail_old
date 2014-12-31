@@ -11,7 +11,7 @@ function initialResetPassword(){
 		$.ajax({
 			type: "POST",
 			url: "/createSelectedUser",
-			data: {'CreateUser[email]': SHA512($('#resetPass_email').val().toLowerCase()), 'ajax': 'smart-form-register'},
+			data: {'CreateUser[email]': SHA512singl($('#resetPass_email').val().toLowerCase()), 'ajax': 'smart-form-register'},
 			dataType: "json",
 			async: false,
 			success: function (msg) {
@@ -38,14 +38,14 @@ function initialResetPassword(){
 			type: "POST",
 			url: "/verifyRawToken",
 			data: {
-				'mailHash': SHA512($('#resetPass_email').val().toLowerCase()),
-				'tokenHash':SHA512(f)
+				'mailHash': SHA512singl($('#resetPass_email').val().toLowerCase()),
+				'tokenHash':SHA512singl(f)
 			},
 			dataType: "json",
 			async: false,
 			success: function (msg) {
 				if(msg === true)
-					resetRawTokenHash=SHA512(f);
+					resetRawTokenHash=SHA512singl(f);
 				isSuccess = msg === true ? true : false
 			}
 		});
@@ -110,13 +110,13 @@ function verifyToken(){ //for reset password
 				type: "POST",
 				url: '/verifyToken',
 				data: {
-					'mailHash': SHA512($('#resetPass_email').val().toLowerCase()),
-					'tokenHash':SHA512(toFile)
+					'mailHash': SHA512singl($('#resetPass_email').val().toLowerCase()),
+					'tokenHash':SHA512singl(toFile)
 				},
 				success: function (data, textStatus) {
 					if (data.response===true) {
 						resSalt=data.salt;
-						resetAesTokenHash=SHA512(toFile);
+						resetAesTokenHash=SHA512singl(toFile);
 						$('#showToken').val(toFile.substring(1, 20)+'...');
 						$("#showToken").valid();
 						$('#resetPass_secret').val('');
@@ -168,15 +168,15 @@ function resetForgotPass(){
 			type: "POST",
 			url: '/resetPass',
 			data: {
-				'mailHash': SHA512($("#resetPass_email").val().toLowerCase()),
+				'mailHash': SHA512singl($("#resetPass_email").val().toLowerCase()),
 				'tokenHash':resetRawTokenHash,
 				'tokenAesHash':resetAesTokenHash,
-				'newPass':SHA512($('#resetPass_password').val())
+				'newPass':SHA512singl($('#resetPass_password').val())
 			},
 			success: function (data, textStatus) {
 				if (data.result=='success') {
 					Answer('New password saved');
-					$('#resetPassButton').prop("disabled",false);
+					//$('#resetPassButton').prop("disabled",false);
 					$('#resetPassButton').html("Saved");
 					respvalidator.resetForm();
 				}else if (data.result =='fail') {
@@ -198,3 +198,4 @@ function resetForgotPass(){
 		});
 	}
 }
+
