@@ -366,9 +366,9 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 
 		var value = parseChunk[index];
 		try {
-			console.log(value);
+			//console.log(value);
 			var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
-			console.log(decrypted);
+			//console.log(decrypted);
 			decrypted = forge.util.bytesToHex(decrypted);
 			sucessfull[value['id']] = {'mod': decrypted};
 		} catch (err) {
