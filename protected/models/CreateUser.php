@@ -120,11 +120,11 @@ class CreateUser extends CFormModel
 
 				if(Yii::app()->db->createCommand(
 					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
-				)->execute($param) &&
-					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type<>1')->execute())
+				)->execute($param))
 				{
-					$trans->commit();
-					echo  '{"email":"success"}';
+					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type IN (2,3)')->execute();
+						$trans->commit();
+						echo  '{"email":"success"}';
 				}else{
 					echo  '{"email":"error"}';
 					$trans->rollback();
