@@ -89,7 +89,11 @@ class UpdateKeys extends CFormModel
 				isset($this->sendObj['mailKey']) &&
 				isset($this->sendObj['seedKey']) &&
 				isset($this->sendObj['mailHash']) &&
-				isset($this->sendObj['sigKey'])
+				isset($this->sendObj['sigKey']) &&
+				isset($this->sendObj['seedKHash']) &&
+				isset($this->sendObj['mailKHash']) &&
+				isset($this->sendObj['sigKHash'])
+
 			) {
 				return true;
 			} else
@@ -110,20 +114,19 @@ class UpdateKeys extends CFormModel
 
 		$trans = Yii::app()->db->beginTransaction();
 		if (
-			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)){
+			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
 
-			unset($param[':id'],$param[':userObj'],$param[':tokenHash'],$param[':tokenAesHash']);
-
-		if(Yii::app()->db->createCommand("UPDATE public_exchange SET modKey=:newModKey WHERE modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
-		) {
+		){
 			$trans->commit();
 			echo '{"email":"good"}';
-		} else {
+
+	}else {
 			$trans->rollback();
 			echo '{"email":"Keys are not saved, please try again or report a bug"}';
 
 		}
-	}
+
+
 	}
 
 	public function saveKeys()
@@ -134,12 +137,20 @@ class UpdateKeys extends CFormModel
 		$param[':id'] = Yii::app()->user->getId();
 		$param[':newModKey'] = $this->sendObj['NewModKey'];
 
+		$param[':seedKey'] = $this->sendObj['seedKey'];
+		$param[':mailKey'] = $this->sendObj['mailKey'];
+		$param[':sigKey'] = $this->sendObj['sigKey'];
+
+		$param[':seedKHash'] = $this->sendObj['seedKHash'];
+		$param[':mailKHash'] =$this->sendObj['mailKHash'];
+		$param[':sigKHash'] = $this->sendObj['sigKHash'];
+
 
 		$trans = Yii::app()->db->beginTransaction();
 		//print_r($param);
 		if (
-			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey WHERE id=:id AND modKey=:oldModKey")->execute($param) &&
-			UserGroupManager::updateKeys($this->sendObj['mailHash'], $this->sendObj['seedKey'], $this->sendObj['mailKey'], $this->sendObj['sigKey'], $this->sendObj['NewModKey'], $param[':oldModKey'])
+			Yii::app()->db->createCommand(
+				"UPDATE user SET userObj=:userObj,modKey=:newModKey,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE id=:id AND modKey=:oldModKey")->execute($param)
 		) {
 			$trans->commit();
 			echo '{"email":"good"}';

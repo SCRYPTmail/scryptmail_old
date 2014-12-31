@@ -29,8 +29,10 @@ class SiteController extends Controller
 			$cs->registerScriptFile('/js/twofish.js');
 
 
-
+			$cs->registerScriptFile("/js/uniFunctions.js?r=$this->fileVers");
 			$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
+
+
 			//$cs->registerScriptFile("/js/genFunctions.js");
 			$cs->registerScriptFile('/js/bootstrap/bootstrap.js');
 			$cs->registerScriptFile('/js/plugin/masked-input/jquery.maskedinput.min.js');
@@ -78,9 +80,7 @@ class SiteController extends Controller
 					'getFile',
 					'downloadFile',
 					'getClientInfo',
-					'whyuse',
-					'whyprotect',
-					'termofservice',
+					'TermsAndConditions',
 					'privacypolicy',
 					'reportBug',
 					'submitBug',
@@ -95,6 +95,7 @@ class SiteController extends Controller
 					'ResetPass',
 					'checkInvitation',
 					'safeBox',
+					'canary'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -140,7 +141,7 @@ class SiteController extends Controller
 					'getClientInfo',
 					'changePass',
 					'saveSecret',
-					'termofservice',
+					'TermsAndConditions',
 					'privacypolicy',
 					'reportBug',
 					'submitBug',
@@ -161,7 +162,8 @@ class SiteController extends Controller
 					'safeBox',
 					'deleteFileFromSafe',
 					'retrieveFoldersData',
-					'saveBlackList'
+					'saveBlackList',
+					'canary'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -318,8 +320,24 @@ class SiteController extends Controller
 	public function actionForgotSecret()
 	{
 		$cs = Yii::app()->clientScript;
-		$cs->registerScriptFile('/js/plugin/jquery-validate/jquery.validate.min.js');
-		$cs->registerScriptFile('/js/plugin/jquery-form/jquery-form.min.js');
+
+
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+		//$cs->scriptMap["SmartNotification.js"] = false;
+
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+
+
+		//$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
+
+
 		$cs->registerScriptFile("/js/resetSecret.js?r=$this->fileVers");
 
 		$this->render('ForgotSecret');
@@ -327,11 +345,41 @@ class SiteController extends Controller
 
 	public function actionForgotPassword()
 	{
-
 		$cs = Yii::app()->clientScript;
-		$cs->registerScriptFile('/js/plugin/jquery-validate/jquery.validate.min.js');
-		$cs->registerScriptFile('/js/plugin/jquery-form/jquery-form.min.js');
+
+		$cs->scriptMap['twofish.js'] = false;
+		$cs->scriptMap['x64-core.js'] = false;
+		//$cs->scriptMap['forge.bundle.js'] = false;
+		$cs->scriptMap['core.js'] = false;
+		$cs->scriptMap['aes.js'] = false;
+
+		//$cs->registerScriptFile('/js/core.js');
+		//$cs->registerScriptFile('/js/x64-core.js');
+		//$cs->registerScriptFile('/js/aes.js');
+		//$cs->registerScriptFile('/js/twofish.js');
+
+
+
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+		//$cs->scriptMap["SmartNotification.js"] = false;
+
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+
+
+		//$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
+
 		$cs->registerScriptFile("/js/resetPass.js?r=$this->fileVers");
+		//--------------------
+
+		//$cs = Yii::app()->clientScript;
+
 
 		$this->render('ForgotPass');
 
@@ -376,15 +424,16 @@ class SiteController extends Controller
 		$cs = Yii::app()->getClientScript();
 		$this->render('privacy');
 	}
-	public function actionTermofservice()
+	public function actionCanary()
+	{
+		$cs = Yii::app()->getClientScript();
+		$this->render('canary');
+	}
+
+	public function actionTermsAndConditions()
 	{
 		$cs = Yii::app()->getClientScript();
 		$this->render('tos');
-	}
-	public function actionWhyuse()
-	{
-		$cs = Yii::app()->getClientScript();
-		$this->render('whyuse');
 	}
 
 	public function actionSubmitBug()
@@ -428,11 +477,7 @@ class SiteController extends Controller
 	{
 		$this->render('reportBug');
 	}
-	public function actionWhyprotect()
-	{
-		$cs = Yii::app()->getClientScript();
-		$this->render('whyprotect');
-	}
+
 	public function actionIndex()
 	{
 		$cs = Yii::app()->getClientScript();
@@ -811,19 +856,35 @@ class SiteController extends Controller
 	{
 
 		$cs = Yii::app()->clientScript;
+
 		$cs->scriptMap['twofish.js'] = false;
 		$cs->scriptMap['x64-core.js'] = false;
-		//$cs->scriptMap['forge.bundle.js'] = false;
+		$cs->scriptMap['forge.bundle.js'] = false;
 		$cs->scriptMap['core.js'] = false;
 		$cs->scriptMap['aes.js'] = false;
-		//$cs->scriptMap['genFunctions.js'] = false;
+
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+
 		$cs->scriptMap['select2.min.js'] = false;
 		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+
 
 		$cs->registerScriptFile("/js/loginUser.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+
+		//$cs->registerCssFile("/css/loginpage.css?r=$this->fileVers");
 		//$cs->scriptMap['bootstrap.min.js']  = false;
 		//$cs->scriptMap['bootstrap-yii.css'] = false;
+
+		//$cs->scriptMap['bootstrap.min.css'] = false;
+		//$cs->scriptMap['font-awesome.min.css'] = false;
+		//$cs->scriptMap["smartadmin-production.min.css?r=$this->fileVers"] = false;
+
+
+
 
 
 		$model = new LoginForm;
@@ -847,6 +908,39 @@ class SiteController extends Controller
 	public function actionCreateSelectedUser()
 	{
 
+		$cs = Yii::app()->clientScript;
+
+		//$cs->scriptMap['twofish.js'] = false;
+		//$cs->scriptMap['x64-core.js'] = false;
+		//$cs->scriptMap['forge.bundle.js'] = false;
+		//$cs->scriptMap['core.js'] = false;
+		//$cs->scriptMap['aes.js'] = false;
+
+		//$cs->registerScriptFile('/js/core.js');
+		//$cs->registerScriptFile('/js/x64-core.js');
+		//$cs->registerScriptFile('/js/aes.js');
+		//$cs->registerScriptFile('/js/twofish.js');
+
+
+
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+
+
+		//$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
+		//$cs->registerScriptFile("/js/plugin/jquery-form/jquery-form.min.js");
+
+
 		//print_r(date('Y-m-d'));
 		$totalUser=CountRegistered::getReg();
 
@@ -864,12 +958,7 @@ class SiteController extends Controller
 		//	$this->redirect('/createUser');
 		//}
 
-		$cs = Yii::app()->clientScript;
-		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
-		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
-		$cs->registerScriptFile("/js/plugin/jquery-form/jquery-form.min.js");
-
-		$model = new CreateUser('');
+		$model = new CreateUser();
 
 		$totalUser=CountRegistered::getReg();
 
@@ -905,6 +994,30 @@ class SiteController extends Controller
 	public function actionCreateUser()
 	{
 		//print_r(date('Y-m-d'));
+		$this->redirect('/createSelectedUser');
+
+		$cs = Yii::app()->clientScript;
+
+		$cs->scriptMap['twofish.js'] = false;
+		$cs->scriptMap['x64-core.js'] = false;
+		$cs->scriptMap['forge.bundle.js'] = false;
+		$cs->scriptMap['core.js'] = false;
+		$cs->scriptMap['aes.js'] = false;
+
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+
+
+		$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+
+
+
 		$totalUser=CountRegistered::getReg();
 
 		$datetime = new DateTime; // current time = server time

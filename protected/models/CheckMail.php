@@ -15,7 +15,7 @@ class CheckMail extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('email', 'email','allowEmpty'=>false),
+			array('email', 'email','allowEmpty'=>false,'message'=>'Not a valid email address.'),
 		);
 	}
 

@@ -317,13 +317,14 @@ function generateSigKeys() {
 
 	var sigpair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
 
-	sigPrivateKey = sigpair.privateKey;
-	sigPubKey = sigpair.publicKey;
+	sigPubKeyTemp = sigpair.publicKey;
+	sigPrivateKeyTemp = sigpair.privateKey;
 
 
 }
 
 function saveKeys() {
+
 	if ($('#UpdateKeys_seedPubK').val() != '' && $('#UpdateKeys_mailPubK').val() != '') {
 
 
@@ -342,14 +343,37 @@ function saveKeys() {
 					var NuserObj = [];
 					NuserObj['userObj'] = {};
 
-					NuserObj['userObj']['SeedPublic'] = to64($('#UpdateKeys_seedPubK').val()); //seedPb
-					NuserObj['userObj']['SeedPrivate'] = to64($('#UpdateKeys_seedPrK').val()); //seedPr
-					NuserObj['userObj']['MailPublic'] = to64($('#UpdateKeys_mailPubK').val()); //mailPb
-					NuserObj['userObj']['MailPrivate'] = to64($('#UpdateKeys_mailPrK').val()); //mailPr
+
+
+					var seedp=pki.publicKeyFromPem($('#UpdateKeys_seedPubK').val());
+					NuserObj['userObj']['SeedPublic'] = to64(pki.publicKeyToPem(seedp)); //seedPb
+
+					var seedpr=pki.privateKeyFromPem($('#UpdateKeys_seedPrK').val());
+					NuserObj['userObj']['SeedPrivate'] = to64(pki.privateKeyToPem(seedpr)); //seedPr
+
+
+					var mailp=pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
+					NuserObj['userObj']['MailPublic'] = to64(pki.publicKeyToPem(mailp)); //mailPb
+
+					var mailpr=pki.privateKeyFromPem($('#UpdateKeys_mailPrK').val());
+					NuserObj['userObj']['MailPrivate'] = to64(pki.privateKeyToPem(mailpr)); //mailPr
+
+					//sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
+					//sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
+
 
 					try {
-						NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKey));
-						NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKey));
+
+						if(sigPubKeyTemp!='' && sigPrivateKeyTemp!=''){
+
+							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKeyTemp));
+							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKeyTemp));
+							var sigKHash=SHA512(pki.publicKeyToPem(sigPubKeyTemp));
+						}else{
+							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKey));
+							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKey));
+							var sigKHash=SHA512(pki.publicKeyToPem(sigPubKey));
+						}
 					} catch (err) {
 						noAnswer('Keys are corrupted. Please generate new signature keys');
 					}
@@ -363,7 +387,18 @@ function saveKeys() {
 
 					var NewObj = profileToDb(NuserObj);
 
-					var presend = {'OldModKey': userModKey, 'mailKey': NuserObj['userObj']['MailPublic'], 'seedKey': NuserObj['userObj']['SeedPublic'], 'sigKey': NuserObj['userObj']['SignaturePublic'], 'userObj': NewObj.toString(), 'NewModKey': SHA512(NuserObj['userObj']['modKey']), 'mailHash': SHA512(profileSettings['email'])};
+					var presend = {
+						'OldModKey': userModKey,
+						'mailKey': NuserObj['userObj']['MailPublic'],
+						'seedKey': NuserObj['userObj']['SeedPublic'],
+						'sigKey': NuserObj['userObj']['SignaturePublic'],
+						'userObj': NewObj.toString(),
+						'NewModKey': SHA512(NuserObj['userObj']['modKey']),
+						'mailHash': SHA512(profileSettings['email']),
+						'seedKHash':SHA512(pki.publicKeyToPem(seedp)),
+						'mailKHash':SHA512(pki.publicKeyToPem(mailp)),
+						'sigKHash': sigKHash
+					};
 
 					$.ajax({
 						type: "POST",
@@ -389,7 +424,20 @@ function saveKeys() {
 
 					dfd.done(function () {
 						$('#keyGenForm')[0].reset();
-						console.log('ddddd');
+
+						mailPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['MailPrivate']));
+						mailPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['MailPublic']));
+
+						seedPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['SeedPrivate']));
+						seedPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['SeedPublic']));
+
+						if(sigPubKeyTemp!='' && sigPrivateKeyTemp!=''){
+							sigPubKey = sigPubKeyTemp;
+							sigPrivateKey = sigPrivateKeyTemp;
+							sigPubKeyTemp='';
+							sigPrivateKeyTemp='';
+						}
+
 						getMainData();
 					});
 
@@ -788,14 +836,40 @@ function initSafeBox() {
 
 }
 
+
 function delContact(row, email) {
 
-	$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+	$('#dialog_simple >p').html('<b>'+email+'</b> will be deleted. Continue?');
 
-	delete contacts[email];
-	checkContacts();
+	$('#dialog_simple').dialog({
+		autoOpen : false,
+		width : 300,
+		resizable : false,
+		modal : true,
+		title : "Delete contact",
+		buttons : [{
+			html : "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+			"class" : "btn btn-danger",
+			click : function() {
+				$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+				delete contacts[email];
+				checkContacts();
+
+				$(this).dialog("close");
+			}
+		}, {
+			html : "<i class='fa fa-times'></i>&nbsp; Cancel",
+			"class" : "btn btn-default",
+			click : function() {
+				$(this).dialog("close");
+			}
+		}]
+	});
+
+	$('#dialog_simple').dialog('open');
 
 }
+
 
 function delFromBlackList(row, email)
 {

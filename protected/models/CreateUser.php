@@ -42,8 +42,11 @@ class CreateUser extends CFormModel
 					isset($g['blackList']) &&
 					isset($g['UserObject']) &&
 					isset($g['salt']) &&
-					isset($g['prof'])&&
-					isset($g['invitationToken'])
+					isset($g['prof']) &&
+					isset($g['seedKHash']) &&
+					isset($g['mailKHash']) &&
+					isset($g['sigKHash'])
+					//&& isset($g['invitationToken'])
 				) {
 				} else
 					$this->addError('email', 'Error in Object Data please try again');
@@ -67,7 +70,10 @@ class CreateUser extends CFormModel
 					isset($g['blackList']) &&
 					isset($g['UserObject']) &&
 					isset($g['salt']) &&
-					isset($g['prof'])
+					isset($g['prof'])&&
+					isset($g['seedKHash']) &&
+					isset($g['mailKHash']) &&
+					isset($g['sigKHash'])
 				) {
 				} else
 					$this->addError('email', 'Error in Object Data please try again');
@@ -96,9 +102,21 @@ class CreateUser extends CFormModel
 				$param[':tokenHash'] = $obj['tokenHash'];
 				$param[':tokenAesHash'] = $obj['tokenAesHash'];
 
+				$param[':seedKey'] = $obj['seedKey'];
+				$param[':mailKey'] = $obj['mailKey'];
+				$param[':sigKey'] = $obj['sigKey'];
+
+				$param[':seedKHash'] = $obj['seedKHash'];
+				$param[':mailKHash'] = $obj['mailKHash'];
+				$param[':sigKHash'] = $obj['sigKHash'];
+
+
 				$trans = Yii::app()->db->beginTransaction();
 
-				if(Yii::app()->db->createCommand("UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash")->execute($param) && UserGroupManager::saveKeys($obj['mailHash'], $obj['seedKey'], $obj['mailKey'], $obj['sigKey'], $obj['ModKey']))
+				if(Yii::app()->db->createCommand(
+					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
+
+				)->execute($param))
 				{
 					$trans->commit();
 					echo  '{"email":"success"}';
@@ -108,17 +126,17 @@ class CreateUser extends CFormModel
 				}
 
 			}else{
-				echo  '{"email":"error"}';
+				echo  '{"email":"password wrong"}';
 			}
 
 		}else{
-			echo  '{"email":"error"}';
+			echo  '{"email":"not found"}';
 		}
 	}
 	public function validateEmail()
 	{
 		$param[':mailHash'] = $this->email;
-		if (Yii::app()->db->createCommand("SELECT mailHash FROM user WHERE mailHash=:mailHash")->queryRow(true, $param) && $this->email!='e89322d21da8e8d5dd1ef398f189bd11179f44436e9a296e8898356f34b3ecef2d6d34c9d703b2c8ea7e97684158a42d21a5af265bdc26157027af4c130ef98c') {
+		if (Yii::app()->db->createCommand("SELECT addressHash FROM addresses WHERE addressHash=:mailHash")->queryRow(true, $param) && $this->email!='e89322d21da8e8d5dd1ef398f189bd11179f44436e9a296e8898356f34b3ecef2d6d34c9d703b2c8ea7e97684158a42d21a5af265bdc26157027af4c130ef98c') {
 			echo  'false';
 		} else
 			echo  'true';
@@ -129,7 +147,7 @@ class CreateUser extends CFormModel
 
 		$obj = json_decode($this->CreateUser, true);
 
-		if(strlen($obj['invitationToken'])==64 && Yii::app()->db->createCommand("SELECT id FROM invites WHERE invitationCode=:invitationToken AND registered IS NULL")->queryRow(true, array(':invitationToken'=>$obj['invitationToken']))) {
+		//if(strlen($obj['invitationToken'])==64 && Yii::app()->db->createCommand("SELECT id FROM invites WHERE invitationCode=:invitationToken AND registered IS NULL")->queryRow(true, array(':invitationToken'=>$obj['invitationToken']))) {
 
 			if($obj['mailHash']=='e89322d21da8e8d5dd1ef398f189bd11179f44436e9a296e8898356f34b3ecef2d6d34c9d703b2c8ea7e97684158a42d21a5af265bdc26157027af4c130ef98c'){
 				//echo  '{"email":"reserved"}'; //todo revert back before push
@@ -151,25 +169,41 @@ class CreateUser extends CFormModel
 
 			$param[':mailHash'] = $obj['mailHash'];
 			$param[':password'] = crypt($obj['password']);
-			//Yii::app()->end();
+
+			$param[':seedKey'] = $obj['seedKey'];
+			$param[':mailKey'] = $obj['mailKey'];
+			$param[':sigKey'] = $obj['sigKey'];
+
+		//todo verify is hash
+			$param[':seedKHash'] = $obj['seedKHash'];
+			$param[':mailKHash'] = $obj['mailKHash'];
+			$param[':sigKHash'] = $obj['sigKHash'];
+
+
 			$trans = Yii::app()->db->beginTransaction();
 
-			if (
-				Yii::app()->db->createCommand("INSERT IGNORE INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash)")->execute($param) &&
-				UserGroupManager::savegroup(Yii::app()->db->getLastInsertID(), '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks'))) &&
-				UserGroupManager::saveKeys($obj['mailHash'], $obj['seedKey'], $obj['mailKey'], $obj['sigKey'], $obj['ModKey']) &&
-				Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$obj['invitationToken']))
+			if(
+				Yii::app()->db->createCommand(
+					"INSERT INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash,seedKey,mailKey,sigKey,seedKHash,mailKHash,sigKHash
+) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash,:seedKey,:mailKey,:sigKey,:seedKHash,:mailKHash,:sigKHash)")->execute($param)
 			) {
-				$trans->commit();
-				echo  '{"email":"success"}';
-				return true;
+				$usId=Yii::app()->db->getLastInsertID();
+				if(
+					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash) VALUES (:userId,:addressHash)")->execute(array(':userId'=>$usId,':addressHash'=>$obj['mailHash'])) &&
+					UserGroupManager::savegroup($usId, '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
+					//&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$obj['invitationToken']))
+				){
+					$trans->commit();
+					echo  '{"email":"success"}';
+					return true;
+				}
 			} else {
 				$trans->rollback();
 				$this->addError('email', 'error');
 			}
 
-		}else
-			$this->addError('email', 'error');
+		//}else
+		//	$this->addError('email', 'error');
 
 
 

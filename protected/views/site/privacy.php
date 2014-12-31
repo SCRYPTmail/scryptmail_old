@@ -1,34 +1,7 @@
-<?php
-/* @var $this SiteController */
-/* @var $model LoginForm */
-/* @var $form CActiveForm */
-
-?>
-<body class="animated fadeInDown">
-
-<header id="header">
-
-
-	<span id="logo"> <img src="img/scriptmail_logo.png" style="width:180px;" alt="<?php echo Yii::app()->name; ?>"> </span>
-
-
-	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login"
-																			  class="btn btn-default">Sign
-			In</a> <a href='createUser'
-																							  class="btn btn-danger">Create
-			account</a> </span>
-
-</header>
-
-<div id="main" role="main">
-
-	<!-- MAIN CONTENT -->
-	<div id="content" class="container">
-
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<h1 class="txt-color-red login-header-big">Privacy Policy</h1>
-				<div class="hero">
+				<div class="hero" style="height:auto;">
 				<style>
 					#ppHeader {
 						font-family: verdana;
@@ -419,14 +392,3 @@
 			</div>
 
 		</div>
-
-
-
-	</div>
-</div>
-
-
-<!--[if IE 8]>
-<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
-<![endif]-->
-</body>

@@ -107,7 +107,7 @@ class UserGroupManager extends CFormModel
 
 	public function saveKeys($mailHash, $seedKey, $mailKey, $sigKey, $newMod)
 	{
-
+/*
 		$param[':mailHash'] = $mailHash;
 		$param[':seedKey'] = $seedKey;
 		$param[':mailKey'] = $mailKey;
@@ -119,12 +119,13 @@ class UserGroupManager extends CFormModel
 			return true;
 		else
 			return false;
+*/
 	}
 
 
 	public function updateKeys($mailHash, $seedKey, $mailKey, $sigKey, $newMod, $oldMod)
 	{
-
+/*
 		$param[':mailHash'] = $mailHash;
 		$param[':seedKey'] = $seedKey;
 		$param[':mailKey'] = $mailKey;
@@ -143,7 +144,7 @@ class UserGroupManager extends CFormModel
 		else
 			return false;
 		}
-
+*/
 	}
 
 }
