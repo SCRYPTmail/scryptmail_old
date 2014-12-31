@@ -20,6 +20,8 @@ Privacy is your right, not a privilege<br>
 							<h4 class="paragraph-header">
 								<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
 								SCRYPTmail wish you stay safe in 2015.<br> Enjoy advanced account for a year if you registered before January 2nd, 2015!
+								<br><br>
+								We did a huge email delivery redesign. Please do hard refresh
 							<!--
 								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates.
 							-->
