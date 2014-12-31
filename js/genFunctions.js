@@ -1622,7 +1622,6 @@ function showSavedDraft(body, meta, datas) {
 				var em =toEmail;
 				cont.push(name + "<" + em + ">");
 			} else {
-				console.log(value);
 				var toEmail=stripHTML(value);
 				cont.push($.trim(toEmail));
 			}
@@ -1880,6 +1879,7 @@ function detectMessage(datas) {
 				activePage = 'composeMail';
 				showSavedDraft(body, meta, datas);
 				emailTimer();
+				$('#sendMaildiv').css('display','block');
 			},
 			error: function (data, textStatus) {
 				noAnswer('Error occurred. Please try again');
@@ -2280,9 +2280,9 @@ function initializeMailList() {
 	});
 
 
-	$('.mail-table-icon input:checkbox').click(function () {
-		enableDeleteButton();
-	})
+	//$('.mail-table-icon input:checkbox').click(function () {
+	//	enableDeleteButton();
+	//})
 
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
@@ -2541,10 +2541,26 @@ function deleteMessage(selected,selectedFolder, callback) {
 
 
 		}else if(selectedFolder in folder['Custom']){
-			selected.forEach(function(messageId) {
-				folder['Trash'][parseInt(messageId)] = folder['Custom'][selectedFolder][parseInt(messageId)];
-				delete folder['Custom'][selectedFolder][parseInt(messageId)];
+			var select = 0;
+			$.each(selected, function (index, value) {
+				folder['Trash'][parseInt(value['id'])] = folder['Custom'][selectedFolder][parseInt(value['id'])];
+				delete folder['Custom'][selectedFolder][parseInt(value['id'])];
+				select++;
+
 			});
+			checkFolders();
+			$('#mail-table').DataTable()
+				.row($('#mail-table td input:checkbox:checked').parents('tr'))
+				.remove()
+				.draw();
+			$("#selectAll").prop('checked', '');
+
+			if (select > 0)
+				Answer('Moved to Trash');
+			setTimeout(function() {
+				getNewEmailsCount();
+			}, 1000);
+
 			if (callback) {
 				callback();
 			}
@@ -2598,6 +2614,7 @@ function deleteMessage(selected,selectedFolder, callback) {
 }
 
 function enableDeleteButton() {
+	/*
 	var isChecked = $('.mail-table-icon input:checkbox').is(':checked');
 
 	if (isChecked) {
@@ -2607,6 +2624,7 @@ function enableDeleteButton() {
 		$(".inbox-checkbox-triggered").removeClass('visible');
 		//$("#compose-mail").show();
 	}
+	*/
 }
 
 function selectFolder(thisObj) {

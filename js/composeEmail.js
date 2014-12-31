@@ -115,7 +115,7 @@ function iniEmailBody(pin) {
 			toolbar: [
 				//[groupname, [button list]]
 
-				['style', ['bold', 'italic', 'underline']],
+				['style', ['bold', 'italic', 'underline', 'clear']],
 				['fontsize', ['fontsize']],
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],

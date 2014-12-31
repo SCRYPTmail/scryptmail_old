@@ -290,6 +290,7 @@ Use search to find needed section.
 	<script src="js/plugin/datatables/dataTables.colVis.js"></script>
 	<script src="js/plugin/datatables/dataTables.tableTools.js"></script>
 	<script src="js/plugin/datatables/dataTables.bootstrap.js"></script>
+
 	<!--<script src="js/plugin/datatables/jquery.jeditable.js"></script>
 	<script src="js/plugin/datatables/dataTables.editable.js"></script>-->
 

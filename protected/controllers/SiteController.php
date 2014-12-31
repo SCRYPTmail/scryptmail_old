@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0523';
+	public $fileVers='0526';
 
 	public function beforeAction($action)
 	{
@@ -223,25 +223,57 @@ class SiteController extends Controller
 
 	public function actionSafeBox()
 	{
+		if (!isset($_SERVER['PHP_AUTH_USER'])) {
+			header("WWW-Authenticate: Basic realm=\"Private Area\"");
+			header("HTTP/1.0 401 Unauthorized");
+			exit;
+		} else {
 
-		$model = new SafeBox('safeFile');
-		$model->file=file_get_contents("php://input");
-		$model->filename=Yii::app()->getRequest()->getQuery('fileName');
-		$model->username=isset($_SERVER['PHP_AUTH_USER'])?$_SERVER['PHP_AUTH_USER']:'';
-		$model->password=isset($_SERVER['PHP_AUTH_PW'])?$_SERVER['PHP_AUTH_PW']:'';
-		$model->action=isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'';
+			if(isset($_SERVER['HTTP_AUTHORIZATION'])){
+				try{
 
-		if(strlen($model->filename)!=0)
-		{
-			if ($model->validate())
-					$model->fileWorks();
+					$stringData = base64_decode(trim(str_replace('Basic','',$_SERVER['HTTP_AUTHORIZATION'])));
+					$userpass=explode(':',$stringData);
+					$user=$userpass[0];
+					$pass=$userpass[1];
 
-		}else
-			{
-				header($_SERVER['SERVER_PROTOCOL'] . ' 500 Please provide File name', true, 500);
-				echo ' ';
+					$model = new SafeBox('safeFile');
+					$model->file=file_get_contents("php://input");
+					$model->filename=Yii::app()->getRequest()->getQuery('fileName');
 
+					//$model->username=isset($_SERVER['HTTP_AUTHORIZATION'])?$_SERVER['HTTP_AUTHORIZATION']:'';
+
+					$model->username=isset($_SERVER['PHP_AUTH_USER'])?$_SERVER['PHP_AUTH_USER']:$userpass[0];
+					$model->password=isset($_SERVER['PHP_AUTH_PW'])?$_SERVER['PHP_AUTH_PW']:$userpass[1];
+					$model->action=isset($_SERVER['REQUEST_METHOD'])?$_SERVER['REQUEST_METHOD']:'';
+
+					if(strlen($model->filename)!=0)
+					{
+						if ($model->validate())
+							$model->fileWorks();
+
+					}else
+					{
+						header($_SERVER['SERVER_PROTOCOL'] . ' 400'.$_SERVER['PHP_AUTH_USER'].$_SERVER['PHP_AUTH_PW'], true, 400);
+						echo ' ';
+
+					}
+
+
+				} catch (Exception $e) {
+					header($_SERVER['SERVER_PROTOCOL'] . ' 400'.$_SERVER['PHP_AUTH_USER'].$_SERVER['PHP_AUTH_PW'], true, 400);
+					echo ' ';
 			}
+
+
+			}else{
+				header($_SERVER['SERVER_PROTOCOL'] . ' 400'.$_SERVER['PHP_AUTH_USER'].$_SERVER['PHP_AUTH_PW'], true, 400);
+				echo ' ';
+			}
+
+
+		}
+
 
 	}
 
