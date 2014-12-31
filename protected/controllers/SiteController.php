@@ -163,7 +163,10 @@ class SiteController extends Controller
 					'deleteFileFromSafe',
 					'retrieveFoldersData',
 					'saveBlackList',
-					'canary'
+					'canary',
+					'verifyEmail',
+					'saveDisposableEmail',
+					'deleteDisposableEmail'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -989,6 +992,38 @@ class SiteController extends Controller
 
 		$this->render('createUserForSelected', array('model' => $model,'token'=>Yii::app()->getRequest()->getQuery('id')));
 	}
+
+	public function actionVerifyEmail()
+	{
+		$model = new CreateUser('validatemail');
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->validateEmail();
+		else
+			echo json_encode($model->getErrors());
+	}
+
+
+	public function actionDeleteDisposableEmail()
+	{
+		$model = new CreateUser('deleteDisposable');
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->deleteDisposable(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+	}
+
+	public function actionSaveDisposableEmail()
+	{
+		$model = new CreateUser('saveDisposable');
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->saveDisposable(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+	}
+
 
 
 	public function actionCreateUser()

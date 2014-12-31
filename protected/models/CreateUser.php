@@ -9,12 +9,17 @@
 class CreateUser extends CFormModel
 {
 
-	public $email, $CreateUser;
+	public $email, $CreateUser,$modKey;
 
 	public function rules()
 	{
 		return array(
-			array('email', 'length', 'min' => 3, 'max' => 255, 'allowEmpty' => false, 'on' => 'validatemail'),
+			//array('email', 'length', 'min' => 3, 'max' => 255, 'allowEmpty' => false, 'on' => 'validatemail'),
+			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128,128}$/i", 'allowEmpty' => false, 'on' => 'validatemail'),
+
+			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128,128}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable'),
+			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable'),
+
 			array('CreateUser', 'isJson', 'on' => 'createAccount'),
 			array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
 		);
@@ -88,7 +93,7 @@ class CreateUser extends CFormModel
 		$param[':mailHash'] = $obj['mailHash'];
 		$param[':oldAesTokenHash'] = $obj['oldAesTokenHash'];
 
-		if($user=Yii::app()->db->createCommand("SELECT password FROM user WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
+		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
 
 			if($user['password']==crypt($obj['password'],$user['password']))
 			{
@@ -115,8 +120,8 @@ class CreateUser extends CFormModel
 
 				if(Yii::app()->db->createCommand(
 					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
-
-				)->execute($param))
+				)->execute($param) &&
+					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type<>1')->execute())
 				{
 					$trans->commit();
 					echo  '{"email":"success"}';
@@ -140,6 +145,41 @@ class CreateUser extends CFormModel
 			echo  'false';
 		} else
 			echo  'true';
+	}
+
+	public function deleteDisposable($id){
+
+		$param[':email'] =$this->email;
+		$param[':userId'] =$id;
+		$param[':modKey'] =hash('sha512',$this->modKey);
+
+		if (Yii::app()->db->createCommand("
+			DELETE addresses.*
+				FROM addresses
+				LEFT JOIN user ON user.id = addresses.userId
+			WHERE user.id=:userId AND modKey=:modKey AND addresses.addressHash=:email AND addresses.addr_type=2")->execute($param)) {
+			echo  'true';
+		} else
+			echo  'false';
+
+	}
+
+	public function saveDisposable($id)
+	{
+
+		$param[':email'] =$this->email;
+		$param[':userId'] =$id;
+		$param[':modKey'] =hash('sha512',$this->modKey);
+
+		if (Yii::app()->db->createCommand(
+			"INSERT INTO addresses (userId,addressHash,addr_type)
+				SELECT :userId, :email,'2'
+					FROM user
+						WHERE id=:userId AND modkey=:modKey")->execute($param)) {
+			echo  'true';
+		} else
+			echo  'false';
+
 	}
 
 	public function createAccount()
@@ -189,8 +229,8 @@ class CreateUser extends CFormModel
 			) {
 				$usId=Yii::app()->db->getLastInsertID();
 				if(
-					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash) VALUES (:userId,:addressHash)")->execute(array(':userId'=>$usId,':addressHash'=>$obj['mailHash'])) &&
-					UserGroupManager::savegroup($usId, '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
+					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash,addr_type) VALUES (:userId,:addressHash,'1')")->execute(array(':userId'=>$usId,':addressHash'=>$obj['mailHash'])) &&
+					UserGroupManager::savegroup($usId, '2', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
 					//&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$obj['invitationToken']))
 				){
 					$trans->commit();

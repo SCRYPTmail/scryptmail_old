@@ -97,7 +97,7 @@ class SafeBox extends CFormModel
 				$userList[]=array(
 					'index'=> $i,
 					'name'=>$row['name'],
-					'created'=>$row['created'],//isset($row['created'])?$row['created']:date('Y-m-d h:i'),
+					'created'=>isset($row['created'])?$row['created']:date('Y-m-d h:i'),
 					'modified'=>$row['modified']
 				);
 			}

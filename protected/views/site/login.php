@@ -18,8 +18,12 @@ Privacy is your right, not a privilege<br>
 
 						<?php }else{ ?>
 							<h4 class="paragraph-header">
-
-								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates. </h4>
+								<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
+								SCRYPTmail wish you stay safe in 2015.<br> Enjoy advanced account for a year if you registered before January 2nd, 2015!
+							<!--
+								Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates.
+							-->
+							</h4>
 						<?php } ?>
 
 						<div class="login-app-icons">
@@ -90,8 +94,8 @@ Privacy is your right, not a privilege<br>
 		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
 			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
 			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
-			Dec 26 <ul>
-				<li><a href="/termofservice" target="_blank">Term of Service</a> and <a href="/privacypolicy" target="_blank">Privacy Policy</a> Updated</li>
+			Dec 31 <ul>
+				<li><a href="/TermsAndConditions" target="_blank">Term of Service</a> and <a href="/privacypolicy" target="_blank">Privacy Policy</a> Updated</li>
 				<li>Become SCRYPTmail <a href="http://blog.scryptmail.com/2014/12/become-scryptmail-ninja.html" target="_blank">Ninja</a> with self signed certificate and pinning</li>
 				<li>Improved protection. If you not enter secret within 5 minutes, it will log you out automatically</li>
 				<li>Scripts optimization to speedup loading time</li>
@@ -199,8 +203,5 @@ Privacy is your right, not a privilege<br>
 
 
 			</div>
-
-
-
 
 

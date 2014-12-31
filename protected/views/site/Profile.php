@@ -117,10 +117,11 @@
 
 		</div>
 		!-->
-		<div class="panel-group smart-accordion-default" id="accordion" onclick="initdisposable();">
+		<div class="widget-body">
+		<div class="panel-group smart-accordion-default" id="accordion1" onclick="initdisposable();">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse1l"
+					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse1l"
 											   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
 								class="fa fa-lg fa-angle-up pull-right"></i> Disposable emails</a></h4>
 				</div>
@@ -133,7 +134,8 @@
 					</div>
 				</div>
 			</div>
-
+		</div>
+		</div>
 	</article>
 
 
@@ -483,7 +485,7 @@
 </form>
 
 <div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons ui-draggable" tabindex="-1" role="dialog" aria-describedby="dialog_simple" aria-labelledby="ui-id-22" style="display: none;"><div id="dialog_simple" class="ui-dialog-content ui-widget-content">
-		<p class="padding-5">
+		<p class="padding-5" style="word-break: break-all;">
 		</p>
 	</div>
 </div>

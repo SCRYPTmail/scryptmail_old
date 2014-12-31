@@ -256,6 +256,7 @@ function createAccount() {
 				prof_setting['email'] = email;
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
+				prof_setting['disposableEmails'] = {};
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
 

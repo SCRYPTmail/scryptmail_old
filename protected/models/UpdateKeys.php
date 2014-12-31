@@ -150,13 +150,13 @@ class UpdateKeys extends CFormModel
 		//print_r($param);
 		if (
 			Yii::app()->db->createCommand(
-				"UPDATE user SET userObj=:userObj,modKey=:newModKey,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE id=:id AND modKey=:oldModKey")->execute($param)
+				"UPDATE IGNORE user SET userObj=:userObj,modKey=:newModKey,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE id=:id AND modKey=:oldModKey")->execute($param)
 		) {
 			$trans->commit();
 			echo '{"email":"good"}';
 		} else {
 			$trans->rollback();
-			echo '{"email":"Keys are not saved, please try again or report a bug"}';
+			echo '{"email":"Keys are not saved, please try another keys or report a bug"}';
 
 		}
 

@@ -67,6 +67,7 @@
 <script type="text/javascript">
 
 	$( document ).ready(function() {
+		isCompatible();
 		requestInitInvitiation();
 		$('#extr-page-header-space').html('<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login" class="btn btn-default">Sign		In</a> </span>');
 
