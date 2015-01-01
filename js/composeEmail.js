@@ -828,6 +828,8 @@ function encryptMessageToRecipient(emailparsed) {
 
 					checkFolders();
 					omgAnswer('<span style="">Email sent, but with some errors. See message in "Sent" folder for details</span>');
+					$('.sendMailButton').html('Send');
+					$('.sendMailButton').prop('disabled',false);
 				} else {
 					noAnswer('<span style="">Email Sent with error. Unable to move message to Sent folder. Please report a bug</span>');
 					$('.sendMailButton').html('Send');
