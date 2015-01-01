@@ -176,12 +176,10 @@ Use search to find needed section.
 		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
 
 	</span>
-		<?php if($invitationsLeft>0){ ?>
-			<a href="javascript:void(0);" onclick="inviteFriend()";><span class="ribbon-button-alignment pull-left" style="margin-right:15px" rel="popover-hover" data-placement="bottom"
-																		  data-original-title="" data-content="We have limited availability every day to invite new users">
-		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends (<?php echo $invitationsLeft;?>)</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends (<?php echo $invitationsLeft;?>)</span>
+			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend')";><span class="ribbon-button-alignment pull-left" style="margin-right:15px" rel="popover-hover" data-placement="bottom"
+																		  data-original-title="" data-content="Invite your friends to share SCRYPTmail awesomeness">
+		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span>
 			</span></a>
-		<?php }?>
 
 		<!-- end breadcrumb -->
 
@@ -316,7 +314,7 @@ Use search to find needed section.
 					   class="text ui-widget-content ui-corner-all">
 			</fieldset>
 		<div class="note">
-			<a href="/forgotSecret">Forgot secret phrase?</a>
+			<a href="/forgotSecret" onclick="unbindElement();">Forgot secret phrase?</a>
 		</div>
 
 	</div>
@@ -355,33 +353,6 @@ Use search to find needed section.
 
 		</form>
 	</div>
-
-
-	<div id="dialog-form-invite" title="Invite Friend" style="display:none;">
-		<p class="validateTips" style="display:block;border:0px;">Every day we make few slots available for you to invite your friend</p>
-
-		<form class="smart-form" id="login-form-invite" action="/" method="post" onkeydown="if (event.keyCode == 13) $('#inviteok').click();">
-
-			<section>
-				<label class="input" id="fromfr">
-				</label>
-
-			</section>
-			<section>
-				<label class="input "> <i class="icon-append fa fa-envelope"></i>
-					<input name="fremail" id="invite_email" type="email" placeholder="Friend email">
-				</label>
-
-			</section>
-			<section class="col col-xs-12" style="float:left;">
-				<textarea class="form-control" id="textInvite" rows="5">
-				</textarea>
-			</section>
-
-		</form>
-
-</div>
-
 
 </div>
 

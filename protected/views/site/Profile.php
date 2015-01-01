@@ -493,7 +493,10 @@
 <script src="/js/profile.js?r=<?php echo $version;?>"></script>
 <script>
 	$(document).ready(function () {
-		activePage='profile';
+		setTimeout(
+			function () {
+				activePage='profile';
+			}, 2000);
 	});
 
 	</script>

@@ -166,19 +166,24 @@ class CreateUser extends CFormModel
 
 	public function saveDisposable($id)
 	{
+		if(Yii::app()->db->createCommand("SELECT count(userId) FROM addresses WHERE userId=$id AND addr_type=2")->queryScalar()<Yii::app()->user->role['role']['dispAddPerBox']){
 
-		$param[':email'] =$this->email;
-		$param[':userId'] =$id;
-		$param[':modKey'] =hash('sha512',$this->modKey);
+			$param[':email'] =$this->email;
+			$param[':userId'] =$id;
+			$param[':modKey'] =hash('sha512',$this->modKey);
 
-		if (Yii::app()->db->createCommand(
-			"INSERT INTO addresses (userId,addressHash,addr_type)
-				SELECT :userId, :email,'2'
-					FROM user
-						WHERE id=:userId AND modkey=:modKey")->execute($param)) {
-			echo  'true';
-		} else
+			if (Yii::app()->db->createCommand(
+				"INSERT INTO addresses (userId,addressHash,addr_type)
+					SELECT :userId, :email,'2'
+						FROM user
+							WHERE id=:userId AND modkey=:modKey")->execute($param)) {
+				echo  'true';
+			} else
+				echo  'false';
+
+		}else
 			echo  'false';
+
 
 	}
 

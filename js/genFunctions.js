@@ -221,6 +221,10 @@ function initialFunction() {
 
 }
 
+function unbindElement()
+{
+	$(window).unbind('beforeunload');
+}
 function getLoginStatus() {
 	return $.ajax({
 		type: "POST",
@@ -679,15 +683,21 @@ function provideSecret(success, cancel) {
 				"class": "btn btn-primary",
 				"id": 'secretok',
 				click: function () {
-					if (verifySecret($('#secret').val())) {
-						success($('#secret').val());
-						$('#secret').val('');
-						$('#key').css('display', 'none');
-						$(this).dialog("close");
-						//Answer('Thank You');
-					} else {
-						noAnswer('Incorrect Secret');
-					}
+					$('#secretok').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Decrypting..");
+					setTimeout(function(){
+						if (verifySecret($('#secret').val())) {
+							success($('#secret').val());
+							$('#secret').val('');
+							$('#key').css('display', 'none');
+
+							$('#dialog-form').dialog("close");
+							$('#secretok').html('<i class="fa fa-check"> Ok');
+							//Answer('Thank You');
+						} else {
+							$('#secretok').html('<i class="fa fa-check"> Ok');
+							noAnswer('Incorrect Secret');
+						}
+					}, 500);
 
 				}
 			},
@@ -699,7 +709,7 @@ function provideSecret(success, cancel) {
 					$('#secret').val('');
 					cancel();
 					$('#key').css('display', 'block');
-					$(this).dialog("close");
+					$('#dialog-form').dialog("close");
 				}
 
 			}
@@ -723,6 +733,7 @@ function logOutTime() {
 
 		logOuttimer = setInterval(function () {
 			if (secs < 0) {
+				unbindElement();
 				window.location='logout';
 			}
 			secs--;
@@ -1148,7 +1159,32 @@ function getDataFromFolder(thisObj) {
 		clearComposeMail();
 		//if (thisObj !== undefined) {
 
-		if (thisObj == 'composeMail') {
+		if (thisObj == 'inviteFriend') {
+			activePage = 'composeMail';
+			checkState(function () {
+				// loadURL('getFolder/composeMail', $('#inbox-content > .table-wrap'));
+				$.get('getFolder/inviteFriend', function (data) {
+					$('#inbox-content > .table-wrap').html(data);
+					$('#paginator').html('');
+					$('#custPaginator').html('');
+					$('#sendMaildiv').css('display','block');
+
+					var sub=(profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ');
+
+					$('#subj').val(sub+'invites you to join SCRYPTmail');
+
+					$('#emailbody').html('Hi,<br><br>I would like to invite you to try SCRYPTmail. This is free email service that can protect our conversation with end-to-end encryption. Nobody expect us will be able to read our conversation<br><br>Simply sign up here:<br><a href="https://scryptmail.com/createSelectedUser">https://scryptmail.com/createSelectedUser</a><br><br>Regards,<br>'+sub+'<br><br>SCRYPTmail provides private and encrypted email communication.<br>Privacy is your right, not a privilege');
+
+					iniEmailBody('');
+					emailTimer();
+				});
+
+
+			}, function () {
+			});
+
+
+		}else if (thisObj == 'composeMail') {
 			activePage = 'composeMail';
 			checkState(function () {
 				// loadURL('getFolder/composeMail', $('#inbox-content > .table-wrap'));
@@ -1365,10 +1401,11 @@ function renderMessages(data) {
 			if ($('#mail-table').children().get(1) === undefined) {
 				//t.draw();
 				//noAnswer('Fail to render table, please try again')
+			//	console.log(activePage);
 				setTimeout(
 					function () {
 						getDataFromFolder(folder_navigate);
-					}, 1000);
+					}, 500);
 			}
 
 		});
@@ -1378,89 +1415,6 @@ function renderMessages(data) {
 
 }
 
-function inviteFriend()
-{
-	var from=(profileSettings['name']==''?'FROM: '+profileSettings['email']:'FROM: '+profileSettings['name']+'<'+profileSettings['email']+'>');
-	$('#fromfr').text(from);
-
-	$('#textInvite').text((profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ')+' invites you to try scryptmail.com - an encrypted email service. Please follow the link at the bottom of the mail.');
-	$('#dialog-form-invite').dialog({
-		autoOpen: false,
-		height:430,
-		width: 300,
-		modal: true,
-		resizable: false,
-		buttons: [
-			{
-				html: "<i class='fa fa-check'></i>&nbsp; Send",
-				"class": "btn btn-primary",
-				"id": 'inviteok',
-				click: function () {
-					var inviteValidator= $("#login-form-invite").validate();
-
-					$("#invite_email").rules("add", {
-						email: true,
-						required: true,
-						minlength: 3,
-						maxlength: 200
-					});
-
-					$("#textInvite").rules("add", {
-						required: true,
-						minlength: 3,
-						maxlength: 300
-					});
-
-					inviteValidator= $("#login-form-invite").validate();
-					inviteValidator.element( "#invite_email" );
-					$("#login-form-invite").submit(function (e) {
-						e.preventDefault();
-					});
-
-					var fr=profileSettings['name']==''?profileSettings['email']:profileSettings['name']+'<'+profileSettings['email']+'>';
-					if(inviteValidator.element( "#invite_email" ) && inviteValidator.element( "#textInvite" )){
-						var email={'from':fr,'to':$('#invite_email').val().toLowerCase(),'message':$.trim($('#textInvite').val())};
-
-						$.ajax({
-							type: "POST",
-							url: '/inviteFriend',
-							data: {
-								'message': JSON.stringify(email)
-							},
-							success: function (data, textStatus) {
-								if (data.results == 'ok') {
-									Answer('Invitation Sent');
-									$('#invite_email').val('')
-									$('#dialog-form-invite').dialog('close');
-								} else {
-									noAnswer(data.results);
-								}
-
-							},
-							error: function (data, textStatus) {
-								noAnswer('Error occurred. Please try again');
-							},
-							dataType: 'json'
-						});
-
-
-					}
-				}
-			},
-			{
-				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
-				"class": "btn btn-default",
-				click: function () {
-					$(this).dialog("close");
-				}
-
-			}
-		]
-	});
-	$('#dialog-form-invite').dialog('open');
-
-
-}
 function getNewEmailsCount() {
 	var newMes = 0;
 	$.each(folder['Inbox'], function (index, value) {
@@ -2003,6 +1957,7 @@ function forwardMail() {
 	});
 
 }
+
 
 function markSpam() {
 	//console.log(emailObj);
