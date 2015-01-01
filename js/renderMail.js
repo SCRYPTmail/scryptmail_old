@@ -50,14 +50,26 @@ function saniziteEmailAttachment(body,meta)
 	}
 	rcphead = rcphead + '<br>To: ';
 
-	//$.each(body['to'], function( index, value ) {
-	var value = body['to'];
-	if (value.indexOf('<') != -1) {
-		var toEmail=getEmailsFromString(value);
+	if(meta['type']=='sent'){
+		$.each(body['to'], function( index, value ) {
+			if (value.indexOf('<') != -1) {
+				var toEmail=getEmailsFromString(value);
+				rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> &lt;'+toEmail+"&gt;; "
+			} else {
+				rcphead = rcphead + escapeTags(value) + "; ";
+			}
+		});
 
-		rcphead = rcphead + '<strong>Me </strong>' + ' &lt;' + toEmail +"&gt;; ";
-	} else {
-		rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
+	}else{
+		var value = body['to'];
+
+		if (value.indexOf('<') != -1) {
+			var toEmail=getEmailsFromString(value);
+				rcphead = rcphead + '<strong>Me </strong>' + ' &lt;' + toEmail +"&gt;; ";
+		} else {
+				rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
+
+		}
 	}
 
 	rcphead = rcphead.substring(0, rcphead.length - 2);
@@ -81,99 +93,99 @@ function saniziteEmailAttachment(body,meta)
 
 			$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%">');
 
-			var target = $('#virtualization').contents()[0];
-			target.open();
-			target.write('<!doctype html><html><head></head><body></body></html>');
-			target.close();
+			setTimeout(function(){
+				var target = $('#virtualization').contents()[0];
+				target.open();
+				target.write('<!doctype html><html><head></head><body></body></html>');
+				target.close();
 
-			var bdhtml=body['body']['html'];
-
-			bdhtml=sanitizeCss(bdhtml);
-
-			messageDisplayedBody=filterXSS(bdhtml,{
-				whiteList:          {
-					a:      ['target', 'href', 'title','class'],
-					abbr:   ['title'],
-					address: [],
-					article: ['class'],
-					aside:  [],
-					b:      [],
-					bdi:    ['dir'],
-					bdo:    ['dir'],
-					big:    [],
-					blockquote: ['cite'],
-					br:     [],
-					body:     ['class'],
-					caption: [],
-					center: [],
-					cite:   [],
-					code:   [],
-					col:    ['align', 'valign', 'span', 'width'],
-					colgroup: ['align', 'valign', 'span', 'width'],
-					dd:     [],
-					del:    ['datetime'],
-					details: ['open'],
-					div:    ['class','style'],
-					dl:     [],
-					dt:     [],
-					em:     [],
-					font:   ['color', 'size', 'face'],
-					footer: ['class'],
-					h1:     ['class'],
-					h2:     ['class'],
-					h3:     ['class'],
-					h4:     ['class'],
-					h5:     ['class'],
-					h6:     ['class'],
-					header: ['class'],
-					hr:     [],
-					i:      [],
-					img:    ['alt', 'title', 'width', 'height','class'],
-					ins:    ['datetime'],
-					li:     ['class'],
-					mark:   [],
-					nav:    [],
-					ol:     [],
-					p:      ['class'],
-					pre:    [],
-					s:      [],
-					section:[],
-					small:  [],
-					span:   ['class'],
-					sub:    [],
-					sup:    [],
-					strong: [],
-					table:  ['width', 'border', 'align', 'valign'],
-					tbody:  ['align', 'valign'],
-					td:     ['width', 'colspan', 'align', 'valign'],
-					tfoot:  ['align', 'valign'],
-					th:     ['width', 'colspan', 'align', 'valign'],
-					thead:  ['align', 'valign'],
-					tr:     ['rowspan', 'align', 'valign'],
-					tt:     [],
-					u:      [],
-					ul:     []
-				},
-				onTagAttr: function (tag, name, value, isWhiteAttr) {
-					if(tag=='a' && name=='href')
-						return name+'='+value+' target="_blank"';
-					if(name=='style' && value.indexOf('http')!=-1)
-						return tag;
-					//console.log(value);
-					//return name+'='+value+'target="_blank"';
-				},   // empty, means filter out all tags
-				stripIgnoreTag:     true,      // filter out all HTML not in the whilelist
-				stripIgnoreTagBody: ['script'] // the script tag is a special case, we need
-				// to filter out its content
-			});
-			$('#virtualization').contents().find("html").html(messageDisplayedBody);
+				var bdhtml=body['body']['html'];
+				bdhtml=sanitizeCss(bdhtml);
 
 
-			$("#virtualization").height($("#virtualization").contents().find("html").height());
+				messageDisplayedBody=filterXSS(bdhtml,{
+					whiteList:          {
+						a:      ['target', 'href', 'title','class'],
+						abbr:   ['title'],
+						address: [],
+						article: ['class'],
+						aside:  [],
+						b:      [],
+						bdi:    ['dir'],
+						bdo:    ['dir'],
+						big:    [],
+						blockquote: ['cite'],
+						br:     [],
+						body:     ['class'],
+						caption: [],
+						center: [],
+						cite:   [],
+						code:   [],
+						col:    ['align', 'valign', 'span', 'width'],
+						colgroup: ['align', 'valign', 'span', 'width'],
+						dd:     [],
+						del:    ['datetime'],
+						details: ['open'],
+						div:    ['class','style'],
+						dl:     [],
+						dt:     [],
+						em:     [],
+						font:   ['color', 'size', 'face'],
+						footer: ['class'],
+						h1:     ['class'],
+						h2:     ['class'],
+						h3:     ['class'],
+						h4:     ['class'],
+						h5:     ['class'],
+						h6:     ['class'],
+						header: ['class'],
+						hr:     [],
+						i:      [],
+						img:    ['alt', 'title', 'width', 'height','class'],
+						ins:    ['datetime'],
+						li:     ['class'],
+						mark:   [],
+						nav:    [],
+						ol:     [],
+						p:      ['class'],
+						pre:    [],
+						s:      [],
+						section:[],
+						small:  [],
+						span:   ['class'],
+						sub:    [],
+						sup:    [],
+						strong: [],
+						table:  ['width', 'border', 'align', 'valign'],
+						tbody:  ['align', 'valign'],
+						td:     ['width', 'colspan', 'align', 'valign'],
+						tfoot:  ['align', 'valign'],
+						th:     ['width', 'colspan', 'align', 'valign'],
+						thead:  ['align', 'valign'],
+						tr:     ['rowspan', 'align', 'valign'],
+						tt:     [],
+						u:      [],
+						ul:     []
+					},
+					onTagAttr: function (tag, name, value, isWhiteAttr) {
+						if(tag=='a' && name=='href')
+							return name+'='+value+' target="_blank"';
+						if(name=='style' && value.indexOf('http')!=-1)
+							return tag;
+					},   // empty, means filter out all tags
+					stripIgnoreTag:     true,      // filter out all HTML not in the whilelist
+					stripIgnoreTagBody: ['script'] // the script tag is a special case, we need
+					// to filter out its content
+				});
+				$('#virtualization').contents().find("html").html(messageDisplayedBody);
 
+
+				$("#virtualization").height($("#virtualization").contents().find("html").height());
+
+			}, 0);
 
 		}else{
-			messageDisplayedBody='<style>.showMessage{white-space: pre-line;}</style><div class="showMessage">'+body['body']['text']+'</div>';
+			messageDisplayedBody='<style>.showMessage{white-space: pre-line;}</style><div class="showMessage">'+stripHTML(body['body']['text'])+'</div>';
 			$('#emailbody').html(messageDisplayedBody);
 		}
 
@@ -186,6 +198,7 @@ function renderImages()
 
 		$('#emailbody').html('<iframe id="virtualization" scrolling="no" frameborder="0" width="100%" height="100%">');
 
+		setTimeout(function(){
 		var target = $('#virtualization').contents()[0];
 		target.open();
 		target.write('<!doctype html><html><head></head><body></body></html>');
@@ -193,8 +206,6 @@ function renderImages()
 
 		var bdhtml=messageBody['html'];
 
-		//var bdhtml1=bdhtml.replace("@import", "&#64;import").replace("@font-face", "&#64;font-face");
-		//console.log(bdhtml1);
 		messageDisplayedBody=filterXSS(bdhtml,{
 			onTagAttr: function (tag, name, value, isWhiteAttr) {
 				if(tag=='a' && name=='href')
@@ -210,11 +221,10 @@ function renderImages()
 
 
 		$("#virtualization").height($("#virtualization").contents().find("html").height());
-
+		}, 0);
 
 	}else{
-		messageDisplayedBody='<style>.showMessage{white-space: pre-line;}</style><div class="showMessage">'+messageBody['text']+'</div>';
-		$('#emailbody').text(messageDisplayedBody);
+		messageDisplayedBody='<style>.showMessage{white-space: pre-line;}</style><div class="showMessage">'+stripHTML(messageBody['text'])+'</div>';
 		$('#emailbody').html(messageDisplayedBody);
 	}
 

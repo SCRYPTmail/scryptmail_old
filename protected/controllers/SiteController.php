@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0527';
+	public $fileVers='0528';
 
 	public function beforeAction($action)
 	{
@@ -1104,7 +1104,10 @@ class SiteController extends Controller
 	{
 		Yii::app()->db->createCommand("UPDATE user SET active=NOW() WHERE id=".Yii::app()->user->getId())->execute();
 
-		if (Yii::app()->request->getQuery('id') == "composeMail")
+		if (Yii::app()->request->getQuery('id') == "inviteFriend")
+			$this->renderPartial('ComposeMail',array('version'=>$this->fileVers));
+
+		else if(Yii::app()->request->getQuery('id') == "composeMail")
 			$this->renderPartial('ComposeMail',array('version'=>$this->fileVers));
 		else if (is_numeric(Yii::app()->request->getQuery('id'))) {
 			$this->renderPartial('RenderBlankMail',array('version'=>$this->fileVers));
