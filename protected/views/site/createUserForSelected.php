@@ -143,7 +143,7 @@
 						<i class="fa fa-save"></i> Download Token
 					</button>
 
-					<button type="button" class="btn btn-primary" data-dismiss="modal" disabled="disabled" id="y-agree"
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="y-agree"
 							onclick='javascript: window.location = "login";'>
 						<i class="fa fa-check"></i> Ok
 					</button>

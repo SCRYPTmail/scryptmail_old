@@ -203,8 +203,8 @@
 									<a href="javascript:void(0);"
 									   rel="popover-hover"
 									   data-placement="bottom"
-									   data-original-title=""
-									   data-content="Seed - encrypted message id / Mail - encrypted message key.Message body encrypted with AES 256"><b>?</b></a></label>
+									   data-original-title="Strength"
+									   data-content="Seed - encrypted message id<br>Mail - encrypted message key.<br>Message body encrypted with AES 256"><b>?</b></a></label>
 
 								<div class="row">
 									<div class="col col-12">
@@ -242,7 +242,9 @@
 
 
 						<a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="retrieveKeys();"
-						   rel="popover-hover" data-placement="bottom" data-original-title=""
+						   rel="popover-hover"
+						   data-placement="bottom"
+						   data-original-title=""
 						   data-content="Retrieve Key for offline storage or verification"
 
 							><i class="fa fa-upload"></i> Retrieve</a>
@@ -289,7 +291,12 @@
 							</div>
 							<div class="row">
 							<div class="buttons pull-left col col-sm-6">
-								<button class="btn btn-primary btn-sm" onclick="generateKeys()" id="profileGenerateKeys"><i
+								<button class="btn btn-primary btn-sm" onclick="generateKeys()" id="profileGenerateKeys"
+										rel="popover-hover"
+										data-placement="bottom"
+										data-original-title=""
+										data-content="Will generate new RSA keys"
+									><i
 										class="fa fa-cog"></i>
 									Generate Keys</button>
 
@@ -309,9 +316,11 @@
 							<div class="buttons col col-sm-12">
 
 								<a class="btn btn-primary btn-sm pull-right " href="javascript:void(0);" onclick="saveKeys();"
-								   rel="popover-hover" data-placement="top" data-original-title="Caution:"
-								   data-content="Saving Keys will overwrite your existing keys. You wont be able to receive messages encrypted with old keys"
-									><i class="fa fa-save"></i> Save</a>
+								   rel="popover-hover"
+								   data-placement="left"
+								   data-original-title="Caution:"
+								   data-content="Saving Keys will overwrite your existing keys. <br>You wont be able to receive messages encrypted with old keys">
+									<i class="fa fa-save"></i> Save</a>
 
 								<p class="note">Caution: It will overwrite your existing keys. You wont be able to receive
 									messages

@@ -108,9 +108,6 @@ function downloadToken(){
 		$('#browsfailed').css('display','block');
 		$('#browsfailed b').text(toFile);
 	}
-
-
-	$('#y-agree').prop('disabled',false);
 }
 
 function noAnswer(text) {

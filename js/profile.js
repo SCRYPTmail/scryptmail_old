@@ -115,6 +115,12 @@ function saveProfileName() {
 
 function gotoUpdateKeys() {
 
+	$("[rel=popover-hover]").popover({
+		trigger : "hover",
+		html: true
+
+	});
+
 	checkState(function () {
 		var user = validateUserObject();
 		var role = validateUserRole();
@@ -696,7 +702,15 @@ function saveSecret() {
 										$('#smart-form-secret')[0].reset();
 
 										toFile = tokenAes;
-										downloadToken();
+										//downloadToken();
+										getObjects()
+											.always(function (data) {
+												logOutTime();
+												if (data.userData && data.userRole) {
+													userData = data.userData;
+													roleData = data.userRole;
+												}
+											});
 										Answer('Saved!');
 										//dfd.resolve();
 									}

@@ -1118,7 +1118,7 @@ function composeMailRecptCheck() {
 		minimumInputLength: 2,
 		maximumInputLength: 250,
 		maximumSelectionSize: roleData['role']['recepientPerMail'],
-		formatSelectionTooBig: 'Your plan is limited by ' + roleData['role']['recepientPerMail'] + ' recepient per mail. Please upgrade plan to rise limit',
+		formatSelectionTooBig: 'Your plan is limited by ' + roleData['role']['recepientPerMail'] + ' recipients per mail. Please upgrade plan to rise limit',
 		formatSelection: emailSelection
 	});
 
