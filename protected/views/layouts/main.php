@@ -46,7 +46,7 @@
 	<div class="" style="margin-top:100px;">
 		<div class="row">
 			<div class="col-lg-12 text-align-center">
-				<span class="txt-color-black">SCRYPTmail © 2014 - </span>
+				<span class="txt-color-black">SCRYPTmail © 2015 - </span>
 				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">Terms And Conditions</span></a>
 |
 				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
