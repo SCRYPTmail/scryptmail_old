@@ -305,11 +305,10 @@ Use search to find needed section.
 	<script src="js/app.js"></script>
 
 
-	<div id="dialog-form" title="Provide Secret" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
-		<p class="validateTips" style="display:block;border:0px;">Please provide secret.</p>
+	<div id="dialog-form" title="Provide Secret Phrase" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
+		<p class="validateTips" style="display:block;border:0px;">Please provide secret phrase.</p>
 
 			<fieldset>
-				<label for="name">Secret</label>
 				<input type="password" name="name" id="secret" value="<?php echo $secret;?>"
 					   class="text ui-widget-content ui-corner-all">
 			</fieldset>
@@ -330,7 +329,7 @@ Use search to find needed section.
 
 
 	<div id="dialog-form-login" title="Login Form" style="display:none;">
-		<p class="validateTips" style="display:block;border:0px;">Your session have been expired. Please login.</p>
+		<p class="validateTips" style="display:block;border:0px;">Your session has expired. Please log-in again.</p>
 
 		<form class="smart-form client-form" id="login-form-modal" action="/ModalLogin" method="post" onkeydown="if (event.keyCode == 13) $('#loginok').click();">
 			<section>
