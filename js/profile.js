@@ -23,19 +23,19 @@ function narrowSelections(seedKey) {
 
 		$('#UpdateKeys_mode_0').attr('disabled', 'disabled');
 		$('#label512').css('color', '#bbb');
-		$('#label512').attr('title', 'Please upgrade membership to unlock');
+		$('#label512').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
 		$('#label1024').css('color', '#bbb');
-		$('#label1024').attr('title', 'Please upgrade membership to unlock');
+		$('#label1024').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
 		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
 		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+		$('#label2048').attr('title', 'Please upgrade membership to unlock.');
 
 	}
 
@@ -45,15 +45,15 @@ function narrowSelections(seedKey) {
 
 		$('#UpdateKeys_mode_1').attr('disabled', 'disabled');
 		$('#label1024').css('color', '#bbb');
-		$('#label1024').attr('title', 'Please upgrade membership to unlock');
+		$('#label1024').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
 		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
 		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+		$('#label2048').attr('title', 'Please upgrade membership to unlock.');
 
 	}
 
@@ -63,11 +63,11 @@ function narrowSelections(seedKey) {
 
 		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
 		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock.');
 
 		$('#UpdateKeys_mode_2').attr('disabled', 'disabled');
 		$('#label2048').css('color', '#bbb')
-		$('#label2048').attr('title', 'Please upgrade membership to unlock');
+		$('#label2048').attr('title', 'Please upgrade membership to unlock.');
 
 	}
 
@@ -77,7 +77,7 @@ function narrowSelections(seedKey) {
 
 		$('#UpdateKeys_mode_3').attr('disabled', 'disabled');
 		$('#labelcustom').css('color', '#bbb');
-		$('#labelcustom').attr('title', 'Please upgrade membership to unlock');
+		$('#labelcustom').attr('title', 'Please upgrade membership to unlock.');
 
 	}
 	if (roleData['role']['importKeys'] == "1") {
@@ -380,7 +380,7 @@ function saveKeys() {
 							var sigKHash = SHA512(pki.publicKeyToPem(sigPubKey));
 						}
 					} catch (err) {
-						noAnswer('Keys are corrupted. Please generate new signature keys');
+						noAnswer('Keys are corrupted. Please generate new signature keys.');
 					}
 
 
@@ -416,10 +416,10 @@ function saveKeys() {
 								userModKey = NuserObj['userObj']['modKey'];
 								Answer('Successfully Saved!');
 								dfd.resolve();
-							} else if (data.email == 'Keys are not saved, please try another keys or report a bug') {
-								noAnswer('Error occurred. Please try generate keys again');
+							} else if (data.email == 'Keys are not saved. Please try another key or report a bug.') {
+								noAnswer('Error. Please try again.');
 							} else {
-								noAnswer('Error occurred. Please try again or report a bug');
+								noAnswer('Error. Please try again.');
 
 							}
 
@@ -451,7 +451,7 @@ function saveKeys() {
 
 
 				} else
-					noAnswer('Key size bigger than allowed by plan, please upgrade the plan or choose lesser key strength');
+					noAnswer('Key size larger than allowed by plan.  Please upgrade your plan or choose lesser key strength.');
 
 			}, function () {
 			});
@@ -531,13 +531,13 @@ function savePassword() {
 									noAnswer('Failed to save. Try Again');
 							},
 							error: function (data, textStatus) {
-								noAnswer('Error occured. Try Again')
+								noAnswer('Error. Please try again.')
 							},
 							dataType: 'json'
 						});
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error occured. Try Again')
+					noAnswer('Error. Please try again.')
 				},
 				dataType: 'json'
 			});
@@ -606,7 +606,7 @@ function downloadTokenProfile() {
 							},
 							success: function (data, textStatus) {
 								if (data.email != 'good') {
-									noAnswer('Error occurred. Please try again or report a bug');
+									noAnswer('Error. Please try again.');
 								} else {
 									toFile = tokenAes;
 									downloadToken();
@@ -615,12 +615,12 @@ function downloadTokenProfile() {
 
 							},
 							error: function (data, textStatus) {
-								noAnswer('Error occurred. Try again');
+								noAnswer('Error. Please try again.');
 							},
 							dataType: 'json'
 						});
 					} else
-						noAnswer('Error occurred. Try again');
+						noAnswer('Error. Please try again.');
 				});
 
 		}, function () {
@@ -696,7 +696,7 @@ function saveSecret() {
 								},
 								success: function (data, textStatus) {
 									if (data.email != 'good') {
-										noAnswer('Error occurred. Please try again or report a bug');
+										noAnswer('Error. Please try again.');
 									} else {
 										userModKey = NuserObj['userObj']['modKey'];
 										$('#smart-form-secret')[0].reset();
@@ -717,12 +717,12 @@ function saveSecret() {
 
 								},
 								error: function (data, textStatus) {
-									noAnswer('Error occurred. Try again');
+									noAnswer('Error. Please try again.');
 								},
 								dataType: 'json'
 							});
 						} else
-							noAnswer('Error occurred. Please Try again');
+							noAnswer('Error. Please try again.');
 					});
 
 			}, function () {
@@ -1030,16 +1030,16 @@ function addNewDisposableEmail(count) {
 
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error occurred. Please try again');
+					noAnswer('Error. Please try again.');
 				},
 				dataType: 'json'
 			});
 
 		} else {
-			noAnswer('Limit of disposable email addresses reached.');
+			noAnswer('Limit of disposable email addresses has been reached.');
 		}
 	} else {
-		noAnswer('Error occurred. Please try again');
+		noAnswer('Error. Please try again.');
 	}
 
 
@@ -1077,12 +1077,12 @@ function delDisposedEmail(row, email)
 									Answer('Email Removed');
 
 								} else {
-									noAnswer('Error occurred. Please try again');
+									noAnswer('Error. Please try again.');
 								}
 
 							},
 							error: function (data, textStatus) {
-								noAnswer('Error occurred. Please try again');
+								noAnswer('Error. Please try again.');
 							},
 							dataType: 'json'
 						});
@@ -1131,12 +1131,12 @@ function saveNewDisposableEmail(email) {
 					t.draw();
 
 				} else {
-					noAnswer('Error occurred. Please try again');
+					noAnswer('Error. Please try again.');
 				}
 
 			},
 			error: function (data, textStatus) {
-				noAnswer('Error occurred. Please try again');
+				noAnswer('Error. Please try again.');
 			},
 			dataType: 'json'
 		});

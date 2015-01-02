@@ -82,7 +82,7 @@ function initialResetPassword(){
 		equalTo: '#resetPass_password',
 		messages: {
 			required: 'Please enter your password one more time',
-			equalTo: 'Please enter the same password as above'
+			equalTo: 'Please enter the same password as above.'
 		}
 	});
 
@@ -135,7 +135,7 @@ function verifyToken(){ //for reset password
 						$('#showToken').val('');
 					}else{
 						$('#tokenField').val('');
-						noAnswer('Connection problem. Please try again.')
+						noAnswer('Error. Please try again.')
 					}
 //aaaaaa@scryptmail.com
 				},
@@ -182,7 +182,7 @@ function resetForgotPass(){
 				}else if (data.result =='fail') {
 					$('#resetPassButton').prop("disabled",false);
 					$('#resetPassButton').html("Reset Password");
-					noAnswer('Error. Please try again');
+					noAnswer('Error. Please try again.');
 				}else{
 					$('#tokenField').val('');
 					noAnswer('Connection problem. Please try again.');
@@ -192,7 +192,7 @@ function resetForgotPass(){
 			error: function (data, textStatus) {
 				$('#resetPassButton').prop("disabled",false);
 				$('#resetPassButton').html("Reset Password");
-				noAnswer('Connection problem. Please try again.');
+				noAnswer('Error. Please try again.');
 			},
 			dataType: 'json'
 		});

@@ -1183,7 +1183,7 @@ function getDataFromFolder(thisObj) {
 
 					$('#subj').val(sub+'invites you to join SCRYPTmail');
 
-					$('#emailbody').html('Hi,<br><br>I would like to invite you to try SCRYPTmail. This is free email service that can protect our conversation with end-to-end encryption. Nobody except us will be able to read our conversation<br><br>Simply sign up here:<br><a href="https://scryptmail.com/createSelectedUser">https://scryptmail.com/createSelectedUser</a><br><br>Regards,<br>'+sub+'<br><br>SCRYPTmail provides private and encrypted email communication.<br>Privacy is your right, not a privilege');
+					$('#emailbody').html('Hi there!<br><br>I would like to invite you to try SCRYPTmail. It is free email service that can protect our conversation with end-to-end encryption. No one except us will be able to read our conversation.<br><br>To join me, simply sign up here:<br><a href="https://scryptmail.com/createSelectedUser">https://scryptmail.com/createSelectedUser</a><br><br>I look forward to hearing from you!<br><br>Regards,<br>'+sub+'<br><br>SCRYPTmail provides private and encrypted email communication.<br>Privacy is your right, not a privilege');
 
 					iniEmailBody('');
 					emailTimer();

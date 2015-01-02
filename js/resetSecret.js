@@ -110,7 +110,7 @@ function verifySecretToken(){ //for reset secret phrase
 						$('#showToken').val('');
 					}else{
 						$('#tokenField').val('');
-						noAnswer('Connection problem. Please try again.')
+						noAnswer('Error. Please try again.')
 					}
 //aaaaaa@scryptmail.com
 				},
@@ -334,7 +334,7 @@ function resetForgotSecret(count)
 							resetForgotSecret(count);
 
 						}else{
-							noAnswer('Error occurred. Please try again.');
+							noAnswer('Error. Please try again.');
 							$('#resetSecButton').prop("disabled",false);
 							$('#resetSecButton i').remove();
 							$('#resetSecButton').text('Reset Secret');
@@ -343,7 +343,7 @@ function resetForgotSecret(count)
 
 					},
 					error: function (data, textStatus) {
-					noAnswer('Error occurred. Please try again');
+					noAnswer('Error. Please try again.');
 				},
 					dataType: 'json'
 				});
@@ -353,7 +353,7 @@ function resetForgotSecret(count)
 		}
 
 	}else{
-		noAnswer('Error occurred. Please try again.');
+		noAnswer('Error. Please try again.');
 		$('#resetSecButton').prop("disabled",false);
 		$('#resetSecButton i').remove();
 		$('#resetSecButton').text('Reset Secret');

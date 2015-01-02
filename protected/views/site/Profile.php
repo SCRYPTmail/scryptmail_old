@@ -245,14 +245,14 @@
 						   rel="popover-hover"
 						   data-placement="bottom"
 						   data-original-title=""
-						   data-content="Retrieve Key for offline storage or verification"
+						   data-content="Retrieve Key for offline storage or verification."
 
 							><i class="fa fa-upload"></i> Retrieve</a>
 
 
 						<br><br>
 						<fieldset>
-							<legend><p class="note">Public keys are required</p></legend>
+							<legend><p class="note">Public keys are required.</p></legend>
 
 							<div class="row">
 								<section class="col col-6">
@@ -295,7 +295,7 @@
 										rel="popover-hover"
 										data-placement="bottom"
 										data-original-title=""
-										data-content="Will generate new RSA keys"
+										data-content="Will generate new RSA keys."
 									><i
 										class="fa fa-cog"></i>
 									Generate Keys</button>
@@ -305,7 +305,7 @@
 							<div class="buttons pull-left col col-sm-6">
 								<a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="generateSigKeys()"
 								   rel="popover-hover" data-placement="top" data-original-title="Caution:"
-								   data-content="Use only when your keys are corrupted. New Signature Keys will render all your previous message to show as forged."><i
+								   data-content="Use only when your keys are corrupted. New Signature Keys will render all your previous message to be shown as forged."><i
 										class="fa fa-cog"></i>
 									Generate Signature Keys</a>
 
@@ -319,12 +319,10 @@
 								   rel="popover-hover"
 								   data-placement="left"
 								   data-original-title="Caution:"
-								   data-content="Saving Keys will overwrite your existing keys. <br>You wont be able to receive messages encrypted with old keys">
+								   data-content="Saving Keys will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.">
 									<i class="fa fa-save"></i> Save</a>
 
-								<p class="note">Caution: It will overwrite your existing keys. You wont be able to receive
-									messages
-									encrypted with old keys</p>
+								<p class="note">Caution: This action will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.</p>
 							</div>
 							</div>
 						</fieldset>

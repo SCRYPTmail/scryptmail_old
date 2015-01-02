@@ -82,8 +82,8 @@ function initCreateUser() {
 		maxlength: 80,
 		equalTo: '#CreateUser_password',
 		messages: {
-			required: 'Please enter your password one more time',
-			equalTo: 'Please enter the same password as above'
+			required: 'Please enter your password one more time.',
+			equalTo: 'Please enter the same password as above.'
 		}
 	});
 
@@ -100,8 +100,8 @@ function initCreateUser() {
 		maxlength: 80,
 		equalTo: '#CreateUser_secretword',
 		messages: {
-			required: 'Please enter your secret phrase one more time',
-			equalTo: 'Please enter the same secret phrase  as above'
+			required: 'Please enter your secret phrase one more time.',
+			equalTo: 'Please enter the same secret phrase as above.'
 		}
 	});
 
@@ -126,7 +126,7 @@ function createAccount() {
 		}
 
 		if ($('#CreateUser_secretword').val().length < 6 || $('#CreateUser_secretword').val().length > 80) {
-			$('#swerror').html("Secret should be between 6 and 80 character long.");
+			$('#swerror').html("Secret phrase should be between 6 and 80 character long.");
 			$('#secrError').addClass('state-error');
 			error = 1;
 		}
@@ -320,7 +320,7 @@ function createAccount() {
 							noAnswer('This email address reserved for internal use.')
 							$('#reguser i').remove();
 						}else
-							noAnswer('Error occurred. Please try again.')
+							noAnswer('Error. Please try again.')
 
 					},
 					dataType: 'json'

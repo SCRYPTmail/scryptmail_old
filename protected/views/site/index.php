@@ -172,13 +172,20 @@ Use search to find needed section.
 
 		<!-- breadcrumb -->
 
-<span class="ribbon-button-alignment pull-left" style="margin-right:15px"  rel="popover-hover" data-placement="bottom"
-	  data-original-title="" data-content="Report bug/typos or recommendations">
+<span class="ribbon-button-alignment pull-left"
+	  style="margin-right:15px"
+	  rel="popover-hover"
+	  data-placement="bottom"
+	  data-original-title=""
+	  data-content="Report bugs, typos or recommendations.">
 		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
 
 	</span>
-			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend')";><span class="ribbon-button-alignment pull-left" style="margin-right:15px" rel="popover-hover" data-placement="bottom"
-																		  data-original-title="" data-content="Invite your friends to share SCRYPTmail awesomeness">
+			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend')";><span class="ribbon-button-alignment pull-left" style="margin-right:15px"
+																							 rel="popover-hover"
+																							 data-placement="bottom"
+																							 data-original-title=""
+																							 data-content="Invite your friends to share SCRYPTmail's awesomeness.">
 		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span>
 			</span></a>
 

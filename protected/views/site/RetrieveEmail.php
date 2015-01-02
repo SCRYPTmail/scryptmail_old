@@ -12,7 +12,7 @@
 				<div class="pull-left">
 					Privacy is your right, not a privilege<br><br>
 					<h4 class="paragraph-header">
-						Please contact sender for a PIN. Email will be deleted after 3 unsuccessful attempts
+						Please contact sender for a PIN. Email will be deleted after 3 unsuccessful attempts.
 						</h4>
 
 				</div>
