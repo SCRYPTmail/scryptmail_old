@@ -215,7 +215,7 @@ Use search to find needed section.
 			</div>
 
 			<div class="col-xs-12 col-sm-12 col-md-12 text-align-center">
-				<span class="txt-color-white">SCRYPTmail © 2014 - </span>
+				<span class="txt-color-white">SCRYPTmail © 2015 - </span>
 
 				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">ToS</span></a>
 
@@ -232,7 +232,7 @@ Use search to find needed section.
 	<div class="page-footer hidden-sm hidden-xs">
 		<div class="row">
 			<div class="col-lg-12 text-align-center">
-				<span class="txt-color-white">SCRYPTmail © 2014 - </span>
+				<span class="txt-color-white">SCRYPTmail © 2015 - </span>
 
 				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">ToS</span></a>
 
