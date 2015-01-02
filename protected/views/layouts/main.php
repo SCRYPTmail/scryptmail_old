@@ -22,7 +22,7 @@
 
 	<span id="logo"><a href="/"> <img src="/img/scriptmail_logo.png" alt="<?php echo Yii::app()->name; ?>"></a></span>
 
-	<span id="extr-page-header-space"> <a href='createUser'
+	<span id="extr-page-header-space"> <a href='/createUser'
 										  class="btn btn-danger">Create
 			account</a> </span>
 
