@@ -4,29 +4,9 @@
 /* @var $form CActiveForm */
 
 ?>
-<body class="animated fadeInDown">
-
-<header id="header">
-
-
-	<span id="logo"> <img src="img/scriptmail_logo.png" style="width:180px;" alt="<?php echo Yii::app()->name; ?>"> </span>
-
-
-	<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login"
-																			  class="btn btn-default">Sign
-			In</a> <a href='createUser'
-																							  class="btn btn-danger">Create
-			account</a> </span>
-
-</header>
-
-<div id="main" role="main">
-	<!-- MAIN CONTENT -->
-	<div id="content" class="container">
-
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-				<h1 class="txt-color-red login-header-big">Report a Bug</h1>
+				<h1 class="txt-color-red login-header-big">Contact US</h1>
 <?php echo $message; ?>
 				<form action="/submitBug" id="order-form" class="smart-form" novalidate="novalidate" method="POST">
 
@@ -98,11 +78,8 @@
 			</div>
 			<!-- end row -->
 
-	</div>
 
-</div>
 <script src="js/plugin/jquery-validate/jquery.validate.min.js"></script>
-<script src="js/plugin/jquery-form/jquery-form.min.js"></script>
 
 
 <script type="text/javascript">
@@ -154,14 +131,12 @@
 		});
 	});
 
+		$( document ).ready(function() {
+			$('#extr-page-header-space').html('<span id="extr-page-header-space"> <span class="hidden-mobile"></span> <a href="login" class="btn btn-default">Sign		In</a> </span>');
 
+
+		});
 
 
 </script>
-
-
-
-<!--[if IE 8]>
-<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
-<![endif]-->
 </body>
