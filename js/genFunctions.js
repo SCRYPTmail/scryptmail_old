@@ -955,6 +955,16 @@ function contactsToDb(contObj) {
 
 	return f;
 }
+
+function dbToContacts() {
+	var f = fromAes(folderKey, userData['contacts']);
+
+	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
+	contactHash = SHA512(s);
+	return JSON.parse(s);
+
+}
+
 function stripHTML(data) {
 
 	var html = data;
@@ -2954,22 +2964,12 @@ function fromAes(key, text) {
 	cipher.start({iv: vector});
 	cipher.update(new_buffer);
 	cipher.finish();
-
-	return forge.util.decodeUtf8(cipher.output.toString());
+	//return forge.util.decodeUtf8(cipher.output.toString());
+	return cipher.output.toString();
 }
 
 
 
-
-
-function dbToContacts() {
-	var f = fromAes(folderKey, userData['contacts']);
-
-	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
-	contactHash = SHA512(s);
-	return JSON.parse(s);
-
-}
 
 
 function dbToBlackList() {
