@@ -58,7 +58,7 @@ function readEmail() {
 							type: "GET",
 							url: '/html/BlankMailUnreg.html',
 							success: function (data, textStatus) {
-								$('#main > #container').html(data);
+								$('#main > .container').html(data);
 								$('#delmail').attr('onclick',"deleteMailUnreg('"+mesId+"','"+meta['modKey']+"');");
 
 								renderMessageUnreg(body, meta);

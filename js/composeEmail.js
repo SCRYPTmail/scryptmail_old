@@ -873,7 +873,7 @@ function encryptMessageToRecipient(emailparsed) {
 					checkContacts();
 					checkFolders();
 
-					Answer('Email send');
+					Answer('Email sent');
 					$('.sendMailButton').html('Send');
 					$('.sendMailButton').prop('disabled',false);
 					$('#sendMaildiv').css('display','none');
