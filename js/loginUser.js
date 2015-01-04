@@ -29,12 +29,12 @@ function submitLogin() {
 				$(window).unbind('beforeunload');
 				window.location = '/';
 			} else {
-				noAnswer('Wrong Username or password. Please try again');
+				noAnswer('Wrong Username or Password. Please try again.');
 			}
 		},
 		error: function (data, textStatus) {
 			//cancel();
-			noAnswer('Error. Please try again')
+			noAnswer('Error. Please try again.')
 		},
 		dataType: 'json'
 	});

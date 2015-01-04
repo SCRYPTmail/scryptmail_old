@@ -10,7 +10,7 @@
 						Privacy is your right, not a privilege<br><br>
 						<h4 class="paragraph-header">
 							<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
-							SCRYPTmail wish you stay safe in 2015.<br> Enjoy advanced account for a year if you registered before January 2nd, 2015!
+							SCRYPTmail wish you stay safe in 2015.
 							<!--
 							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates on registration
 							<br>
@@ -94,7 +94,7 @@
 
 
 							<p class="note">
-								Secret Phrase is used to encrypt your keys before sending it to the server (6-80 characters). We strongly recommend to use special characters!</p>
+								Secret Phrase is used to encrypt your keys before sending it to the server (6-80 characters). We strongly recommend using special characters!</p>
 						</section>
 
 						<section>
@@ -108,7 +108,7 @@
 					<footer>
 
 						<button id='reguser' class="btn btn-primary btn-lg" onclick="createAccount();" name="yt0" type="button" >Register</button>
-						<p style="margin-top:9px;display:block;">If it's not responding for more than a minute, please use Google Chrome</p>
+						<p style="margin-top:9px;display:block;">If page is not responding for more than a minute, please use Google Chrome.</p>
 					</footer>
 
 				</form>

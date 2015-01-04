@@ -67,7 +67,7 @@ function getFile(evt) {
 
 
 	} else
-		noAnswer('Maximum 5 Files allowed, 15 Mb Max');
+		noAnswer('Maximum of 5 files allowed, 15 Mb total');
 	$('#ddd').val("");
 }
 
@@ -136,7 +136,7 @@ function iniEmailBody(pin) {
 			'<li>			' +
 			'<label class="checkbox">				' +
 			'<input type="checkbox" name="subscription" id="pincheck" style="display:none;" onclick="generatePin(' + "''" + ');">					' +
-			'<i style="margin:5px;"></i><span>&nbsp;Encrypt email sent to outside users like gmail or yahoo.</span>' + (ismobile ? '<br>' : '') + ' <span id="emailPin"></span></label>			' +
+			'<i style="margin:5px;"></i><span>&nbsp;Encrypted email sent to outside users like Gmail or Yahoo.</span>' + (ismobile ? '<br>' : '') + ' <span id="emailPin"></span></label>			' +
 			'</li>		' +
 			'</ul>		' +
 			'</div>';
@@ -147,7 +147,7 @@ function iniEmailBody(pin) {
 			'<li>			' +
 			'<label class="checkbox">				' +
 			'<input type="checkbox" name="subscription" id="pincheck" checked="checked" style="display:none;" onclick="generatePin(' + "''" + ');">					' +
-			'<i style="margin:5px;"></i><span>&nbsp;Encrypt email sent to outside users like gmail or yahoo.</span>' + (ismobile ? '<br>' : '') + ' <span id="emailPin">PIN: <b style="font-weight:bold;">' + pin + '</b></span></label>			' +
+			'<i style="margin:5px;"></i><span>&nbsp;Encrypted email sent to outside users like Gmail or Yahoo.</span>' + (ismobile ? '<br>' : '') + ' <span id="emailPin">PIN: <b style="font-weight:bold;">' + pin + '</b></span></label>			' +
 			'</li>		' +
 			'</ul>		' +
 			'</div>';
@@ -207,7 +207,7 @@ function sendMail() {
 		var emailpars = emailParser(emails);
 
 		if (emails == "") {
-			noAnswer('Please include at least one recipient');
+			noAnswer('Please check recipient(s) address(es) and try again.');
 			$('.sendMailButton').html('Send');
 			$('.sendMailButton').prop('disabled',false);
 
@@ -374,7 +374,7 @@ function indoCryptFail(value, key) {
 	emailPreObj['from'] = 'daemon@' + profileSettings['email'].split('@')[1];
 	emailPreObj['subj'] = 'Failed to deliver message to ' + value['mail'] + '!: Subject: ' + sanitize($('#subj').val()).substring(0, 50);
 
-	emailPreObj['body'] = {'text': 'Server was unable to deliver your message, because recipient not exist in our database. <br> ' + stripHTML($('#emailbody').code()), 'html': 'Server was unable to deliver your message, because recipient not exist in our database. <br> ' + filterXSS($('#emailbody').code())};
+	emailPreObj['body'] = {'text': 'Server was unable to deliver your message because recipient does not exist in our database. <br> ' + stripHTML($('#emailbody').code()), 'html': 'Server was unable to deliver your message because recipient does not exist in our database. <br> ' + filterXSS($('#emailbody').code())};
 
 	emailPreObj['attachment'] = {};
 	emailPreObj['meta']['subject'] = emailPreObj['subj'];
@@ -724,13 +724,13 @@ function encryptMessageToRecipient(emailparsed) {
 							senderMod.push(elem);
 							dfd.resolve();
 						} else {
-							var rcp = {'mail': value['mail'], 'message': 'Failed to send'};
+							var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
 							badRcpt.push(rcp);
 							dfd.resolve();
 						}
 					});
 				} else {
-					var rcp = {'mail': value['mail'], 'message': 'Failed to send'};
+					var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				}
@@ -746,11 +746,11 @@ function encryptMessageToRecipient(emailparsed) {
 					folder['Inbox'][result['messageId']] = {'p': forge.util.bytesToHex(key),'opened':false};
 
 					checkFolders();
-					var rcp = {'mail': value['mail'], 'message': 'Recipient not found'};
+					var rcp = {'mail': value['mail'], 'message': 'Recipient not found.'};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				} else {
-					var rcp = {'mail': value['mail'], 'message': 'Failed to send'};
+					var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				}
@@ -775,7 +775,7 @@ function encryptMessageToRecipient(emailparsed) {
 					senderMod.push(elem);
 					dfd1.resolve();
 				} else {
-					var rcp = {'mail': value['mail'], 'message': 'Failed to send'};
+					var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
 					badRcpt.push(rcp);
 					dfd1.resolve();
 				}
@@ -792,7 +792,7 @@ function encryptMessageToRecipient(emailparsed) {
 					senderMod.push(elem);
 					dfd1.resolve();
 				} else {
-					var rcp = {'mail': value['mail'], 'message': 'Failed to send'};
+					var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
 					badRcpt.push(rcp);
 					dfd1.resolve();
 				}
@@ -808,7 +808,7 @@ function encryptMessageToRecipient(emailparsed) {
 		var rec = $('#toRcpt').select2("val");
 
 		if (rec.length == Object.keys(badRcpt).length) {
-			noAnswer('Please check recepient address and try again');
+			noAnswer('Please check recipient(s) address(es) and try again.');
 			$('.sendMailButton').html('Send');
 			$('.sendMailButton').prop('disabled',false);
 
@@ -827,11 +827,11 @@ function encryptMessageToRecipient(emailparsed) {
 					delete folder['Draft'][result['messageId']];
 
 					checkFolders();
-					omgAnswer('<span style="">Email sent, but with some errors. See message in "Sent" folder for details</span>');
+					omgAnswer('<span style="">Email sent but with some errors. See message in "Sent" folder for details.</span>');
 					$('.sendMailButton').html('Send');
 					$('.sendMailButton').prop('disabled',false);
 				} else {
-					noAnswer('<span style="">Email Sent with error. Unable to move message to Sent folder. Please report a bug</span>');
+					noAnswer('<span style="">Email sent with error. Unable to move message to Sent folder. Please report a bug.</span>');
 					$('.sendMailButton').html('Send');
 					$('.sendMailButton').prop('disabled',false);
 				}
@@ -898,7 +898,7 @@ function encryptMessageToRecipient(emailparsed) {
 
 					checkContacts();
 
-					noAnswer('<span style="">Email Sent with error. Unable to move message to Sent folder. Please report a bug</span>');
+					noAnswer('<span style="">Email sent with error. Unable to move message to Sent folder. Please report a bug.</span>');
 					$('.sendMailButton').html('Send');
 					$('.sendMailButton').prop('disabled',false);
 					getDataFromFolder('Inbox');
@@ -1052,14 +1052,14 @@ function retrievePublicKeys(success, cancel, mails, emailparsed) {
 			} else {
 				$('.sendMailButton').html('Send');
 				$('.sendMailButton').prop('disabled',false);
-				noAnswer('Error occurred. Please try again.');
+				noAnswer('Error. Please try again.');
 			}
 
 		},
 		error: function (data, textStatus) {
 			$('.sendMailButton').html('Send');
 			$('.sendMailButton').prop('disabled',false);
-			noAnswer('Error occurred. Please try again.');
+			noAnswer('Error. Please try again.');
 			cancel();
 
 		},
@@ -1080,7 +1080,7 @@ function composeMailRecptCheck() {
 		placeholder: "5 files max, <=15Mb",
 		tokenSeparators: [";", " "],
 		maximumSelectionSize: 5,
-		formatSelectionTooBig: 'Max 5 files allowed',
+		formatSelectionTooBig: 'Max of 5 files allowed.',
 		formatSelection: fileSelection
 
 	});
@@ -1118,7 +1118,7 @@ function composeMailRecptCheck() {
 		minimumInputLength: 2,
 		maximumInputLength: 250,
 		maximumSelectionSize: roleData['role']['recepientPerMail'],
-		formatSelectionTooBig: 'Your plan is limited by ' + roleData['role']['recepientPerMail'] + ' recipients per mail. Please upgrade plan to rise limit',
+		formatSelectionTooBig: 'Your plan is limited to ' + roleData['role']['recepientPerMail'] + ' recipients per email. Please upgrade plan to raise limit.',
 		formatSelection: emailSelection
 	});
 

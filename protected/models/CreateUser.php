@@ -235,7 +235,7 @@ class CreateUser extends CFormModel
 				$usId=Yii::app()->db->getLastInsertID();
 				if(
 					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash,addr_type) VALUES (:userId,:addressHash,'1')")->execute(array(':userId'=>$usId,':addressHash'=>$obj['mailHash'])) &&
-					UserGroupManager::savegroup($usId, '2', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
+					UserGroupManager::savegroup($usId, '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
 					//&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$obj['invitationToken']))
 				){
 					$trans->commit();
