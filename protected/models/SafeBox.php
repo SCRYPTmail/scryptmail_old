@@ -101,8 +101,12 @@ class SafeBox extends CFormModel
 					'modified'=>$row['modified']
 				);
 			}
-$result['response']='success';
-			$result['data']=$userList;
+			$result['response']='success';
+			if(isset($userList)){
+				$result['data']=$userList;
+			}else{
+				$result['data']=array();
+			}
 			echo json_encode($result);
 
 		}else{

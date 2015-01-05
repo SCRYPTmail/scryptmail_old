@@ -366,7 +366,6 @@ function saveKeys() {
 					//sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
 					//sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
 
-
 					try {
 
 						if (sigPubKeyTemp != '' && sigPrivateKeyTemp != '') {
@@ -458,7 +457,7 @@ function saveKeys() {
 		}, function () {
 		});
 	} else {
-		noAnswer('Provide New Keys before save');
+		noAnswer('Provide New Keys before saving.');
 	}
 }
 

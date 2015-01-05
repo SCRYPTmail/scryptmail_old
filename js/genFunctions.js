@@ -1170,28 +1170,34 @@ function getDataFromFolder(thisObj) {
 		//if (thisObj !== undefined) {
 
 		if (thisObj == 'inviteFriend') {
-			activePage = 'composeMail';
-			checkState(function () {
-				// loadURL('getFolder/composeMail', $('#inbox-content > .table-wrap'));
-				$.get('getFolder/inviteFriend', function (data) {
-					$('#inbox-content > .table-wrap').html(data);
-					$('#paginator').html('');
-					$('#custPaginator').html('');
-					$('#sendMaildiv').css('display','block');
+			if(activePage=='profile'){
+				window.location.href = '/#mail';
+			}else{
+				activePage = 'composeMail';
+				checkState(function () {
 
-					var sub=(profileSettings['name']==''?profileSettings['email']:profileSettings['name']+' ');
+					$.get('getFolder/inviteFriend', function (data) {
+						$('#inbox-content > .table-wrap').html(data);
+						//$('#paginator').html('');
+						//$('#custPaginator').html('');
+						$('#pag').css('display','none');
+						$('#sendMaildiv').css('display','block');
 
-					$('#subj').val(sub+'invites you to join SCRYPTmail');
+						var sub=(profileSettings['name']==''?profileSettings['email']:profileSettings['name']);
 
-					$('#emailbody').html('Hi there!<br><br>I would like to invite you to try SCRYPTmail. It is free email service that can protect our conversation with end-to-end encryption. No one except us will be able to read our conversation.<br><br>To join me, simply sign up here:<br><a href="https://scryptmail.com/createSelectedUser">https://scryptmail.com/createSelectedUser</a><br><br>I look forward to hearing from you!<br><br>Regards,<br>'+sub+'<br><br>SCRYPTmail provides private and encrypted email communication.<br>Privacy is your right, not a privilege');
+						$('#subj').val(sub+' invites you to join SCRYPTmail');
 
-					iniEmailBody('');
-					emailTimer();
+						$('#emailbody').html('Hi there!<br><br>I would like to invite you to try SCRYPTmail. It is free email service that can protect our conversation with end-to-end encryption. No one except us will be able to read our conversation.<br><br>To join me, simply sign up here:<br><a href="https://scryptmail.com/createSelectedUser">https://scryptmail.com/createSelectedUser</a><br><br>I look forward to hearing from you!<br><br>Regards,<br>'+sub+'<br><br>SCRYPTmail provides private and encrypted email communication.<br>Privacy is your right, not a privilege');
+
+						iniEmailBody('');
+						emailTimer();
+					});
+
+
+				}, function () {
 				});
+			}
 
-
-			}, function () {
-			});
 
 
 		}else if (thisObj == 'composeMail') {
@@ -1200,8 +1206,9 @@ function getDataFromFolder(thisObj) {
 				// loadURL('getFolder/composeMail', $('#inbox-content > .table-wrap'));
 				$.get('getFolder/composeMail', function (data) {
 					$('#inbox-content > .table-wrap').html(data);
-					$('#paginator').html('');
-					$('#custPaginator').html('');
+					//$('#paginator').html('');
+					//$('#custPaginator').html('');
+					$('#pag').css('display','none');
 					$('#sendMaildiv').css('display','block');
 					iniEmailBody('');
 					emailTimer();
@@ -1226,7 +1233,12 @@ function getDataFromFolder(thisObj) {
 
 			// $('#folderul >li').eq(thisObj.parent().index()).addClass('active');
 			$('#mobfolder').children().children().children().remove();
-			$('#folderSelect').text(thisObj + ' ');
+			if(thisObj in folder['Custom']){
+				$('#folderSelect').text(folder['Custom'][thisObj]['name'] + ' ');
+			}else{
+				$('#folderSelect').text(thisObj + ' ');
+			}
+
 			$('#mfl_' + folNav).children().append(' <i class="fa fa-check"></i>');
 			// $('#mobfolder >li').eq(thisObj.parent().index()).children().append(' <i class="fa fa-check"></i>');
 
@@ -1740,8 +1752,9 @@ function detectMessage(datas) {
 			url: '/getFolder/composeMail',
 			success: function (data, textStatus) {
 				$('#inbox-content > .table-wrap').html(data);
-				$('#paginator').html('');
-				$('#custPaginator').html('');
+				//$('#paginator').html('');
+				//$('#custPaginator').html('');
+				$('#pag').css('display','none');
 				activePage = 'composeMail';
 				showSavedDraft(body, meta, datas);
 				emailTimer();
@@ -1901,10 +1914,11 @@ function replyToMail() {
 		url: '/getFolder/composeMail',
 		success: function (data, textStatus) {
 			$('#inbox-content > .table-wrap').html(data);
-			$('#paginator').html('');
+			//$('#paginator').html('');
 			$('#sendMaildiv').css('display','block');
 
-			$('#custPaginator').html('');
+			//$('#custPaginator').html('');
+			$('#pag').css('display','none');
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push(body['from']);
@@ -1945,8 +1959,9 @@ function forwardMail() {
 		url: '/getFolder/composeMail',
 		success: function (data, textStatus) {
 			$('#inbox-content > .table-wrap').html(data);
-			$('#paginator').html('');
-			$('#custPaginator').html('');
+			//$('#paginator').html('');
+			//$('#custPaginator').html('');
+			$('#pag').css('display','none');
 			$('#sendMaildiv').css('display','block');
 			delete body['to'];
 			body['to'] = [];
@@ -2114,7 +2129,12 @@ function initializeMailList() {
 
 	var spam = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"  class="spambutton btn btn-default" onclick="movetofolder(\'Spam\');"><i class="fa fa-ban fa-lg"></i> Spam</a>';
 
-	$('#mailIcons').html(' <div class="inbox-checkbox-triggered"><div class="btn-group"> ' + move + ' '+spam+' ' + trash + '</div></div>');
+
+if(ismobile){
+	var newmail = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"  class="btn btn-primary" onclick="getDataFromFolder(\'composeMail\')"><i class="fa fa-pencil-square-o"></i></a>';
+}else
+	var newmail ='';
+	$('#mailIcons').html(' <div class="inbox-checkbox-triggered col col-xs-12" style="padding-left:0px;"><div class="btn-group"> ' +newmail+ ' '+ move + ' '+spam+' ' + trash + '</div></div>');
 
 
 	$('#mail-table tbody').on('mouseover', 'td.inbox-data-from', function () {
@@ -2583,16 +2603,15 @@ function displayFolder() {
 			}else if(key == 'Custom'){
 				//console.log(folder);
 				if(Object.keys(value).length>0){
-
+					mlist.append('<li class="divider"></li>');
+					mlist.append('<li><a href="javascript:void(0);" onclick="addCustomFolder()" class="txt-color-darken">Add New Folder</a></li>');
+					mlist.append('<li class="divider"></li>');
 					bySortedValue(folder['Custom'], function(keyC, valueC) {
-						//folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');" oncontextmenu="context($(this),\''+keyC+'\',\''+valueC['name']+'\')">' + valueC['name'] + '</a></li>');
 						folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" id="'+keyC+'" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');">' + valueC['name'] + '</a></li>');
 						//alert(keyC + ": " + valueC);
+						mlist.append('<li id="mfl_' + keyC + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');">' + valueC['name'] + '</a></li>');
 					});
 
-					//$.each(value, function (keyC, valueC) {
-					//	folderulcustom.append('<li id="fl_' + keyC + '"><a href="javascript:void(0);" onclick="getDataFromFolder(' + "'" + keyC + "'" + ');" oncontextmenu="context($(this),\''+keyC+'\',\''+valueC['name']+'\')">' + valueC['name'] + '</a></li>');
-					//});
 				}
 
 
