@@ -204,7 +204,7 @@
 									   rel="popover-hover"
 									   data-placement="bottom"
 									   data-original-title="Strength"
-									   data-content="Seed - encrypted message id<br>Mail - encrypted message key.<br>Message body encrypted with AES 256"><b>?</b></a></label>
+									   data-content="Seed - encrypted message id<br>Mail - encrypted message key.<br>Message body encrypted with AES 256."><b>?</b></a></label>
 
 								<div class="row">
 									<div class="col col-12">
@@ -213,14 +213,14 @@
 											<i></i><span id="label512"
 														 rel="popover-hover" data-placement="bottom"
 														 data-original-title="512/1024"
-														 data-content="Fastest encryption, providing basic protection">Light Mode (512/1024) ~ 4sec. to generate</label>
+														 data-content="Fastest encryption providing basic protection.">Light Mode (512/1024) ~ 4sec. to generate</label>
 
 										<label class="radio">
 											<input type="radio" id="UpdateKeys_mode_1" value="normal" name="UpdateKeys[mode]">
 											<i></i><span id='label1024'
 														 rel="popover-hover" data-placement="bottom"
 														 data-original-title="1024/2048"
-														 data-content="Compromise between speed and security. Message encrypted by using 2012 NIST recommendations up to 2030"> Normal Mode (1024/2048) ~20 sec. to generate
+														 data-content="Compromise between speed and security. Message encrypted using 2012 NIST recommendations up to 2030."> Normal Mode (1024/2048) ~20 sec. to generate
 										</label>
 
 										<label class="radio">
@@ -228,7 +228,7 @@
 											<i></i><span id='label2048'
 														 rel="popover-hover" data-placement="bottom"
 														 data-original-title="2048/4096"
-														 data-content="Slowest and most secured communication. Message key encryption should survive next 10 years or until dramatic quantum computer breakthrough"> Secured Mode (2048/4096) ~2 minutes to generate</label>
+														 data-content="Slowest and most secure communication. Message key encryption should survive the next 10 years or until dramatic quantum computer breakthrough."> Secured Mode (2048/4096) ~2 minutes to generate</label>
 
 									</div>
 
@@ -404,7 +404,7 @@
 							</div>
 							<div class="col col-sm-12">
 								<br>
-								<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> Some browsers not able to save generated file and this message will show, please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
+								<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> Some browsers are not able to save the generated file, and this message will show. Please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
 								</div>
 							</div>
 					</form>
@@ -500,6 +500,7 @@
 <script src="/js/profile.js?r=<?php echo $version;?>"></script>
 <script>
 	$(document).ready(function () {
+		$('#invFriend').css('display','none');
 		setTimeout(
 			function () {
 				activePage='profile';

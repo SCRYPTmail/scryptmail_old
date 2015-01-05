@@ -22,10 +22,8 @@
 		<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 			<span id="folderSelect"></span> <i class="fa fa-caret-down"></i>
 		</button>
-		<ul class="dropdown-menu pull-left" id="mobfolder">
+		<ul class="dropdown-menu pull-left col-xs-3" id="mobfolder">
 		</ul>
-
-		<a href="javascript:void(0);" class="btn btn-primary" style="margin-left:10px;" onclick="getDataFromFolder('composeMail')"><strong>Compose</strong></a>
 	</div>
 
 
@@ -44,7 +42,7 @@
 		</button>
 
 
-		<button class="btn btn-danger" style="margin-left:30px;" type="button" rel="tooltip" data-placement="top"
+		<button class="btn btn-danger" style="margin-left:10px;" type="button" rel="tooltip" data-placement="top"
 				data-original-title="Discard" onclick="deleteMail()"><i class="fa fa-trash-o"></i>
 		</button>
 
@@ -129,7 +127,7 @@
 		displayFolder();
 		getDataFromFolder('Inbox');
 		//currentTab();
-
+		$('#invFriend').css('display','initial');
 
 	});
 

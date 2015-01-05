@@ -181,7 +181,7 @@ Use search to find needed section.
 		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
 
 	</span>
-			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend')";><span class="ribbon-button-alignment pull-left" style="margin-right:15px"
+			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend');" id="invFriend"><span class="ribbon-button-alignment pull-left" style="margin-right:15px"
 																							 rel="popover-hover"
 																							 data-placement="bottom"
 																							 data-original-title=""
@@ -215,7 +215,7 @@ Use search to find needed section.
 	<!-- END #MAIN PANEL -->
 
 	<!-- #PAGE FOOTER -->
-	<div class="page-footer hidden-lg hidden-md" style="height:75px;" id="mobFooter">
+	<div class="page-footer hidden-lg hidden-md" style="height:75px; z-index:20;" id="mobFooter">
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12 pull-left emailMob1 hidden-md hidden-lg txt-color-white"
 				 style="height:40px;margin-top:-5px;">
@@ -226,7 +226,7 @@ Use search to find needed section.
 
 				<a href="/TermsAndConditions" target="_blank"><span class="txt-color-black">ToS</span></a>
 
-				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">Privacy Policy</span></a>
+				<a href="/privacypolicy" target="_blank"><span class="txt-color-black">PP</span></a>
 
 				<a href="/canary" target="_blank""><span id="add" class="" data-title="add">Canary</span></a>
 			</div>
