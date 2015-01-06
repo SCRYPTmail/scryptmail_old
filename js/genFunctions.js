@@ -996,7 +996,23 @@ function sanitizeEmail(input) {
 	return output;
 }
 
-function checkContacts() {
+function addContactIntoDb(name,email,pin,callback){
+
+	//addContactIntoDb(name,email,pin,function(emails){});
+	if(Object.keys(contacts).length <2000)
+	{
+		contacts[email] = {'name': stripHTML(name),'pin':pin};
+		checkContacts(function(){
+			callback();
+		});
+	}else{
+		noAnswer('Contact List limited to 2000 entries.');
+	}
+
+
+}
+
+function checkContacts(callback) {
 	checkState(function () {
 
 		if (SHA512(JSON.stringify(contacts)) != contactHash) {
@@ -1012,6 +1028,9 @@ function checkContacts() {
 				},
 				success: function (data, textStatus) {
 					contactHash = SHA512(JSON.stringify(contacts));
+					if (callback) {
+						callback();
+					}
 				},
 				error: function (data, textStatus) {
 				},
@@ -1118,23 +1137,6 @@ function clearComposeMail() {
 }
 
 
-function generatePin(pin) {
-
-	if (pin == '') {
-		if ($('#pincheck').is(':checked')) {
-			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + (Math.floor(Math.random() * 90000) + 10000) + '</b>');
-		} else {
-			$('#emailPin').html('');
-		}
-	} else {
-		//console.log(pin);
-		if ($('#pincheck').is(':checked')) {
-			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + pin + '</b>');
-		} else {
-			$('#emailPin').html('');
-		}
-	}
-}
 
 function emailTimer() {
 	clearInterval(mailt);

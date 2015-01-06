@@ -130,6 +130,7 @@ function iniEmailBody(pin) {
 	//$('.note-editor').css('height',parseInt($('.inbox-message').css('height'), 10));
 	//$('#emailbody').css('min-height',parseInt($('#email-compose-form').css('height'), 10));
 
+/*
 	if (pin == '') {
 		var cheboxpin = '<div class="well-md well-light smart-form">		' +
 			'<ul class="list-inline" id="mailOptions">		' +
@@ -151,14 +152,48 @@ function iniEmailBody(pin) {
 			'</li>		' +
 			'</ul>		' +
 			'</div>';
-		//generatePin(pin);
-	}
-	$('#composeEmailPin').html(cheboxpin);
 
+	}
+
+*/
+	var cheboxpin = '<div class="well-md well-light smart-form">		' +
+		'<ul class="list-inline" id="mailOptions">		' +
+		'<li>			' +
+		'<label class="checkbox">				' +
+		'<input type="checkbox" name="subscription" id="pincheck" style="display:none;" onclick="generatePin(\'1\');">					' +
+		'<i style="margin:5px;"></i><span>&nbsp;Encrypted email sent to outside users like Gmail or Yahoo.</span>' + (ismobile ? '<br>' : '') + ' <span id="emailPin"></span></label>			' +
+		'</li>		' +
+		'</ul>		' +
+		'</div>';
+
+	$('#composeEmailPin').html(cheboxpin);
+	generatePin(pin);
 	finishRendering();
 }
 
+function generatePin(pin) {
+	if (pin != '') {
+		$('#email-compose-form').toggleClass('col col-sm-10 col-xs-12');
+		$('#email-pin-form').toggle();
+	}
 
+/*
+	if (pin == '') {
+		if ($('#pincheck').is(':checked')) {
+			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + (Math.floor(Math.random() * 90000) + 10000) + '</b>');
+		} else {
+			$('#emailPin').html('');
+		}
+	} else {
+		//console.log(pin);
+		if ($('#pincheck').is(':checked')) {
+			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + pin + '</b>');
+		} else {
+			$('#emailPin').html('');
+		}
+	}
+	*/
+}
 
 function emailParser(emails) {
 	var emailObj = [];
@@ -1113,8 +1148,8 @@ function composeMailRecptCheck() {
 	//console.log(Object.keys(contacts));
 	$("#toRcpt").select2({
 		tags: con,
-		placeholder: "Press enter to separate emails",
-		tokenSeparators: [";", " "],
+		placeholder: "All recipients will receive blind carbon copy.",
+		tokenSeparators: [";", ""],
 		minimumInputLength: 2,
 		maximumInputLength: 250,
 		maximumSelectionSize: roleData['role']['recepientPerMail'],

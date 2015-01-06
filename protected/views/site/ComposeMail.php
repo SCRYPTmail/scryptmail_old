@@ -1,4 +1,4 @@
-<div class="form-horizontal" id="email-compose-form">
+<div class="form-horizontal" id="email-compose-form" style="padding-left:0px;">
 
 		<h2  class="row email-open-header">
 		Compose Email
@@ -62,52 +62,10 @@
 
 </div>
 
-<div id="dialog-form-pin" title="Your email PIN" style="display:none;">
-	<p class="validateTips" style="display:block;border:0px;font-size:14px;">
-		Email that send from our server should be protected by PIN. Please SAVE this PIN and share it with your
-		recipients, so they can decrypt this email.</p>
-
-	<form id="dialog-form1-pin">
-		<fieldset>
-			<label for="name">PIN: </label>
-			<input type="text" name="name" id="pin" class="text ui-widget-content ui-corner-all"
-				   disabled="disabled">
-		</fieldset>
-	</form>
-</div>
-
-<div id="dialog-form-reqkeys" title="Your email PIN" style="display:none;overflow-x:hidden;">
-	<p class="validateTips" style="display:block;border:0px;">Email address: <b><span id="emaddrs1"></span> </b> is not
-		registered in our system. In such case you may REMOVE recipient or PROVIDE public keys, that user will use after
-		registration. </p>
-
-	<form id="dialog-form1-reqkeys" class="smart-form">
-
-		<div class="row">
-			<section class="col col-6">
-				<label class="textarea">
-					<textarea rows="4" name="UpdateKeys[seedPubK]"
-							  placeholder="Seed Public Key - This key is used to encrypt message seed. Key strength between 512-2048 bits."
-							  class="valid" id="ReqKeys_seedPubK" spellcheck="false"
-							  oninput="validateSeedKeysFromUser();"></textarea>
-				</label>
-			</section>
-
-			<section class="col col-6">
-				<label class="textarea">
-					<textarea rows="4" name="UpdateKeys[mailPubK]"
-							  placeholder="Mail Public Key - This key is used to encrypt message body. Key strength between 1024-4096 bits."
-							  class="valid" id="ReqKeys_mailPubK" spellcheck="false"
-							  oninput="validateMailKeysFromUser();"></textarea>
-				</label>
-			</section>
-		</div>
-	</form>
+<div id="email-pin-form" class="col col-sm-2 col-xs-12" style="display:none;">
+	<h3>Email PIN:</h3>
 </div>
 
 
-<div id="dialog-form-keys" title="Email not found" style="display:none;overflow-x:hidden;">
-	<p class="validateTips" style="display:block;border:0px;">Email address: <b><span id="emaddrs"></span> </b> is not
-		registered in our system. In such case you may REMOVE recipient or click cancel to edit.</p>
-</div>
+
 <script src="/js/composeEmail.js?r=<?php echo $version;?>"></script>
