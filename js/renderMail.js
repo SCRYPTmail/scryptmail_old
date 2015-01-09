@@ -34,6 +34,35 @@ var urlstart = /http/gi;
 	}
 return html;
 }
+
+function showPin(email){
+	//window.prompt("Copy to clipboard: Ctrl+C, Enter", recipient[email]['pin']);
+
+	$('#dialog_simple >p').html('<b>' + recipient[email]['name'] + '</b><input type="text" class="col col-xs-12" id="pinfor" readonly onClick="this.setSelectionRange(0, this.value.length)">');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 300,
+		resizable: false,
+		modal: true,
+		title: "PIN for:",
+		buttons: [
+			{
+				html: "OK",
+				"class": "btn btn-default",
+				click: function () {
+						$(dialog_simple).dialog("close");
+				}
+			}
+		]
+	});
+	$('#pinfor').val(recipient[email]['pin']);
+
+
+	$('#dialog_simple').dialog('open');
+
+}
+
 function saniziteEmailAttachment(body,meta)
 {
 	var from = body['from'];
@@ -75,8 +104,23 @@ function saniziteEmailAttachment(body,meta)
 	rcphead = rcphead.substring(0, rcphead.length - 2);
 
 	rcphead = rcphead + '<br>on: <i>' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ', ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + '</i>';
-	if (meta['pin'] != '' && meta['pin']!=undefined)
-		rcphead += '<br>PIN: <b>' + meta['pin'] + '</b>';
+
+	if(meta['pin']!=undefined){
+		if(meta['pin'].length>5){
+			var display='';
+			var pinObj=JSON.parse(meta['pin']);
+			$.each(pinObj, function (index, value) {
+				var nm=value['name']!=''?from64(value['name'])+' &lt;'+index+'&gt;':index;
+				display += '<button class="btn btn-info btn-xs" onclick="showPin(\''+SHA256(index)+'\')">'+nm+'</button> ';
+
+				recipient[SHA256(index)]={'name':nm,'pin':from64(value['pin'])};
+			});
+			rcphead += '<br>PIN for: <b>'+display;
+		}else if(meta['pin']!=''){
+			rcphead += '<br>PIN: <b>' + meta['pin'] + '</b>';
+		}
+	}
+
 
 	if(typeof body['badRcpt'] != 'undefined' && body['badRcpt'].length>0){
 		rcphead = rcphead+'<br><i class="fa fa-warning txt-color-yellow"></i>&nbsp;';

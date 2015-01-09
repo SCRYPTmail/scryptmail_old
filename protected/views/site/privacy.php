@@ -207,7 +207,7 @@
 						<li>Account activity involving sending or receiving email to/from third party server -
 							Due to limitations of the SMTP protocol, we have access to the following email metadata: sender and recipient email addresses, the IP address incoming messages originated from, message subject, body and attachments and message sent and received times. <br><br></li>
 
-						<li>Account activity involving sending or receiving email within SCRYPTmail servers - Sent times. Due to exclusive way SCRYPTmail operates, all other metadata is encrypted and not accessible to the server to read. Retrieving recipient public keys and sending emails is two different API calls. To establish connection, it would be required to store detailed API call information and run complex data analysis. This can be performed only by enforcing us with court order or subpoena. Please refer to our canary warrant for more information.<br><br></li>
+						<li>Account activity involving sending or receiving email within SCRYPTmail servers - Sent times. Due to exclusive way SCRYPTmail operates, all other metadata is encrypted and not accessible to the server to read. Retrieving recipient public keys and sending emails is two different API calls. To establish connection, it would be required to store detailed API call information and run complex data analysis. This action can be performed but only through a court order or a subpoena. Please refer to our canary warrant for more information.<br><br></li>
 
 						<li>SCRYPTmail using access log to store the following records to improve service and optimize server efficiency -
 							Last login time, IP address, User agent, API call.

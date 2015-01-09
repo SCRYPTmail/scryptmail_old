@@ -56,15 +56,27 @@
 
 	<div class="inbox-compose-footer">
 
-		<span id="composeEmailPin"></span>
+		<span id="composeEmailPin">
+			<div class="well-md well-light smart-form">
+				<ul class="list-inline" id="mailOptions">
+					<li>
+						<label class="checkbox">
+							<input type="checkbox" name="subscription" id="pincheck" style="display:none;" onclick="generatePin('1');">
+							<i style="margin:5px;"></i><span>&nbsp;Encrypted email sent to outside users like Gmail or Yahoo.</span></label>
+						</li>
+					</ul>
+				</div>
+
+		</span>
 
 	</div>
 
 </div>
-
+<form id="agrpins">
 <div id="email-pin-form" class="col col-sm-2 col-xs-12" style="display:none;">
 	<h3>Email PIN:</h3>
 </div>
+	</form>
 
 
 

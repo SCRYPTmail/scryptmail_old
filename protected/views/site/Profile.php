@@ -507,6 +507,7 @@
 <script>
 	$(document).ready(function () {
 		$('#invFriend').css('display','none');
+		recipient={};
 		setTimeout(
 			function () {
 				activePage='profile';
