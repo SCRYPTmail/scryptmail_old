@@ -1175,12 +1175,19 @@ parse text email w/o name and return object
  */
 		var email=getEmailsFromString(emailText);
 		var name=stripHTML(emailText.substring(0, emailText.indexOf('<')));
-var result={'name':name,'email':email};
 
-	if(callback)
-		callback(result);
-	else
-		return result;
+		if(name!=''){
+			var display=name+'<'+email+'>';
+		}else{
+			var display=email;
+		}
+
+		var result={'name':name,'email':email,'display':display};
+
+		if(callback)
+			callback(result);
+		else
+			return result;
 }
 function getDataFromFolder(thisObj) {
 
@@ -1860,7 +1867,7 @@ function toAesBinary(key, text) {
 
 function readFile(fileName) {
 	var span = from64(emailObj['body']['attachment'][fileName]['filename']);
-	console.log(span);
+	//console.log(span);
 	$('#' + span + ' i').removeClass('fa-file');
 	$('#' + span + ' i').addClass('fa-refresh');
 	$('#' + span + ' i').addClass('fa-spin');

@@ -313,13 +313,16 @@ Use search to find needed section.
 	<script src="js/app.js"></script>
 
 
-	<div id="dialog-form" title="Provide Secret Phrase" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
+	<div id="dialog-form"  class="smart-form client-form" title="Provide Secret Phrase" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
 		<p class="validateTips" style="display:block;border:0px;">Please provide secret phrase.</p>
+		<section>
+			<label class="input ">
+				<input name="name" id="secret" type="password" value="<?php echo $secret;?>">
+			</label>
 
-			<fieldset>
-				<input type="password" name="name" id="secret" value="<?php echo $secret;?>"
-					   class="text ui-widget-content ui-corner-all">
-			</fieldset>
+		</section>
+
+
 		<div class="note">
 			<a href="/forgotSecret" onclick="unbindElement();">Forgot secret phrase?</a>
 		</div>
@@ -344,7 +347,7 @@ Use search to find needed section.
 				<label class="input ">
 
 					<div class="input-group">
-						<input class="invalid" name="LoginForm[username]" id="LoginForm_username" type="text" value="<?php echo $user;?>">
+						<input name="LoginForm[username]" id="LoginForm_username" type="text" value="<?php echo $user;?>">
 						<span class="input-group-addon" id="cremail">@scryptmail.com</span>
 					</div>
 					</label>
