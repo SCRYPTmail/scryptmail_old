@@ -324,7 +324,7 @@ class Crawler extends CFormModel
 			$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 
 // Additional headers
-			$headers .= 'Reply-To: ' . $data['tot'] . "\r\n";
+			$headers .= 'Reply-To: ' . $data['fromt'] . "\r\n";
 			$headers .= 'From: ' . $data['fromt'] . "\r\n";
 //print_r($message);
 // Mail it
