@@ -484,7 +484,13 @@
 
 		<section>
 		<label class="input"> <i class="icon-prepend fa fa-envelope-o"></i>
-			<input type="email" name="email" id="newClientEmail" placeholder="E-mail">
+			<input type="email" name="email" id="newClientEmail" placeholder="email">
+		</label>
+	</section>
+
+	<section>
+		<label class="input">
+			<input type="text" name="pin" id="newClientPin" placeholder="pin">
 		</label>
 	</section>
 
@@ -501,6 +507,7 @@
 <script>
 	$(document).ready(function () {
 		$('#invFriend').css('display','none');
+		recipient={};
 		setTimeout(
 			function () {
 				activePage='profile';

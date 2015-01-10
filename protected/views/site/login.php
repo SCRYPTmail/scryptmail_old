@@ -11,7 +11,7 @@ Privacy is your right, not a privilege<br>
 
 							<h4 class="paragraph-header">
 								<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
-								SCRYPTmail wish you stay safe in 2015.
+								SCRYPTmail wishes you a safe 2015
 							</h4>
 
 
@@ -136,14 +136,14 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2><i class="fa fa-times txt-color-red"></i> No scripts from third party servers</h2>
-						<h5>Protect yourself</h5>
+						<h5>Protect yourself.</h5>
 						<p>Ever wonder who knows you are here?</p>
 						<p>We deliver all scripts from our servers. No Google Analytics, Facebook or twitter. While such scripts can be useful to us as service to track usage, they leak items like user information, location and more.</p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2> PGP standards and NIST recommendations</h2>
-						<h5>Standard protocol to exchange public keys between users</h5>
+						<h5>Standard protocol to exchange public keys between users.</h5>
 						<p>
 						The email you are about to send will be encrypted by AES with random 256 bit key and then key encrypted with the public key of intended recipient. Only the person with whom you are corresponding private key to will be able to decrypt it. We use only open source encryption libraries to ensure public audit.
 						</p>
@@ -153,7 +153,7 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 col-md-12 col-sm-12 text-align-left pull-left">
 						<h2>Grade <strong class="text-success">A</strong> HTTPS encryption *</h2>
-						<h5>Heartbleed attack? POODLE or BEAST? - We got you covered</h5>
+						<h5>Heartbleed attack? POODLE or BEAST? - We got you covered.</h5>
 						<p>We are regularly testing our service with third party security services to ensure up to date communication protection.
 							<br>
 						* Based on Qualys SSL <a href="https://www.ssllabs.com/ssltest/index.html" target="_blank">evaluation</a>. </p>
@@ -168,7 +168,7 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2>Freedom and Simplicity</h2>
-						<h5>Who told you, that privacy should be compromised for simplicity?</h5>
+						<h5>Who told you that privacy should be compromised for simplicity?</h5>
 						<p>We spent a lot of time making a simple but well protected tool. We won't overwhelm you with knobs and switches, but we won't repel you either. Features will be added to your settings panel and will have default values until you decide to change them.
 							<br>We also will give you access to regenerate your RSA keys anytime you want or even let you save them offline.
 						</p>
@@ -176,17 +176,17 @@ Privacy is your right, not a privilege<br>
 
 					<div class="well col col-lg-10 text-align-left pull-right">
 						<h2>Communication with Gmail or YAHOO</h2>
-						<h5>Send email in clear text or encrypted text</h5>
+						<h5>Send email in clear text or encrypted text.</h5>
 						<p>Clear text messages will be deleted from our servers immediately after successful delivery to the recipient’s domain. Encrypted messages will require PIN to unlock and decrypt. You provide this PIN via another means of communication like in a phone call, via text or in person.</p>
 					</div>
 
 
 					<div class="well col col-lg-10 text-align-left pull-left">
 						<h2>Encrypted</h2>
-						<h5>We mean it, no half measures. Your message encrypted from start to finish</h5>
+						<h5>We mean it, no half measures. Your message encrypted from start to finish.</h5>
 						<p>Many similar services advertise email encryption, but not all of them truly encrypt your emails. Attachments, recipients, other metadata often are left in clear text. We encrypt all of it!*
 						<br>
-						* Not applicable if you sending email to third servers.</p>
+						* Not applicable if you are sending an email to third party servers.</p>
 					</div>
 
 

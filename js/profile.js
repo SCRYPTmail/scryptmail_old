@@ -846,43 +846,6 @@ function initSafeBox() {
 }
 
 
-function delContact(row, email) {
-
-	$('#dialog_simple >p').html('<b>' + email + '</b> will be deleted. Continue?');
-
-	$('#dialog_simple').dialog({
-		autoOpen: false,
-		width: 300,
-		resizable: false,
-		modal: true,
-		title: "Delete contact",
-		buttons: [
-			{
-				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
-				"class": "btn btn-danger",
-				click: function () {
-					$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
-					delete contacts[email];
-					checkContacts();
-
-					$(this).dialog("close");
-				}
-			},
-			{
-				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
-				"class": "btn btn-default",
-				click: function () {
-					$(this).dialog("close");
-				}
-			}
-		]
-	});
-
-	$('#dialog_simple').dialog('open');
-
-}
-
-
 function delFromBlackList(row, email) {
 	$('#blackListTable').DataTable().row($(row).parents('tr')).remove().draw(false);
 	delete blackList[email];
@@ -1152,7 +1115,7 @@ function initContacts() {
 		//console.log(contacts);
 		if (Object.keys(contacts).length > 0) {
 			$.each(contacts, function (index, value) {
-				var el = [value['name'], index, '<a class="delete" href="javascript:void(0);" onclick="delContact($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				var el = [value['name'], index,value['pin']==undefined?'':value['pin'], '<a class="edit" href="javascript:void(0);" onclick="editContact($(this),\'' + index + '\');"><i class="fa fa-pencil fa-lg txt-color-green"></i></a>', '<a class="delete" href="javascript:void(0);" onclick="delContact($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
 				dataSet.push(el);
 			});
 
@@ -1173,8 +1136,10 @@ function initContacts() {
 			"columnDefs": [
 				{ "sClass": 'col col-xs-4', "targets": 0},
 				{ "sClass": 'col col-xs-4', "targets": 1 },
-				{ "sClass": 'col col-xs-1 text-align-center', "targets": 2},
-				{ 'bSortable': false, 'aTargets': [ 2 ] },
+				{ "sClass": 'col col-xs-2', "targets": 2 },
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 3},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 4},
+				{ 'bSortable': false, 'aTargets': [ 3,4 ] },
 				{ "orderDataType": "data-sort", "targets": 1 }
 			],
 			"order": [
@@ -1185,6 +1150,8 @@ function initContacts() {
 			columns: [
 				{ "title": "name" },
 				{ "title": "email"},
+				{ "title": "pin"},
+				{ "title": "edit"},
 				{ "title": "delete"}
 
 			],
@@ -1203,13 +1170,54 @@ function initContacts() {
 
 }
 
-function addNewContact() {
+function delContact(row, email) {
+
+	$('#dialog_simple >p').html('<b>' + email + '</b> will be deleted. Continue?');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 300,
+		resizable: false,
+		modal: true,
+		title: "Delete contact",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				click: function () {
+					delete contacts[email];
+					checkContacts(function(){
+						$(dialog_simple).dialog("close");
+						$('#contactList').DataTable().row($(row).parents('tr')).remove().draw(false);
+					});
+
+
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$(dialog_simple).dialog("close");
+				}
+			}
+		]
+	});
+
+	$('#dialog_simple').dialog('open');
+
+}
+
+
+
+function editContact(row, email) {
 
 	$('#dialog-AddContact').dialog({
 		autoOpen: false,
-		height: 230,
+		height: 240,
 		width: 300,
 		modal: true,
+		title:'Edit Contact',
 		resizable: false,
 		buttons: [
 			{
@@ -1219,29 +1227,118 @@ function addNewContact() {
 				click: function () {
 					validatorNewClient.form();
 					if (validatorNewClient.numberOfInvalids() == 0) {
-						var name = $('#newClientName').val() != '' ? $('#newClientName').val() : 'Click to edit';
+
+						var name = $('#newClientName').val() != '' ? $('#newClientName').val() : '';
 						var email = $('#newClientEmail').val().toLowerCase();
-						var t = $('#contactList').DataTable();
-						t.clear();
-						contacts[email] = {'name': name};
-						var dataSet = [];
-						if (Object.keys(contacts).length > 0) {
-							$.each(contacts, function (index, value) {
-								var el = [value['name'], index, '<a class="delete" href="javascript:void(0);" onclick="delContact($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
-								dataSet.push(el);
-							});
-						}
-						var addId = t.rows.add(dataSet)
-						t.draw();
-						//console.log(contacts);
-						checkContacts();
-						$('#dialog-AddContact').dialog('close');
+						var pin = $('#newClientPin').val() != '' ? $('#newClientPin').val() : '';
+						addContactIntoDb(name,email,pin,function(){
+							var t = $('#contactList').DataTable();
+							t.clear();
+							var dataSet = [];
+							if (Object.keys(contacts).length > 0) {
+								$.each(contacts, function (index, value) {
+									var el = [value['name'], index,value['pin']==undefined?'':value['pin'], '<a class="edit" href="javascript:void(0);" onclick="editContact($(this),\'' + index + '\');"><i class="fa fa-pencil fa-lg txt-color-green"></i></a>', '<a class="delete" href="javascript:void(0);" onclick="delContact($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+									dataSet.push(el);
+								});
+							}
+							var addId = t.rows.add(dataSet)
+							t.draw();
+
+							$('#dialog-AddContact').dialog('close');
+						});
 					}
 				}
 			},
 			{
 				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
-				"class": "btn btn-warning pull-left",
+				"class": "btn btn-default pull-left",
+				"id": 'loginclose',
+				click: function () {
+					$('#dialog-AddContact').dialog('close');
+				}
+			}
+		],
+		close: function () {
+		}
+	});
+
+	$('#newClientName').val(contacts[email]['name']);
+	$('#newClientEmail').val(email);
+	$('#newClientPin').val(contacts[email]['pin'])
+
+	$('#dialog-AddContact').dialog('open');
+
+
+	$('#newClientName').attr('name', makerandom());
+	$('#newClientEmail').attr('name', makerandom());
+
+
+	validatorNewClient = $("#dialog-AddContact").validate();
+
+	$("#newClientName").rules("add", {
+		minlength: 2,
+		maxlength: 60
+	});
+
+	$("#newClientEmail").rules("add", {
+		required: true,
+		email: true,
+		minlength: 6,
+		maxlength: 200
+	});
+	$("#newClientPin").rules("add", {
+		required: false,
+		minlength: 3,
+		maxlength: 64
+	});
+
+
+}
+
+
+function addNewContact() {
+
+	$('#dialog-AddContact').dialog({
+		autoOpen: false,
+		height: 240,
+		width: 300,
+		modal: true,
+		title:'New Contact',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Add",
+				"class": "btn btn-primary pull-right",
+				"id": 'loginok',
+				click: function () {
+					validatorNewClient.form();
+					if (validatorNewClient.numberOfInvalids() == 0) {
+
+						var name = $('#newClientName').val() != '' ? $('#newClientName').val() : '';
+						var email = $('#newClientEmail').val().toLowerCase();
+						var pin = $('#newClientPin').val() != '' ? $('#newClientPin').val() : '';
+						addContactIntoDb(name,email,pin,function(){
+							var t = $('#contactList').DataTable();
+							t.clear();
+							var dataSet = [];
+							if (Object.keys(contacts).length > 0) {
+								$.each(contacts, function (index, value) {
+									var el = [value['name'], index,value['pin']==undefined?'':value['pin'], '<a class="edit" href="javascript:void(0);" onclick="editContact($(this),\'' + index + '\');"><i class="fa fa-pencil fa-lg txt-color-green"></i></a>', '<a class="delete" href="javascript:void(0);" onclick="delContact($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+									dataSet.push(el);
+								});
+							}
+							var addId = t.rows.add(dataSet)
+							t.draw();
+
+							$('#dialog-AddContact').dialog('close');
+						});
+
+					}
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default pull-left",
 				"id": 'loginclose',
 				click: function () {
 					$('#dialog-AddContact').dialog('close');
@@ -1272,6 +1369,12 @@ function addNewContact() {
 		minlength: 6,
 		maxlength: 200
 	});
+	$("#newClientPin").rules("add", {
+		required: false,
+		minlength: 3,
+		maxlength: 64
+	});
+
 
 }
 

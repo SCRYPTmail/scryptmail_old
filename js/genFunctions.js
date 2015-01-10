@@ -46,7 +46,7 @@ $(document).ready(function () {
 
 });
 
-
+recipient={};
 resetRawTokenHash='';
 fileSelector='';
 resetAesTokenHash='';
@@ -937,15 +937,24 @@ function profileSettingToDb(prof) {
 }
 
 function getEmailsFromString(input) {
+
 	var ret = [];
-	var email = /\<([^\>]+)\>/g
+	var email = /\<([^\>]+)\>/g;
 
 	var match;
-	while (match = email.exec(input))
-		if(IsEmail(match[1]))
-			ret=match[1];
 
-	return ret;
+	if (input.indexOf('<') != -1) {
+		while (match = email.exec(input))
+			if(IsEmail(match[1]))
+				ret=match[1];
+
+		return $.trim(ret.toLowerCase());
+
+	}else
+		return $.trim(input.toLowerCase());
+
+
+
 }
 
 
@@ -973,7 +982,7 @@ function stripHTML(data) {
 	return text = div.textContent || div.innerText || "";
 }
 
-function sanitize(input) {
+function sanitize(input) { //todo remove if save
 	var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 		replace(/<[\/\!]*?[^<>]*?>/gi, '').
 		replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
@@ -982,7 +991,7 @@ function sanitize(input) {
 	return output;
 }
 
-function sanitizeEmail(input) {
+function sanitizeEmail(input) { //todo remove if save
 	/*
 	 var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 	 replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
@@ -996,7 +1005,23 @@ function sanitizeEmail(input) {
 	return output;
 }
 
-function checkContacts() {
+function addContactIntoDb(name,email,pin,callback){
+
+	//addContactIntoDb(name,email,pin,function(emails){});
+	if(Object.keys(contacts).length <2000)
+	{
+		contacts[email] = {'name': stripHTML(name),'pin':pin};
+		checkContacts(function(){
+			callback();
+		});
+	}else{
+		noAnswer('Contact List limited to 2000 entries.');
+	}
+
+
+}
+
+function checkContacts(callback) {
 	checkState(function () {
 
 		if (SHA512(JSON.stringify(contacts)) != contactHash) {
@@ -1012,6 +1037,9 @@ function checkContacts() {
 				},
 				success: function (data, textStatus) {
 					contactHash = SHA512(JSON.stringify(contacts));
+					if (callback) {
+						callback();
+					}
 				},
 				error: function (data, textStatus) {
 				},
@@ -1107,6 +1135,7 @@ function clearComposeMail() {
 	emailObj['attachment'] = {};
 	emailObj['modKey'] = '';
 	mailhash = '';
+	recipient={};
 	//  modkeyToMessag={};
 	message['mail'] = '';
 	original = true;
@@ -1115,26 +1144,11 @@ function clearComposeMail() {
 	message['oldModKey'] = '';
 	message['iv'] = '';
 	message['mailHash'] = '';
+	$('.sendMailButton').html('Send');
+	$('.sendMailButton').prop('disabled',false);
 }
 
 
-function generatePin(pin) {
-
-	if (pin == '') {
-		if ($('#pincheck').is(':checked')) {
-			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + (Math.floor(Math.random() * 90000) + 10000) + '</b>');
-		} else {
-			$('#emailPin').html('');
-		}
-	} else {
-		//console.log(pin);
-		if ($('#pincheck').is(':checked')) {
-			$('#emailPin').html('PIN: <b style="font-weight:bold;">' + pin + '</b>');
-		} else {
-			$('#emailPin').html('');
-		}
-	}
-}
 
 function emailTimer() {
 	clearInterval(mailt);
@@ -1154,6 +1168,27 @@ function emailTimer() {
 	}, 5000);
 
 }
+
+function parseEmail(emailText,callback){
+/*
+parse text email w/o name and return object
+ */
+		var email=getEmailsFromString(emailText);
+		var name=stripHTML(emailText.substring(0, emailText.indexOf('<')));
+
+		if(name!=''){
+			var display=name+'<'+email+'>';
+		}else{
+			var display=email;
+		}
+
+		var result={'name':name,'email':email,'display':display};
+
+		if(callback)
+			callback(result);
+		else
+			return result;
+}
 function getDataFromFolder(thisObj) {
 
 
@@ -1161,6 +1196,7 @@ function getDataFromFolder(thisObj) {
 		//console.log(folder);
 		try{
 			clearTimeout(opener);
+			recipient={};
 			clearInterval(mailt);
 		} catch (err) {
 
@@ -1484,30 +1520,13 @@ function showSavedDraft(body, meta, datas) {
 			signature = 'unknown';
 		}
 	}
-//console.log(body['to']);
-	iniEmailBody(meta['pin']);
 
+	iniEmailBody(meta['pin']);
 	if (body['to'] != '') {
 		var to = from64(body['to']);
 
-		var cont = [];
-		$.each(to, function (index, value) {
-
-
-			if (value.indexOf('<') != -1) {
-				var toEmail=getEmailsFromString(value);
-				var name = escapeTags(value.substring(0, value.indexOf('<')));
-				var em =toEmail;
-				cont.push(name + "<" + em + ">");
-			} else {
-				var toEmail=stripHTML(value);
-				cont.push($.trim(toEmail));
-			}
-
-		});
-
-		$('#toRcpt').select2('val', cont);
-		//console.log(to);
+		recipientHandler('populateList',to);
+		$('#toRcpt').select2('val', recipientHandler('getList',''));
 
 	}
 
@@ -1535,10 +1554,7 @@ function showSavedDraft(body, meta, datas) {
 
 
 	}
-	//CKEDITOR.instances.emailbody.setData('<blockquote>'+decodeURIComponent(body['body']['html'])+'</blockquote>');
 
-
-	//$('#emailbody').code(sanitizeEmail(body['body']));
 	if (datas != '') {
 		message['mailHash'] = datas.messageHash;
 	}
@@ -1569,8 +1585,9 @@ function saveDraft() {
 //console.log('trying to save draft');
 	if (original) {
 		var prehash = {};
-		prehash['to'] = $('#toRcpt').select2("val");
-		prehash['subj'] = sanitize($('#subj').val()).substring(0, 150);
+		prehash['to'] = recipientHandler('getList','');
+			//$('#toRcpt').select2("val");
+		prehash['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 		prehash['body'] = $('#emailbody').code();
 					//CKEDITOR.instances.emailbody.getData();
 		var key = forge.random.getBytesSync(32);
@@ -1580,18 +1597,18 @@ function saveDraft() {
 			mailhash = SHA512(JSON.stringify(prehash));
 			var d = new Date();
 
-			emailObj['to'] = $('#toRcpt').select2("val");
+			emailObj['to'] = recipientHandler('getList','');
 			emailObj['from'] = profileSettings['email'];
-			emailObj['subj'] = sanitize($('#subj').val()).substring(0, 150);
+			emailObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 			emailObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 			emailObj['attachment'] = {};
-			emailObj['meta']['subject'] = sanitize($('#subj').val()).substring(0, 150)
+			emailObj['meta']['subject'] = stripHTML($('#subj').val()).substring(0, 150)
 			emailObj['meta']['body'] = stripHTML($('#emailbody').code()).substring(0, 50);
 			emailObj['meta']['attachment'] = '';
 			emailObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 			emailObj['meta']['opened'] = true;
 			emailObj['meta']['type'] = 'draft';
-			emailObj['meta']['pin'] = $('#emailPin b').text();
+			emailObj['meta']['pin'] = $('#pincheck').is(':checked')?true:false;
 			emailObj['meta']['status'] = '';
 			emailObj['meta']['modKey'] = makeModKey(userObj['saltS']);
 			emailObj['meta']['to'] = emailObj['to']
@@ -1850,7 +1867,7 @@ function toAesBinary(key, text) {
 
 function readFile(fileName) {
 	var span = from64(emailObj['body']['attachment'][fileName]['filename']);
-	console.log(span);
+	//console.log(span);
 	$('#' + span + ' i').removeClass('fa-file');
 	$('#' + span + ' i').addClass('fa-refresh');
 	$('#' + span + ' i').addClass('fa-spin');

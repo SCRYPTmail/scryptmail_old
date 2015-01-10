@@ -3,10 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo Yii::app()->name; ?></title>
-	<meta name="description" content="Scryptmail - Privacy is your right, not a privilege. Our service easy to use and provide superior protection for your emails">
-	<meta property="og:title" content="Scryptmail - Encrypted and private email service"/>
+	<meta name="description" content="SCRYPTmail - Privacy is your right, not a privilege. Our service is easy to use and provides superior protection for your emails.">
+	<meta property="og:title" content="SCRYPTmail - Encrypted and private email service"/>
 	<meta property="og:image" content="https://scryptmail/img/favi.png"/>
-	<meta property="og:description" content="Scryptmail - Privacy is your right, not a privilege. Our service easy to use and provide superior protection for your emails"/>
+	<meta property="og:description" content="SCRYPTmail - Privacy is your right, not a privilege. Our service is easy to use and provides superior protection for your emails."/>
 
 	<meta name="author" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">

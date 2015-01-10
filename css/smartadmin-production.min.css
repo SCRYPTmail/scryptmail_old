@@ -17,6 +17,20 @@ overflow-x:hidden;
 .note-editable{
     overflow:hidden;
 }
+.pins
+{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.state-error input{
+    background: #fff0f0;
+    border-color: #A90329;
+}
+
+.brekwords{
+    word-break:break-word;
+}
 #virtualization{
     border:0px solid;
 }
