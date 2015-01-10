@@ -504,7 +504,7 @@ function encryptWithPin(value) {
 	messaged['mail'] = toAes(key, body);
 	messaged['meta'] = toAes(key, meta);
 	messaged['from'] = profileSettings['email'];
-	messaged['to'] = recipientHandler('getTextEmail',value['mail']);;
+	messaged['to'] = recipientHandler('getTextEmail',value['mail']);
 	messaged['pinHash'] = SHA512(pin);
 	messaged['ModKey'] = SHA512(emailPreObj['modKey']);
 
