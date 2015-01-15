@@ -9,20 +9,16 @@
 					<div class="pull-left">
 						Privacy is your right, not a privilege<br><br>
 						<h4 class="paragraph-header">
-							<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
-							SCRYPTmail wishes you a safe 2015
-							<!--
-							Our beta registration is currently closed.<br> Please request an invitation or follow us on twitter for updates on registration
-							<br>
-							We will invite new users based on our server availability
-							<br><br> Please provide your invitation code in order to create an account.
-						-->
+							We are a group of privacy advocates. <br>We believe in the right to freedom of speech, private communication, innocence until proven guilty.
+							<br>Our encrypted email service will protect you from mass surveillance, offer an ad free mailbox and provide state of the art end-to-end encryption.
+<br><br>
+							<i class="fa fa-exclamation txt-color-yellow"></i> Register today before sending yet another unprotected email!
 						</h4>
 
 
 						<div class="login-app-icons">
-							<a href="http://blog.scryptmail.com/2014/11/scryptmail-encrypted-email-service.html" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
-							<a href="http://blog.scryptmail.com" target="_blank" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
+							<a href="/about_us" class="btn btn-primary btn-sm">About Us</a>
+							<a href="http://blog.scryptmail.com" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
 						</div>
 					</div>
 

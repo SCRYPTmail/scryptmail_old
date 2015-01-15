@@ -16,13 +16,15 @@ var parseString='';
 var style = /<style/gi;
 var styleend = /\/style>/gi;
 
+
 var urlstart = /http/gi;
 
 	while((match = style.exec(html)) != null) {
 		start=match.index;
-		while((match1 = styleend.exec(html)) != null) {
-			end=match1.index+7;
-		}
+
+		match1 = styleend.exec(html);
+		end=match1.index+7;
+
 		if(start>end){
 			end=htmlen;
 		}
@@ -145,10 +147,11 @@ function saniziteEmailAttachment(body,meta)
 
 				var bdhtml=body['body']['html'];
 				bdhtml=sanitizeCss(bdhtml);
+				messageDisplayedBody=bdhtml;
 
 
 				messageDisplayedBody=filterXSS(bdhtml,{
-					whiteList:          {
+					whiteList:{
 						a:      ['target', 'href', 'title','class'],
 						abbr:   ['title'],
 						address: [],
@@ -221,6 +224,7 @@ function saniziteEmailAttachment(body,meta)
 					stripIgnoreTagBody: ['script'] // the script tag is a special case, we need
 					// to filter out its content
 				});
+
 				$('#virtualization').contents().find("html").html(messageDisplayedBody);
 
 
@@ -263,8 +267,10 @@ function renderImages()
 		});
 		$('#virtualization').contents().find("html").html(messageDisplayedBody);
 
+			setTimeout(function(){
+				$("#virtualization").height($("#virtualization").contents().find("html").height()+40);
+			},500);
 
-		$("#virtualization").height($("#virtualization").contents().find("html").height());
 		}, 0);
 
 	}else{

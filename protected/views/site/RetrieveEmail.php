@@ -63,7 +63,7 @@
 						<section>
 							<label class="input" id="passError"> <i class="icon-append fa fa-lock"></i>
 								<input style="display:none" type="password" name="fakepasswordremembered"/>
-								<input placeholder="PIN" name="emailHashpass" id="emailHashpass" type="password">
+								<input placeholder="PIN" name="emailHashpass" id="emailHashpass" type="password" value="1112">
 								<b class="tooltip tooltip-bottom-right">Enter pin you recived from sender</b> </label>
 							<em for="password" class="invalid">
 								<div class="errorMessage" id='pserror'></div>

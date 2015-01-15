@@ -60,7 +60,6 @@ function readEmail() {
 							success: function (data, textStatus) {
 								$('#main > .container').html(data);
 								$('#delmail').attr('onclick',"deleteMailUnreg('"+mesId+"','"+meta['modKey']+"');");
-
 								renderMessageUnreg(body, meta);
 							},
 							error: function (data, textStatus) {
@@ -85,6 +84,13 @@ function readEmail() {
 	}
 }
 
+function replyUnreg(from,subj){
+	$.get('/composeMail', function (data) {
+		$('#content').html(data);
+		iniEmailBody(from,subj,to);
+	});
+}
+
 function renderMessageUnreg(body, meta) {
 
 	body['body']['text'] = from64(body['body']['text']);
@@ -93,6 +99,9 @@ function renderMessageUnreg(body, meta) {
 	body['from'] = from64(body['from']);
 	body['subj'] = from64(body['subj']);
 
+	$('#defMailOption').click(function(){
+		replyUnreg(body['from'], body['subj'],body['to']);
+	});
 	$('.replyunsec').attr('href', 'mailto:' + body['from']);
 
 	if (meta['attachment'] != "") {

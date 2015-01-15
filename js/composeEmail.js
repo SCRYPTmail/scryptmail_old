@@ -265,7 +265,7 @@ function sendMail() {
 		});
 
 	} else {
-		noAnswer('Please provide PIN for all emails');
+		noAnswer('Please provide PIN for all emails.');
 	}
 
 }

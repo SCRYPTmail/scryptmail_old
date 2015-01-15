@@ -363,8 +363,8 @@
 						</fieldset>
 
 
-						<a class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="savePassword();">
-							<i class="fa fa-save"></i> Save</a>
+						<button type="button" class="btn btn-primary btn-sm pull-right" onclick="savePassword();">
+							<i class="fa fa-save"></i> Save</button>
 					</form>
 				</div>
 			</div>
@@ -399,8 +399,12 @@
 						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
 								</div>
 							<div class="col col-sm-6">
-						<a class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="saveSecret();">
-							<i class="fa fa-save"></i> Save</a>
+						<button type="button" class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="saveSecret();"
+						rel="popover"
+								data-placement="left"
+								data-original-title="Caution:"
+								data-content="Download new token after you change secret phrase"
+						><i class="fa fa-save"></i> Save</button>
 							</div>
 							<div class="col col-sm-12">
 								<br>
