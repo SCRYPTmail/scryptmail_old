@@ -43,12 +43,14 @@ class MoveNewMail extends CFormModel
 				$param[":mod_$i"] = hash('sha512', $row['mod']);
 
 			}
+			$trans = Yii::app()->db->beginTransaction();
+
 			if ($mails = Yii::app()->db->createCommand("SELECT id as messageHash,meta,body,pass,modKey,file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true, $param)) {
-				unset($par, $param);
+				//unset($par, $param);
 				foreach ($mails as $i => $row) {
 					//$result[]=array('id'=>$row['messageHash'],'pass'=>$row['pass']);
 
-					$par[] = "(:meta_$i,:body_$i,:modKey_$i,:file_$i)";
+					$par1[] = "(:meta_$i,:body_$i,:modKey_$i,:file_$i)";
 
 					//$params[":messageHash_$i"]=$row['messageHash'];
 					$params[":meta_$i"] = $row['meta'];
@@ -59,21 +61,38 @@ class MoveNewMail extends CFormModel
 					$gets[] = ":modKey_$i";
 					$pass[$row['modKey']] = $row['pass'];
 				}
-				if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey,file) VALUES " . implode($par, ','))->execute($params)) {
-					if ($newMessages = Yii::app()->db->createCommand("SELECT messageHash,body,modKey FROM personalFolders WHERE modKey IN (" . implode($gets, ',') . ")")->queryAll(true, $mods)) {
+				if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey,file) VALUES " . implode($par1, ','))->execute($params))
+				{
+					if ($newMessages = Yii::app()->db->createCommand("
+						SELECT messageHash,body,modKey FROM personalFolders WHERE modKey IN (" . implode($gets, ',') . ")")->queryAll(true, $mods))
+					{
 
 						foreach ($newMessages as $index => $row) {
 							$results['data'][$index]['id'] = $row['messageHash'];
 							$results['data'][$index]['pass'] = $pass[$row['modKey']];
 							$results['data'][$index]['meta'] = $row['body'];
 						}
-					}
-					$results['response'] = 'success';
 
+					}
+				if(Yii::app()->db->createCommand("DELETE seedTable.*, mailTable.* FROM seedTable
+				 JOIN mailTable ON seedTable.id = mailTable.id
+					WHERE (mailTable.id,mailTable.modKey) IN (". implode($par, ',') .")")->execute($param))
+				{
+					$trans->commit();
+					$results['response'] = 'success';
 					//print_r($results);
 					echo json_encode($results);
-				} else
+				}else{
+					$trans->rollback();
 					echo '{"response":"fail"}';
+				}
+
+
+				} else{
+					$trans->rollback();
+					echo '{"response":"fail"}';
+				}
+
 			} else
 				echo '{"response":"fail"}';
 

@@ -19,6 +19,7 @@
 						<div class="login-app-icons">
 							<a href="/about_us" class="btn btn-primary btn-sm">About Us</a>
 							<a href="http://blog.scryptmail.com" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
+							<a href="http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html" class="btn btn-primary btn-sm" style="margin-left:20px;">How to use</a>
 						</div>
 					</div>
 

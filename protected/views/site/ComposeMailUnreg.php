@@ -19,10 +19,10 @@
 			<div class="form-group">
 				<label class="control-label col col-xs-1"><strong>Subject:</strong></label>
 
-				<div class="col col-xs-11">
-					<input class="form-control" placeholder="Email Subject" type="text" id="subj" maxlength="150">
+				<div class="col col-xs-11 text-align-left">
+					<input class="form-control" style="padding-left:0px;" placeholder="Email Subject" type="text" id="subj" maxlength="150">
 
-					<em><a href="javascript:void(0);" class="show-next" rel="tooltip" data-placement="bottom"
+					<em><a href="javascript:void(0);" class="show-next" rel="tooltip" data-placement="left"
 						   data-original-title="Attachments"><i class="fa fa-paperclip fa-lg"></i></a></em>
 				</div>
 			</div>

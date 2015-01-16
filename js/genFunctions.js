@@ -1392,8 +1392,10 @@ function renderMessages(data) {
 
 	if (data['results'].length > 0 && $.isArray(data['results'])) {
 		var count = data['results'].length;
-
+		//console.log(index);
 		$.each(data['results'], function (index, value) {
+			//console.log(index);
+			//console.log(value);
 			//console.log(value['messageHash']);
 			try {
 				//value['meta']=from64(value['meta']);
@@ -1411,19 +1413,22 @@ function renderMessages(data) {
 
 				var meta = JSON.parse(z);
 
-				//console.log(meta);
-
 				meta['to'] = from64(meta['to']);
 				meta['from'] = from64(meta['from']);
 				meta['subject'] = stripHTML(from64(meta['subject']).toString());
+				try {
 				meta['body'] = from64(meta['body']);
-
+				} catch (err) {
+					meta['body'] ='';
+				}
+				//console.log(subj);
+			//sanitize
 				//	console.log(meta);
 				modkeyToMessag[value['messageHash']] = meta['modKey'];
 				if (folder_navigate == 'Sent' || folder_navigate == 'Draft') {
-					var from = (meta['to'] !== undefined) ? meta['to'].toString() : '';
+					var from = (meta['to'] !== undefined) ? sanitize(meta['to'].toString()) : '';
 				} else {
-					var from = meta['from'];
+					var from = sanitize(meta['from']);
 				}
 				if(folder_navigate in folder['Custom']){
 					var mesHash=folder['Custom'][folder_navigate][value['messageHash']]['opened'];
@@ -2132,6 +2137,7 @@ function initializeMailList() {
 		}
 	});
 	$('#mailIcons').css('float', 'left');
+	//$('#mailIcons').css('position', 'absolute');
 	//$('#mailSearch').addClass('col col-3');
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
 
@@ -2147,10 +2153,11 @@ function initializeMailList() {
 	var spam = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"  class="spambutton btn btn-default" onclick="movetofolder(\'Spam\');"><i class="fa fa-ban fa-lg"></i> Spam</a>';
 
 
-if(ismobile){
-	var newmail = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"  class="btn btn-primary" onclick="getDataFromFolder(\'composeMail\')"><i class="fa fa-pencil-square-o"></i></a>';
-}else
-	var newmail ='';
+//if(ismobile){
+	var newmail = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"  class="btn btn-primary visible-sm visible-xs" onclick="getDataFromFolder(\'composeMail\')"><i class="fa fa-pencil-square-o"></i></a>';
+//}else
+	//var newmail ='';
+
 	$('#mailIcons').html(' <div class="inbox-checkbox-triggered col col-xs-12" style="padding-left:0px;"><div class="btn-group"> ' +newmail+ ' '+ move + ' '+spam+' ' + trash + '</div></div>');
 
 

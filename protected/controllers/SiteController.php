@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0533';
+	public $fileVers='0534';
 
 	public function beforeAction($action)
 	{
@@ -99,7 +99,9 @@ class SiteController extends Controller
 					'about_us',
 					'composeMail',
 					'checkDomain',
-					'retrievePublicKeys'
+					'retrievePublicKeys',
+					'sendLocalMessage',
+					'sendLocalMessageSeed'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -171,7 +173,9 @@ class SiteController extends Controller
 					'saveDisposableEmail',
 					'ResetPass',
 					'deleteDisposableEmail',
-					'about_us'
+					'about_us',
+					'composeMail',
+					'checkDomain',
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'

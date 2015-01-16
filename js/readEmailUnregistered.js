@@ -84,7 +84,7 @@ function readEmail() {
 	}
 }
 
-function replyUnreg(from,subj){
+function replyUnreg(from,subj,to){
 	$.get('/composeMail', function (data) {
 		$('#content').html(data);
 		iniEmailBody(from,subj,to);

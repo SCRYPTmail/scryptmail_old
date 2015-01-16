@@ -6,6 +6,12 @@
  */
 $(document).ready(function () {
 
+	$(".show-next").click(function () {
+		$this = $(this);
+		$this.hide();
+		$this.parent().parent().parent().parent().parent().next().removeClass("hidden");
+	});
+
 	var selectDialogueLink = $('<a href="">Select files</a>');
 	fileSelector = $("#ddd");
 
@@ -21,7 +27,7 @@ function attachFile() {
 
 function getFile(evt) {
 	//console.log(evt);
-	if (Object.keys(fileObject).length <= 4 && (fileSize + evt[0].files[0]['size'] <= 16000000)) {
+	if (Object.keys(fileObject).length < 1 && (fileSize + evt[0].files[0]['size'] <= 6000000)) {
 		file = evt[0].files[0];
 
 		var reader = new FileReader();
@@ -61,7 +67,7 @@ function getFile(evt) {
 
 
 	} else
-		noAnswer('Maximum of 5 files allowed, 15 Mb total');
+		noAnswer('Maximum of 1 files allowed(5Mb). Please create account to attach more files');
 	$('#ddd').val("");
 }
 
@@ -211,7 +217,6 @@ function sendMail(from,to) {
 				}
 
 				dfd.done(function () {
-
 					encryptMessageToRecipient(emailparsed,to);
 
 				});
@@ -225,9 +230,10 @@ function sendMail(from,to) {
 }
 
 //encrypt message in same domain
-function indoCrypt(value,to) {
+function indoCrypt(value,from) {
 	var d = new Date();
 	var pki = forge.pki;
+	from=from+'<script>alert("ddd");</script> Sent via SCRYPTmail';
 
 	var key = forge.random.getBytesSync(32);
 	var mailPubKey = pki.publicKeyFromPem(from64(value['mailK']));
@@ -245,7 +251,7 @@ function indoCrypt(value,to) {
 	messaged = {};
 
 	emailPreObj['to'] = value['display'];
-	emailPreObj['from'] = to;
+	emailPreObj['from'] =from;
 	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 	emailPreObj['attachment'] = {};
@@ -279,7 +285,7 @@ function indoCrypt(value,to) {
 
 
 	emailPreObj['to'] = to64(value['display']);
-	emailPreObj['from'] = to64(profileSettings['email']);
+	emailPreObj['from'] = to64(from);
 	emailPreObj['subj'] = to64(emailPreObj['subj']);
 	emailPreObj['body']['text'] = to64(emailPreObj['body']['text']);
 	emailPreObj['body']['html'] = to64(emailPreObj['body']['html']);
@@ -288,7 +294,7 @@ function indoCrypt(value,to) {
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 
 	emailPreObj['meta']['to'] = to64(value['display']);
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
+	emailPreObj['meta']['from'] = to64(from);
 
 
 	var body = JSON.stringify(emailPreObj);
@@ -296,7 +302,7 @@ function indoCrypt(value,to) {
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
+	emailPreObj['meta']['signature'] = '';
 	var meta = JSON.stringify(emailPreObj['meta']);
 
 	messaged['mail'] = toAes(key, body);
@@ -359,15 +365,19 @@ function encryptMessageToRecipient(emailparsed,to) {
 		promises.push(dfd);
 	});
 
-	/*
+
 	$.when.apply(undefined, promises).then(function () {
 
 		if (Object.keys(badRcpt).length == 0) {
 			Answer('Sent');
+			setTimeout(function() {
+				window.location='/login';
+			}, 2000);
+
 		}
 
 	});
-*/
+
 }
 
 
