@@ -514,26 +514,9 @@ function savePassword() {
 					if (data['result'] == 'success') {
 						Answer('Saved');
 						$("#smart-form-changepass")[0].reset();
-					} else
-						$.ajax({
-							type: "POST",
-							url: '/changePass',
-							data: {
-								'oldPass': SHA512old($('#passwordOld').val()),
-								'newPass': SHA512($('#passwordNew').val())
-							},
-							success: function (data, textStatus) {
-								if (data['result'] == 'success') {
-									Answer('Saved');
-									$("#smart-form-changepass")[0].reset();
-								} else
-									noAnswer('Failed to save. Try Again');
-							},
-							error: function (data, textStatus) {
-								noAnswer('Error. Please try again.')
-							},
-							dataType: 'json'
-						});
+					} else{
+						noAnswer('Failed to save. Check password');
+					}
 				},
 				error: function (data, textStatus) {
 					noAnswer('Error. Please try again.')
@@ -569,6 +552,11 @@ function initSaveSecret() {
 		}
 	});
 
+	$("[rel=popover]").popover({
+		trigger : "hover",
+		html: true
+
+	});
 }
 
 function downloadTokenProfile() {

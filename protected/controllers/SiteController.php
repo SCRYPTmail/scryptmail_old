@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0532';
+	public $fileVers='0534';
 
 	public function beforeAction($action)
 	{
@@ -95,7 +95,13 @@ class SiteController extends Controller
 					'ResetPass',
 					'checkInvitation',
 					'safeBox',
-					'canary'
+					'canary',
+					'about_us',
+					'composeMail',
+					'checkDomain',
+					'retrievePublicKeys',
+					'sendLocalMessage',
+					'sendLocalMessageSeed'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -110,7 +116,6 @@ class SiteController extends Controller
 					'index',
 					'getObjects',
 					'mail',
-					'composeMail',
 					'getDomains',
 					'retrievePublicKeys',
 					'loginStatus',
@@ -167,7 +172,10 @@ class SiteController extends Controller
 					'verifyEmail',
 					'saveDisposableEmail',
 					'ResetPass',
-					'deleteDisposableEmail'
+					'deleteDisposableEmail',
+					'about_us',
+					'composeMail',
+					'checkDomain',
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -573,6 +581,17 @@ class SiteController extends Controller
 	public function actionGetNewSeeds()
 	{
 		GetNewSeeds::getLast();
+	}
+
+	public function actionCheckDomain()
+	{
+		$model = new getDomains('validateDomain');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->validateDomains();
+		else
+			echo json_encode($model->getErrors());
+
 	}
 
 	public function actionGetDomains()
@@ -992,6 +1011,7 @@ class SiteController extends Controller
 		}
 
 		$this->render('createUserForSelected', array('model' => $model,'token'=>Yii::app()->getRequest()->getQuery('id')));
+
 	}
 
 	public function actionVerifyEmail()
@@ -1098,6 +1118,15 @@ class SiteController extends Controller
 	public function actionMail()
 	{
 		$this->renderPartial('Mail');
+	}
+
+public function actionAbout_us()
+{
+	$this->render('whoweare');
+}
+
+	public function actionComposeMail(){
+		$this->renderPartial('ComposeMailUnreg',array('version'=>$this->fileVers));
 	}
 
 	public function actionGetFolder()

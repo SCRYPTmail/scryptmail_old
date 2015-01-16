@@ -10,14 +10,16 @@
 Privacy is your right, not a privilege<br>
 
 							<h4 class="paragraph-header">
-								<i class="fa fa-bell-o fa-lg swing animated text-warning"></i> Happy New Year!<br>
-								SCRYPTmail wishes you a safe 2015
+								We are a group of privacy advocates. <br>We believe in the right to freedom of speech, private communication, innocence until proven guilty.
+								<br>Our encrypted email service will protect you from mass surveillance, offer an ad free mailbox and provide state of the art end-to-end encryption.
 							</h4>
 
 
+
 						<div class="login-app-icons">
-							<a href="http://blog.scryptmail.com/2014/11/scryptmail-encrypted-email-service.html" target="_blank" class="btn btn-primary btn-sm">Why we are different</a>
-							<a href="http://blog.scryptmail.com" target="_blank" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
+							<a href="/about_us" class="btn btn-primary btn-sm">About Us</a>
+							<a href="http://blog.scryptmail.com" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
+							<a href="http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html" class="btn btn-primary btn-sm" style="margin-left:20px;">How to use</a>
 						</div>
 					</div>
 
@@ -78,31 +80,7 @@ Privacy is your right, not a privilege<br>
 		</div>
 
 
-
-		<div class="row" style="text-align:center;margin-top:40px;margin-bottom:40px;">
-		<div class="well col col-lg-12 text-align-left" style="border:0px solid;">
-			<h2><i class="fa fa-bell-o text-warning"></i> Daily updates</h2>
-			<a href="http://blog.scryptmail.com/2014/12/scryptmail-feature-list-current-and.html">Recommend new feature</a><br>
-			Dec 31 <ul>
-				<li><a href="/TermsAndConditions" target="_blank">Term of Service</a> and <a href="/privacypolicy" target="_blank">Privacy Policy</a> Updated</li>
-				<li>Become SCRYPTmail <a href="http://blog.scryptmail.com/2014/12/become-scryptmail-ninja.html" target="_blank">Ninja</a> with self signed certificate and pinning</li>
-				<li>Improved protection. If you not enter secret within 5 minutes, it will log you out automatically</li>
-				<li>Scripts optimization to speedup loading time</li>
-
-			</ul>
-			Dec 23 <ul>
-				<li>Typos fix</li>
-				<li>Send button now on the top</li>
-				<li>Spam filtering</li>
-				<li>Unused accounts deleted</li>
-			</ul>
-
-			<a href="http://blog.scryptmail.com/2014/12/scryptmail-changelog.html" target="_blank">Older updates</a>
-
-		</div>
-		</div>
-
-		<div class="row" style="text-align:center;">
+		<div class="row" style="text-align:center;margin-top:100px;">
 
 
 
@@ -138,7 +116,7 @@ Privacy is your right, not a privilege<br>
 						<h2><i class="fa fa-times txt-color-red"></i> No scripts from third party servers</h2>
 						<h5>Protect yourself.</h5>
 						<p>Ever wonder who knows you are here?</p>
-						<p>We deliver all scripts from our servers. No Google Analytics, Facebook or twitter. While such scripts can be useful to us as service to track usage, they leak items like user information, location and more.</p>
+						<p>We deliver all scripts from our servers. No Google Analytics, Facebook or twitter. While such scripts can be useful to us as service to track usage, they leak metadata like user information, location and more.</p>
 					</div>
 
 					<div class="well col col-lg-10 text-align-left pull-right">

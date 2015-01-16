@@ -178,7 +178,17 @@ Use search to find needed section.
 	  data-placement="bottom"
 	  data-original-title=""
 	  data-content="Report bugs, typos or recommendations.">
-		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i> Report bug</span></a>
+		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i></span></a>
+
+	</span>
+
+		<span class="ribbon-button-alignment pull-left"
+			  style="margin-right:15px"
+			  rel="popover-hover"
+			  data-placement="bottom"
+			  data-original-title=""
+			  data-content="Learn how to use SCRYPTmail">
+		<a href="http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-question-circle fa-lg"></i> How to use</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-question-circle fa-lg"></i></span></a>
 
 	</span>
 			<a href="javascript:void(0);" onclick="getDataFromFolder('inviteFriend');" id="invFriend"><span class="ribbon-button-alignment pull-left" style="margin-right:15px"
@@ -186,7 +196,7 @@ Use search to find needed section.
 																							 data-placement="bottom"
 																							 data-original-title=""
 																							 data-content="Invite your friends to share SCRYPTmail's awesomeness.">
-		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite Friends </span>
+		<span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-send-o fa-lg"></i> Invite</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-send-o fa-lg"></i></span>
 			</span></a>
 
 		<!-- end breadcrumb -->
