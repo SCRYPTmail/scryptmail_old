@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0535';
+	public $fileVers='0536';
 
 	public function beforeAction($action)
 	{

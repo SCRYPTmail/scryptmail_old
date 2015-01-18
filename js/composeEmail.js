@@ -196,6 +196,7 @@ function sendMail() {
 			chkpins.form();
 			var chkpins=chkpins.numberOfInvalids();
 		}else{
+			$('#pincheck').prop("checked",false)
 			var chkpins=0;
 		}
 
