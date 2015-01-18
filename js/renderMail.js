@@ -7,34 +7,10 @@
 
 function sanitizeCss(html)
 {
-var start=0;
-var htmlen=html.length;
-var end=0;
-var	htmlResult='';
-var parseString='';
+	html1=html.replace(/<style[\s\S]*?\/style>/gi, '');
 
-var style = /<style/gi;
-var styleend = /\/style>/gi;
+return html1;
 
-
-var urlstart = /http/gi;
-
-	while((match = style.exec(html)) != null) {
-		start=match.index;
-
-		match1 = styleend.exec(html);
-		end=match1.index+7;
-
-		if(start>end){
-			end=htmlen;
-		}
-		htmlResult=html.substring(0, start);
-		parseString=html.substring(start,end);
-
-		html=html.slice(0, start) + html.slice(end);
-
-	}
-return html;
 }
 
 function showPin(email){

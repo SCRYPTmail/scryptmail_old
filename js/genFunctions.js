@@ -82,7 +82,7 @@ message = {
 	'iv': '',
 	'mailHash': ''
 };
-checkMailTime=30000;
+checkMailTime=5000;
 emailObj = {
 	'meta': {},
 	'body': {},
@@ -264,7 +264,7 @@ function getMainData() {
 						domains = JSON.parse(doma);
 					});
 			} else
-				noAnswer('Error occurred. Please Try again');
+				noAnswer('Error. Please try again.');
 		});
 
 }
@@ -305,6 +305,7 @@ function newMailCheckRoutine() {
 							lastAvailableSeed = parseInt(newMaxSeed);
 							lastParsedSeed = parseInt(profileSettings['lastSeed']);
 							clearInterval(newMailer);
+							checkMailTime=30000;
 							//showEmailFetch();
 							newMailSeedRoutine();
 						}
@@ -314,6 +315,9 @@ function newMailCheckRoutine() {
 				.fail(function () {
 					initialFunction();
 				});
+			clearInterval(newMailer);
+			checkMailTime=30000;
+			newMailCheckRoutine();
 		}, checkMailTime);
 	}
 
@@ -983,12 +987,16 @@ function stripHTML(data) {
 }
 
 function sanitize(input) { //todo remove if save
-	var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
-		replace(/<[\/\!]*?[^<>]*?>/gi, '').
-		replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
-		replace(/<style[^>]*?>.*?<\/style>/gi, '').
-		replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
-	return output;
+	if(input!=''){
+		var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
+			replace(/<[\/\!]*?[^<>]*?>/gi, '').
+			replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
+			replace(/<style[^>]*?>.*?<\/style>/gi, '').
+			replace(/<![\s\S]*?--[ \t\n\r]*>/gi, '');
+		return output;
+	}else
+	return input;
+
 }
 
 function sanitizeEmail(input) { //todo remove if save
@@ -1156,10 +1164,7 @@ function emailTimer() {
 	mailt = setInterval(function () {
 		//console.log(activePage);
 		if (activePage == 'composeMail') {
-			checkState(function () {
 				saveDraft();
-			}, function () {
-			});
 		} else {
 			clearInterval(mailt);
 			clearComposeMail();
@@ -1357,12 +1362,12 @@ function displayFolderContent(folderName) {
 					if (data.results !== undefined) {
 						renderMessages(data);
 					} else {
-						noAnswer('Error occurred. Please try again1');
+						noAnswer('Error. Please try again.');
 					}
 
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error occurred. Please try again2');
+					noAnswer('Error. Please try again.');
 				},
 				dataType: 'json'
 			});
@@ -1421,7 +1426,7 @@ function renderMessages(data) {
 				} catch (err) {
 					meta['body'] ='';
 				}
-				//console.log(subj);
+				//console.log(meta['modKey']);
 			//sanitize
 				//	console.log(meta);
 				modkeyToMessag[value['messageHash']] = meta['modKey'];
@@ -1436,9 +1441,10 @@ function renderMessages(data) {
 					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
 				}
 
+				var emid=value['messageHash']+'_'+meta['modKey'];
 				var el = ['<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
-					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
-					'<div id="' + value['messageHash'] + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
+					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
+					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
 					(meta['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
 					new Date(parseInt(meta['timeSent'] + '000')).getTime()];
 				dataSet.push(el);
@@ -1598,7 +1604,9 @@ function saveDraft() {
 		var key = forge.random.getBytesSync(32);
 
 		if (mailhash != SHA512(JSON.stringify(prehash)) &&
-			SHA512(JSON.stringify(prehash)) !='6c0823ab0d6fe3ac5592360d4f39a08c66d80efa7c5dc11ec39a04d544be517d88e86933bc87f3c575db1a7c95f45815221769bdfc96712b276064c6d07e134c') {
+			SHA512(JSON.stringify(prehash)) !='6c0823ab0d6fe3ac5592360d4f39a08c66d80efa7c5dc11ec39a04d544be517d88e86933bc87f3c575db1a7c95f45815221769bdfc96712b276064c6d07e134c')
+		{
+			checkState(function () {
 			mailhash = SHA512(JSON.stringify(prehash));
 			var d = new Date();
 
@@ -1670,6 +1678,8 @@ function saveDraft() {
 				});
 			});
 			finishRendering();
+			}, function () {
+			});
 		} //else
 		//console.log('same');
 	} else {
@@ -1713,7 +1723,7 @@ function encryptMessage(emailObj, key) {
 
 }
 
-function getMail(messageId) {
+function getMail(messageId,modKey) {
 
 
 	checkState(function () {
@@ -1722,7 +1732,8 @@ function getMail(messageId) {
 			type: "POST",
 			url: '/showMessage',
 			data: {
-				'messageId': messageId
+				'messageId': messageId,
+				'modKey':modKey
 			},
 			success: function (datas, textStatus) {
 				if (datas.results != 'empty') {
@@ -1730,11 +1741,11 @@ function getMail(messageId) {
 					detectMessage(datas['results']);
 
 				} else {
-					noAnswer('Error occurred. Please try again3');
+					noAnswer('Error. Please try again.');
 				}
 			},
 			error: function (data, textStatus) {
-				noAnswer('Error occurred. Please try again4');
+				noAnswer('Error. Please try again.4');
 			},
 			dataType: 'json'
 		});
@@ -1783,7 +1794,7 @@ function detectMessage(datas) {
 				$('#sendMaildiv').css('display','block');
 			},
 			error: function (data, textStatus) {
-				noAnswer('Error occurred. Please try again');
+				noAnswer('Error. Please try again.');
 			},
 			dataType: 'html'
 		});
@@ -1797,7 +1808,7 @@ function detectMessage(datas) {
 				renderMessage(body, meta, datas);
 			},
 			error: function (data, textStatus) {
-				noAnswer('Error occurred. Please try again');
+				noAnswer('Error. Please try again.');
 			},
 			dataType: 'html'
 		});
@@ -1960,7 +1971,7 @@ function replyToMail() {
 			showSavedDraft(body, meta, '');
 		},
 		error: function (data, textStatus) {
-			noAnswer('Error occurred. Please try again');
+			noAnswer('Error. Please try again.');
 		},
 		dataType: 'html'
 	});
@@ -1998,7 +2009,7 @@ function forwardMail() {
 			showSavedDraft(body, meta, '');
 		},
 		error: function (data, textStatus) {
-			noAnswer('Error occurred. Please try again');
+			noAnswer('Error. Please try again.');
 		},
 		dataType: 'html'
 	});
@@ -2061,12 +2072,12 @@ var selected=[];
 					Answer('Deleted');
 				window.location="/login";
 			} else {
-				noAnswer('Error occurred. Please try again');
+				noAnswer('Error. Please try again.');
 			}
 
 		},
 		error: function (data, textStatus) {
-			noAnswer('Error occurred. Please try again');
+			noAnswer('Error. Please try again.');
 		},
 		dataType: 'json'
 	});
@@ -2163,12 +2174,23 @@ function initializeMailList() {
 
 	$('#mail-table tbody').on('mouseover', 'td.inbox-data-from', function () {
 		$(this).css('cursor', 'pointer');
-		$(this).attr('onclick', "getMail('" + $(this).children().eq(0).attr('id') + "')");
+
+		var mailId=$(this).children().eq(0).attr('id');
+		var mailD = mailId.split('_');
+		var mid=mailD[0];
+		var modK=mailD[1];
+
+		$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
 	});
 
 	$('#mail-table tbody').on('mouseover', 'td.inbox-data-message', function () {
 		$(this).css('cursor', 'pointer');
-		$(this).attr('onclick', "getMail('" + $(this).children().eq(0).attr('id') + "')");
+		var mailId=$(this).children().eq(0).attr('id')
+		var mailD = mailId.split('_');
+		var mid=mailD[0];
+		var modK=mailD[1];
+
+		$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
 
 	});
 
@@ -2228,12 +2250,12 @@ function getEmailSender(messagesId,callback){
 				metas=data;
 				dfd.resolve();
 			} else {
-				noAnswer('Error occurred. Please try again');
+				noAnswer('Error. Please try again.');
 			}
 
 		},
 		error: function (data, textStatus) {
-			noAnswer('Error occurred. Please try again');
+			noAnswer('Error. Please try again.');
 		},
 		dataType: 'json'
 	});
@@ -2488,12 +2510,12 @@ function deleteMessage(selected,selectedFolder, callback) {
 						if (select > 0)
 							Answer('Deleted');
 					} else {
-						noAnswer('Error occurred. Please try again7');
+						noAnswer('Error. Please try again.');
 					}
 
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error occurred. Please try again8');
+					noAnswer('Error. Please try again.');
 				},
 				dataType: 'json'
 			});
@@ -2906,34 +2928,10 @@ function showLog(success, cancel) {
 								$('#dialog-form-login').dialog('close');
 								success();
 
+							}else if(data.answer == "Limit is reached"){
+								noAnswer('You\'ve reached maximum login attempts. Please try again in few minutes.');
 							} else {
-								// remove in 2 weeks
-								$.ajax({
-									type: "POST",
-									url: '/ModalLogin',
-									data: {'LoginForm[username]': SHA512(email),
-										'LoginForm[password]': SHA512old($('#LoginForm_password').val())
-
-									},
-									success: function (data, textStatus) {
-										if (data.answer == "welcome") {
-											sessionKey = data.data;
-											$('#dialog-form-login').dialog('close');
-											noAnswer('Old Password, Please update your password');
-
-											success();
-
-										} else {
-											noAnswer('Wrong Usernaim or password. Please try again');
-										}
-									},
-									error: function (data, textStatus) {
-										cancel();
-										noAnswer('Error. Please try again9')
-									},
-									dataType: 'json'
-								});
-								//end remove in 2 weeks
+								noAnswer('Wrong Usernaim or password. Please try again');
 							}
 						},
 						error: function (data, textStatus) {

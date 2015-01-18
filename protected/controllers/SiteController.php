@@ -9,51 +9,69 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0534';
+	public $fileVers='0535';
 
 	public function beforeAction($action)
 	{
+//print_r(parent::beforeAction($action));
+		$userAction=strtolower($this->action->Id);
 
-		if (parent::beforeAction($action)) {
-			$this->baseUrl = Yii::app()->baseUrl;
+		$model = new CheckActions();
+		$model->userAction = $userAction;
 
+		if ($model->validate()){
 
-			$cs = Yii::app()->getClientScript();
-			$cs->registerScriptFile('/js/jquery-1.11.1.js');
-			$cs->registerScriptFile('/js/jquery-ui-1.10.4.js');
-			$cs->registerScriptFile('/js/forge.bundle.js');
+			if($model->checkAllowedAction()){
+				$this->baseUrl = Yii::app()->baseUrl;
+				$cs = Yii::app()->getClientScript();
+				$cs->registerScriptFile('/js/jquery-1.11.1.js');
+				$cs->registerScriptFile('/js/jquery-ui-1.10.4.js');
+				$cs->registerScriptFile('/js/forge.bundle.js');
 
-			$cs->registerScriptFile('/js/core.js');
-			$cs->registerScriptFile('/js/x64-core.js');
-			$cs->registerScriptFile('/js/aes.js');
-			$cs->registerScriptFile('/js/twofish.js');
-
-
-			$cs->registerScriptFile("/js/uniFunctions.js?r=$this->fileVers");
-			$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
-
-
-			//$cs->registerScriptFile("/js/genFunctions.js");
-			$cs->registerScriptFile('/js/bootstrap/bootstrap.js');
-			$cs->registerScriptFile('/js/plugin/masked-input/jquery.maskedinput.min.js');
-			$cs->registerScriptFile("/js/app.config.js?r=$this->fileVers");
-
-			$cs->registerScriptFile('/js/plugin/select2/select2.min.js');
-			$cs->registerScriptFile('/js/notification/SmartNotification.js');
-			$cs->registerScriptFile("/js/xss/xss.js?r=$this->fileVers");
+				$cs->registerScriptFile('/js/core.js');
+				$cs->registerScriptFile('/js/x64-core.js');
+				$cs->registerScriptFile('/js/aes.js');
+				$cs->registerScriptFile('/js/twofish.js');
 
 
-
-			//rangy-core.js
-
-			$cs->registerCssFile('/css/bootstrap.min.css');
-			$cs->registerCssFile('/css/font-awesome.min.css');
-			$cs->registerCssFile("/css/smartadmin-production.min.css?r=$this->fileVers");
+				$cs->registerScriptFile("/js/uniFunctions.js?r=$this->fileVers");
+				$cs->registerScriptFile("/js/genFunctions.js?r=$this->fileVers");
 
 
-			return true;
+				//$cs->registerScriptFile("/js/genFunctions.js");
+				$cs->registerScriptFile('/js/bootstrap/bootstrap.js');
+				$cs->registerScriptFile('/js/plugin/masked-input/jquery.maskedinput.min.js');
+				$cs->registerScriptFile("/js/app.config.js?r=$this->fileVers");
+
+				$cs->registerScriptFile('/js/plugin/select2/select2.min.js');
+				$cs->registerScriptFile('/js/notification/SmartNotification.js');
+				$cs->registerScriptFile("/js/xss/xss.js?r=$this->fileVers");
+
+
+
+				//rangy-core.js
+
+				$cs->registerCssFile('/css/bootstrap.min.css');
+				$cs->registerCssFile('/css/font-awesome.min.css');
+				$cs->registerCssFile("/css/smartadmin-production.min.css?r=$this->fileVers");
+
+
+				return true;
+			}else{
+				echo '{"answer":"Limit is reached"}';
+				return false;
+			}
+		}else{
+			echo json_encode($model->getErrors());
+			return false;
 		}
-		return false;
+
+
+		//if (parent::beforeAction($action)) {
+
+
+		//}
+		//return false;
 
 	}
 
@@ -77,17 +95,14 @@ class SiteController extends Controller
 					'crawler123',
 					'acceptemailfrompostfix',
 					'retrieveEmail',
-					'getFile',
 					'downloadFile',
 					'getClientInfo',
 					'TermsAndConditions',
 					'privacypolicy',
 					'reportBug',
 					'submitBug',
-					'createSelectedUser',
 					'checkMail',
 					'saveInvite',
-					'deleteMessageUnreg',
 					'submitError',
 					'forgotPassword',
 					'verifyToken',
@@ -97,13 +112,22 @@ class SiteController extends Controller
 					'safeBox',
 					'canary',
 					'about_us',
-					'composeMail',
-					'checkDomain',
-					'retrievePublicKeys',
-					'sendLocalMessage',
-					'sendLocalMessageSeed'
+					'checkEmailExist',
+					'createUserDb',
+					'createSelectedUser'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
+			),
+			array('allow', // allow all users to perform 'index' and 'view' actions
+				'actions' => array(
+					'composeMailUnreg',
+					'sendLocalMessageUnreg',
+					'getFile',
+					'retrievePublicKeys',
+					'deleteMessageUnreg',
+					'checkDomain',
+				),
+				'expression' => 'Yii::app()->session["unregisteredLogin"]'
 			),
 			array('allow', // allow all users to perform 'index' and 'view' actions
 				'actions' => array(
@@ -127,7 +151,6 @@ class SiteController extends Controller
 					'deleteMessageUnreg',
 					'showMessage',
 					'sendLocalMessage',
-					'sendLocalMessageSeed',
 					'sendLocalMessageFail',
 					'sendOutMessagePin',
 					'sendOutMessageNoPin',
@@ -174,8 +197,9 @@ class SiteController extends Controller
 					'ResetPass',
 					'deleteDisposableEmail',
 					'about_us',
-					'composeMail',
 					'checkDomain',
+					'checkEmailExist',
+					'createUserDb',
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -185,7 +209,6 @@ class SiteController extends Controller
 			),
 		);
 	}
-
 
 	public function missingAction()
 	{
@@ -757,10 +780,22 @@ class SiteController extends Controller
 
 	}
 
+	public function actionSendLocalMessageUnreg()
+	{
+		$model = new SaveEmail('sendLocal');
+		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
+		$model->attributes = isset($_POST['seedPart']) ? $_POST['seedPart'] : '';
+		if ($model->validate()) //validating json data according to action
+			$model->sendLocal();
+		else
+			echo json_encode($model->getErrors());
+	}
+
 	public function actionSendLocalMessage()
 	{
 		$model = new SaveEmail('sendLocal');
 		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
+		$model->attributes = isset($_POST['seedPart']) ? $_POST['seedPart'] : '';
 		if ($model->validate()) //validating json data according to action
 			$model->sendLocal();
 		else
@@ -788,16 +823,6 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 	}
 
-	public function actionSendLocalMessageSeed()
-	{
-
-		$model = new SaveEmail('sendLocalSeed');
-		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
-		if ($model->validate()) //validating json data according to action
-			$model->sendLocalSeed();
-		else
-			echo json_encode($model->getErrors());
-	}
 
 	public function actionRetrieveFoldersData()
 	{
@@ -927,24 +952,41 @@ class SiteController extends Controller
 
 		$this->render('login', array('model' => $model,'time'=>$time));
 	}
+	public function actionCheckEmailExist()
+	{
+		$model = new CreateUser();
+
+		if (isset($_POST['ajax']) && $_POST['ajax'] === 'smart-form-register') {
+			$model->setScenario('validatemail');
+			$model->attributes = $_POST['CreateUser'];
+			if ($model->validate()) //validating json data according to action
+				$model->validateEmail();
+			else
+				echo json_encode($model->getErrors());
+
+			Yii::app()->end();
+		}
+
+	}
+
+	public function actionCreateUserDb()
+	{
+		$model = new CreateUser();
+
+		if (isset($_POST['CreateUser'])) {
+			$model->setScenario('createAccount');
+			$model->attributes = $_POST;
+			if ($model->validate() && $model->createAccount()) {
+			} else
+				echo json_encode($model->getErrors());
+			Yii::app()->end();
+		}
+	}
 
 	public function actionCreateSelectedUser()
 	{
 
 		$cs = Yii::app()->clientScript;
-
-		//$cs->scriptMap['twofish.js'] = false;
-		//$cs->scriptMap['x64-core.js'] = false;
-		//$cs->scriptMap['forge.bundle.js'] = false;
-		//$cs->scriptMap['core.js'] = false;
-		//$cs->scriptMap['aes.js'] = false;
-
-		//$cs->registerScriptFile('/js/core.js');
-		//$cs->registerScriptFile('/js/x64-core.js');
-		//$cs->registerScriptFile('/js/aes.js');
-		//$cs->registerScriptFile('/js/twofish.js');
-
-
 
 		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
 		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
@@ -964,51 +1006,7 @@ class SiteController extends Controller
 		//$cs->registerScriptFile("/js/plugin/jquery-form/jquery-form.min.js");
 
 
-		//print_r(date('Y-m-d'));
-		$totalUser=CountRegistered::getReg();
-
-		$datetime = new DateTime; // current time = server time
-		$otherTZ  = new DateTimeZone('America/Los_Angeles');
-		//$otherTZ  = new DateTimeZone('UTC');
-		$datetime->setTimezone($otherTZ); // calculates with new TZ now
-		$tm=$datetime->setTimezone($otherTZ);
-		//print_r(date_format($tm,'Y-m-d'));
-
-		//print_r(date('Y-m-d'),strtotime($datetime->setTimezone($otherTZ)));
-
-
-		//if(date_format($tm,'Y-m-d')>'2014-12-04'){
-		//	$this->redirect('/createUser');
-		//}
-
 		$model = new CreateUser();
-
-		$totalUser=CountRegistered::getReg();
-
-		//if($totalUser>=500){
-		//	$this->redirect('/createUser');
-		//}
-
-		$totalUser='Dec,4';
-		if (isset($_POST['ajax']) && $_POST['ajax'] === 'smart-form-register') {
-			$model->setScenario('validatemail');
-			$model->attributes = $_POST['CreateUser'];
-			if ($model->validate()) //validating json data according to action
-				$model->validateEmail();
-			else
-				echo json_encode($model->getErrors());
-
-			Yii::app()->end();
-		}
-
-		if (isset($_POST['CreateUser'])) {
-			$model->setScenario('createAccount');
-			$model->attributes = $_POST;
-			if ($model->validate() && $model->createAccount()) {
-			} else
-				echo json_encode($model->getErrors());
-			Yii::app()->end();
-		}
 
 		$this->render('createUserForSelected', array('model' => $model,'token'=>Yii::app()->getRequest()->getQuery('id')));
 
@@ -1122,12 +1120,17 @@ class SiteController extends Controller
 
 public function actionAbout_us()
 {
+
 	$this->render('whoweare');
 }
 
-	public function actionComposeMail(){
+
+
+	public function actionComposeMailUnreg()
+	{
 		$this->renderPartial('ComposeMailUnreg',array('version'=>$this->fileVers));
 	}
+
 
 	public function actionGetFolder()
 	{

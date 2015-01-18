@@ -22,7 +22,7 @@ class SaveEmail extends CFormModel
 
 	public $messageId;
 	public $modKeySeed;
-	public $modKeyMail, $to,$files;
+	public $modKeyMail, $to,$files,$seedMeta;
 
 
 	public function rules()
@@ -31,13 +31,12 @@ class SaveEmail extends CFormModel
 			// username and password are required
 			array('mail,newModKey,oldModKey,meta', 'required', 'on' => 'save,saveMailInSent'),
 			array('mail,newModKey,meta', 'required', 'on' => 'sendLocalFail'),
-			array('mail,ModKey,key,meta', 'required', 'on' => 'sendLocal'),
+			array('mail,ModKey,key,meta,seedMeta,modKeySeed', 'required', 'on' => 'sendLocal'),
 			array('files', 'safe', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 			array('files', 'checkFile', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 
 			array('mailHash', 'numerical', 'integerOnly' => true, 'allowEmpty' => true, 'on' => 'save,saveMailInSent'),
-			array('modKeySeed,modKeyMail,messageId,meta', 'required', 'on' => 'sendLocalSeed'),
-			array('messageId', 'numerical', 'integerOnly' => true, 'allowEmpty' => false, 'on' => 'sendLocalSeed'),
+
 
 			array('mail,ModKey,meta,from,to,pinHash', 'required', 'on' => 'sendOutPin'),
 			array('mail,ModKey,key,meta', 'required', 'on' => 'sendOutNoPin'),
@@ -119,24 +118,6 @@ class SaveEmail extends CFormModel
 
 	}
 
-	public function sendLocalSeed()
-	{
-
-
-		$params[':id'] = $this->messageId;
-		$params[':seedMeta'] = $this->meta;
-		$params[':modKeySeed'] = $this->modKeySeed;
-
-		$params[':modKey'] = hash('sha512', $this->modKeyMail);
-
-		if (Yii::app()->db->createCommand("UPDATE mailToSent SET seedMeta=:seedMeta,modKeySeed=:modKeySeed WHERE id=:id AND modKey=:modKey")->execute($params))
-			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
-		else
-			echo '{"messageId":"fail"}';
-
-
-	}
-
 	public function sendLocal()
 	{
 		$params[':body'] = $this->mail;
@@ -144,6 +125,9 @@ class SaveEmail extends CFormModel
 		$params[':pass'] = $this->key;
 		$params[':meta'] = $this->meta;
 		$params[':whens'] = Date("Y-m-d H:i:s");
+
+		$params[':seedMeta'] = $this->seedMeta;
+		$params[':modKeySeed'] = $this->modKeySeed;
 
 		if(isset($this->files)){
 		foreach($this->files as $row){
@@ -159,7 +143,7 @@ class SaveEmail extends CFormModel
 
 		unset($fileNames);
 
-		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,file) VALUES(:meta,:body,:pass,:modKey,:whens,:file)")->execute($params))
+		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,file,seedMeta,modKeySeed) VALUES(:meta,:body,:pass,:modKey,:whens,:file,:seedMeta,:modKeySeed)")->execute($params))
 			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
 		else
 			echo '{"messageId":"fail"}';

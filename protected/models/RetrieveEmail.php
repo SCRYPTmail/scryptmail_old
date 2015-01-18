@@ -30,25 +30,18 @@ class RetrieveEmail extends CFormModel
 		//retrieve message to check pin provided to system is correct
 		if($tryPin=Yii::app()->db->createCommand("SELECT pinHash,tryCounter FROM mailTable WHERE modKey=:modKey and id=:id")->queryRow(true,$param)){
 
-			//old messages without pin delete dec 24,2014
-			if($tryPin['pinHash']==''){
-				if($email=Yii::app()->db->createCommand("SELECT meta,body FROM mailTable WHERE modKey=:modKey and id=:id")->queryRow(true,$param)){
-					$result['success']=true;
-					$result['email']=$email;
-					$result['messageId']=$f[0];
-					echo json_encode($result);
-				}else{
-					echo '{"emailHash":["Emailhash Not Found"]}';
-				}
-			//end old
 
 			//if pin match, retrieve message
-			}else if($tryPin['pinHash']==$this->pinHash && $tryPin['tryCounter']<=2){
+			if($tryPin['pinHash']==$this->pinHash && $tryPin['tryCounter']<=2){
 				if($email=Yii::app()->db->createCommand("SELECT meta,body FROM mailTable WHERE modKey=:modKey and id=:id")->queryRow(true,$param)){
 					Yii::app()->db->createCommand("UPDATE mailTable SET tryCounter=0 WHERE modKey=:modKey and id=:id")->execute($param);
 					$result['success']=true;
 					$result['email']=$email;
 					$result['messageId']=$f[0];
+
+					Yii::app()->session['unregisteredLogin'] = true;
+					Yii::app()->session['unregisteredMailHash'] = $this->emailHash;
+
 					echo json_encode($result);
 				}else{
 					echo '{"emailHash":["Emailhash Not Found"]}';

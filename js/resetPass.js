@@ -10,7 +10,7 @@ function initialResetPassword(){
 		var isSuccess = false;
 		$.ajax({
 			type: "POST",
-			url: "/createSelectedUser",
+			url: "/checkEmailExist",
 			data: {'CreateUser[email]': SHA512singl($('#resetPass_email').val().toLowerCase()), 'ajax': 'smart-form-register'},
 			dataType: "json",
 			async: false,
