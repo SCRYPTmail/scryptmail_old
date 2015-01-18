@@ -537,7 +537,7 @@ function moveMessagestoInbox(newMessages) {
 
 	$.each(newMessages, function (index, value) {
 		chunks[index] = value;
-		if (cont > 60) {
+		if (cont > 30) {
 			//console.log(chunks);
 			retrieveNewTable(chunks)
 				.always(function (data) {
@@ -566,6 +566,9 @@ function moveMessagestoInbox(newMessages) {
 								}
 
 								getNewEmailsCount();
+								if(folder_navigate=="Inbox" && activePage=="mail"){
+									displayFolderContent('Inbox');
+								}
 							}
 						});
 						checkFolders();
@@ -605,6 +608,9 @@ function moveMessagestoInbox(newMessages) {
 								}
 
 								getNewEmailsCount();
+								if(folder_navigate=="Inbox" && activePage=="mail"){
+									displayFolderContent('Inbox');
+								}
 							}
 						});
 
@@ -621,6 +627,7 @@ function moveMessagestoInbox(newMessages) {
 	//profileSettings['lastSeed']=lastAvailableSeed;
 
 	checkProfile();
+	//displayFolderContent();
 	//console.log(folder_navigate);
 
 }
@@ -1382,6 +1389,7 @@ function displayFolderContent(folderName) {
 }
 
 function renderMessages(data) {
+
 	//console.log(data);
 	$('#pag').css('display','block');
 	var to, subj, time, body;
@@ -1464,7 +1472,7 @@ function renderMessages(data) {
 
 		dfd.done(function () {
 			t.rows.add(dataSet);
-			t.draw();
+			t.draw(false);
 
 
 			if ($('#mail-table').children().get(1) === undefined) {
