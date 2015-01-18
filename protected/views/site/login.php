@@ -10,7 +10,7 @@
 Privacy is your right, not a privilege<br>
 
 							<h4 class="paragraph-header">
-								We are a group of privacy advocates. <br>We believe in the right to freedom of speech, private communication, innocence until proven guilty.
+								We are a group of privacy advocates. <br>We believe in the right to freedom of speech, private communication, and innocence until proven guilty.
 								<br>Our encrypted email service will protect you from mass surveillance, offer an ad free mailbox and provide state of the art end-to-end encryption.
 							</h4>
 

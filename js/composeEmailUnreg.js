@@ -167,6 +167,7 @@ function emailParser(email,callback) {
 				}
 			},
 			error: function (data, textStatus) {
+				noAnswer('Error. Please refresh the page');
 				callback();
 			},
 			dataType: 'json'
@@ -326,7 +327,7 @@ function encryptMessageToRecipient(emailparsed,to) {
 	var pki = forge.pki;
 	var promises = [];
 
-	console.log(emailparsed);
+	//console.log(emailparsed);
 
 	$.each(emailparsed['indomain'], function (index, value) { // indomain submission
 		var dfd = $.Deferred();
@@ -334,29 +335,31 @@ function encryptMessageToRecipient(emailparsed,to) {
 		if (value['seedK'] != '') { //if have pub keys
 			var sendMessage = indoCrypt(value,to);
 			//console.log(sendMessage);
+			var seedPubKey = pki.publicKeyFromPem(from64(value['seedK']));
+			var prePub = sendMessage['modKey'];
 
-			var mailId = SendMailMail(sendMessage['messaged']).always(function (result) {
+			var cryptedPub = {'modKeySeed': SHA512(prePub), 'seedMeta': forge.util.bytesToHex(seedPubKey.encrypt(forge.util.hexToBytes(prePub), 'RSA-OAEP'))};
+
+
+			var mailId = SendMailMail(sendMessage['messaged'],cryptedPub).always(function (result) {
 				if (!isNaN(result['messageId'])) {
 					//console.log(result);
-					var seedPubKey = pki.publicKeyFromPem(from64(value['seedK']));
-					var prePub = sendMessage['modKey'];
-					var cryptedPub = {'messageId': result['messageId'], 'modKeyMail': sendMessage['modKey'], 'modKeySeed': SHA512(prePub), 'meta': forge.util.bytesToHex(seedPubKey.encrypt(forge.util.hexToBytes(prePub), 'RSA-OAEP'))};
-
-					var seedId = SendMailSeed(cryptedPub).always(function (resultSeed) {
-						if (!isNaN(resultSeed['messageId'])) {
-							var elem = {'mailId': result['messageId'], 'seedId': result['messageId'], 'rcpt':value['name'],'email':value['mail'], 'mailModKey': sendMessage['modKey'], 'seedModKey': prePub};
+					var elem = {'mailId': result['messageId'], 'seedId': result['messageId'], 'rcpt':value['name'],'email':value['mail'], 'mailModKey': sendMessage['modKey'], 'seedModKey': prePub};
 							senderMod.push(elem);
 							dfd.resolve();
-						} else {
-							var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
-							badRcpt.push(rcp);
-							dfd.resolve();
-						}
-					});
+
 				} else {
-					var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
-					badRcpt.push(rcp);
-					dfd.resolve();
+
+					if(result['answer']=="Limit is reached"){
+						noAnswer('You\'ve reached maximum email per hour. Please register to send more emails');
+					}else if(result.responseText=='Login Required'){
+						noAnswer('Error. Please refresh the page');
+					}else{
+						noAnswer('Please check recipient(s) address(es) and try again.');
+						var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
+						badRcpt.push(rcp);
+						dfd.resolve();
+					}
 				}
 			});
 		}else{
@@ -380,34 +383,16 @@ function encryptMessageToRecipient(emailparsed,to) {
 
 }
 
-
-function SendMailSeed(messaged) {
-	return $.ajax({
-		type: "POST",
-		url: '/sendLocalMessageSeed',
-		data: {
-			'message': messaged
-		},
-		success: function (data, textStatus) {
-			return data;
-		},
-		error: function (data, textStatus) {
-		},
-		dataType: 'json'
-	});
-
-}
-
-function SendMailMail(messaged) {
+function SendMailMail(messaged,seedPart) {
 
 	return $.ajax({
 		type: "POST",
-		url: '/sendLocalMessage',
+		url: '/sendLocalMessageUnreg',
 		data: {
-			'message': messaged
+			'message': messaged,
+			'seedPart':seedPart
 		},
 		success: function (data, textStatus) {
-			//console.log(data);
 			return data;
 		},
 		error: function (data, textStatus) {

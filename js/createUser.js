@@ -21,7 +21,7 @@ function initCreateUser() {
 		var isSuccess = false;
 		$.ajax({
 			type: "POST",
-			url: "",
+			url: "/checkEmailExist",
 			data: {'CreateUser[email]': SHA512singl($('#CreateUser_email').val().toLowerCase() + '@scryptmail.com'), 'ajax': 'smart-form-register'},
 			dataType: "json",
 			async: false,

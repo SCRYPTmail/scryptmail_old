@@ -85,7 +85,7 @@ function readEmail() {
 }
 
 function replyUnreg(from,subj,to){
-	$.get('/composeMail', function (data) {
+	$.get('/composeMailUnreg', function (data) {
 		$('#content').html(data);
 		iniEmailBody(from,subj,to);
 	});
@@ -141,41 +141,57 @@ function readFileUnreg(fileName) {
 
 	$.ajax({
 		type: "POST",
-		url: '/GetFile',
-		data: fd,
-		//dataType:'blob',
-		processData: false,
-		contentType: false
-	}).done(function (blob) {
-			if(blob.length!=0){
+		url: '/getFile',
+		data: {
+			'startSeed': lastParsedSeed,
+			'limit': seedLimit
+		},
+		success: function (data, textStatus) {
+				$.ajax({
+					type: "POST",
+					url: '/getFile',
+					data: fd,
+					//dataType:'blob',
+					processData: false,
+					contentType: false
+				}).done(function (blob) {
+						if(blob.length!=0){
 
-				try {
-					decrypt = fromAesBinary(key, blob);
+							try {
+								decrypt = fromAesBinary(key, blob);
 
-					decrypt = from64binary(decrypt);
+								decrypt = from64binary(decrypt);
 
-					var oMyBlob = new Blob([decrypt], {type: from64(file[fileName]['type'])});
+								var oMyBlob = new Blob([decrypt], {type: from64(file[fileName]['type'])});
 
-					var a = document.createElement('a');
-					a.href = window.URL.createObjectURL(oMyBlob.slice(0, from64(file[fileName]['size'])));
-					a.download = from64(file[fileName]['name']);
-					document.body.appendChild(a);
-					a.click();
+								var a = document.createElement('a');
+								a.href = window.URL.createObjectURL(oMyBlob.slice(0, from64(file[fileName]['size'])));
+								a.download = from64(file[fileName]['name']);
+								document.body.appendChild(a);
+								a.click();
 
-					$('#' + span + ' i').addClass('fa-file');
-					$('#' + span + ' i').removeClass('fa-refresh');
-					$('#' + span + ' i').removeClass('fa-spin');
-				} catch (err) {
-					$('#' + span).html('Error. Try again<i></i>');
-					$('#' + span).addClass('label-danger<i></i>');
+								$('#' + span + ' i').addClass('fa-file');
+								$('#' + span + ' i').removeClass('fa-refresh');
+								$('#' + span + ' i').removeClass('fa-spin');
+							} catch (err) {
+								$('#' + span).html('Error. Try again<i></i>');
+								$('#' + span).addClass('label-danger<i></i>');
 
 
-				}
-			}else{
-				$('#' + span).html('Error. File not found<i></i>');
-				$('#' + span).addClass('label-danger<i></i>');
-			}
+							}
+						}else{
+							$('#' + span).html('Error. File not found<i></i>');
+							$('#' + span).addClass('label-danger<i></i>');
+						}
 
-		});
+					});
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please refresh the page');
+		},
+		dataType: 'json'
+	});
+
 
 }
