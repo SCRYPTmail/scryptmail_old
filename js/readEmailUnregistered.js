@@ -188,7 +188,7 @@ function readFileUnreg(fileName) {
 
 		},
 		error: function (data, textStatus) {
-			noAnswer('Error. Please refresh the page');
+			noAnswer('Error. Please refresh the page.');
 		},
 		dataType: 'json'
 	});

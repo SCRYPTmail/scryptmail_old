@@ -934,7 +934,7 @@ function SendMailOutNoPin(messaged) {
 		},
 		success: function (data, textStatus) {
 			if(data.answer=="Limit is reached"){
-				noAnswer('You\'ve reached maximum email per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
 			}
 			return data;
 		},
@@ -955,7 +955,7 @@ function SendMailOut(messaged) {
 		},
 		success: function (data, textStatus) {
 			if(data.answer=="Limit is reached"){
-				noAnswer('You\'ve reached maximum email per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
 			}
 			return data;
 		},
@@ -994,7 +994,7 @@ function SendMailMail(messaged,seedPart) {
 		},
 		success: function (data, textStatus) {
 			if(data.answer=="Limit is reached"){
-				noAnswer('You\'ve reached maximum email per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
 			}
 			return data;
 

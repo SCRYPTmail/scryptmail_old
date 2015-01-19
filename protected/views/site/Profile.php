@@ -403,7 +403,7 @@
 						rel="popover"
 								data-placement="left"
 								data-original-title="Caution:"
-								data-content="Download new token after you change secret phrase"
+								data-content="Download new token after you change secret phrase."
 						><i class="fa fa-save"></i> Save</button>
 							</div>
 							<div class="col col-sm-12">

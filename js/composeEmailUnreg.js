@@ -167,7 +167,7 @@ function emailParser(email,callback) {
 				}
 			},
 			error: function (data, textStatus) {
-				noAnswer('Error. Please refresh the page');
+				noAnswer('Error. Please refresh the page.');
 				callback();
 			},
 			dataType: 'json'
@@ -351,9 +351,9 @@ function encryptMessageToRecipient(emailparsed,to) {
 				} else {
 
 					if(result['answer']=="Limit is reached"){
-						noAnswer('You\'ve reached maximum email per hour. Please register to send more emails');
+						noAnswer('You\'ve reached the maximum of emails per hour. Please register to send more emails');
 					}else if(result.responseText=='Login Required'){
-						noAnswer('Error. Please refresh the page');
+						noAnswer('Error. Please refresh the page.');
 					}else{
 						noAnswer('Please check recipient(s) address(es) and try again.');
 						var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
