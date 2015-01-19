@@ -28,7 +28,7 @@ function submitLogin() {
 				$(window).unbind('beforeunload');
 				window.location = '/';
 			}else if(data.answer == "Limit is reached"){
-				noAnswer('You\'ve reached maximum login attempts. Please try again in few minutes.');
+				noAnswer('You\'ve reached the maximum of login attempts. Please try again in few minutes.');
 			} else {
 				noAnswer('Wrong Username or Password. Please try again.');
 			}

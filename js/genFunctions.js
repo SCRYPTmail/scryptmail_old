@@ -1449,9 +1449,11 @@ function renderMessages(data) {
 					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
 				}
 
+				var frField='<div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>';
+
 				var emid=value['messageHash']+'_'+meta['modKey'];
 				var el = ['<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
-					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') + ' <div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>' + from + '</div>',
+					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') +  frField + from + '</div>',
 					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
 					(meta['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
 					new Date(parseInt(meta['timeSent'] + '000')).getTime()];
@@ -1473,7 +1475,6 @@ function renderMessages(data) {
 		dfd.done(function () {
 			t.rows.add(dataSet);
 			t.draw(false);
-
 
 			if ($('#mail-table').children().get(1) === undefined) {
 				//t.draw();
@@ -1561,7 +1562,7 @@ function showSavedDraft(body, meta, datas) {
 		$('#emailbody').code(filterXSS(from64(body['body']['html']),{
 			onTagAttr: function (tag, name, value, isWhiteAttr) {
 				if(tag=='a' && name=='href')
-					return name+'='+value+'target="_blank"';
+					return name+'='+value+' target="_blank"';
 			},
 			onTag: function(tag, html, options) {
 				if(tag=='img' && html.indexOf('http:')==-1 && html.indexOf('https:')==-1){
@@ -1990,7 +1991,7 @@ function forwardMail() {
 
 	meta = emailObj['meta'];
 	body = emailObj['body'];
-	//console.log(body);
+
 	clearInterval(mailt);
 	clearComposeMail();
 
@@ -2937,7 +2938,7 @@ function showLog(success, cancel) {
 								success();
 
 							}else if(data.answer == "Limit is reached"){
-								noAnswer('You\'ve reached maximum login attempts. Please try again in few minutes.');
+								noAnswer('You\'ve reached the maximum of login attempts. Please try again in few minutes.');
 							} else {
 								noAnswer('Wrong Usernaim or password. Please try again');
 							}
