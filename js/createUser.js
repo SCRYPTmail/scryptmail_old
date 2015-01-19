@@ -306,7 +306,7 @@ function createAccount() {
 
 				$.ajax({
 					type: "POST",
-					url: '/createSelectedUser',
+					url: '/CreateUserDb',
 					data: {
 						'CreateUser': MainObj
 					},
