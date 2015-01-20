@@ -594,7 +594,6 @@ function moveMessagestoInbox(newMessages) {
 								var z = fromAes(key, value['meta']);
 								var meta=JSON.parse(z)
 								var from=from64(meta['from']);
-
 								if (from.indexOf('<') != -1) {
 									var toEmail=getEmailsFromString(from);
 								} else {
@@ -958,7 +957,8 @@ function getEmailsFromString(input) {
 		while (match = email.exec(input))
 			if(IsEmail(match[1]))
 				ret=match[1];
-
+			else
+				ret=sanitize(input);
 		return $.trim(ret.toLowerCase());
 
 	}else
@@ -1410,7 +1410,7 @@ function renderMessages(data) {
 			//console.log(index);
 			//console.log(value);
 			//console.log(value['messageHash']);
-			try {
+		//try {
 				//value['meta']=from64(value['meta']);
 				//console.log(from64unsafe(value['meta']));
 				if(folder_navigate in folder['Custom']){
@@ -1429,6 +1429,7 @@ function renderMessages(data) {
 				meta['to'] = from64(meta['to']);
 				meta['from'] = from64(meta['from']);
 				meta['subject'] = stripHTML(from64(meta['subject']).toString());
+
 				try {
 				meta['body'] = from64(meta['body']);
 				} catch (err) {
@@ -1442,6 +1443,9 @@ function renderMessages(data) {
 					var from = (meta['to'] !== undefined) ? sanitize(meta['to'].toString()) : '';
 				} else {
 					var from = sanitize(meta['from']);
+					if(meta['fromExtra']!=undefined){
+						from=from+sanitize(from64(meta['fromExtra']));
+					}
 				}
 				if(folder_navigate in folder['Custom']){
 					var mesHash=folder['Custom'][folder_navigate][value['messageHash']]['opened'];
@@ -1460,15 +1464,16 @@ function renderMessages(data) {
 				dataSet.push(el);
 
 
-			} catch (err) {
-				if(folder_navigate in folder['Custom']){
-					delete folder['Custom'][folder_navigate][parseInt(value['messageHash'])];
-				}else{
-					delete folder[folder_navigate][parseInt(value['messageHash'])];
-				}
+			//} catch (err) {
+				//if(folder_navigate in folder['Custom']){
+					//noAnswer('Error. Please re')
+					//delete folder['Custom'][folder_navigate][parseInt(value['messageHash'])];
+				//}else{
+					//delete folder[folder_navigate][parseInt(value['messageHash'])];
+				//}
 
-				checkFolders();
-			}
+			//	checkFolders();
+			//}
 			if (!--count) dfd.resolve();
 		});
 
