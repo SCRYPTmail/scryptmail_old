@@ -13,6 +13,8 @@ function renderMessage(body, meta, datas) {
 	body['body']['html'] = from64(body['body']['html']);
 	body['to'] = from64(body['to']);
 	body['from'] = from64(body['from']);
+
+
 	body['subj'] = from64(body['subj']);
 
 	if(folder_navigate in folder['Custom']){

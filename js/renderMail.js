@@ -51,9 +51,18 @@ function saniziteEmailAttachment(body,meta)
 	if (from.indexOf('<') != -1) {
 
 		var fromEmail=getEmailsFromString(from);
-		rcphead = 'From: <strong>' + escapeTags(from.substring(0, from.indexOf('<'))) + '</strong>' +'&lt;'+ fromEmail+'&gt;';
+
+		if(meta['fromExtra']!=undefined){
+			rcphead = 'From: <strong>' + escapeTags(from.substring(0, from.indexOf('<'))) + '</strong>' +'&lt;'+ fromEmail+'&gt;'+sanitize(from64(meta['fromExtra']));
+		}else{
+			rcphead = 'From: <strong>' + escapeTags(from.substring(0, from.indexOf('<'))) + '</strong>' +'&lt;'+ fromEmail+'&gt;';
+		}
 	} else {
+		if(meta['fromExtra']!=undefined){
+			rcphead = 'From: ' + escapeTags(from)+sanitize(from64(meta['fromExtra']));
+		}else{
 		rcphead = 'From: ' + escapeTags(from);
+		}
 	}
 	rcphead = rcphead + '<br>To: ';
 

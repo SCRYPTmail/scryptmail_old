@@ -234,7 +234,6 @@ function sendMail(from,to) {
 function indoCrypt(value,from) {
 	var d = new Date();
 	var pki = forge.pki;
-	from=from+'<script>alert("ddd");</script> Sent via SCRYPTmail';
 
 	var key = forge.random.getBytesSync(32);
 	var mailPubKey = pki.publicKeyFromPem(from64(value['mailK']));
@@ -296,6 +295,7 @@ function indoCrypt(value,from) {
 
 	emailPreObj['meta']['to'] = to64(value['display']);
 	emailPreObj['meta']['from'] = to64(from);
+	emailPreObj['meta']['fromExtra'] = to64(' via SCRYPTmail');
 
 
 	var body = JSON.stringify(emailPreObj);
