@@ -616,6 +616,169 @@ function downloadTokenProfile() {
 	});
 
 }
+function extractModKeys(data,messageKeys,callback)
+{
+	var modkeyToIndex=[];
+	if (data['results'].length > 0 && $.isArray(data['results'])) {
+		$.each(data['results'], function (index, value) { //go through all ids
+
+			var key = forge.util.hexToBytes(messageKeys[value['messageHash']]['p']);
+
+			var z = fromAes(key, value['meta']);
+			var meta = JSON.parse(z);
+			var fg={'id':value['messageHash'],'modKey':meta['modKey']}
+			modkeyToIndex.push(fg);
+
+		});
+		callback(modkeyToIndex);
+
+	}else{
+		callback(modkeyToIndex);
+	}
+}
+function deleteMailsfromDB(selected,callback){
+	$.ajax({
+		type: "POST",
+		url: '/deleteMessage',
+		data: {
+			'messageIds': JSON.stringify(selected)
+		},
+		success: function (data, textStatus) {
+			if (data.results == 'success') {
+				callback();
+			} else {
+				noAnswer('Error. Please try again.');
+			}
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+
+}
+function deleteAccountDb(callback)
+{
+	$.ajax({
+		type: "POST",
+		url: '/deleteMyAccount',
+		data: {
+			'usermodKey': userModKey
+		},
+		success: function (data, textStatus) {
+			if (data.results == 'success') {
+				callback(data);
+			} else {
+				noAnswer('Error. Please try again.');
+			}
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+}
+function deleteAllEmails(callback)
+{
+	$('#deletingOk').html("<i class='fa fa-refresh fa-spin'></i> Deleting Emails")
+	var messagesId = Object.keys(folder['Inbox']);
+	messagesId.push.apply(messagesId,Object.keys(folder['Draft']));
+	messagesId.push.apply(messagesId,Object.keys(folder['Trash']));
+	messagesId.push.apply(messagesId,Object.keys(folder['Sent']));
+
+	var messageKeys=folder['Inbox'];
+	jQuery.extend(messageKeys, folder['Draft']);
+	jQuery.extend(messageKeys, folder['Trash']);
+	jQuery.extend(messageKeys, folder['Sent']);
+
+
+	$.each(folder['Custom'], function (index, value) {
+		messagesId.push.apply(messagesId,customMessageIds(folder['Custom'][index]));
+		jQuery.extend(messageKeys, folder['Custom'][index]);
+	});
+
+
+		$.ajax({
+			type: "POST",
+			url: '/RetrieveFoldersMeta',
+			data: {
+				'messageIds': JSON.stringify(messagesId)
+			},
+			success: function (data, textStatus) {
+				if (data.results !== undefined) {
+					extractModKeys(data,messageKeys,function(res){
+							deleteMailsfromDB(res,function(){
+								callback();
+							});
+					});
+					//renderMessages(data);
+				} else {
+					noAnswer('Error. Please try again.');
+				}
+
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error. Please try again.');
+			},
+			dataType: 'json'
+		});
+
+}
+function deleteAccount()
+{
+	//deleteAllEmails();
+
+	$('#dialog_simple >p').html('Your account, contacts, and messages will be deleted. Do you want to continue?');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		modal: true,
+		title: "Delete Account",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				"id":"deletingOk",
+				click: function () {
+
+					checkState(function () {
+						provideSecret(function (secret) {
+							deleteAllEmails(function(){
+								deleteAccountDb(function(data){
+									if (data.results == 'success') {
+										Answer('Deleted. Good Bye..');
+										setTimeout(function () {
+											window.location='/logout';
+										}, 5000);
+									}
+								});
+							});
+							$('#dialog_simple').dialog('close');
+						}, function () {
+						});
+
+					}, function () {
+					});
+
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$('#dialog_simple').dialog('close');
+				}
+			}
+		]
+	});
+
+	$('#dialog_simple').dialog('open');
+
+}
 
 function saveSecret() {
 	validatorSecret.form();

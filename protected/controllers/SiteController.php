@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0539';
+	public $fileVers='0540';
 
 	public function beforeAction($action)
 	{
@@ -200,6 +200,7 @@ class SiteController extends Controller
 					'checkDomain',
 					'checkEmailExist',
 					'createUserDb',
+					'deleteMyAccount'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -245,6 +246,15 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate())
 			$model->deleteFileFromSafe(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionDeleteMyAccount()
+	{
+		$model = new DeleteAccount();
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate())
+			$model->removeAccount(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
 	}
