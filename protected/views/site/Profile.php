@@ -23,7 +23,6 @@
 
 									<br>
 									<br>
-
 								</div>
 								<div class="col-xs-6 pull-right">
 									<div id="smart-form-register" class="smart-form">
@@ -181,6 +180,12 @@
 
 
 							</div>
+						</div>
+						<div class="col-xs-3">
+						</div>
+
+						<div class="col-xs-3 pull-right text-align-right">
+							<button class=" btn btn-danger" onclick="deleteAccount()">Delete Account</button>
 						</div>
 
 					</div>

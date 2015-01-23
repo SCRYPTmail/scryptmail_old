@@ -1354,6 +1354,7 @@ function displayFolderContent(folderName) {
 			if (customMessageIds(folder['Custom'][folderName]).length == 0) {
 				messagesId = [];
 			} else {
+
 				messagesId = customMessageIds(folder['Custom'][folderName]);
 			}
 		}
@@ -1422,7 +1423,7 @@ function renderMessages(data) {
 
 				//console.log(fromAes(key, iv, value['meta']));
 				var z = fromAes(key, value['meta']);
-				z = z.substring(0, z.lastIndexOf('}') + 1);
+				//z = z.substring(0, z.lastIndexOf('}') + 1);
 
 				var meta = JSON.parse(z);
 
@@ -2448,6 +2449,7 @@ function movetofolder(tofolder) {
 
 function deleteMessage(selected,selectedFolder, callback) {
 
+	//console.log(selected);
 	checkState(function () {
 		if (selectedFolder != "Trash" && selectedFolder != "Draft" && selectedFolder != "Spam"  && activePage != 'composeMail' && !(selectedFolder in folder['Custom'])) {
 			var select = 0;
