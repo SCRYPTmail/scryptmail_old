@@ -76,25 +76,6 @@
 						</section>
 
 						<section>
-							<label class="input" id="secrError"> <i
-									class="icon-append glyphicon glyphicon-eye-close"></i>
-								<input placeholder="secret phrase"
-									   name="CreateUser[secretword]" id="CreateUser_secretword" type="password">
-								</label>
-						</section>
-						<section>
-							<label class="input" id="secrErrorRep"> <i
-									class="icon-append glyphicon glyphicon-eye-close"></i>
-								<input placeholder="confirm secret phrase"
-									   name="CreateUser[secretwordrep]" id="CreateUser_secretwordRep" type="password">
-							</label>
-
-
-							<p class="note">
-								Secret Phrase is used to encrypt your keys before sending it to the server (6-80 characters). We strongly recommend using special characters!</p>
-						</section>
-
-						<section>
 							<label class="checkbox" id="terError">
 								By clicking Register, I agree with the <a href="#" data-toggle="modal" data-target="#myModal"> Terms
 									and Conditions </a></label>

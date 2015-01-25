@@ -23,6 +23,9 @@ function fromAesToken(key, text) {
 function makeDerived(secret, salt) {
 	return forge.pkcs5.pbkdf2(secret, salt, 4096, 64);
 }
+function makeDerivedFancy(secret, salt) {
+	return forge.pkcs5.pbkdf2(secret, salt, secret.charCodeAt(0), 64);
+}
 
 function makerandom() {
 	var text = "";

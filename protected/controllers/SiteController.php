@@ -200,7 +200,8 @@ class SiteController extends Controller
 					'checkDomain',
 					'checkEmailExist',
 					'createUserDb',
-					'deleteMyAccount'
+					'deleteMyAccount',
+					'saveSecretOneStep'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -895,10 +896,8 @@ class SiteController extends Controller
 			$secTok=bin2hex(openssl_random_pseudo_bytes(16));
 			Yii::app()->session['secureToken'] = $secTok;
 
-			if ($model->validate() && $model->login()){
-				Yii::app()->session->deleteOldUserSessions(Yii::app()->user->getId());
-				Yii::app()->session->setUserId(Yii::app()->user->getId());
-				echo '{"answer":"welcome","data":"'.$secTok.'"}';
+			if ($model->validate()){
+				$model->login($secTok);
 			}else
 				echo '{"answer":"fail"}';
 
@@ -917,7 +916,7 @@ class SiteController extends Controller
 
 		$cs->scriptMap['twofish.js'] = false;
 		$cs->scriptMap['x64-core.js'] = false;
-		$cs->scriptMap['forge.bundle.js'] = false;
+		//$cs->scriptMap['forge.bundle.js'] = false;
 		$cs->scriptMap['core.js'] = false;
 		$cs->scriptMap['aes.js'] = false;
 
@@ -1188,6 +1187,21 @@ public function actionAbout_us()
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->generateToken(Yii::app()->user->getId());
+			else
+				echo json_encode($model->getErrors());
+
+		}
+	}
+	public function actionSaveSecretOneStep()
+	{
+		$model = new UpdateKeys();
+
+		if (isset($_POST['sendObj'])) {
+
+			$model->setScenario('saveSecretOneStep');
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->saveSecretOneStep(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
 

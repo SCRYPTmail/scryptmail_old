@@ -24,6 +24,7 @@ class UpdateKeys extends CFormModel
 			array('sendObj', 'validateObj', 'on' => 'saveKeys'),
 			array('sendObj', 'validateSecretObj', 'on' => 'saveSecret'),
 			array('sendObj', 'validateTokObj', 'on' => 'generateToken'),
+			array('sendObj', 'validateSecretOneStepObj', 'on' => 'saveSecretOneStep'),
 		);
 	}
 
@@ -43,12 +44,36 @@ class UpdateKeys extends CFormModel
 			$this->addError('sendObj', 'empty');
 	}
 
+	public function validateSecretOneStepObj()
+	{
+
+		if (isset($this->sendObj) && is_array($this->sendObj)) {
+			if (isset($this->sendObj['userObj']) &&
+				isset($this->sendObj['NewModKey']) &&
+				isset($this->sendObj['OldModKey'])&&
+				isset($this->sendObj['tokenHash'])&&
+				isset($this->sendObj['tokenAesHash'])&&
+				isset($this->sendObj['oldPassword'])&&
+				isset($this->sendObj['newPassword'])&&
+
+				isset($this->sendObj['mailHash'])
+			) {
+				return true;
+			} else
+				$this->addError('sendObj', 'not valid');
+
+		} else
+			$this->addError('sendObj', 'empty');
+	}
+
 	public function validateSecretObj()
 	{
 		if (isset($this->sendObj) && is_array($this->sendObj)) {
 			if (isset($this->sendObj['userObj']) &&
 				isset($this->sendObj['NewModKey']) &&
 				isset($this->sendObj['OldModKey'])&&
+				isset($this->sendObj['tokenHash'])&&
+				isset($this->sendObj['tokenAesHash'])&&
 				isset($this->sendObj['mailHash'])
 			) {
 				return true;
@@ -126,6 +151,42 @@ class UpdateKeys extends CFormModel
 
 		}
 
+
+	}
+
+
+	public function saveSecretOneStep($id)
+	{
+
+		$user = Yii::app()->db->createCommand("SELECT password FROM user WHERE id=$id")->queryRow();
+
+		if($user['password']==crypt($this->sendObj['oldPassword'],$user['password']))
+		{
+			$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
+			$param[':userObj'] = $this->sendObj['userObj'];
+			$param[':id'] = $id;
+			$param[':newModKey'] = $this->sendObj['NewModKey'];
+			$param[':mailHash']=$this->sendObj['mailHash'];
+			$param[':tokenHash']=$this->sendObj['tokenHash'];
+			$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
+			$param[':newPass']=crypt($this->sendObj['newPassword']);
+
+			$trans = Yii::app()->db->beginTransaction();
+			if (
+				Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash, password=:newPass WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
+
+			){
+				$trans->commit();
+				echo '{"email":"good"}';
+
+			}else {
+				$trans->rollback();
+				echo '{"email":"Keys are not saved, please try again or report a bug"}';
+
+			}
+
+		}else
+			echo '{"email":"fail"}';
 
 	}
 

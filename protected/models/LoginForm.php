@@ -9,6 +9,7 @@ class LoginForm extends CFormModel
 {
 	public $username;
 	public $password;
+	public $newPassword;
 	public $rememberMe;
 
 	private $_identity;
@@ -22,11 +23,11 @@ class LoginForm extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('username, password', 'required'),
+			array('username, password,newPassword', 'required'),
 			// rememberMe needs to be a boolean
 			//array('username', 'allowedDomain'),
 			// password needs to be authenticated
-			array('password', 'authenticate'),
+			//array('password', 'authenticate'),
 		);
 	}
 
@@ -68,27 +69,50 @@ class LoginForm extends CFormModel
 		if (!$this->hasErrors()) {
 			$this->_identity = new UserIdentity($this->username, $this->password);
 			if (!$this->_identity->authenticate()) {
-				$this->username = str_replace('@scryptmail.com', '', $this->username);
-				$this->addError('username', 'Incorrect username or password.');
+
+				$this->_identity = new UserIdentity($this->username, $this->newPassword);
+				if (!$this->_identity->authenticate()) {
+					$this->username = str_replace('@scryptmail.com', '', $this->username);
+					$this->addError('username', 'Incorrect username or password.');
+				}
 			}
 		}
 	}
 
-	/**
-	 * Logs in the user using the given username and password in the model.
-	 * @return boolean whether login is successful
-	 */
-	public function login()
+
+	public function login($secTok)
 	{
-		if ($this->_identity === null) {
+		$steps=0;
+		if ($this->_identity === null)
+		{
 			$this->_identity = new UserIdentity($this->username, $this->password);
 			$this->_identity->authenticate();
+		$steps=2;
+
 		}
+
+		if (!$this->_identity->authenticate())
+		{
+		$this->_identity = new UserIdentity($this->username, $this->newPassword);
+		$this->_identity->authenticate();
+
+			$steps=1;
+		}
+
 		if ($this->_identity->errorCode === UserIdentity::ERROR_NONE) {
 			$duration = $this->rememberMe ? 3600 * 24 * 30 : 0; // 30 days
 			Yii::app()->user->login($this->_identity, $duration);
-			return true;
+
+			Yii::app()->session->deleteOldUserSessions(Yii::app()->user->getId());
+			Yii::app()->session->setUserId(Yii::app()->user->getId());
+			if($steps==2){
+				echo '{"answer":"welcome","data":"'.$secTok.'"}';
+			}
+			if($steps==1){
+				echo '{"answer":"welcome","data":"'.$secTok.'","oneStep":true}';
+			}
+
 		} else
-			return false;
+			echo '{"answer":"fail"}';
 	}
 }

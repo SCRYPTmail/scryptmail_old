@@ -222,8 +222,6 @@ class CheckActions extends CFormModel
 
 
 
-
-		//print_r();
 		return $result;
 
 	}

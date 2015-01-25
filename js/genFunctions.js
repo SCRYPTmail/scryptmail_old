@@ -10,6 +10,7 @@ $(document).ready(function () {
 
 	//console.log(navigator.userAgent);
 	isCompatible();
+	secretStart='';
 
 	if (window.location.hostname != "encrypt-mail1.com") {
 		window.onerror = function(message, url, lineNumber) {
@@ -28,9 +29,18 @@ $(document).ready(function () {
 		};
 
 	}
+	var oneStep = window.name.split(',');
+	if(oneStep.length==2)
+	{
+		secretStart=from64(oneStep[1]);
+		sessionKey = oneStep[0];
+		window.name = '';
 
-	sessionKey = window.name;
-	window.name = '';
+	}else if(oneStep.length==1){
+		sessionKey = window.name;
+		window.name = '';
+	}
+
 
 	$('#LoginForm_username').attr('name', makerandom());
 	$('#LoginForm_password').attr('name', makerandom());
@@ -476,6 +486,9 @@ function showEmailFetch() {
 
 		var totalcount = lastParsedSeed;
 		var max = lastAvailableSeed;
+		//var perc=(totalcount * 100) / max;
+		//var prgwidh=(185*perc)/100;
+
 
 		//var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
 		//var delspam='';
@@ -485,11 +498,11 @@ function showEmailFetch() {
 
 			$('.fetch-space div').children().eq(0).text(totalcount);
 			$('.fetch-space div').children().eq(1).text(max);
-			$('.fetch-space div div div').css('width', (totalcount * 100) / max + '%');
+			$('.fetch-space div div div').css('width', ((totalcount * 100) / max) + '%');
 
 			$('.emailMob1 div').children().eq(0).text(totalcount);
 			$('.emailMob1 div').children().eq(1).text(max);
-			$('.emailMob1 div div div').css('width', (totalcount * 100) / max + '%')
+			$('.emailMob1 div div div').css('width', ((totalcount * 100) / max) + '%')
 
 			//$('.fetch-space').html('<div rel="tooltip" title="Looking for new email" data-placement="top">' + totalcount + '/<strong>' + max + '</strong>' + delspam + '<br>' + showprogress + '</div>');
 			//	$('.emailMob1').html('<div rel="tooltip" title="Looking for new email" data-placement="top">' + totalcount + '/<strong>' + max + '</strong>' + delspam + '<br>' + showprogress + '</div>');
@@ -679,13 +692,18 @@ function providePassword(success, cancel) {
 
 
 function provideSecret(success, cancel) {
-
+	if(profileSettings['oneStep']=='true'){
+		var title='Provide Password';
+	}else{
+		var title='Provide Secret Phrase';
+	}
 
 	$('#dialog-form').dialog({
 		autoOpen: false,
 		height: 200,
 		width: 350,
 		modal: true,
+		title:title,
 		resizable: false,
 		buttons: [
 			{
@@ -725,9 +743,15 @@ function provideSecret(success, cancel) {
 			}
 		]
 	});
-//disable asking secret everyrefresh;
-	//success('aaaaaa');
+	//console.log(secretStart);
+	if(secretStart!='' && verifySecret(secretStart)){
+		success(secretStart);
+		secretStart='';
+	}else
+	{
 		$('#dialog-form').dialog('open');
+	}
+
 
 }
 function logOut() {
@@ -2931,18 +2955,30 @@ function showLog(success, cancel) {
 				click: function () {
 					var email = $('#LoginForm_username').val().toLowerCase() + '@scryptmail.com';
 					//remove in 2 weeks
+					console.log($('#LoginForm_password').val());
 					$.ajax({
 						type: "POST",
 						url: '/ModalLogin',
 						data: {'LoginForm[username]': SHA512(email),
-							'LoginForm[password]': SHA512($('#LoginForm_password').val())
+							'LoginForm[password]': SHA512($('#LoginForm_password').val()),
+							'LoginForm[newPassword]': SHA512(makeDerivedFancy($('#LoginForm_password').val(), 'scrypTmail'))
 
 						},
 						success: function (data, textStatus) {
 							if (data.answer == "welcome") {
-								sessionKey = data.data;
-								$('#dialog-form-login').dialog('close');
-								success();
+
+								if(data.oneStep===true){
+										secretStart=$('#LoginForm_password').val();
+										sessionKey = data.data;
+										$('#dialog-form-login').dialog('close');
+										success();
+
+
+								}else{
+									sessionKey = data.data;
+									$('#dialog-form-login').dialog('close');
+									success();
+								}
 
 							}else if(data.answer == "Limit is reached"){
 								noAnswer('You\'ve reached the maximum of login attempts. Please try again in few minutes.');

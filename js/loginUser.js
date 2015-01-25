@@ -19,14 +19,22 @@ function submitLogin() {
 		url: '/ModalLogin',
 		data: {
 			'LoginForm[username]': SHA512singl(email),
-			'LoginForm[password]': SHA512singl($('#LoginForm_password').val())
+			'LoginForm[password]': SHA512singl($('#LoginForm_password').val()),
+			'LoginForm[newPassword]': SHA512singl(makeDerivedFancy($('#LoginForm_password').val(), 'scrypTmail'))
 
 		},
 		success: function (data, textStatus) {
 			if (data.answer == "welcome") {
-				window.name = data.data;
-				$(window).unbind('beforeunload');
-				window.location = '/';
+				if(data.oneStep===true){
+					window.name = data.data+','+to64($('#LoginForm_password').val());
+					$(window).unbind('beforeunload');
+					window.location = '/';
+				}else{
+					window.name = data.data;
+					$(window).unbind('beforeunload');
+					window.location = '/';
+				}
+
 			}else if(data.answer == "Limit is reached"){
 				noAnswer('You\'ve reached the maximum of login attempts. Please try again in few minutes.');
 			} else {

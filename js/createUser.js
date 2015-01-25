@@ -13,8 +13,6 @@ function initCreateUser() {
 
 	$('#CreateUser_email').attr('name', makerandom());
 	$('#CreateUser_passwordrepeat').attr('name', makerandom());
-	$('#CreateUser_secretword').attr('name', makerandom());
-	$('#CreateUser_secretwordRep').attr('name', makerandom());
 
 
 	$.validator.addMethod("uniqueUserName", function (value, element) {
@@ -87,24 +85,6 @@ function initCreateUser() {
 		}
 	});
 
-	$("#CreateUser_secretword").rules("add", {
-		required: true,
-		minlength: 6,
-		maxlength: 80
-
-	});
-
-	$("#CreateUser_secretwordRep").rules("add", {
-		required: true,
-		minlength: 6,
-		maxlength: 80,
-		equalTo: '#CreateUser_secretword',
-		messages: {
-			required: 'Please enter your secret phrase one more time.',
-			equalTo: 'Please enter the same secret phrase as above.'
-		}
-	});
-
 }
 
 function createAccount() {
@@ -125,11 +105,6 @@ function createAccount() {
 			$('#pserror').html("");
 		}
 
-		if ($('#CreateUser_secretword').val().length < 6 || $('#CreateUser_secretword').val().length > 80) {
-			$('#swerror').html("Secret phrase should be between 6 and 80 character long.");
-			$('#secrError').addClass('state-error');
-			error = 1;
-		}
 		if (error == 0) {
 			var email = $('#CreateUser_email').val().toLowerCase().split('@')[0];
 			email = email + '@scryptmail.com';
@@ -200,12 +175,10 @@ function createAccount() {
 			dfdsig.done(function () {
 
 				var salt = forge.random.getBytesSync(256);
-				var secret = $('#CreateUser_secretword').val();
-
-				//console.log("-"+$('#CreateUser_password').val()+"-");
-				//console.log("-"+secret+"-");
+				var secret = $('#CreateUser_password').val();
 
 				var derivedKey = makeDerived(secret, salt);
+				var derivedPass = makeDerivedFancy(secret, 'scrypTmail');
 
 				var Test = forge.util.bytesToHex(derivedKey);
 
@@ -256,6 +229,7 @@ function createAccount() {
 				prof_setting['email'] = email;
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
+				prof_setting['oneStep'] = true;
 				prof_setting['disposableEmails'] = {};
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
@@ -291,7 +265,7 @@ function createAccount() {
 
 				MainObj['prof'] = prof;
 				MainObj['mailHash'] = SHA512singl(email);
-				MainObj['password'] = SHA512singl($('#CreateUser_password').val());
+				MainObj['password'] = SHA512singl(derivedPass);
 				//MainObj['invitationToken']=$('#CreateUser_invitation').val().toLowerCase();
 
 				///console.log(MainObj['password']);
