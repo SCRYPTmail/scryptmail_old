@@ -47,7 +47,7 @@ class DeleteMessage extends CFormModel
 			foreach ($this->messageIds as $i => $row) {
 				$par[] = "(:id_$i,:mod_$i)";
 				$param[":id_$i"] = $row['id'];
-				$param[":mod_$i"] = hash('sha512', $row['modKey']);
+				$param[":mod_$i"] = isset( $row['modKey'])?hash('sha512', $row['modKey']):'';
 			}
 			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM personalFolders WHERE (messageHash,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
 				foreach($fileRemove as $filejson){

@@ -27,7 +27,7 @@ class UserGroupManager extends CFormModel
 			array('mailHash, tokenHash,tokenAesHash,newPass', 'match', 'pattern'=>'/^([a-z0-9_])+$/', 'message'=>'please provide correct hash','on'=>'resetPass'),
 			array('mailHash, tokenHash,tokenAesHash,newPass','length', 'min' => 128, 'max'=>128,'on'=>'resetPass'),
 			array('mailHash, pass,tokenHash','length', 'min' => 128, 'max'=>128,'on'=>'verifyPass'),
-			//verifyPass
+
 		);
 	}
 
@@ -51,6 +51,7 @@ class UserGroupManager extends CFormModel
 			echo 'fail';
 
 	}
+
 	public function resetPass()
 	{
 

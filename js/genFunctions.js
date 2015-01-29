@@ -10,6 +10,7 @@ $(document).ready(function () {
 
 	//console.log(navigator.userAgent);
 	isCompatible();
+	secretStart='';
 
 	if (window.location.hostname != "encrypt-mail1.com") {
 		window.onerror = function(message, url, lineNumber) {
@@ -28,9 +29,18 @@ $(document).ready(function () {
 		};
 
 	}
+	var oneStep = window.name.split(',');
+	if(oneStep.length==2)
+	{
+		secretStart=from64(oneStep[1]);
+		sessionKey = oneStep[0];
+		window.name = '';
 
-	sessionKey = window.name;
-	window.name = '';
+	}else if(oneStep.length==1){
+		sessionKey = window.name;
+		window.name = '';
+	}
+
 
 	$('#LoginForm_username').attr('name', makerandom());
 	$('#LoginForm_password').attr('name', makerandom());
@@ -476,6 +486,9 @@ function showEmailFetch() {
 
 		var totalcount = lastParsedSeed;
 		var max = lastAvailableSeed;
+		//var perc=(totalcount * 100) / max;
+		//var prgwidh=(185*perc)/100;
+
 
 		//var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
 		//var delspam='';
@@ -485,11 +498,11 @@ function showEmailFetch() {
 
 			$('.fetch-space div').children().eq(0).text(totalcount);
 			$('.fetch-space div').children().eq(1).text(max);
-			$('.fetch-space div div div').css('width', (totalcount * 100) / max + '%');
+			$('.fetch-space div div div').css('width', ((totalcount * 100) / max) + '%');
 
 			$('.emailMob1 div').children().eq(0).text(totalcount);
 			$('.emailMob1 div').children().eq(1).text(max);
-			$('.emailMob1 div div div').css('width', (totalcount * 100) / max + '%')
+			$('.emailMob1 div div div').css('width', ((totalcount * 100) / max) + '%')
 
 			//$('.fetch-space').html('<div rel="tooltip" title="Looking for new email" data-placement="top">' + totalcount + '/<strong>' + max + '</strong>' + delspam + '<br>' + showprogress + '</div>');
 			//	$('.emailMob1').html('<div rel="tooltip" title="Looking for new email" data-placement="top">' + totalcount + '/<strong>' + max + '</strong>' + delspam + '<br>' + showprogress + '</div>');
@@ -679,13 +692,19 @@ function providePassword(success, cancel) {
 
 
 function provideSecret(success, cancel) {
-
+	if(profileSettings['oneStep']=='true' || profileSettings['oneStep']===true){
+		var title='Provide Password';
+		$("#forSecPh").css('display','none');
+	}else{
+		var title='Provide Secret Phrase';
+	}
 
 	$('#dialog-form').dialog({
 		autoOpen: false,
 		height: 200,
-		width: 350,
+		width: 300,
 		modal: true,
+		title:title,
 		resizable: false,
 		buttons: [
 			{
@@ -725,9 +744,15 @@ function provideSecret(success, cancel) {
 			}
 		]
 	});
-//disable asking secret everyrefresh;
-	//success('aaaaaa');
+	//console.log(secretStart);
+	if(secretStart!='' && verifySecret(secretStart)){
+		success(secretStart);
+		secretStart='';
+	}else
+	{
 		$('#dialog-form').dialog('open');
+	}
+
 
 }
 function logOut() {
@@ -778,7 +803,7 @@ function myTimer() {
 }
 
 function emailSelection(object, container) {
-	container.parent().addClass("label-success");
+	container.parent().addClass("label-primary");
 
 	container.parent().attr('title', object.text.replace('<', ' <'));
 	//container.parent().attr('data-placement', 'bottom');
@@ -1407,25 +1432,20 @@ function renderMessages(data) {
 	if (data['results'].length > 0 && $.isArray(data['results'])) {
 		var count = data['results'].length;
 		//console.log(index);
+
+		if(folder_navigate in folder['Custom']){
+			var keyFolder=folder['Custom'][folder_navigate];
+		}else{
+			var keyFolder=folder[folder_navigate];
+		}
 		$.each(data['results'], function (index, value) {
-			//console.log(index);
-			//console.log(value);
-			//console.log(value['messageHash']);
-		//try {
-				//value['meta']=from64(value['meta']);
-				//console.log(from64unsafe(value['meta']));
-				if(folder_navigate in folder['Custom']){
-					var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][value['messageHash']]['p']);
 
-				}else{
-					var key = forge.util.hexToBytes(folder[folder_navigate][value['messageHash']]['p']);
-				}
+			var key = forge.util.hexToBytes(keyFolder[value['messageHash']]['p']);
 
-				//console.log(fromAes(key, iv, value['meta']));
+			try {
 				var z = fromAes(key, value['meta']);
-				//z = z.substring(0, z.lastIndexOf('}') + 1);
-
 				var meta = JSON.parse(z);
+
 
 				meta['to'] = from64(meta['to']);
 				meta['from'] = from64(meta['from']);
@@ -1453,10 +1473,22 @@ function renderMessages(data) {
 				}else{
 					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
 				}
-
+				var emid=value['messageHash']+'_'+meta['modKey'];
+			} catch (err) {
+				var meta=[];
+				meta['to'] = 'Error';
+				meta['from'] = 'Error';
+				meta['subject'] = 'Failed to Decrypt. Please Report Bug';
+				meta['body']='Error';
+				var from='Error';
+				meta['attachment']='';
+				var mesHash=false;
+				var emid=value['messageHash']+'_failed';
+			}
 				var frField='<div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>';
 
-				var emid=value['messageHash']+'_'+meta['modKey'];
+
+
 				var el = ['<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
 					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') +  frField + from + '</div>',
 					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
@@ -1466,14 +1498,20 @@ function renderMessages(data) {
 
 
 			//} catch (err) {
-				//if(folder_navigate in folder['Custom']){
+
+//console.log(index);
+			//	console.log(key);
+			//	console.log(value);
+			//	console.log(fromAes(key, value['body']));
+				//console.log(fromAes(key, value['meta']));
+				//if(folder_navigate =='Draft'){
 					//noAnswer('Error. Please re')
-					//delete folder['Custom'][folder_navigate][parseInt(value['messageHash'])];
-				//}else{
+					//delete folder['Draft'][parseInt(value['messageHash'])];
+				//}//else{
 					//delete folder[folder_navigate][parseInt(value['messageHash'])];
 				//}
 
-			//	checkFolders();
+				//checkFolders();
 			//}
 			if (!--count) dfd.resolve();
 		});
@@ -1663,7 +1701,7 @@ function saveDraft() {
 
 			var messaged = encryptMessage(emailObj, key);
 
-			//console.log(messaged);
+
 
 			$.when(messaged['d1']).done(function () {
 				$.ajax({
@@ -2195,7 +2233,12 @@ function initializeMailList() {
 		var mid=mailD[0];
 		var modK=mailD[1];
 
-		$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
+		if(modK=='failed'){
+			$(this).attr('onclick', "deleteFailed('"+mid+"','"+modK+"')");
+		}else{
+			$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
+		}
+
 	});
 
 	$('#mail-table tbody').on('mouseover', 'td.inbox-data-message', function () {
@@ -2248,6 +2291,47 @@ function initializeMailList() {
 	finishRendering();
 
 }
+function deleteFailed(messageId,modK){
+
+	$('#dialog_simple >p').html('We are sorry. But we unable to decrypt this email. Please report bug if problem persist');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		html:false,
+		modal: true,
+		title: "Failed to decrypt",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				click: function () {
+
+					if(folder_navigate in folder['Custom']){
+						delete folder['Custom'][folder_navigate][messageId];
+					}else{
+						delete folder[folder_navigate][messageId];
+					}
+					checkFolders();
+					$('#dialog_simple').dialog('close');
+					getDataFromFolder(folder_navigate);
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$('#dialog_simple').dialog('close');
+				}
+			}
+		]
+	});
+
+	$('#dialog_simple').dialog('open');
+
+}
+
 function getEmailSender(messagesId,callback){
 	var dfd = $.Deferred();
 	var metas='';
@@ -2931,18 +3015,30 @@ function showLog(success, cancel) {
 				click: function () {
 					var email = $('#LoginForm_username').val().toLowerCase() + '@scryptmail.com';
 					//remove in 2 weeks
+					//console.log($('#LoginForm_password').val());
 					$.ajax({
 						type: "POST",
 						url: '/ModalLogin',
 						data: {'LoginForm[username]': SHA512(email),
-							'LoginForm[password]': SHA512($('#LoginForm_password').val())
+							'LoginForm[password]': SHA512($('#LoginForm_password').val()),
+							'LoginForm[newPassword]': SHA512(makeDerivedFancy($('#LoginForm_password').val(), 'scrypTmail'))
 
 						},
 						success: function (data, textStatus) {
 							if (data.answer == "welcome") {
-								sessionKey = data.data;
-								$('#dialog-form-login').dialog('close');
-								success();
+
+								if(data.oneStep===true){
+										secretStart=$('#LoginForm_password').val();
+										sessionKey = data.data;
+										$('#dialog-form-login').dialog('close');
+										success();
+
+
+								}else{
+									sessionKey = data.data;
+									$('#dialog-form-login').dialog('close');
+									success();
+								}
 
 							}else if(data.answer == "Limit is reached"){
 								noAnswer('You\'ve reached the maximum of login attempts. Please try again in few minutes.');

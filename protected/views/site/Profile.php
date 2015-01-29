@@ -145,7 +145,7 @@
 		<div class="panel-group smart-accordion-default" id="accordion">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse7"
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse7"  onclick="initBaseSettings()"
 										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
 							class="fa fa-lg fa-angle-up pull-right"></i> Settings </a></h4>
 			</div>
@@ -153,7 +153,12 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-xs-3">
-							<div id="smart-form-session-time" class="smart-form">
+							<div id="smart-form-session-time" class="smart-form"
+								 rel="popover-hover"
+								 data-placement="bottom"
+								 data-original-title="Warning!"
+								 data-content="Set time out for session. It will log out after set period of inactivity."
+								>
 								<label class="select">
 									<select onchange="changeTimeout($(this));">
 										<option value="0" selected="" disabled="">Select Session Time Out</option>
@@ -168,7 +173,12 @@
 							</div>
 						</div>
 						<div class="col-xs-3">
-							<div id="smart-form-session-time" class="smart-form">
+							<div id="smart-form-session-time" class="smart-form"
+								 rel="popover-hover"
+								 data-placement="bottom"
+								 data-original-title="Warning!"
+								 data-content="Set amount of emails displayed per page."
+								>
 								<label class="select">
 									<select onchange="changeMessagesPerPage($(this));">
 										<option value="0" selected="" disabled="">Emails per page</option>
@@ -181,11 +191,30 @@
 
 							</div>
 						</div>
-						<div class="col-xs-3">
+						<div class="col-xs-4  text-align-right">
+							<button class="btn btn-primary" id="dis2step" onclick="CreateOneStep()"
+									rel="popover-hover"
+									data-placement="left"
+									data-original-title="Warning!"
+									data-content="Don't forget to download new token after you change authentication. In Password tab"
+
+								>Disable 2 Step Auth</button>
+							<button class="btn btn-primary" id="enb2step" onclick="CreateTwoStep()"
+									rel="popover-hover"
+									data-placement="left"
+									data-original-title="Warning!"
+									data-content="Don't forget to download your new token after you change the authentication. In Secret Phrase tab"
+
+								>Enable 2 Step Auth</button>
 						</div>
 
-						<div class="col-xs-3 pull-right text-align-right">
-							<button class=" btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+						<div class="col-xs-2 pull-right text-align-right">
+							<button class="btn btn-danger" onclick="deleteAccount()"
+									rel="popover-hover"
+									data-placement="bottom"
+									data-original-title="Warning!"
+									data-content="Your account, contacts and messages will be deleted."
+								>Delete Account</button>
 						</div>
 
 					</div>
@@ -337,7 +366,7 @@
 			</div>
 		</div>
 
-		<div class="panel panel-default">
+		<div class="panel panel-default" id="showPass">
 			<div class="panel-heading">
 				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" onclick="initSavePass()"
 										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
@@ -375,11 +404,58 @@
 			</div>
 		</div>
 
-		<div class="panel panel-default">
+		<div class="panel panel-default" id="showOneStep" style="display:none;">
+			<div class="panel-heading">
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOneStepThree" onclick="initOneStepSaveSecret()"
+										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+							class="fa fa-lg fa-angle-up pull-right"></i> Password</a></h4>
+			</div>
+			<div id="collapseOneStepThree" class="panel-collapse collapse">
+				<div class="panel-body">
+					<form id="OneStep-smart-form-secret" class="smart-form" novalidate="novalidate">
+						<fieldset>
+							<section>
+								<label class="input"> <i class="icon-append fa fa-lock"></i>
+									<input type="password" name="newSec" placeholder="New Password" id="OneStepNewSec">
+								</label>
+							</section>
+
+							<section>
+								<label class="input"> <i class="icon-append fa fa-lock"></i>
+									<input type="password" name="repeatSec" placeholder="Repeat Password" id="OneStepRepeatSec">
+								</label>
+							</section>
+						</fieldset>
+						<div class="row padding-10">
+							<div class="col col-sm-6">
+								<button type="button" class="btn btn-primary btn-sm pull-left" id="OneStepToken" onclick="downloadTokenProfile();">
+									<i class="fa fa-save"></i> Download Token</button><br><br>
+								<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
+							</div>
+							<div class="col col-sm-6">
+								<button type="button" class="btn btn-primary btn-sm pull-right" onclick="saveOneStepSecret();"
+										rel="popover"
+										data-placement="left"
+										data-original-title="Caution:"
+										data-content="Download new token after you change Password."
+									><i class="fa fa-save"></i> Save</button>
+							</div>
+							<div class="col col-sm-12">
+								<br>
+								<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> Some browsers are not able to save the generated file, and this message will show. Please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="panel panel-default" id="showSec">
 			<div class="panel-heading">
 				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" onclick="initSaveSecret()"
 										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
-							class="fa fa-lg fa-angle-up pull-right"></i> Secret Phrase </a></h4>
+							class="fa fa-lg fa-angle-up pull-right"></i> Secret Phrase</a></h4>
 			</div>
 			<div id="collapseThree" class="panel-collapse collapse">
 				<div class="panel-body">
@@ -387,13 +463,13 @@
 						<fieldset>
 							<section>
 								<label class="input"> <i class="icon-append fa fa-lock"></i>
-									<input type="password" name="newSec" placeholder="New Secret" id="newSec">
+									<input type="password" name="newSec" placeholder="New Secret Phrase" id="newSec">
 								</label>
 							</section>
 
 							<section>
 								<label class="input"> <i class="icon-append fa fa-lock"></i>
-									<input type="password" name="repeatSec" placeholder="Repeat Secret" id="repeatSec">
+									<input type="password" name="repeatSec" placeholder="Repeat Secret Phrase" id="repeatSec">
 								</label>
 							</section>
 						</fieldset>
@@ -404,7 +480,7 @@
 						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
 								</div>
 							<div class="col col-sm-6">
-						<button type="button" class="btn btn-primary btn-sm pull-right" href="javascript:void(0);" onclick="saveSecret();"
+						<button type="button" class="btn btn-primary btn-sm pull-right" onclick="saveSecret();"
 						rel="popover"
 								data-placement="left"
 								data-original-title="Caution:"
@@ -505,6 +581,38 @@
 
 
 </form>
+
+
+<form class="smart-form client-form" id="twoStep-dialog" title="Enable 2-step Auth" style="display:none;">
+
+	<section>
+		<label class="input"> <i class="icon-append fa fa-lock"></i>
+			<input type="password" name="newSec" placeholder="New Password" id="TwStepNewPass">
+		</label>
+	</section>
+
+	<section>
+		<label class="input"> <i class="icon-append fa fa-lock"></i>
+			<input type="password" name="repeatSec" placeholder="Repeat Password" id="TwStepNewPassRepeat">
+		</label>
+	</section>
+
+
+	<section id="nSec">
+		<label class="input"> <i class="icon-append glyphicon glyphicon-eye-close"></i>
+			<input type="password" name="newSec" placeholder="New Secret Phrase" id="TwStepNewSec">
+		</label>
+	</section>
+
+	<section id="nSecR">
+		<label class="input"> <i class="icon-append glyphicon glyphicon-eye-close"></i>
+			<input type="password" name="repeatSec" placeholder="Repeat Secret Phrase" id="TwStepNewSecRep">
+		</label>
+	</section>
+
+
+</form>
+
 
 <div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons ui-draggable" tabindex="-1" role="dialog" aria-describedby="dialog_simple" aria-labelledby="ui-id-22" style="display: none;"><div id="dialog_simple" class="ui-dialog-content ui-widget-content">
 		<p class="padding-5" style="word-break: break-all;">

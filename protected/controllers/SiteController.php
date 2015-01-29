@@ -99,7 +99,6 @@ class SiteController extends Controller
 					'getClientInfo',
 					'TermsAndConditions',
 					'privacypolicy',
-					'reportBug',
 					'submitBug',
 					'checkMail',
 					'saveInvite',
@@ -114,7 +113,8 @@ class SiteController extends Controller
 					'about_us',
 					'checkEmailExist',
 					'createUserDb',
-					'createSelectedUser'
+					'createSelectedUser',
+					'resetPassOneStep'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -171,7 +171,6 @@ class SiteController extends Controller
 					'saveSecret',
 					'TermsAndConditions',
 					'privacypolicy',
-					'reportBug',
 					'submitBug',
 					'createSelectedUser',
 					'checkMail',
@@ -200,7 +199,9 @@ class SiteController extends Controller
 					'checkDomain',
 					'checkEmailExist',
 					'createUserDb',
-					'deleteMyAccount'
+					'deleteMyAccount',
+					'saveSecretOneStep',
+					'resetPassOneStep'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -385,6 +386,7 @@ class SiteController extends Controller
 
 		$cs->registerScriptFile("/js/resetSecret.js?r=$this->fileVers");
 
+		$this->layout='main';
 		$this->render('ForgotSecret');
 	}
 
@@ -392,11 +394,11 @@ class SiteController extends Controller
 	{
 		$cs = Yii::app()->clientScript;
 
-		$cs->scriptMap['twofish.js'] = false;
-		$cs->scriptMap['x64-core.js'] = false;
+		//$cs->scriptMap['twofish.js'] = false;
+		//$cs->scriptMap['x64-core.js'] = false;
 		//$cs->scriptMap['forge.bundle.js'] = false;
-		$cs->scriptMap['core.js'] = false;
-		$cs->scriptMap['aes.js'] = false;
+		//$cs->scriptMap['core.js'] = false;
+		//$cs->scriptMap['aes.js'] = false;
 
 		//$cs->registerScriptFile('/js/core.js');
 		//$cs->registerScriptFile('/js/x64-core.js');
@@ -425,7 +427,7 @@ class SiteController extends Controller
 
 		//$cs = Yii::app()->clientScript;
 
-
+		$this->layout='main';
 		$this->render('ForgotPass');
 
 	}
@@ -446,6 +448,7 @@ class SiteController extends Controller
 				echo json_encode($model->getErrors());
 			Yii::app()->end();
 		}
+		$this->layout='main';
 		$this->render('RetrieveEmail', array('model' => $model));
 
 	}
@@ -466,18 +469,30 @@ class SiteController extends Controller
 	}
 	public function actionPrivacypolicy()
 	{
+
 		$cs = Yii::app()->getClientScript();
+		$cs->registerCssFile('/css/splash.css');
+		$this->layout='newSplash';
+
 		$this->render('privacy');
 	}
 	public function actionCanary()
 	{
 		$cs = Yii::app()->getClientScript();
+
+		$cs->registerCssFile('/css/splash.css');
+		$this->layout='newSplash';
+
 		$this->render('canary');
 	}
 
 	public function actionTermsAndConditions()
 	{
 		$cs = Yii::app()->getClientScript();
+
+		$cs->registerCssFile('/css/splash.css');
+		$this->layout='newSplash';
+
 		$this->render('tos');
 	}
 
@@ -490,17 +505,14 @@ class SiteController extends Controller
 			if($model->name==""){
 				if ($model->validate()){ //validating json data according to action
 					$model->sendBug();
-					$this->render('reportBug',array('message'=>'<h2 class="txt-color-green"><i class="fa fa-check"></i> Your report has been submitted.</h2>'));
 				}
-
 			}else{
-				$this->render('reportBug',array('message'=>'<h2 class="txt-color-red"><i class="fa fa-times"></i> Please fill all fields manually.</h2>'));
-			}
+				$res['answer']='Please fill all fields manually.';
+				echo json_encode($res);
+				}
 		}else{
-			$this->render('reportBug',array('message'=>''));
+			$this->redirect('/login#submitBug');
 		}
-
-
 	}
 
 	public function actionSubmitError(){
@@ -518,10 +530,6 @@ class SiteController extends Controller
 
 	}
 
-	public function actionReportBug()
-	{
-		$this->render('reportBug');
-	}
 
 	public function actionIndex()
 	{
@@ -663,6 +671,15 @@ class SiteController extends Controller
 		else
 			echo json_encode($model->getErrors());
 
+	}
+	public function actionResetPassOneStep()
+	{
+		$model = new CreateUser('resetPassOneStep');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->resetPassOneStep();
+		else
+			echo json_encode($model->getErrors());
 	}
 
 	public function actionResetPass()
@@ -895,10 +912,8 @@ class SiteController extends Controller
 			$secTok=bin2hex(openssl_random_pseudo_bytes(16));
 			Yii::app()->session['secureToken'] = $secTok;
 
-			if ($model->validate() && $model->login()){
-				Yii::app()->session->deleteOldUserSessions(Yii::app()->user->getId());
-				Yii::app()->session->setUserId(Yii::app()->user->getId());
-				echo '{"answer":"welcome","data":"'.$secTok.'"}';
+			if ($model->validate()){
+				$model->login($secTok);
 			}else
 				echo '{"answer":"fail"}';
 
@@ -915,11 +930,11 @@ class SiteController extends Controller
 
 		$cs = Yii::app()->clientScript;
 
-		$cs->scriptMap['twofish.js'] = false;
-		$cs->scriptMap['x64-core.js'] = false;
-		$cs->scriptMap['forge.bundle.js'] = false;
-		$cs->scriptMap['core.js'] = false;
-		$cs->scriptMap['aes.js'] = false;
+		//$cs->scriptMap['twofish.js'] = false;
+		//$cs->scriptMap['x64-core.js'] = false;
+		//$cs->scriptMap['forge.bundle.js'] = false;
+		//$cs->scriptMap['core.js'] = false;
+		//$cs->scriptMap['aes.js'] = false;
 
 		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
 		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
@@ -928,10 +943,22 @@ class SiteController extends Controller
 		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
 		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
 		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
-
-
+		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/loginUser.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/jquery.nav.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/wow.min.js?r=$this->fileVers");
+
+
+
+
+		//$cs->registerCssFile('/css/animate.min.css');
+
+		//$cs->registerCssFile('/css/icons.css');
 
 		//$cs->registerCssFile("/css/loginpage.css?r=$this->fileVers");
 		//$cs->scriptMap['bootstrap.min.js']  = false;
@@ -940,9 +967,6 @@ class SiteController extends Controller
 		//$cs->scriptMap['bootstrap.min.css'] = false;
 		//$cs->scriptMap['font-awesome.min.css'] = false;
 		//$cs->scriptMap["smartadmin-production.min.css?r=$this->fileVers"] = false;
-
-
-
 
 
 		$model = new LoginForm;
@@ -958,9 +982,11 @@ class SiteController extends Controller
 		if(date_format($tm,'Y-m-d')<'2014-12-05'){
 			$time=true;
 		}
+		$cs->registerCssFile('/css/splash.css?r=$this->fileVers');
+		$this->layout='newSplash';
 
 
-		$this->render('login', array('model' => $model,'time'=>$time));
+		$this->render('newLogin', array('version'=>$this->fileVers));
 	}
 	public function actionCheckEmailExist()
 	{
@@ -996,29 +1022,7 @@ class SiteController extends Controller
 	public function actionCreateSelectedUser()
 	{
 
-		$cs = Yii::app()->clientScript;
-
-		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
-		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
-
-		$cs->scriptMap['select2.min.js'] = false;
-		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
-		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
-		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
-
-
-		//$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
-		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
-
-		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
-
-		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js");
-		//$cs->registerScriptFile("/js/plugin/jquery-form/jquery-form.min.js");
-
-
-		$model = new CreateUser();
-
-		$this->render('createUserForSelected', array('model' => $model,'token'=>Yii::app()->getRequest()->getQuery('id')));
+		$this->redirect('/login#createUser');
 
 	}
 
@@ -1130,10 +1134,9 @@ class SiteController extends Controller
 
 public function actionAbout_us()
 {
+	$this->redirect('/login#aboutUs');
 
-	$this->render('whoweare');
 }
-
 
 
 	public function actionComposeMailUnreg()
@@ -1188,6 +1191,21 @@ public function actionAbout_us()
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->generateToken(Yii::app()->user->getId());
+			else
+				echo json_encode($model->getErrors());
+
+		}
+	}
+	public function actionSaveSecretOneStep()
+	{
+		$model = new UpdateKeys();
+
+		if (isset($_POST['sendObj'])) {
+
+			$model->setScenario('saveSecretOneStep');
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->saveSecretOneStep(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
 

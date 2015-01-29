@@ -9,6 +9,19 @@ $(document).ready(function () {
 	activePage = 'profile';
 	currentTab();
 	$('#newFname').attr('name', makerandom());
+	//console.log(profileSettings);
+
+	//console.log(profileSettings['oneStep']=="true");
+
+	if(profileSettings['oneStep']=="true" || profileSettings['oneStep']===true){
+		$('#dis2step').css('display','none');
+		$('#showSec').css('display','none');
+		$('#showPass').css('display','none');
+		$('#showOneStep').css('display','block');
+
+	}else{
+		$('#enb2step').css('display','none');
+	}
 
 	contactListProfileInitialized = false;
 	safeBoxProfileInitialized = false;
@@ -111,6 +124,14 @@ function saveProfileName() {
 	profileSettings['name'] = stripHTML($('#newFname').val());
 	checkProfile();
 	populateProfile();
+}
+function initBaseSettings()
+{
+	$("[rel=popover-hover]").popover({
+		trigger : "hover",
+		html: true
+
+	});
 }
 
 function gotoUpdateKeys() {
@@ -528,6 +549,399 @@ function savePassword() {
 	}
 }
 
+function initOneStepSaveSecret()
+{
+	$('#OneStepNewSec').attr('name', makerandom());
+	$('#OneStepRepeatSec').attr('name', makerandom());
+
+
+	validatorOneStepSecret = $("#OneStep-smart-form-secret").validate();
+
+	$("#OneStepNewSec").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#OneStepRepeatSec").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80,
+		equalTo: '#OneStepNewSec',
+		messages: {
+			required: 'Please enter your Password one more time',
+			equalTo: 'Please enter the same Password as above'
+		}
+	});
+
+	$("[rel=popover]").popover({
+		trigger : "hover",
+		html: true
+
+	});
+}
+
+function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
+{
+
+	getObjects()
+		.always(function (data) {
+			if (data.userData && data.userRole) {
+
+				var tempPro = JSON.parse(dbToProfile(data['userData'], oldSec));
+
+				var NuserObj = [];
+				NuserObj['userObj'] = {};
+
+				NuserObj['userObj']['SeedPublic'] = tempPro['SeedPublic'];
+				NuserObj['userObj']['SeedPrivate'] = tempPro['SeedPrivate'];
+				NuserObj['userObj']['MailPublic'] = tempPro['MailPublic'];
+				NuserObj['userObj']['MailPrivate'] = tempPro['MailPrivate'];
+
+				NuserObj['userObj']['SignaturePrivate'] = tempPro['SignaturePrivate'];
+				NuserObj['userObj']['SignaturePublic'] = tempPro['SignaturePublic'];
+
+				NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
+				NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
+
+				NuserObj['secret'] = newSec;
+				NuserObj['saltS'] = data.userData['saltS'];
+
+				var NewObj = profileToDb(NuserObj);
+				//----------------------------------------------------
+
+				var secretnew = newSec;
+				var salt = forge.util.hexToBytes(data.userData['saltS']);
+
+				var derivedKey = makeDerived(secretnew, salt);
+
+				var Test = forge.util.bytesToHex(derivedKey);
+				var Part2 = Test.substr(64, 128);
+
+				var keyA = forge.util.hexToBytes(Part2);
+
+				var token = forge.random.getBytesSync(256);
+				var tokenHash = SHA512(token);
+
+				var tokenAes = toAesToken(keyA, token);
+				var tokenAesHash = SHA512(tokenAes);
+
+
+				var presend = {
+					'OldModKey': tempPro['modKey'],
+					'userObj': NewObj.toString(),
+					'NewModKey': SHA512(NuserObj['userObj']['modKey']),
+					'mailHash': SHA512(profileSettings['email']),
+					'tokenHash': tokenHash,
+					'tokenAesHash': tokenAesHash,
+					'oldPassword':SHA512(makeDerivedFancy(oldPass, 'scrypTmail')),
+					'newPassword':newPass,
+					'oneStep':oneStep
+				};
+
+				$.ajax({
+					type: "POST",
+					url: '/saveSecretOneStep',
+					data: {
+						'sendObj': presend
+					},
+					success: function (data, textStatus) {
+						if (data.email != 'good') {
+							noAnswer('Error. Please try again.');
+						} else {
+							userModKey = NuserObj['userObj']['modKey'];
+
+							callback();
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+			} else
+				noAnswer('Error. Please try again.');
+		});
+
+}
+
+function CreateTwoStep()
+{
+	$('#twoStep-dialog').dialog({
+		autoOpen: false,
+		height: 340,
+		width: 300,
+		title:'Enable 2-step Auth',
+		modal: true,
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Enable",
+				"class": "btn btn-primary pull-right",
+				"id": 'loginok',
+				click: function () {
+					validatorTwoStepCreate.form();
+					if (validatorTwoStepCreate.numberOfInvalids() == 0) {
+
+						checkState(function () {
+							$('#twoStep-dialog').dialog('close');
+							provideSecret(function (secret) {
+
+								var newPass=SHA512($('#TwStepNewPass').val());
+								saveSecAndPass(secret,newPass,secret,$('#TwStepNewSec').val(),false,function(){
+
+									profileSettings['oneStep']=false;
+									checkProfile();
+									//toFile = tokenAes;
+									//downloadToken();
+									getObjects()
+										.always(function (data) {
+											logOutTime();
+											if (data.userData && data.userRole) {
+												userData = data.userData;
+												roleData = data.userRole;
+											}
+										});
+									Answer('Saved!');
+									window.location.href = '#mail';
+									$("#twoStep-dialog")[0].reset();
+
+								});
+
+							}, function () {
+							});
+						}, function () {
+						});
+
+
+
+					}
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default pull-left",
+				"id": 'loginclose',
+				click: function () {
+					$('#twoStep-dialog').dialog('close');
+				}
+			}
+		],
+		close: function () {
+		}
+	});
+
+	$('#twoStep-dialog').dialog('open');
+
+
+	$('#TwStepNewPass').attr('name', makerandom());
+	$('#TwStepNewPassRepeat').attr('name', makerandom());
+
+	$('#TwStepNewSec').attr('name', makerandom());
+	$('#TwStepNewSecRep').attr('name', makerandom());
+
+
+	validatorTwoStepCreate = $("#twoStep-dialog").validate();
+
+	$("#TwStepNewPass").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewPassRepeat").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewPassRepeat").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80,
+		equalTo: '#TwStepNewPass',
+		messages: {
+			required: 'Please enter your Password one more time',
+			equalTo: 'Please enter the same Password as above'
+		}
+	});
+
+	$("#TwStepNewSec").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewSecRep").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewSecRep").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80,
+		equalTo: '#TwStepNewSec',
+		messages: {
+			required: 'Please enter your Secret Phrase one more time',
+			equalTo: 'Please enter the Secret Phrase as above'
+		}
+	});
+
+}
+
+function CreateOneStep()
+{
+
+	$('#twoStep-dialog').dialog({
+		autoOpen: false,
+		height: 240,
+		width: 300,
+		modal: true,
+		title:'Disable 2-step Auth',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Disable",
+				"class": "btn btn-primary pull-right",
+				"id": 'loginok',
+				click: function () {
+					validatorOneStepCreate.form();
+					if (validatorOneStepCreate.numberOfInvalids() == 0) {
+
+						checkState(function () {
+							$('#twoStep-dialog').dialog('close');
+							provideSecret(function (secret) {
+
+								var newPass=SHA512(makeDerivedFancy($('#TwStepNewPass').val(), 'scrypTmail'));
+								saveSecAndPass(secret,newPass,secret,$('#TwStepNewPass').val(),true,function(){
+
+									profileSettings['oneStep']=true;
+									checkProfile();
+									//toFile = tokenAes;
+									//downloadToken();
+									getObjects()
+										.always(function (data) {
+											logOutTime();
+											if (data.userData && data.userRole) {
+												userData = data.userData;
+												roleData = data.userRole;
+											}
+										});
+									Answer('Saved!');
+									window.location.href = '/#mail';
+									$("#twoStep-dialog")[0].reset();
+
+
+								});
+
+							}, function () {
+							});
+						}, function () {
+						});
+
+
+
+					}
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default pull-left",
+				"id": 'loginclose',
+				click: function () {
+					$('#twoStep-dialog').dialog('close');
+				}
+			}
+		],
+		close: function () {
+		}
+	});
+
+
+	$('#twoStep-dialog').dialog('open');
+
+	$('#nSec').css('display','none');
+	$('#nSecR').css('display','none');
+
+	$('#TwStepNewPass').attr('name', makerandom());
+	$('#TwStepNewPassRepeat').attr('name', makerandom());
+
+
+	validatorOneStepCreate = $("#twoStep-dialog").validate();
+
+	$("#TwStepNewPass").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewPassRepeat").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80
+	});
+
+	$("#TwStepNewPassRepeat").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 80,
+		equalTo: '#TwStepNewPass',
+		messages: {
+			required: 'Please enter your Password one more time',
+			equalTo: 'Please enter the same Password as above'
+		}
+	});
+
+}
+function saveOneStepSecret()
+{
+	validatorOneStepSecret.form();
+
+	if (validatorOneStepSecret.numberOfInvalids() == 0) {
+
+		checkState(function () {
+			provideSecret(function (secret) {
+				//console.log(secret);
+
+				var newPass=SHA512(makeDerivedFancy($('#OneStepNewSec').val(), 'scrypTmail'));
+
+				saveSecAndPass(secret,newPass,secret,$('#OneStepNewSec').val(),true,function(){
+
+					$('#OneStep-smart-form-secret')[0].reset();
+
+					//toFile = tokenAes;
+					//downloadToken();
+					getObjects()
+						.always(function (data) {
+							logOutTime();
+							if (data.userData && data.userRole) {
+								userData = data.userData;
+								roleData = data.userRole;
+							}
+						});
+					Answer('Saved!');
+					//dfd.resolve();
+
+				});
+
+			}, function () {
+			});
+		}, function () {
+		});
+
+
+
+
+	}
+
+	//console.log($('#OneStepNewSec').val());
+}
+
+
 function initSaveSecret() {
 	$('#newSec').attr('name', makerandom());
 	$('#repeatSec').attr('name', makerandom());
@@ -547,8 +961,8 @@ function initSaveSecret() {
 		maxlength: 80,
 		equalTo: '#newSec',
 		messages: {
-			required: 'Please enter your Secret one more time',
-			equalTo: 'Please enter the same password as above'
+			required: 'Please enter your Secret Phrase one more time',
+			equalTo: 'Please enter the same Secret Phrase as above'
 		}
 	});
 

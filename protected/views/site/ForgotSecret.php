@@ -12,7 +12,7 @@
 						Reset Secret Phrase
 						<h5 style="margin-top:10px;">
 
-							<small>Please follow the order<br><i class="fa fa-warning txt-color-red"></i> Reseting your secret phrase will render all your previous messages and contacts to be unavailable. Proceed with caution</small></h5>
+							<small>Please follow the order<br><i class="fa fa-warning txt-color-red"></i> Resetting your secret phrase will render all your previous messages and contacts unavailable. Proceed with caution.</small></h5>
 					</header>
 
 					<fieldset>
@@ -96,7 +96,7 @@
 						<i class="fa fa-save"></i> Download Token
 					</button>
 
-					<button type="button" class="btn btn-primary" data-dismiss="modal" disabled="disabled" id="y-agree"
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="y-agree"
 							onclick='javascript: window.location = "login";'>
 						<i class="fa fa-check"></i> Ok
 					</button>

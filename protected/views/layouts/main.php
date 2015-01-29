@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us" id="extr-page">
 <head>
+
 	<meta charset="utf-8">
 	<title><?php echo Yii::app()->name; ?></title>
 	<meta name="description" content="SCRYPTmail - Privacy is your right, not a privilege. Our service is easy to use and provides superior protection for your emails.">

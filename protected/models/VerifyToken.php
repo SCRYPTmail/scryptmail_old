@@ -23,10 +23,13 @@ class VerifyToken extends CFormModel
 
 	public function checkToken()
 	{
+/*
+ * checking token for reset password
+ */
 
-
-		if ($salt=Yii::app()->db->createCommand("SELECT saltS,mailHash,tokenAesHash FROM user WHERE mailHash=:mailHash AND tokenAesHash=:tokenAesHash")->queryRow(true, array(':mailHash'=>$this->mailHash,':tokenAesHash'=>$this->tokenHash))) {
+		if ($salt=Yii::app()->db->createCommand("SELECT saltS,oneStep FROM user WHERE mailHash=:mailHash AND tokenAesHash=:tokenAesHash")->queryRow(true, array(':mailHash'=>$this->mailHash,':tokenAesHash'=>$this->tokenHash))) {
 			$data['response']=true;
+			$data['oneStep']=$salt['oneStep']==1?true:false;
 			$data['salt']=$salt['saltS'];;
 			echo json_encode($data);
 		}else
@@ -34,8 +37,12 @@ class VerifyToken extends CFormModel
 
 	}
 
+
 	public function checkRawToken()
 	{
+		/*
+ * checking token for reset secret phrase
+ */
 		if (Yii::app()->db->createCommand("SELECT mailHash FROM user WHERE mailHash=:mailHash AND tokenHash=:tokenHash")->queryRow(true, array(':mailHash'=>$this->mailHash,':tokenHash'=>$this->tokenHash))) {
 			$data['response']=true;
 			echo 'true';

@@ -41,6 +41,7 @@ class SubmitBug extends CFormModel
 
 	// send email
 	mail(Yii::app()->params['adminEmail'],"Bug Report",$msg);
-
+		$res['answer']='success';
+echo json_encode($res);
 		}
 	}
