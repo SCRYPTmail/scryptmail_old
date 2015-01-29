@@ -288,6 +288,9 @@ function createAccount() {
 						if (data.email == 'success') {
 							$('#reguser').text('User Created');
 							$('#reguser i').remove();
+							//$('#reguser').prop('disabled', true);
+							$("#createUser-form")[0].reset();
+							$('#createAccount-modal').modal('hide');
 							$('#yModal').modal("show");
 
 						}else if (data.email == 'reserved') {

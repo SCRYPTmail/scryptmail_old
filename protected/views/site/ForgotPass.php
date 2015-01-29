@@ -37,7 +37,7 @@
 							</div>
 						</section>
 
-						<section>
+						<section id='resPass'>
 
 							<label class="input ">
 								<i class="icon-append fa fa-eye-slash"></i>
@@ -72,6 +72,43 @@
 
 			</div>
 		</div>
+
+<div class="modal fade" id="yModal" tabindex="-1" role="dialog" aria-labelledby="yModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="yModalLabel">Your password has been reset!</h4>
+			</div>
+			<div class="modal-body custom-scroll terms-body">
+
+				<div id="left">
+					<!--Please login to your account.-->
+					Before logging in, please <b>download the secret token</b>. You will need this token to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">blog</a>.<br><br>
+					<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> If your browser can't save this file, please save this string:<br> <b class="text-default" style="word-break:break-all;"></b></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="token"
+							onclick='downloadToken();'>
+						<i class="fa fa-save"></i> Download Token
+					</button>
+
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="y-agree"
+							onclick='javascript: window.location = "login";'>
+						<i class="fa fa-check"></i> Ok
+					</button>
+
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+</div>
+
 
 <script>
 	$(document).ready(function () {

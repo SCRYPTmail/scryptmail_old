@@ -157,36 +157,68 @@ class UpdateKeys extends CFormModel
 
 	public function saveSecretOneStep($id)
 	{
+		if($this->sendObj['oneStep']=="true"){
 
-		$user = Yii::app()->db->createCommand("SELECT password FROM user WHERE id=$id")->queryRow();
+				$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
+				$param[':userObj'] = $this->sendObj['userObj'];
+				$param[':id'] = $id;
+				$param[':newModKey'] = $this->sendObj['NewModKey'];
+				$param[':mailHash']=$this->sendObj['mailHash'];
+				$param[':tokenHash']=$this->sendObj['tokenHash'];
+				$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
+				$param[':newPass']=crypt($this->sendObj['newPassword']);
+				$param[':oneStep']=1;
 
-		if($user['password']==crypt($this->sendObj['oldPassword'],$user['password']))
-		{
-			$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
-			$param[':userObj'] = $this->sendObj['userObj'];
-			$param[':id'] = $id;
-			$param[':newModKey'] = $this->sendObj['NewModKey'];
-			$param[':mailHash']=$this->sendObj['mailHash'];
-			$param[':tokenHash']=$this->sendObj['tokenHash'];
-			$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
-			$param[':newPass']=crypt($this->sendObj['newPassword']);
+				$trans = Yii::app()->db->beginTransaction();
+				if (
+					Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash, password=:newPass,oneStep=:oneStep WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
 
-			$trans = Yii::app()->db->beginTransaction();
-			if (
-				Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash, password=:newPass WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
+				){
+					$trans->commit();
+					echo '{"email":"good"}';
 
-			){
-				$trans->commit();
-				echo '{"email":"good"}';
+				}else {
+					$trans->rollback();
+					echo '{"email":"Keys are not saved, please try again or report a bug"}';
 
-			}else {
-				$trans->rollback();
-				echo '{"email":"Keys are not saved, please try again or report a bug"}';
+				}
 
-			}
 
-		}else
-			echo '{"email":"fail"}';
+
+		}else{
+
+			$user = Yii::app()->db->createCommand("SELECT password FROM user WHERE id=$id")->queryRow();
+
+			if($user['password']==crypt($this->sendObj['oldPassword'],$user['password']))
+			{
+				$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
+				$param[':userObj'] = $this->sendObj['userObj'];
+				$param[':id'] = $id;
+				$param[':newModKey'] = $this->sendObj['NewModKey'];
+				$param[':mailHash']=$this->sendObj['mailHash'];
+				$param[':tokenHash']=$this->sendObj['tokenHash'];
+				$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
+				$param[':newPass']=crypt($this->sendObj['newPassword']);
+				$param[':oneStep']=0;
+
+				$trans = Yii::app()->db->beginTransaction();
+				if (
+					Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash, password=:newPass,oneStep=:oneStep WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
+
+				){
+					$trans->commit();
+					echo '{"email":"good"}';
+
+				}else {
+					$trans->rollback();
+					echo '{"email":"Keys are not saved, please try again or report a bug"}';
+
+				}
+
+			}else
+				echo '{"email":"fail"}';
+		}
+
 
 	}
 

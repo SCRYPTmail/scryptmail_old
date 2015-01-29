@@ -145,7 +145,7 @@
 		<div class="panel-group smart-accordion-default" id="accordion">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse7"
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse7"  onclick="initBaseSettings()"
 										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
 							class="fa fa-lg fa-angle-up pull-right"></i> Settings </a></h4>
 			</div>
@@ -153,7 +153,12 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-xs-3">
-							<div id="smart-form-session-time" class="smart-form">
+							<div id="smart-form-session-time" class="smart-form"
+								 rel="popover-hover"
+								 data-placement="bottom"
+								 data-original-title="Warning!"
+								 data-content="Set time out for session. It will log out after set period of inactivity."
+								>
 								<label class="select">
 									<select onchange="changeTimeout($(this));">
 										<option value="0" selected="" disabled="">Select Session Time Out</option>
@@ -168,7 +173,12 @@
 							</div>
 						</div>
 						<div class="col-xs-3">
-							<div id="smart-form-session-time" class="smart-form">
+							<div id="smart-form-session-time" class="smart-form"
+								 rel="popover-hover"
+								 data-placement="bottom"
+								 data-original-title="Warning!"
+								 data-content="Set amount of emails displayed per page."
+								>
 								<label class="select">
 									<select onchange="changeMessagesPerPage($(this));">
 										<option value="0" selected="" disabled="">Emails per page</option>
@@ -182,12 +192,29 @@
 							</div>
 						</div>
 						<div class="col-xs-4  text-align-right">
-							<button class="btn btn-primary" id="dis2step" onclick="CreateOneStep()">Disable 2 Step Auth</button>
-							<button class="btn btn-primary" id="enb2step" onclick="CreateTwoStep()">Enable 2 Step Auth</button>
+							<button class="btn btn-primary" id="dis2step" onclick="CreateOneStep()"
+									rel="popover-hover"
+									data-placement="left"
+									data-original-title="Warning!"
+									data-content="Don't forget to download new token after you change authentication. In Password tab"
+
+								>Disable 2 Step Auth</button>
+							<button class="btn btn-primary" id="enb2step" onclick="CreateTwoStep()"
+									rel="popover-hover"
+									data-placement="left"
+									data-original-title="Warning!"
+									data-content="Don't forget to download your new token after you change the authentication. In Secret Phrase tab"
+
+								>Enable 2 Step Auth</button>
 						</div>
 
 						<div class="col-xs-2 pull-right text-align-right">
-							<button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+							<button class="btn btn-danger" onclick="deleteAccount()"
+									rel="popover-hover"
+									data-placement="bottom"
+									data-original-title="Warning!"
+									data-content="Your account, contacts and messages will be deleted."
+								>Delete Account</button>
 						</div>
 
 					</div>

@@ -4,6 +4,79 @@
  * Date: 11/29/14
  * Time: 2:20 PM
  */
+function submitBug() {
+
+	var submBug =$("#report-form").validate({
+		rules : {
+
+			email : {
+				required : true,
+				email : true
+			},
+			os : {
+				required : true
+			},
+			device : {
+				required : true
+			},
+			comment : {
+				required : true,
+				minlength: 10,
+				maxlength: 1000
+
+			}
+		},
+
+		// Messages for form validation
+		messages : {
+			email : {
+				required : 'Please enter your email address',
+				email : 'Please enter a valid email address'
+			},
+			comment : {
+				required : 'Please provide information'
+			},
+			os : {
+				required : 'Please select Operation System'
+			},
+			device : {
+				required : 'Please select your device'
+			}
+		},
+
+		// Do not change code below
+		errorPlacement : function(error, element) {
+			error.insertAfter(element.parent());
+		}
+	});
+	submBug.form();
+	if (submBug.numberOfInvalids() == 0) {
+		$.ajax({
+			type: "POST",
+			url: '/SubmitBug',
+			data: $('#report-form').serialize(),
+
+			success: function (data, textStatus) {
+				if(data.answer=='success'){
+					Answer('Your report has been submitted.');
+					setTimeout(function () {
+						$("#report-form")[0].reset();
+						$('#reportBug-modal').modal('hide');
+					}, 700);
+
+				}else{
+					noAnswer('Error. Please try again.');
+				}
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error. Please try again.')
+			},
+			dataType: 'json'
+		});
+
+	}
+}
+
 
 function submitLogin() {
 

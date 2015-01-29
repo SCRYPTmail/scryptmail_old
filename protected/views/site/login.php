@@ -54,6 +54,7 @@ Privacy is your right, not a privilege<br>
 								<label class="input ">
 									<i class="icon-append fa fa-lock"></i>
 									<input name="pP" id="LoginForm_password" type="password" placeholder="password">
+								</label>
 
 							</section>
 							<div class="note">

@@ -179,10 +179,10 @@ function isCompatible(){
 				navigator.userAgent.indexOf("iPhone") != -1||
 				navigator.userAgent.indexOf("MSIE 8.0") != -1 ||
 				navigator.userAgent.indexOf("MSIE 9.0") != -1 ||
-				browser_version<32
+				browser_version<33
 			){
 
-			console.log(browser_version);
+			//console.log(browser_version);
 			bug=true;
 		}
 		try{

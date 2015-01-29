@@ -324,7 +324,6 @@ Use search to find needed section.
 
 
 	<div id="dialog-form"  class="smart-form client-form" title="Provide Secret Phrase" style="display:none;" onkeydown="if (event.keyCode == 13) $('#secretok').click();">
-		<p class="validateTips" style="display:block;border:0px;">Please provide secret phrase.</p>
 		<section>
 			<label class="input ">
 				<input name="name" id="secret" type="password" value="<?php echo $secret;?>">
@@ -333,7 +332,7 @@ Use search to find needed section.
 		</section>
 
 
-		<div class="note">
+		<div class="note" id='forSecPh'>
 			<a href="/forgotSecret" onclick="unbindElement();">Forgot secret phrase?</a>
 		</div>
 
@@ -376,6 +375,11 @@ Use search to find needed section.
 
 </div>
 
+<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons ui-draggable" tabindex="-1" role="dialog" aria-describedby="dialog_simple" aria-labelledby="ui-id-22" style="display: none;"><div id="dialog_simple" class="ui-dialog-content ui-widget-content">
+		<p class="padding-5">
+		</p>
+	</div>
+</div>
 
 
 </body>

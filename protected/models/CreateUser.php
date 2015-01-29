@@ -22,6 +22,7 @@ class CreateUser extends CFormModel
 
 			array('CreateUser', 'isJson', 'on' => 'createAccount'),
 			array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
+			array('CreateUser', 'isJsonResetUser', 'on' => 'resetPassOneStep'),
 		);
 	}
 
@@ -85,6 +86,57 @@ class CreateUser extends CFormModel
 		}
 	}
 
+	public function resetPassOneStep()
+	{
+
+		$obj = json_decode($this->CreateUser, true);
+
+		$param[':mailHash'] = $obj['mailHash'];
+		$param[':oldAesTokenHash'] = $obj['oldAesTokenHash'];
+
+		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND oneStep=1 AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
+
+				$param[':profileSettings'] = $obj['prof'];
+				$param[':userObj'] = $obj['UserObject'];
+				$param[':folderObj'] = $obj['FolderObject'];
+				$param[':contacts'] = $obj['contacts'];
+				$param[':blackList'] = $obj['blackList'];
+				$param[':modKey'] = $obj['ModKey'];
+				$param[':saltS'] = $obj['salt'];
+				$param[':tokenHash'] = $obj['tokenHash'];
+				$param[':tokenAesHash'] = $obj['tokenAesHash'];
+
+				$param[':seedKey'] = $obj['seedKey'];
+				$param[':mailKey'] = $obj['mailKey'];
+				$param[':sigKey'] = $obj['sigKey'];
+
+				$param[':seedKHash'] = $obj['seedKHash'];
+				$param[':mailKHash'] = $obj['mailKHash'];
+				$param[':sigKHash'] = $obj['sigKHash'];
+				$param[':password'] = crypt($obj['password']);
+
+				$trans = Yii::app()->db->beginTransaction();
+
+				if(Yii::app()->db->createCommand(
+					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash,password=:password WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
+				)->execute($param))
+				{
+					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type IN (2,3)')->execute();
+					$trans->commit();
+					echo  '{"email":"success"}';
+				}else{
+					echo  '{"email":"error"}';
+					$trans->rollback();
+				}
+
+
+		}else{
+			echo  '{"email":"not found"}';
+		}
+
+
+
+	}
 	public function resetUser()
 	{
 		$obj = json_decode($this->CreateUser, true);
@@ -93,7 +145,7 @@ class CreateUser extends CFormModel
 		$param[':mailHash'] = $obj['mailHash'];
 		$param[':oldAesTokenHash'] = $obj['oldAesTokenHash'];
 
-		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
+		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND oneStep=0 AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
 
 			if($user['password']==crypt($obj['password'],$user['password']))
 			{

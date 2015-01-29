@@ -260,6 +260,8 @@ function resetForgotSecret(count)
 				prof_setting['email'] = email;
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
+				prof_setting['oneStep'] = false;
+				prof_setting['disposableEmails'] = {};
 
 				$('#resetSecButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
 

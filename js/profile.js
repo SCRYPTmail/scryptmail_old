@@ -9,9 +9,11 @@ $(document).ready(function () {
 	activePage = 'profile';
 	currentTab();
 	$('#newFname').attr('name', makerandom());
-	console.log(profileSettings);
+	//console.log(profileSettings);
 
-	if(profileSettings['oneStep']=="true"){
+	//console.log(profileSettings['oneStep']=="true");
+
+	if(profileSettings['oneStep']=="true" || profileSettings['oneStep']===true){
 		$('#dis2step').css('display','none');
 		$('#showSec').css('display','none');
 		$('#showPass').css('display','none');
@@ -122,6 +124,14 @@ function saveProfileName() {
 	profileSettings['name'] = stripHTML($('#newFname').val());
 	checkProfile();
 	populateProfile();
+}
+function initBaseSettings()
+{
+	$("[rel=popover-hover]").popover({
+		trigger : "hover",
+		html: true
+
+	});
 }
 
 function gotoUpdateKeys() {
@@ -571,12 +581,8 @@ function initOneStepSaveSecret()
 	});
 }
 
-function saveSecAndPass(oldPass,newPass,oldSec,newSec,callback)
+function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 {
-	console.log(oldPass);
-	console.log(newPass);
-	console.log(oldSec);
-	console.log(newSec);
 
 	getObjects()
 		.always(function (data) {
@@ -629,8 +635,10 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,callback)
 					'tokenHash': tokenHash,
 					'tokenAesHash': tokenAesHash,
 					'oldPassword':SHA512(makeDerivedFancy(oldPass, 'scrypTmail')),
-					'newPassword':newPass
+					'newPassword':newPass,
+					'oneStep':oneStep
 				};
+
 				$.ajax({
 					type: "POST",
 					url: '/saveSecretOneStep',
@@ -652,6 +660,7 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,callback)
 					},
 					dataType: 'json'
 				});
+
 			} else
 				noAnswer('Error. Please try again.');
 		});
@@ -677,10 +686,11 @@ function CreateTwoStep()
 					if (validatorTwoStepCreate.numberOfInvalids() == 0) {
 
 						checkState(function () {
+							$('#twoStep-dialog').dialog('close');
 							provideSecret(function (secret) {
 
 								var newPass=SHA512($('#TwStepNewPass').val());
-								saveSecAndPass(secret,newPass,secret,$('#TwStepNewSec').val(),function(){
+								saveSecAndPass(secret,newPass,secret,$('#TwStepNewSec').val(),false,function(){
 
 									profileSettings['oneStep']=false;
 									checkProfile();
@@ -695,9 +705,8 @@ function CreateTwoStep()
 											}
 										});
 									Answer('Saved!');
-									window.location.href = '/profile';
+									window.location.href = '#mail';
 									$("#twoStep-dialog")[0].reset();
-									$('#twoStep-dialog').dialog('close');
 
 								});
 
@@ -796,7 +805,7 @@ function CreateOneStep()
 		resizable: false,
 		buttons: [
 			{
-				html: "<i class='fa fa-check'></i>&nbsp; Enable",
+				html: "<i class='fa fa-check'></i>&nbsp; Disable",
 				"class": "btn btn-primary pull-right",
 				"id": 'loginok',
 				click: function () {
@@ -804,10 +813,11 @@ function CreateOneStep()
 					if (validatorOneStepCreate.numberOfInvalids() == 0) {
 
 						checkState(function () {
+							$('#twoStep-dialog').dialog('close');
 							provideSecret(function (secret) {
 
-								var newPass=SHA512(makeDerivedFancy($('#OneStepNewSec').val(), 'scrypTmail'));
-								saveSecAndPass(secret,newPass,secret,newPass,function(){
+								var newPass=SHA512(makeDerivedFancy($('#TwStepNewPass').val(), 'scrypTmail'));
+								saveSecAndPass(secret,newPass,secret,$('#TwStepNewPass').val(),true,function(){
 
 									profileSettings['oneStep']=true;
 									checkProfile();
@@ -822,9 +832,9 @@ function CreateOneStep()
 											}
 										});
 									Answer('Saved!');
-									window.location.href = '/profile';
+									window.location.href = '/#mail';
 									$("#twoStep-dialog")[0].reset();
-									$('#twoStep-dialog').dialog('close');
+
 
 								});
 
@@ -853,8 +863,6 @@ function CreateOneStep()
 
 
 	$('#twoStep-dialog').dialog('open');
-
-	console.log($('#newSec').parent().parent());
 
 	$('#nSec').css('display','none');
 	$('#nSecR').css('display','none');
@@ -897,11 +905,11 @@ function saveOneStepSecret()
 
 		checkState(function () {
 			provideSecret(function (secret) {
-				console.log(secret);
+				//console.log(secret);
 
 				var newPass=SHA512(makeDerivedFancy($('#OneStepNewSec').val(), 'scrypTmail'));
 
-				saveSecAndPass(secret,newPass,secret,$('#OneStepNewSec').val(),function(){
+				saveSecAndPass(secret,newPass,secret,$('#OneStepNewSec').val(),true,function(){
 
 					$('#OneStep-smart-form-secret')[0].reset();
 
