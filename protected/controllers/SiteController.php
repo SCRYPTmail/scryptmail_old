@@ -982,7 +982,7 @@ class SiteController extends Controller
 		if(date_format($tm,'Y-m-d')<'2014-12-05'){
 			$time=true;
 		}
-		$cs->registerCssFile('/css/splash.css?r=$this->fileVers');
+		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
 		$this->layout='newSplash';
 
 
