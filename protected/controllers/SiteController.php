@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0541';
+	public $fileVers='0542';
 
 	public function beforeAction($action)
 	{
@@ -114,7 +114,8 @@ class SiteController extends Controller
 					'checkEmailExist',
 					'createUserDb',
 					'createSelectedUser',
-					'resetPassOneStep'
+					'resetPassOneStep',
+					'whyuse'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
 			),
@@ -1019,6 +1020,10 @@ class SiteController extends Controller
 		}
 	}
 
+	public function actionWhyuse()
+	{
+		$this->redirect('/login#why');
+	}
 	public function actionCreateSelectedUser()
 	{
 
