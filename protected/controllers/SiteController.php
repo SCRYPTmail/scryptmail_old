@@ -472,16 +472,49 @@ class SiteController extends Controller
 	{
 
 		$cs = Yii::app()->getClientScript();
-		$cs->registerCssFile('/css/splash.css');
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
+
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/loginUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/jquery.nav.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/wow.min.js?r=$this->fileVers");
+		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
+		
 		$this->layout='newSplash';
 
 		$this->render('privacy');
 	}
 	public function actionCanary()
 	{
-		$cs = Yii::app()->getClientScript();
+				$cs = Yii::app()->getClientScript();
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
 
-		$cs->registerCssFile('/css/splash.css');
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/loginUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/jquery.nav.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/wow.min.js?r=$this->fileVers");
+		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
+		
 		$this->layout='newSplash';
 
 		$this->render('canary');
@@ -489,9 +522,25 @@ class SiteController extends Controller
 
 	public function actionTermsAndConditions()
 	{
-		$cs = Yii::app()->getClientScript();
+			$cs = Yii::app()->getClientScript();
+		$cs->scriptMap["genFunctions.js?r=$this->fileVers"] = false;
+		$cs->scriptMap["xss.js?r=$this->fileVers"] = false;
 
-		$cs->registerCssFile('/css/splash.css');
+		$cs->scriptMap['select2.min.js'] = false;
+		$cs->scriptMap['jquery.maskedinput.min.js'] = false;
+		$cs->scriptMap['jquery-ui-1.10.4.js'] = false;
+		$cs->scriptMap["app.config.js?r=$this->fileVers"] = false;
+		$cs->registerScriptFile("/js/createUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/loginUser.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/jquery.nav.js?r=$this->fileVers");
+
+		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
+		$cs->registerScriptFile("/js/wow.min.js?r=$this->fileVers");
+		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
+		
 		$this->layout='newSplash';
 
 		$this->render('tos');
@@ -953,6 +1002,7 @@ class SiteController extends Controller
 
 		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/wow.min.js?r=$this->fileVers");
+		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
 
 
 
@@ -983,7 +1033,6 @@ class SiteController extends Controller
 		if(date_format($tm,'Y-m-d')<'2014-12-05'){
 			$time=true;
 		}
-		$cs->registerCssFile('/css/splash.css?r='.$this->fileVers);
 		$this->layout='newSplash';
 
 
