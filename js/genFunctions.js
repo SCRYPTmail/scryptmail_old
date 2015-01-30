@@ -1440,9 +1440,9 @@ function renderMessages(data) {
 		}
 		$.each(data['results'], function (index, value) {
 
-			var key = forge.util.hexToBytes(keyFolder[value['messageHash']]['p']);
-
 			try {
+				var key = forge.util.hexToBytes(keyFolder[value['messageHash']]['p']);
+
 				var z = fromAes(key, value['meta']);
 				var meta = JSON.parse(z);
 
@@ -2293,7 +2293,7 @@ function initializeMailList() {
 }
 function deleteFailed(messageId,modK){
 
-	$('#dialog_simple >p').html('We are sorry. But we unable to decrypt this email. Please report bug if problem persist');
+	$('#dialog_simple >p').html('We are sorry, but we unable to decrypt this email. Please report a bug if problem persists.');
 
 	$('#dialog_simple').dialog({
 		autoOpen: false,

@@ -11,11 +11,11 @@
 			<div class="small-text-medium uppercase colored-text">
 				Service
 			</div>
-			<h2 class="dark-text">Why <strong>SCRYPTMail?</strong></h2>
+			<h2 class="dark-text">Why <strong>SCRYPTmail?</strong></h2>
 			<div class="colored-line">
 			</div>
 			<div class="sub-heading">
-				SCRYPTMail hides all of the technical details and delivers usable and secure email; however, if you want to see the code, <a href='https://github.com/SCRYPTmail/scryptmail' target='_blank'>check it out!</a>
+				SCRYPTmail hides all of the technical details and delivers usable and secure email; however, if you want to see the code, <a href='https://github.com/SCRYPTmail/scryptmail' target='_blank'>check it out!</a>
 			</div>
 
 
@@ -208,10 +208,10 @@
 				</div>
 				<p>
 
-					Goals have been set and features have been delivered.
+					Goals have been set, and features have been delivered.
 					<br/>
 					<br/>
-					We are working very hard on SCRYPTmail. We know private email is not only possible but can also be beautiful and usable. We've delivered excellent features that have made SCRYPTMail a go-to service for end-to-end encrypted email.
+					We are working very hard on SCRYPTmail. We know private email is not only possible but can also be beautiful and usable. We've delivered excellent features that have made SCRYPTmail a go-to service for end-to-end encrypted email.
 					<br><br>
 					Many of the features built were requested by you. Thanks for your help!
 
@@ -257,20 +257,32 @@
 							<span class="iconsplash-basic-bolt"></span>
 						</div>
 						<div class="info">
-							SCRYPTMail was built and posted for limited beta usage. Sergei barely slept - it was amazing!
+							SCRYPTmail was built and posted for limited beta usage. Sergei barely slept - it was amazing!
 						</div>
 					</li>
 
 					<!-- SINGLE TIMELINE -->
 					<li>
 						<div class="date small-text dark-text strong">
-							Dec 14 '14
+							Dec 10 '14
 						</div>
 						<div class="iconsplash-container color-bg white-text">
 							<span class="iconsplash-basic-elaboration-calendar-check"></span>
 						</div>
 						<div class="info">
 							After prioritizing early adopter requests, we developed encrypted attachments, blacklists and folders. Features which many other platforms are yet to deliver on.
+						</div>
+					</li>
+
+					<li>
+						<div class="date small-text dark-text strong">
+							Dec 15 '14
+						</div>
+						<div class="iconsplash-container color-bg white-text">
+							<span class="iconsplash-basic-elaboration-calendar-check"></span>
+						</div>
+						<div class="info">
+							We welcomed Tori as our editor and marketing strategist.
 						</div>
 					</li>
 
@@ -284,7 +296,7 @@
 							<span class="iconsplash-ecommerce-graph-increase"></span>
 						</div>
 						<div class="info">
-							SCRYPTMail became open for full beta registration. You can create an account for free right now!
+							SCRYPTmail became open for full beta registration. You can create an account for free right now!
 						</div>
 					</li>
 
