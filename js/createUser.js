@@ -119,6 +119,8 @@ function createAccount() {
 			var dfdsig = new $.Deferred();
 
 			$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
+			$('#reguser').prop('disabled', true);
+
 
 			var seedpair = rsa.createKeyPairGenerationState(512,0x10001);
 
@@ -292,12 +294,17 @@ function createAccount() {
 							$("#createUser-form")[0].reset();
 							$('#createAccount-modal').modal('hide');
 							$('#yModal').modal("show");
+							$('#reguser').prop('disabled', false);
 
 						}else if (data.email == 'reserved') {
-							noAnswer('This email address reserved for internal use.')
+							noAnswer('This email address reserved for internal use.');
+							$('#reguser').prop('disabled', false);
 							$('#reguser i').remove();
-						}else
-							noAnswer('Error. Please try again.')
+						}else{
+							$('#reguser').prop('disabled', false);
+							noAnswer('Error. Please try again.');
+						}
+
 
 					},
 					dataType: 'json'

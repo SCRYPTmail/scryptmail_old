@@ -59,16 +59,21 @@ class RetrieveFoldersMeta extends CFormModel
 
 	public function getMeta()
 	{
-		foreach ($this->messageIds as $i => $row) {
-			if (is_numeric($row))
-				$f[$i] = $row;
-		}
-		$params = implode($f, ',');
+		if(count($this->messageIds)>0){
+			foreach ($this->messageIds as $i => $row) {
+				if (is_numeric($row))
+					$f[$i] = $row;
+			}
+			$params = implode($f, ',');
 
-		if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,meta FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
-			echo json_encode($result);
-		} else
+			if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,meta FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
+				echo json_encode($result);
+			} else
+				echo '{"results":"empty"}';
+
+		}else{
 			echo '{"results":"empty"}';
+		}
 
 	}
 

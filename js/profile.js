@@ -1166,6 +1166,7 @@ function deleteAccount()
 									if (data.results == 'success') {
 										Answer('Deleted. Good Bye..');
 										setTimeout(function () {
+											$(window).unbind('beforeunload');
 											window.location='/logout';
 										}, 5000);
 									}

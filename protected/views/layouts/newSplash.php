@@ -215,14 +215,13 @@
 			<div class="vertical-registration-form">
 				<h4 class="dark-text form-heading">Login</h4>
 
-				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();">
+				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
 					<div style='position:relative;'>
 								<div class="input-group">
 									<input type="text" name="uN" id="LoginForm_username" placeholder="email" class="col col-xs-12 input-box" style="margin:0px; height:50px;">
 									<span class="input-group-addon input-box" id="cremail" style="padding-left: 5px;">@scryptmail.com</span>
 								</div>
-
 
 
 							<label class="input">
