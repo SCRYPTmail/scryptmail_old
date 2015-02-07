@@ -18,7 +18,16 @@ $(document).ready(function () {
 	composeMailRecptCheck();
 
 	$("#agrpins").validate();
+
 });
+
+function addPaddingToString(pass){
+
+	var padstrHex=forge.util.bytesToHex(forge.random.getBytesSync(512));
+
+	return pass+padstrHex.substr(0,1024-pass.length);
+
+}
 
 function attachFile() {
 	fileSelector.click();
@@ -162,7 +171,7 @@ function emailParser(emails) {
 			if (jQuery.inArray(mailD[1], domains) != -1) {
 				//console.log(mail);
 				ind.mail = email;
-				ind.seedK = '';
+				//ind.seedK = '';
 				ind.mailK = '';
 				indomain.push(ind);
 				ind = {};
@@ -298,15 +307,7 @@ function indoCrypt(value) {
 	};
 	messaged = {};
 
-	emailPreObj['to'] = recipientHandler('getTextEmail',value['mail']);
-	emailPreObj['from'] = profileSettings['email'];
-	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
-	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 	emailPreObj['attachment'] = {};
-
-
-	emailPreObj['meta']['subject'] = stripHTML($('#subj').val()).substring(0, 150);
-	emailPreObj['meta']['body'] = stripHTML(emailPreObj['body']['text']).substring(0, 100);
 
 	if (Object.keys(fileObject).length > 0) {
 		emailPreObj['meta']['attachment'] = 1;
@@ -323,27 +324,26 @@ function indoCrypt(value) {
 		emailPreObj['meta']['attachment'] = '';
 	}
 
+	emailPreObj['meta']['to'] = to64(recipientHandler('getTextEmail',value['mail']));
+	emailPreObj['meta']['from'] = to64(createFrom());
+	emailPreObj['meta']['subject'] = to64(stripHTML($('#subj').val()).substring(0, 150));
+	emailPreObj['meta']['body'] = to64(stripHTML($('#emailbody').code()).substring(0, 100));
+
 	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 	emailPreObj['meta']['opened'] = false;
 	emailPreObj['meta']['pin'] = '';
 	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
 	emailPreObj['meta']['type'] = 'received';
-	emailPreObj['meta']['to'] = emailPreObj['to'];
-	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
 
 
 	emailPreObj['to'] = to64(recipientHandler('getTextEmail',value['mail']));
-	emailPreObj['from'] = to64(profileSettings['email']);
-	emailPreObj['subj'] = to64(emailPreObj['subj']);
-	emailPreObj['body']['text'] = to64(emailPreObj['body']['text']);
-	emailPreObj['body']['html'] = to64(emailPreObj['body']['html']);
+	emailPreObj['from'] = to64(createFrom());
+	emailPreObj['subj'] = emailPreObj['meta']['subject'];
 
-	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
-	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
+	emailPreObj['body']['text'] = to64(stripHTML($('#emailbody').code()));
+	emailPreObj['body']['html'] = to64(filterXSS($('#emailbody').code()));
 
-	emailPreObj['meta']['to'] = to64(recipientHandler('getTextEmail',value['mail']));
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
-
+	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
 
 	var body = JSON.stringify(emailPreObj);
 
@@ -358,7 +358,8 @@ function indoCrypt(value) {
 
 	messaged['ModKey'] = SHA512(emailPreObj['modKey']);
 
-	messaged['key'] = forge.util.bytesToHex(mailPubKey.encrypt(key, 'RSA-OAEP'));
+	messaged['key'] = addPaddingToString(forge.util.bytesToHex(mailPubKey.encrypt(key, 'RSA-OAEP')));
+
 
 	var dat = {'messaged': messaged, 'modKey': emailPreObj['modKey']};
 	return dat;
@@ -366,6 +367,15 @@ function indoCrypt(value) {
 }
 
 //message created when recipient not found
+function createFrom(){
+	var fromSender='';
+	if(profileSettings['name']!=''){
+		fromSender=profileSettings['name']+'<'+profileSettings['email']+'>';
+	}else{
+		fromSender=profileSettings['email'];
+	}
+	return fromSender;
+}
 function indoCryptFail(value, key) {
 	var d = new Date();
 	var pki = forge.pki;
@@ -384,7 +394,7 @@ function indoCryptFail(value, key) {
 
 	emailPreObj['to'] = profileSettings['email'];
 	emailPreObj['from'] = 'daemon@' + profileSettings['email'].split('@')[1];
-	emailPreObj['subj'] = 'Failed to deliver message to ' + recipientHandler('getTextEmail',value['mail']); + '!: Subject: ' + stripHTML($('#subj').val()).substring(0, 50);
+	emailPreObj['subj'] = 'Failed to deliver message to ' + recipientHandler('getTextEmail',value['mail']) + '!';
 
 	emailPreObj['body'] = {'text': 'Server was unable to deliver your message because recipient does not exist in our database. <br> ' + stripHTML($('#emailbody').code()), 'html': 'Server was unable to deliver your message because recipient does not exist in our database. <br> ' + filterXSS($('#emailbody').code())};
 
@@ -411,7 +421,7 @@ function indoCryptFail(value, key) {
 	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 	emailPreObj['meta']['to'] = to64(emailPreObj['meta']['to']);
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
+	emailPreObj['meta']['from'] = emailPreObj['from'];
 
 
 	var body = JSON.stringify(emailPreObj);
@@ -419,7 +429,7 @@ function indoCryptFail(value, key) {
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailPreObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
+	emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
 	var meta = JSON.stringify(emailPreObj['meta']);
 
 	messaged['mail'] = toAes(key, body);
@@ -427,7 +437,7 @@ function indoCryptFail(value, key) {
 
 	messaged['newModKey'] = SHA512(emailPreObj['modKey']);
 
-	messaged['key'] = forge.util.bytesToHex(sigPubKey.encrypt(key, 'RSA-OAEP'));
+	messaged['key'] = addPaddingToString(forge.util.bytesToHex(mailPublickKey.encrypt(key, 'RSA-OAEP')));
 
 	//console.log(emailPreObj);
 	//var dat={'messaged':messaged}
@@ -461,7 +471,7 @@ function encryptWithPin(value) {
 	messaged = {};
 
 	emailPreObj['to'] = recipientHandler('getTextEmail',value['mail']);
-	emailPreObj['from'] = profileSettings['email'];
+	emailPreObj['from'] = createFrom();
 	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 
@@ -500,13 +510,13 @@ function encryptWithPin(value) {
 	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 	emailPreObj['meta']['to'] = to64(emailPreObj['meta']['to']);
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
+	emailPreObj['meta']['from'] = to64(createFrom());
 	var body = JSON.stringify(emailPreObj);
 
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailPreObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
+	emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
 	var meta = JSON.stringify(emailPreObj['meta']);
 
 	messaged['mail'] = toAes(key, body);
@@ -546,7 +556,7 @@ function encryptWithoutPin(value) {
 	messaged = {};
 
 	emailPreObj['to'] = recipientHandler('getTextEmail',value['mail']);;
-	emailPreObj['from'] = profileSettings['email'];
+	emailPreObj['from'] = createFrom();
 	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 	emailPreObj['attachment'] = {};
@@ -583,14 +593,14 @@ function encryptWithoutPin(value) {
 	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 	emailPreObj['meta']['to'] = to64(emailPreObj['meta']['to']);
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
+	emailPreObj['meta']['from'] = to64(createFrom());
 
 	var body = JSON.stringify(emailPreObj);
 
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailPreObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
+	emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
 	var meta = JSON.stringify(emailPreObj['meta']);
 
 	messaged['mail'] = toAes(key, body);
@@ -625,7 +635,7 @@ function encryptMessageForSent(badRcpt, senderMod, key) {
 
 	emailPreObj['to'] = recipientHandler('getList', '');
 
-	emailPreObj['from'] = profileSettings['email'];
+	emailPreObj['from'] = createFrom();
 	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
 	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
 	emailPreObj['attachment'] = {};
@@ -682,7 +692,7 @@ function encryptMessageForSent(badRcpt, senderMod, key) {
 	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
 	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
 	emailPreObj['meta']['to'] = to64(emailPreObj['meta']['to']);
-	emailPreObj['meta']['from'] = to64(profileSettings['email']);
+	emailPreObj['meta']['from'] = to64(createFrom());
 
 	//console.log(emailPreObj);
 
@@ -691,9 +701,8 @@ function encryptMessageForSent(badRcpt, senderMod, key) {
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailPreObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
+	emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
 	var meta = JSON.stringify(emailPreObj['meta']);
-
 	messaged['mail'] = toAes(key, body);
 	messaged['meta'] = toAes(key, meta);
 
@@ -714,6 +723,67 @@ function encryptMessageForSent(badRcpt, senderMod, key) {
 	return messaged;
 }
 
+function SendMailMail(messaged,mailPubKey,count,callback) {
+	var pki = forge.pki;
+	if(count<2){
+		messaged['messaged']['messageId']=forge.util.bytesToHex(forge.random.getBytesSync(64));
+		//var prePub = messaged['modKey'];
+
+		var seedMeta={
+			'mailId':messaged['messaged']['messageId'],
+			'mailModKey':messaged['modKey'],
+			'seedModKey':forge.util.bytesToHex(forge.random.getBytesSync(16))
+
+		};
+		var metaKey = forge.random.getBytesSync(32);
+		var seedMetaAes=toAes(metaKey, JSON.stringify(seedMeta));
+		var seedPassword=addPaddingToString(forge.util.bytesToHex(mailPubKey.encrypt(metaKey, 'RSA-OAEP')));
+
+		var seedData={
+			'seedMeta':seedMetaAes,
+			'seedPassword':seedPassword
+		};
+		messaged['messaged']['seedMeta']=seedMetaAes;
+		messaged['messaged']['seedPassword']=seedPassword;
+		messaged['messaged']['seedModKey']=SHA512(seedMeta['seedModKey']);
+		var rcp=SHA512(pki.publicKeyToPem(mailPubKey));
+		messaged['messaged']['seedRcpnt']=rcp.substr(0,10);
+		count++;
+
+		//SendMailMail(messaged,mailPubKey,count,callback);
+
+		$.ajax({
+			type: "POST",
+			url: '/sendLocalMessage',
+			data: messaged['messaged'],
+
+			success: function (data, textStatus) {
+				if(!isNaN(data['messageId']))
+				{
+					callback(seedMeta['mailId'],data['messageId'],seedMeta['seedModKey']);
+				}else if(data.answer=="Limit is reached"){
+					noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+				}else if(data['messageId']=="duplicate"){
+					SendMailMail(messaged,mailPubKey,count,callback);
+				}else{
+					callback(data);
+				}
+
+			},
+			error: function (data, textStatus) {
+				callback(data);
+			},
+			dataType: 'json'
+		});
+
+	}else{
+		noAnswer('Error. Please try again later.');
+		$('.sendMailButton').html('Send');
+		$('.sendMailButton').prop('disabled', false);
+	}
+
+}
+
 
 function encryptMessageToRecipient(emailparsed) {
 
@@ -726,51 +796,49 @@ function encryptMessageToRecipient(emailparsed) {
 	$.each(emailparsed['indomain'], function (index, value) { // indomain submission
 		var dfd = $.Deferred();
 
-		if (value['seedK'] != '') { //if have pub keys
+		if (value['mailK'] != '') { //if have pub keys
 			var sendMessage = indoCrypt(value);
-			//console.log(sendMessage);
 
-			var seedPubKey = pki.publicKeyFromPem(from64(value['seedK']));
-			var prePub = sendMessage['modKey'];
-			var cryptedPub = {'modKeySeed': SHA512(prePub), 'seedMeta': forge.util.bytesToHex(seedPubKey.encrypt(forge.util.hexToBytes(prePub), 'RSA-OAEP'))};
+			SendMailMail(sendMessage,pki.publicKeyFromPem(from64(value['mailK'])),0,function(mailId,seedId,seedModKey){
+				//console.log(mailId);
+				//console.log(seedId);
 
-			var mailId = SendMailMail(sendMessage['messaged'],cryptedPub).always(function (result) {
-
-				if (!isNaN(result['messageId'])) {
+				if (!isNaN(seedId)) {
 					//console.log(result);
-					var elem = {'mailId': result['messageId'], 'seedId': result['messageId'], 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['modKey'], 'seedModKey': prePub};
-							senderMod.push(elem);
-							dfd.resolve();
+					var elem = {'mailId': mailId, 'seedId': seedId, 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['modKey'], 'seedModKey': seedModKey};
+					//console.log(elem);
+					senderMod.push(elem);
+					dfd.resolve();
 
 				} else {
 					var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Failed to send.','reason':result};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				}
+
 			});
 		}
-		if (value['seedK'] == "") {
+		if (value['mailK'] == "") {
 			var key = forge.random.getBytesSync(32);
 
 			var sendMessage = indoCryptFail(value, key);
+
 			var mailId = SendMailFail(sendMessage).always(function (result) {
 				if (!isNaN(result['messageId'])) {
-
 					folder['Inbox'][result['messageId']] = {'p': forge.util.bytesToHex(key), 'opened': false};
-
 					checkFolders();
-					var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Recipient not found.'};
+					var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'answer': 'Recipient not found.','reason':{'answer':'recipient not found'}};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				} else {
-					var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Failed to send.'};
+					var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Failed to send.','reason':result};
 					badRcpt.push(rcp);
 					dfd.resolve();
 				}
 
 			});
 
-			//	console.log(sendMessage);
+				//console.log(badRcpt);
 		}
 
 		promises.push(dfd);
@@ -815,11 +883,10 @@ function encryptMessageToRecipient(emailparsed) {
 	});
 
 	$.when.apply(undefined, promises).then(function () {
-
 		var rec = $('#toRcpt').select2("val");
 
 		if (rec.length == Object.keys(badRcpt).length) {
-			if(badRcpt[0]['reason']['answer']!="Limit is reached"){
+			if(badRcpt[0]['reason']['answer']!=undefined && badRcpt[0]['reason']['answer']!="Limit is reached"){
 				noAnswer('Please check recipient(s) address(es) and try again.');
 			}
 			$('.sendMailButton').html('Send');
@@ -983,34 +1050,11 @@ function SendMailFail(messaged) {
 
 }
 
-function SendMailMail(messaged,seedPart) {
-
-	return $.ajax({
-		type: "POST",
-		url: '/sendLocalMessage',
-		data: {
-			'message': messaged,
-			'seedPart':seedPart
-		},
-		success: function (data, textStatus) {
-			if(data.answer=="Limit is reached"){
-				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
-			}
-			return data;
-
-		},
-		error: function (data, textStatus) {
-		},
-		dataType: 'json'
-	});
-
-}
-
 function indomainLoop(emailparsed, locmails, dataBack) {
 
 	$.each(locmails, function (index, value) {
 		if (dataBack[value]) {
-			emailparsed['indomain'][index]['seedK'] = dataBack[value]['seedKey'];
+			//emailparsed['indomain'][index]['seedK'] = dataBack[value]['seedKey'];
 			emailparsed['indomain'][index]['mailK'] = dataBack[value]['mailKey'];
 		}//else{
 		//	indomainNotice(emailparsed['indomain'][index]['mail'],emailparsed,locmails,dataBack,index);

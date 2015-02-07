@@ -4,6 +4,18 @@
  * Date: 11/29/14
  * Time: 2:20 PM
  */
+
+function checkErr(){
+	$.get("getNewSeeds")
+		.done(function (newMaxSeed) {
+
+	//	console.log('dddd');
+		})
+		.fail(function () {
+		//	console.log('fffff');
+		});
+}
+
 function submitBug() {
 
 	var submBug =$("#report-form").validate({

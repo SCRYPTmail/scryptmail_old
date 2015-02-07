@@ -9,20 +9,17 @@
 class SaveEmail extends CFormModel
 {
 
-	public $mail;
 	public $newModKey;
-	public $ModKey;
 	public $oldModKey;
-	public $key;
 	public $signature;
 	public $mailHash;
-	public $meta;
 	public $from;
 	public $pinHash;
 
-	public $messageId;
 	public $modKeySeed;
-	public $modKeyMail, $to,$files,$seedMeta;
+	public $modKeyMail, $to,$files;
+
+	public $mail,$meta,$ModKey,$key,$messageId,$seedMeta,$seedPassword,$seedModKey,$seedRcpnt;
 
 
 	public function rules()
@@ -31,7 +28,8 @@ class SaveEmail extends CFormModel
 			// username and password are required
 			array('mail,newModKey,oldModKey,meta', 'required', 'on' => 'save,saveMailInSent'),
 			array('mail,newModKey,meta', 'required', 'on' => 'sendLocalFail'),
-			array('mail,ModKey,key,meta,seedMeta,modKeySeed', 'required', 'on' => 'sendLocal'),
+
+
 			array('files', 'safe', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 			array('files', 'checkFile', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 
@@ -43,7 +41,29 @@ class SaveEmail extends CFormModel
 
 			//array('mail,ModKey,iv,key,meta', 'required','on'=>'saveMailInSentWithErrors'),
 
+			array('ModKey,messageId,seedModKey', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'sendLocal'),
+			array('seedRcpnt', 'match', 'pattern' => "/^[a-z0-9\d]{10}$/i", 'allowEmpty' => false, 'on' => 'sendLocal'),
+			array('seedPassword,key', 'match', 'pattern' => "/^[a-z0-9\d]{1024}$/i", 'allowEmpty' => false, 'on' => 'sendLocal'),
+
+			array('mail,meta', 'match', 'pattern' => "/^[a-z0-9\d]+$/i", 'allowEmpty' => false, 'on' => 'sendLocal'),
+			array('mail,meta', 'checkEmail', 'on' => 'sendLocal'),
+			array('seedMeta', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'sendLocal'),
+
+
+
 		);
+	}
+	public function checkEmail()
+	{
+
+			if(!isset($this->mail) || strlen($this->mail)>2000000){
+				$this->addError('mail', 'Email is too big');
+			}
+
+			if(!isset($this->meta) || strlen($this->meta)>2000000){
+				$this->addError('mail', 'Email is too big');
+			}
+
 	}
 	public function checkFile()
 	{
@@ -120,14 +140,19 @@ class SaveEmail extends CFormModel
 
 	public function sendLocal()
 	{
+
 		$params[':body'] = $this->mail;
 		$params[':modKey'] = $this->ModKey;
 		$params[':pass'] = $this->key;
+
 		$params[':meta'] = $this->meta;
 		$params[':whens'] = Date("Y-m-d H:i:s");
 
 		$params[':seedMeta'] = $this->seedMeta;
-		$params[':modKeySeed'] = $this->modKeySeed;
+		$params[':seedPass'] = $this->seedPassword;
+		$params[':modKeySeed'] = $this->seedModKey;
+		$params[':messageId'] = $this->messageId;
+		$params[':rcpnt'] = $this->seedRcpnt;
 
 		if(isset($this->files)){
 		foreach($this->files as $row){
@@ -143,10 +168,15 @@ class SaveEmail extends CFormModel
 
 		unset($fileNames);
 
-		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,file,seedMeta,modKeySeed) VALUES(:meta,:body,:pass,:modKey,:whens,:file,:seedMeta,:modKeySeed)")->execute($params))
-			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
-		else
-			echo '{"messageId":"fail"}';
+		if(!Yii::app()->db->createCommand("SELECT id FROM mailTable WHERE id=:id")->queryRow(true,array(':id'=>$this->messageId))){
+			if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,file,seedMeta,seedPass,modKeySeed,rcpnt,messageId) VALUES(:meta,:body,:pass,:modKey,:whens,:file,:seedMeta,:seedPass,:modKeySeed,:rcpnt,:messageId)")->execute($params))
+				echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
+			else
+				echo '{"messageId":"fail"}';
+		}else
+			echo '{"messageId":"duplicate"}';
+
+
 
 	}
 

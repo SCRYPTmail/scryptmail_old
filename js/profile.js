@@ -108,6 +108,9 @@ function changeTimeout(tim) {
 		sessionTimeOut = parseInt(tim.val());
 		checkProfile();
 		Answer('Saved');
+
+		//cleartInterval(sessionTimeOut);
+		//myTimer();
 	}
 	//console.log(tim.val());
 }
@@ -168,11 +171,11 @@ function retrieveKeys() {
 
 			user1 = JSON.parse(user, true);
 
-			$('#UpdateKeys_seedPrK').val(from64(user1['SeedPrivate']));
-			$('#UpdateKeys_seedPubK').val(from64(user1['SeedPublic']));
+			//$('#UpdateKeys_seedPrK').val(from64(user1['SeedPrivate']));
+			//$('#UpdateKeys_seedPubK').val(from64(user1['SeedPublic']));
 			$('#UpdateKeys_mailPrK').val(from64(user1['MailPrivate']));
 			$('#UpdateKeys_mailPubK').val(from64(user1['MailPublic']));
-			validateSeedKeys();
+			//validateSeedKeys();
 			validateMailKeys();
 		}
 	}, function () {
@@ -258,7 +261,7 @@ function validateMailKeys() {
 function generateKeys() {
 
 	$('#profileGenerateKeys').prop('disabled', true);
-	$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
+	//$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
 
 	var dfdseed = new $.Deferred();
 	var dfdmail = new $.Deferred();
@@ -271,18 +274,18 @@ function generateKeys() {
 	var mailStrength = 0;
 
 	if ($('#UpdateKeys_mode_0').is(':checked')) {
-		seedStrength = 512;
+		//seedStrength = 512;
 		mailStrength = 1024;
 		selected = 1;
 
 	}
 	if ($('#UpdateKeys_mode_1').is(':checked')) {
-		seedStrength = 1024;
+		//seedStrength = 1024;
 		mailStrength = 2048;
 		selected = 1;
 	}
 	if ($('#UpdateKeys_mode_2').is(':checked')) {
-		seedStrength = 2048;
+		//seedStrength = 2048;
 		mailStrength = 4096;
 		selected = 1;
 	}
@@ -291,8 +294,9 @@ function generateKeys() {
 		noAnswer('Please select Key Strength');
 	} else {
 
-		var seedpair = rsa.createKeyPairGenerationState(seedStrength, 0x10001);
+		//var seedpair = rsa.createKeyPairGenerationState(seedStrength, 0x10001);
 		var mailpair = '';
+		/*
 		var step = function () {
 			if (!rsa.stepKeyPairGenerationState(seedpair, 100)) {
 				setTimeout(step, 1);
@@ -303,9 +307,9 @@ function generateKeys() {
 			}
 		};
 		setTimeout(step);
+*/
 
-
-		dfdseed.done(function () {
+		//dfdseed.done(function () {
 
 			mailpair = rsa.createKeyPairGenerationState(mailStrength, 0x10001);
 
@@ -321,16 +325,16 @@ function generateKeys() {
 				}
 			};
 			setTimeout(step);
-		});
+		//});
 
 		dfdmail.done(function () {
-			$('#UpdateKeys_seedPrK').val(pki.privateKeyToPem(seedpair.keys.privateKey));
-			$('#UpdateKeys_seedPubK').val(pki.publicKeyToPem(seedpair.keys.publicKey));
+			//$('#UpdateKeys_seedPrK').val(pki.privateKeyToPem(seedpair.keys.privateKey));
+			//$('#UpdateKeys_seedPubK').val(pki.publicKeyToPem(seedpair.keys.publicKey));
 
 			$('#UpdateKeys_mailPrK').val(pki.privateKeyToPem(mailpair.keys.privateKey));
 			$('#UpdateKeys_mailPubK').val(pki.publicKeyToPem(mailpair.keys.publicKey));
 
-			validateSeedKeys();
+			//validateSeedKeys();
 			validateMailKeys();
 		});
 	}
@@ -370,39 +374,11 @@ function saveKeys() {
 					var NuserObj = [];
 					NuserObj['userObj'] = {};
 
-
-					var seedp = pki.publicKeyFromPem($('#UpdateKeys_seedPubK').val());
-					NuserObj['userObj']['SeedPublic'] = to64(pki.publicKeyToPem(seedp)); //seedPb
-
-					var seedpr = pki.privateKeyFromPem($('#UpdateKeys_seedPrK').val());
-					NuserObj['userObj']['SeedPrivate'] = to64(pki.privateKeyToPem(seedpr)); //seedPr
-
-
 					var mailp = pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
 					NuserObj['userObj']['MailPublic'] = to64(pki.publicKeyToPem(mailp)); //mailPb
 
 					var mailpr = pki.privateKeyFromPem($('#UpdateKeys_mailPrK').val());
 					NuserObj['userObj']['MailPrivate'] = to64(pki.privateKeyToPem(mailpr)); //mailPr
-
-					//sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
-					//sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
-
-					try {
-
-						if (sigPubKeyTemp != '' && sigPrivateKeyTemp != '') {
-
-							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKeyTemp));
-							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKeyTemp));
-							var sigKHash = SHA512(pki.publicKeyToPem(sigPubKeyTemp));
-						} else {
-							NuserObj['userObj']['SignaturePrivate'] = to64(pki.privateKeyToPem(sigPrivateKey));
-							NuserObj['userObj']['SignaturePublic'] = to64(pki.publicKeyToPem(sigPubKey));
-							var sigKHash = SHA512(pki.publicKeyToPem(sigPubKey));
-						}
-					} catch (err) {
-						noAnswer('Keys are corrupted. Please generate new signature keys.');
-					}
-
 
 					NuserObj['userObj']['folderKey'] = to64(forge.util.bytesToHex(folderKey));
 					NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
@@ -412,25 +388,19 @@ function saveKeys() {
 
 					var NewObj = profileToDb(NuserObj);
 
-					var presend = {
-						'OldModKey': userModKey,
-						'mailKey': NuserObj['userObj']['MailPublic'],
-						'seedKey': NuserObj['userObj']['SeedPublic'],
-						'sigKey': NuserObj['userObj']['SignaturePublic'],
-						'userObj': NewObj.toString(),
-						'NewModKey': SHA512(NuserObj['userObj']['modKey']),
-						'mailHash': SHA512(profileSettings['email']),
-						'seedKHash': SHA512(pki.publicKeyToPem(seedp)),
-						'mailKHash': SHA512(pki.publicKeyToPem(mailp)),
-						'sigKHash': sigKHash
-					};
+					var presend={};
+					presend['OldModKey']=userModKey;
+					presend['mailKey']=NuserObj['userObj']['MailPublic'];
+					presend['userObj']=NewObj.toString();
+					presend['NewModKey']=SHA512(NuserObj['userObj']['modKey']);
+					presend['mailHash']=SHA512(profileSettings['email']);
+					presend['mailKHash']=SHA512(pki.publicKeyToPem(mailp));
+
 
 					$.ajax({
 						type: "POST",
 						url: '/updateKeys',
-						data: {
-							'sendObj': presend
-						},
+						data:  presend,
 						success: function (data, textStatus) {
 							if (data.email == 'good') {
 								userModKey = NuserObj['userObj']['modKey'];
@@ -451,20 +421,15 @@ function saveKeys() {
 					});
 
 					dfd.done(function () {
-						$('#keyGenForm')[0].reset();
+						$('#UpdateKeys_mailPubK').val('');
+						$('#UpdateKeys_mailPrK').val('');
 
 						mailPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['MailPrivate']));
 						mailPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['MailPublic']));
 
-						seedPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['SeedPrivate']));
-						seedPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['SeedPublic']));
+						//seedPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['SeedPrivate']));
+						//seedPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['SeedPublic']));
 
-						if (sigPubKeyTemp != '' && sigPrivateKeyTemp != '') {
-							sigPubKey = sigPubKeyTemp;
-							sigPrivateKey = sigPrivateKeyTemp;
-							sigPubKeyTemp = '';
-							sigPrivateKeyTemp = '';
-						}
 
 						getMainData();
 					});
@@ -593,13 +558,9 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 				var NuserObj = [];
 				NuserObj['userObj'] = {};
 
-				NuserObj['userObj']['SeedPublic'] = tempPro['SeedPublic'];
-				NuserObj['userObj']['SeedPrivate'] = tempPro['SeedPrivate'];
+
 				NuserObj['userObj']['MailPublic'] = tempPro['MailPublic'];
 				NuserObj['userObj']['MailPrivate'] = tempPro['MailPrivate'];
-
-				NuserObj['userObj']['SignaturePrivate'] = tempPro['SignaturePrivate'];
-				NuserObj['userObj']['SignaturePublic'] = tempPro['SignaturePublic'];
 
 				NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
 				NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
@@ -627,24 +588,22 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 				var tokenAesHash = SHA512(tokenAes);
 
 
-				var presend = {
-					'OldModKey': tempPro['modKey'],
-					'userObj': NewObj.toString(),
-					'NewModKey': SHA512(NuserObj['userObj']['modKey']),
-					'mailHash': SHA512(profileSettings['email']),
-					'tokenHash': tokenHash,
-					'tokenAesHash': tokenAesHash,
-					'oldPassword':SHA512(makeDerivedFancy(oldPass, 'scrypTmail')),
-					'newPassword':newPass,
-					'oneStep':oneStep
-				};
+				var presend={};
+				presend['OldModKey']=tempPro['modKey'];
+				presend['userObj']=NewObj.toString();
+				presend['NewModKey']=SHA512(NuserObj['userObj']['modKey']);
+				presend['mailHash']=SHA512(profileSettings['email']);
+				presend['tokenHash']=tokenHash;
+				presend['tokenAesHash']=tokenAesHash;
+
+				presend['oldPassword']=SHA512(makeDerivedFancy(oldPass, 'scrypTmail'));
+				presend['newPassword']=newPass;
+				presend['oneStep']=oneStep;
 
 				$.ajax({
 					type: "POST",
 					url: '/saveSecretOneStep',
-					data: {
-						'sendObj': presend
-					},
+					data: presend,
 					success: function (data, textStatus) {
 						if (data.email != 'good') {
 							noAnswer('Error. Please try again.');
@@ -1519,7 +1478,7 @@ function initdisposable() {
 		});
 
 		disposableListProfileInitialized = true;
-		$('#disposeIcons').html('<a class="btn btn-primary" style="width:50px;" href="javascript:void(0);" rel="tooltip" data-original-title="Add Disposable Email" data-placement="bottom" onclick="addNewDisposableEmail();"><i class="fa fa-plus"></i></a>');
+		$('#disposeIcons').html('<button class="btn btn-primary" style="width:50px;" type="button" rel="tooltip" data-original-title="Add Disposable Email" data-placement="bottom" onclick="addNewDisposableEmail();"><i class="fa fa-plus"></i></button>');
 		$('#disposeIcons').css('float', 'left');
 
 		$("[rel=tooltip]").tooltip();

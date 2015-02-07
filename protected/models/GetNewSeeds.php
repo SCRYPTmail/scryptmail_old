@@ -9,15 +9,30 @@ class GetNewSeeds extends CFormModel
 {
 	public $startSeed;
 	public $limit;
+	public $keyHashes;
 
 	public function rules()
 	{
 		return array(
 			// username and password are required
 			array('startSeed,limit', 'numerical', 'integerOnly' => true, 'on' => 'getNewSeedsData'),
+			//array('keyHashes', 'checkHashes', 'on' => 'getNewSeedsData'),
+			array('keyHashes', 'safe', 'on' => 'getNewSeedsData'),
 		);
 	}
+	public function checkHashes()
+	{
+		if(is_array($this->keyHashes)){
+			foreach($this->keyHashes as $hash)
+			{
+				if (strlen($hash) != 10 || !ctype_xdigit($hash)) {
+					$this->addError('keyHashes', 'keyHashes wrong');
+				}
+			}
 
+		}else
+			$this->addError('keyHashes', 'keyHashes should be in an array');
+	}
 
 	public function getLast()
 	{
@@ -29,7 +44,7 @@ class GetNewSeeds extends CFormModel
 	public function getSeedData()
 	{
 
-		if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta FROM seedTable WHERE id>' . $this->startSeed . ' LIMIT ' . $this->limit)->queryAll()) {
+		if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1 FROM seedTable WHERE id>=' . $this->startSeed . ' LIMIT ' . $this->limit)->queryAll()) {
 			//print_r($seedDat);
 			$seedDat['response'] = 'success';
 			//foreach($seedDat['data'] as $index=>$row){

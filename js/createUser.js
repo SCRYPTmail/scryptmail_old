@@ -118,12 +118,12 @@ function createAccount() {
 			var dfdmail = new $.Deferred();
 			var dfdsig = new $.Deferred();
 
-			$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
+			//$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
 			$('#reguser').prop('disabled', true);
 
 
 			var seedpair = rsa.createKeyPairGenerationState(512,0x10001);
-
+/*
 			var step = function() {
 				// run for 100 ms
 				if(!rsa.stepKeyPairGenerationState(seedpair, 100)) {
@@ -135,10 +135,10 @@ function createAccount() {
 				}
 			};
 			setTimeout(step);
-
+*/
 			var mailpair ='';
 
-			dfdseed.done(function () {
+			//dfdseed.done(function () {
 
 				mailpair = rsa.createKeyPairGenerationState(1024, 0x10001);
 
@@ -153,8 +153,8 @@ function createAccount() {
 					}
 				};
 				setTimeout(step);
-			});
-
+			//});
+/*
 			var sigpair='';
 			dfdmail.done(function () {
 
@@ -173,8 +173,8 @@ function createAccount() {
 				setTimeout(step);
 
 			});
-
-			dfdsig.done(function () {
+*/
+			dfdmail.done(function () {
 
 				var salt = forge.random.getBytesSync(256);
 				var secret = $('#CreateUser_password').val();
@@ -193,12 +193,12 @@ function createAccount() {
 				var folderKey = forge.random.getBytesSync(32);
 
 				var userObj = {};
-				userObj['SeedPublic'] = to64(pki.publicKeyToPem(seedpair.keys.publicKey)); //seedPb
-				userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
+				//userObj['SeedPublic'] = to64(pki.publicKeyToPem(seedpair.keys.publicKey)); //seedPb
+				//userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
 				userObj['MailPublic'] = to64(pki.publicKeyToPem(mailpair.keys.publicKey)); //mailPb
 				userObj['MailPrivate'] = to64(pki.privateKeyToPem(mailpair.keys.privateKey)); //mailPr
-				userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
-				userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
+				//userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
+				//userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
 
 				userObj['folderKey'] = to64(forge.util.bytesToHex(folderKey));
 
@@ -232,6 +232,7 @@ function createAccount() {
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
 				prof_setting['oneStep'] = true;
+				prof_setting['version'] = 1;
 				prof_setting['disposableEmails'] = {};
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
@@ -256,14 +257,14 @@ function createAccount() {
 				MainObj['ModKey'] = SHA512singl(userObj['modKey']);
 				MainObj['contacts'] = contact.toString();
 				MainObj['blackList'] = blackList.toString();
-				MainObj['seedKey'] = userObj['SeedPublic'];
+				//MainObj['seedKey'] = userObj['SeedPublic'];
 				MainObj['mailKey'] = userObj['MailPublic'];
-				MainObj['sigKey'] = userObj['SignaturePublic'];
+				//MainObj['sigKey'] = userObj['SignaturePublic'];
 
 
-				MainObj['seedKHash'] = SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
+				//MainObj['seedKHash'] = SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
 				MainObj['mailKHash'] = SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
-				MainObj['sigKHash'] = SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
+				//MainObj['sigKHash'] = SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
 
 				MainObj['prof'] = prof;
 				MainObj['mailHash'] = SHA512singl(email);
@@ -273,7 +274,7 @@ function createAccount() {
 				///console.log(MainObj['password']);
 
 
-				MainObj = JSON.stringify(MainObj);
+				//MainObj = JSON.stringify(MainObj);
 
 
 				// console.log('UserObj ' +MainObj );
@@ -283,9 +284,7 @@ function createAccount() {
 				$.ajax({
 					type: "POST",
 					url: '/CreateUserDb',
-					data: {
-						'CreateUser': MainObj
-					},
+					data:  MainObj,
 					success: function (data, textStatus) {
 						if (data.email == 'success') {
 							$('#reguser').text('User Created');
@@ -302,10 +301,18 @@ function createAccount() {
 							$('#reguser i').remove();
 						}else{
 							$('#reguser').prop('disabled', false);
+							$('#reguser').text('Create');
+							$('#reguser i').remove();
 							noAnswer('Error. Please try again.');
 						}
 
 
+					},
+					error: function (data, textStatus) {
+						$('#reguser').prop('disabled', false);
+						$('#reguser').text('Create');
+						$('#reguser i').remove();
+						noAnswer('Error. Please try again.');
 					},
 					dataType: 'json'
 				});

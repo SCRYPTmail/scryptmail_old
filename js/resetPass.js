@@ -177,23 +177,9 @@ function resetOneStepPass(count)
 			var dfdmail = new $.Deferred();
 			var dfdsig = new $.Deferred();
 
-			var seedpair = rsa.createKeyPairGenerationState(512,0x10001);
 
-			var step = function() {
-				// run for 100 ms
-				if(!rsa.stepKeyPairGenerationState(seedpair, 100)) {
-					setTimeout(step, 1);
-				}
-				else {
-					$('#resetPassButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Mail keys..");
-					dfdseed.resolve();
-				}
-			};
-			setTimeout(step);
 
 			var mailpair ='';
-
-			dfdseed.done(function () {
 
 				mailpair = rsa.createKeyPairGenerationState(1024, 0x10001);
 
@@ -208,27 +194,10 @@ function resetOneStepPass(count)
 					}
 				};
 				setTimeout(step);
-			});
-			var sigpair='';
-			dfdmail.done(function () {
 
-				sigpair = rsa.createKeyPairGenerationState(1024,0x10001);
 
-				var step = function() {
-					// run for 100 ms
-					if(!rsa.stepKeyPairGenerationState(sigpair, 100)) {
-						setTimeout(step, 1);
-					}
-					else {
-						$('#resetPassButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
-						dfdsig.resolve();
-					}
-				};
-				setTimeout(step);
 
-			});
-
-			dfdsig.done(function () {
+				dfdmail.done(function () {
 
 				var email = $('#resetPass_email').val().toLowerCase();
 
@@ -253,13 +222,13 @@ function resetOneStepPass(count)
 				var folderKey = forge.random.getBytesSync(32);
 
 				var userObj = {};
-				userObj['SeedPublic'] = to64(pki.publicKeyToPem(seedpair.keys.publicKey)); //seedPb
-				userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
+				//userObj['SeedPublic'] = to64(pki.publicKeyToPem(seedpair.keys.publicKey)); //seedPb
+				//userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
 				userObj['MailPublic'] = to64(pki.publicKeyToPem(mailpair.keys.publicKey)); //mailPb
 				userObj['MailPrivate'] = to64(pki.privateKeyToPem(mailpair.keys.privateKey)); //mailPr
 
-				userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
-				userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
+				//userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
+				//userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
 
 				userObj['folderKey'] = to64(forge.util.bytesToHex(folderKey));
 
@@ -293,6 +262,7 @@ function resetOneStepPass(count)
 				prof_setting['name'] = '';
 				prof_setting['lastSeed'] = 0;
 				prof_setting['oneStep'] = true;
+				prof_setting['version'] = 1;
 				prof_setting['disposableEmails'] = {};
 
 				$('#resetPassButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
@@ -309,15 +279,6 @@ function resetOneStepPass(count)
 				var tokenAesHash=SHA512singl(tokenAes);
 				toFile=tokenAes;
 
-				//console.log(tokenHash);
-				//var tokenBase=to64binary(token);
-				//console.log(tokenBase);
-
-				//var tokenFromBase=window.atob(tokenBase);
-				//console.log(tokenFromBase);
-				//var tokenFromBaseHash=SHA512singl(tokenFromBase);
-				//console.log(tokenFromBaseHash);
-
 				MainObj['salt'] = forge.util.bytesToHex(salt);
 				MainObj['tokenHash'] = tokenHash;
 				MainObj['tokenAesHash'] = tokenAesHash;
@@ -326,25 +287,18 @@ function resetOneStepPass(count)
 				MainObj['ModKey'] = SHA512singl(userObj['modKey']);
 				MainObj['contacts'] = contact.toString();
 				MainObj['blackList'] = blackList.toString();
-				MainObj['seedKey'] = userObj['SeedPublic'];
+				//MainObj['seedKey'] = userObj['SeedPublic'];
 				MainObj['mailKey'] = userObj['MailPublic'];
-				MainObj['sigKey'] = userObj['SignaturePublic'];
-				MainObj['seedKHash']=SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
+				//MainObj['sigKey'] = userObj['SignaturePublic'];
+				//MainObj['seedKHash']=SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
 				MainObj['mailKHash']=SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
-				MainObj['sigKHash']=SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
+				//MainObj['sigKHash']=SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
 
 				MainObj['prof'] = prof;
 				MainObj['mailHash'] = SHA512singl(email);
 				MainObj['oldAesTokenHash'] =resetAesTokenHash;
 				MainObj['password'] = SHA512singl(derivedPass);
 
-				///console.log(MainObj['password']);
-
-
-				MainObj = JSON.stringify(MainObj);
-
-
-				// console.log('UserObj ' +MainObj );
 
 				$('#resetPassButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Saving user..");
 
@@ -353,9 +307,7 @@ function resetOneStepPass(count)
 				$.ajax({
 					type: "POST",
 					url: '/resetPassOneStep',
-					data: {
-						'CreateUser': MainObj
-					},
+					data: MainObj,
 					success: function (data, textStatus) {
 						if (data.email == 'success') {
 							$('#resetPassButton').text('New Password is set.');
@@ -378,6 +330,9 @@ function resetOneStepPass(count)
 					},
 					error: function (data, textStatus) {
 						noAnswer('Error. Please try again.');
+						$('#resetPassButton').prop("disabled",false);
+						$('#resetPassButton i').remove();
+						$('#resetPassButton').text('Reset Secret');
 					},
 					dataType: 'json'
 				});

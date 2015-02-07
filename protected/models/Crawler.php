@@ -54,8 +54,11 @@ class Crawler extends CFormModel
 				Yii::app()->db->createCommand("INSERT INTO mailToSent (indexmail) VALUES(1)")->execute();
 				//print_r($emails);
 				foreach ($emails as $row) {
+
 					if ($row['outside'] == 1) {
+
 						if ($row['pass'] == '') {
+
 							if (Crawler::sendMailOutWithPin($row)) {
 								$par[':id'] = $row['id'];
 								$par[':meta'] = $row['meta'];
@@ -92,6 +95,7 @@ class Crawler extends CFormModel
 
 						}
 					}
+
 					if (($row['outside'] == 0 && $row['fromOut'] == 0) ||
 						$row['fromOut'] == 1
 					) {
@@ -100,10 +104,13 @@ class Crawler extends CFormModel
 						$par[':id'] = $row['id'];
 						$par[':meta'] = $row['seedMeta'];
 						$par[':modKey'] = $row['modKeySeed'];
+						$par[':password'] = $row['seedPass'];
+						$par[':rcpnt'] = $row['rcpnt'];
+						$par[':v1'] = 1;
 
-						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey) VALUES (:id,:meta,:modKey)")->execute($par)) {
+						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey,password,rcpnt,v1) VALUES (:id,:meta,:modKey,:password,:rcpnt,:v1)")->execute($par)) {
 
-							$par1[':id'] = $row['id'];
+							$par1[':id'] = $row['messageId'];
 							$par1[':meta'] = $row['meta'];
 							$par1[':body'] = $row['body'];
 							$par1[':pass'] = $row['pass'];

@@ -103,8 +103,10 @@ class LoginForm extends CFormModel
 			$duration = $this->rememberMe ? 3600 * 24 * 30 : 0; // 30 days
 			Yii::app()->user->login($this->_identity, $duration);
 
-			Yii::app()->session->deleteOldUserSessions(Yii::app()->user->getId());
-			Yii::app()->session->setUserId(Yii::app()->user->getId());
+			$id=Yii::app()->user->getId();
+			Yii::app()->session->deleteOldUserSessions($id);
+
+			Yii::app()->session->setUserId($id);
 			if($steps==2){
 				echo '{"answer":"welcome","data":"'.$secTok.'"}';
 			}

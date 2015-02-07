@@ -704,7 +704,7 @@ class SiteController extends Controller
 	public function actionMoveNewMail()
 	{
 		$model = new MoveNewMail();
-		$model->attributes = isset($_POST) ? $_POST : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->moveMail();
 		else
@@ -724,12 +724,18 @@ class SiteController extends Controller
 	}
 	public function actionResetPassOneStep()
 	{
-		$model = new CreateUser('resetPassOneStep');
-		$model->attributes = isset($_POST) ? $_POST : '';
-		if ($model->validate()) //validating json data according to action
-			$model->resetPassOneStep();
-		else
-			echo json_encode($model->getErrors());
+		if(Yii::app()->request->isAjaxRequest){
+
+			$model = new CreateUser('resetPassOneStep');
+			$model->attributes = isset($_POST) ? $_POST : '';
+			if ($model->validate()) //validating json data according to action
+				$model->resetPassOneStep();
+			else
+				echo json_encode($model->getErrors());
+
+		}
+
+
 	}
 
 	public function actionResetPass()
@@ -871,8 +877,7 @@ class SiteController extends Controller
 	public function actionSendLocalMessage()
 	{
 		$model = new SaveEmail('sendLocal');
-		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
-		$model->attributes = isset($_POST['seedPart']) ? $_POST['seedPart'] : '';
+		$model->attributes=$_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->sendLocal();
 		else
@@ -1057,16 +1062,15 @@ class SiteController extends Controller
 
 	public function actionCreateUserDb()
 	{
-		$model = new CreateUser();
-
-		if (isset($_POST['CreateUser'])) {
-			$model->setScenario('createAccount');
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new CreateUser('createAccount');
 			$model->attributes = $_POST;
-			if ($model->validate() && $model->createAccount()) {
-			} else
+			if ($model->validate())
+				$model->createAccount();
+			else
 				echo json_encode($model->getErrors());
-			Yii::app()->end();
 		}
+
 	}
 
 	public function actionWhyuse()
@@ -1252,18 +1256,16 @@ public function actionAbout_us()
 	}
 	public function actionSaveSecretOneStep()
 	{
-		$model = new UpdateKeys();
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new UpdateKeys('saveSecretOneStep');
 
-		if (isset($_POST['sendObj'])) {
-
-			$model->setScenario('saveSecretOneStep');
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->saveSecretOneStep(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
-
 		}
+
 	}
 	public function actionSaveSecret()
 	{
@@ -1284,17 +1286,14 @@ public function actionAbout_us()
 	public function actionUpdateKeys()
 	{
 
-		$model = new UpdateKeys();
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new UpdateKeys('saveKeys');
 
-		if (isset($_POST['sendObj'])) {
-
-			$model->setScenario('saveKeys');
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->saveKeys();
 			else
 				echo json_encode($model->getErrors());
-
 		}
 
 	}
