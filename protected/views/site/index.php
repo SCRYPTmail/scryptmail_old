@@ -375,11 +375,10 @@ Use search to find needed section.
 
 </div>
 
-<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-dialog-buttons ui-draggable" tabindex="-1" role="dialog" aria-describedby="dialog_simple" aria-labelledby="ui-id-22" style="display: none;"><div id="dialog_simple" class="ui-dialog-content ui-widget-content">
+<div id="dialog_simple" class="ui-dialog-content ui-widget-content">
 		<p class="padding-5">
 		</p>
 	</div>
-</div>
 
 
 </body>
