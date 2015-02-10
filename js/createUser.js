@@ -122,23 +122,9 @@ function createAccount() {
 			$('#reguser').prop('disabled', true);
 
 
-			var seedpair = rsa.createKeyPairGenerationState(512,0x10001);
-/*
-			var step = function() {
-				// run for 100 ms
-				if(!rsa.stepKeyPairGenerationState(seedpair, 100)) {
-					setTimeout(step, 1);
-				}
-				else {
-					$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Mail keys..");
-					dfdseed.resolve();
-				}
-			};
-			setTimeout(step);
-*/
 			var mailpair ='';
 
-			//dfdseed.done(function () {
+
 
 				mailpair = rsa.createKeyPairGenerationState(1024, 0x10001);
 
@@ -148,32 +134,13 @@ function createAccount() {
 						setTimeout(step, 1);
 					}
 					else {
-						$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Sign keys..");
+						$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
 						dfdmail.resolve();
 					}
 				};
 				setTimeout(step);
-			//});
-/*
-			var sigpair='';
-			dfdmail.done(function () {
 
-				sigpair = rsa.createKeyPairGenerationState(1024,0x10001);
 
-				var step = function() {
-					// run for 100 ms
-					if(!rsa.stepKeyPairGenerationState(sigpair, 100)) {
-						setTimeout(step, 1);
-					}
-					else {
-						$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
-						dfdsig.resolve();
-					}
-				};
-				setTimeout(step);
-
-			});
-*/
 			dfdmail.done(function () {
 
 				var salt = forge.random.getBytesSync(256);

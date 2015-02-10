@@ -375,11 +375,17 @@ Use search to find needed section.
 
 </div>
 
-<div id="dialog_simple" class="ui-dialog-content ui-widget-content">
+<div id="dialog_simple" class="ui-dialog-content ui-widget-content" >
 		<p class="padding-5">
+
 		</p>
 	</div>
 
+<div id="dialog_update">
+	<p class="padding-5">
+
+	</p>
+</div>
 
 </body>
 

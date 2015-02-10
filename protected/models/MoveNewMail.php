@@ -57,6 +57,7 @@ class MoveNewMail extends CFormModel
 
 				$paramSeedDelete[":seedId_$i"] = $row['seedId'];
 				$paramSeedDelete[":seedModKey_$i"] = hash('sha512', $row['seedModKey']);
+				$rcpnt[hash('sha512',$row['mailModKey'])]=$row['rcpnt'];
 			}
 
 			$trans = Yii::app()->db->beginTransaction();
@@ -76,6 +77,7 @@ class MoveNewMail extends CFormModel
 					$mods[":modKey_$i"] = $row['modKey'];
 					$gets[] = ":modKey_$i";
 					$pass[$row['modKey']] = $row['pass'];
+
 				}
 
 				if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey,file) VALUES " . implode($par1, ','))->execute($params)) {
@@ -87,6 +89,7 @@ class MoveNewMail extends CFormModel
 							$results['data'][$index]['id'] = $row['messageHash'];
 							$results['data'][$index]['pass'] = $pass[$row['modKey']];
 							$results['data'][$index]['meta'] = $row['meta'];
+							$results['data'][$index]['rcpnt']=$rcpnt[$row['modKey']];
 						}
 
 					}
@@ -109,6 +112,7 @@ class MoveNewMail extends CFormModel
 						$trans->rollback();
 						echo '{"response":"fail"}';
 					}
+
 					//print_r($results);
 				} else {
 					$trans->rollback();

@@ -62,7 +62,7 @@ fileSelector='';
 resetAesTokenHash='';
 keysObject={};
 resSalt='';
-prepadLength='';
+UserSalt='';
 folderDecoded = $.Deferred();
 sessionKey = '';
 key = makeModKey('f');
@@ -74,6 +74,7 @@ sigPubKey = '';
 sigPrivateKey = '';
 folderKey = '';
 userModKey = '';
+receivingKeys={};
 contactTable = '';
 sessionTimeOut=40;
 toFile='';
@@ -126,7 +127,6 @@ profileSettings = {};
 
 lastAvailableSeed = 0;
 lastParsedSeed = 0;
-lastParsedEmail = 0;
 
 seedLimit = 500;
 mailParsing = 100;
@@ -150,12 +150,12 @@ function resetGlobal() {
 	seedPublickKey = '';
 	sigPubKey = '';
 	sigPrivateKey = '';
-	prepadLength='';
 
 	sigPubKeyTemp = '';
 	sigPrivateKeyTemp = '';
 
 	contactTable = '';
+	receivingKeys={};
 	folderKey = '';
 	userModKey = '';
 	contacts = {};
@@ -172,7 +172,6 @@ function resetGlobal() {
 	folderHash = '';
 	lastAvailableSeed = 0;
 	lastParsedSeed = 0;
-	lastParsedEmail = 0;
 
 	$("#folderul").empty();
 	$("#folderulcustom").empty();
@@ -309,24 +308,44 @@ function newMailCheckRoutine() {
 
 			$.get("getNewSeeds")
 				.done(function (newMaxSeed) {
-					if (!isNaN(newMaxSeed)) {
-						//profileSettings['lastSeed'] = 0;
-						//profileSettings['newMails'] = 0;
-						//checkProfile();
-						//console.log(profileSettings);
-						//console.log(profileSettings);
-						if (newMaxSeed > profileSettings['lastSeed']) {
-							lastAvailableSeed = parseInt(newMaxSeed);
-							lastParsedSeed = parseInt(profileSettings['lastSeed']);
-							clearInterval(newMailer);
-							checkMailTime=30000;
-							//showEmailFetch();
-							newMailSeedRoutine();
+					if (!isNaN(newMaxSeed['v0']) || !isNaN(newMaxSeed['v1'])) {
+
+						if(profileSettings['version']!=undefined && profileSettings['version']==1){
+
+							if (newMaxSeed['v1'] > profileSettings['lastSeed']) {
+								lastAvailableSeed = parseInt(newMaxSeed['v1']);
+								lastParsedSeed = parseInt(profileSettings['lastSeed']);
+								clearInterval(newMailer);
+								checkMailTime=30000;
+
+								newMailSeedRoutine();
+							}//else{
+							//	upgradeAfterSeed(newMaxSeed['v1']);
+							//}
+
+
+
+						}else if(profileSettings['version']==undefined || profileSettings['version']<1) {
+
+
+							if (newMaxSeed['v0'] > profileSettings['lastSeed']) {
+								lastAvailableSeed = parseInt(newMaxSeed['v0']);
+								lastParsedSeed = parseInt(profileSettings['lastSeed']);
+								clearInterval(newMailer);
+								checkMailTime=30000;
+
+								newMailSeedRoutine();
+							}else
+								upgradeAfterSeed(newMaxSeed['v0']);
+
 						}
 
-					}else{
+
+					}else
 						initialFunction();
-					}
+
+
+
 				})
 				.fail(function () {
 					initialFunction();
@@ -346,12 +365,14 @@ function newMailSeedRoutine() {
 
 		if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
 			checkState(function () {
+				var hashes=(profileSettings['version']!=undefined && profileSettings['version']==1)?JSON.stringify(Object.keys(receivingKeys)):''
 				$.ajax({
 					type: "POST",
 					url: '/getNewSeedsData',
 					data: {
 						'startSeed': lastParsedSeed,
-						'limit': seedLimit
+						'limit': seedLimit,
+						'hashes':hashes
 					},
 					success: function (data, textStatus) {
 						if (data['response'] == 'success') {
@@ -397,7 +418,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 				var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
 				//console.log(decrypted);
 				decrypted = forge.util.bytesToHex(decrypted);
-				var preData={'mailId':value['id'],'mailModKey': decrypted,'seedId':value['id'],'seedModKey': decrypted}
+				var preData={'mailId':value['id'],'mailModKey': decrypted,'seedId':value['id'],'seedModKey': decrypted,'rcpnt':''}
 				sucessfull.push(preData);
 			} catch (err) {
 				//dfd.resolve();
@@ -408,12 +429,12 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 				//console.log(value);
 			var paddedPassword=value['password'];
 				//console.log(value);
-				var decrypted = mailPrivateKey.decrypt(forge.util.hexToBytes(paddedPassword.substr(0,prepadLength)), 'RSA-OAEP');
+				var decrypted = receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP');
 				var messageData=JSON.parse(fromAes(decrypted,value['meta']));
 				//console.log();
 				//console.log(decrypted);
 				decrypted = forge.util.bytesToHex(decrypted);
-				var preData={'mailId':messageData['mailId'],'mailModKey': messageData['mailModKey'],'seedId':value['id'],'seedModKey': messageData['seedModKey']};
+				var preData={'mailId':messageData['mailId'],'mailModKey': messageData['mailModKey'],'seedId':value['id'],'seedModKey': messageData['seedModKey'],'rcpnt':value['rcpnt']};
 				sucessfull.push(preData);
 				//console.log(sucessfull);
 			} catch (err) {
@@ -503,8 +524,6 @@ function moveMessagestoInbox(newMessages) {
 			maxIndex=value['seedId'];
 
 		chunks[index] = value;
-		//console.log(maxIndex);
-		//console.log(value);
 
 		if (cont > 30) {
 			//console.log(chunks);
@@ -514,7 +533,8 @@ function moveMessagestoInbox(newMessages) {
 						$.each(data['data'], function (indexi, value) {
 
 							var paddedPassword=value['pass'];
-							var decrypted = forge.util.bytesToHex(mailPrivateKey.decrypt(forge.util.hexToBytes(paddedPassword.substr(0,prepadLength)), 'RSA-OAEP'));
+
+							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
 
 							profileSettings['lastSeed'] = parseInt(maxIndex);
 
@@ -549,15 +569,15 @@ function moveMessagestoInbox(newMessages) {
 			cont = -1;
 		}
 		if (!--ct) {
-
 			retrieveNewTable(chunks)
 				.always(function (data) {
 					if (data.response == 'success') {
+						//console.log(chunks);
 						//console.log(data['data']);
 						$.each(data['data'], function (indexi, value) {
 
 							var paddedPassword=value['pass'];
-							var decrypted = forge.util.bytesToHex(mailPrivateKey.decrypt(forge.util.hexToBytes(paddedPassword.substr(0,prepadLength)), 'RSA-OAEP'));
+							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
 
 							profileSettings['lastSeed'] = parseInt(maxIndex);
 
@@ -873,7 +893,7 @@ function verifySecret(secret) {
 		if (userObj = validateUserObject()) {
 
 			try {
-				var user = dbToProfile(userObj, secret);
+				var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 				var user1 = JSON.parse(user, true);
 				return true;
 			} catch (err) {
@@ -900,26 +920,26 @@ function makeModKey(salt) {
 
 
 
-function profileToDb(obj) {
-	var salt = forge.util.hexToBytes(obj['saltS']);
-	var derivedKey = makeDerived(obj['secret'], salt)
+function profileToDb(obj,secret,salt) {
+
+
+	salt = forge.util.hexToBytes(salt);
+	var derivedKey = makeDerived(secret, salt)
 
 	var Test = forge.util.bytesToHex(derivedKey);
 
 	var keyT = CryptoJS.enc.Hex.parse(Test.substr(0, 64));
 	var keyA = forge.util.hexToBytes(Test.substr(64, 128));
 
-	var f = toAes(keyA, makerandom() + JSON.stringify(obj['userObj']) + makerandom());
+	var f = toAes(keyA, JSON.stringify(obj));
 	var Fis = toFish(keyT, f);
 
 	return Fis;
 
 }
-function dbToProfile(obj, secret) {
+function dbToProfile(obj, secret,salt) {
 
-	//console.log(obj);
-
-	var salt = forge.util.hexToBytes(obj['saltS']);
+	salt = forge.util.hexToBytes(salt);
 	var derivedKey = makeDerived(secret, salt)
 
 	var Test = forge.util.bytesToHex(derivedKey);
@@ -930,13 +950,13 @@ function dbToProfile(obj, secret) {
 	//var ivT = CryptoJS.enc.Hex.parse(obj['vectorT']);
 	//var ivA = forge.util.hexToBytes(obj['vectorA']);
 
-	var Fis = fromFish(keyT, obj['userObj']);
+	var Fis = fromFish(keyT, obj);
 
 	//console.log(Fis);
 
 	var f = fromAes(keyA, Fis);
 
-	return f.substring(f.indexOf('{'), f.indexOf('}') + 1);
+	return f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
 
 
 }
@@ -954,7 +974,7 @@ function dbToFolder(obj) {
 
 function folderToDb(folderObj) {
 
-	var f = toAes(folderKey, makerandom() + JSON.stringify(folderObj) + makerandom());
+	var f = toAes(folderKey, JSON.stringify(folderObj));
 
 	return f;
 }
@@ -981,7 +1001,7 @@ function profileSettingToDb(prof) {
 	var t = jQuery.extend(true, {}, profileSettings);
 
 	//var iv = forge.util.hexToBytes(userData['vectorA']);
-	var f = toAes(folderKey, makerandom() + JSON.stringify(to64(t)) + makerandom());
+	var f = toAes(folderKey, JSON.stringify(to64(t)));
 
 	return f;
 
@@ -1695,7 +1715,7 @@ function saveDraft() {
 			emailObj['meta']['type'] = 'draft';
 			emailObj['meta']['pin'] = $('#pincheck').is(':checked')?true:false;
 			emailObj['meta']['status'] = '';
-			emailObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+			emailObj['meta']['modKey'] = makeModKey(UserSalt);
 			emailObj['meta']['to'] = emailObj['to']
 			emailObj['meta']['from'] = emailObj['from'];
 			emailObj['modKey'] = emailObj['meta']['modKey'];
@@ -3165,20 +3185,150 @@ function BlackListToDb() {
 	return f;
 }
 
-function upgradeAccount(callback){
+function upgradeAfterSeed(newMaxSeed){
 
-	//prof_setting['version'] = 1;
-	console.log(profileSettings);
-	/*
-		1. Determine key size
-		2. Generate similar key strength for disposable emails
-		3. Create object of keys in user object
-		4. save keys to address table
-		5. save user object in ser table
-		6. Update account version
-		7. Ask to logout.
-	 */
+	$('#dialog_update >p').html('Do not refresh your browser. We are updating your account. It may take few minutes..');
+
+	$('#dialog_update').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		html:false,
+		modal: true,
+		title: "Account Update..",
+		buttons: [
+			{
+				html: "<i class='fa fa-refresh fa-spin'></i>&nbsp;Updating",
+				"class": "btn btn-normal",
+				"id":'checkUpdate',
+				click: function () {
+					$(window).unbind('beforeunload');
+					window.location = '/logout';
+					$('#dialog_update').dialog('close');
+				}
+			}
+		]
+	});
+
+		console.log(newMaxSeed);
+
+		if(profileSettings['lastSeed']>=newMaxSeed){
+
+			if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
+				$('#checkUpdate').prop('disabled',true);
+				$('#dialog_update').dialog('open');
+
+				provideSecret(function (secret) {
+					clearInterval(newMailer);
+					var user = dbToProfile(userData['userObj'], secret,userData['saltS']);
+					var user1 = JSON.parse(user, true);
+
+
+					var promises = [];
+
+					//prof_setting['version'] = 1;
+					//userobject converting
+					var pki = forge.pki;
+					var prKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
+					var pubKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
+					var testString=forge.util.bytesToHex(pubKey.encrypt('test string', 'RSA-OAEP'));
+					var testStringLength=testString.length*4;
+					console.log(testStringLength);
+
+					var userObj = {};
+					var userAddres = [];
+					userObj['folderKey']=user1['folderKey'];
+					userObj['modKey']=user1['modKey'];
+					userObj['keys']={};
+
+					userObj['keys'][SHA512(profileSettings['email'])]={
+						'email':profileSettings['email'],
+						'privateKey':user1['MailPrivate'],
+						'publicKey':user1['MailPublic'],
+						'canSend':'1',
+						'keyLength':testStringLength,
+						'receiveHash':SHA512(pki.publicKeyToPem(pubKey)).substring(0,10)
+					};
+					userAddres.push({
+						'emailHash':SHA512(profileSettings['email']),
+						'mailKey':user1['MailPublic']
+					});
+
+					if(typeof profileSettings['disposableEmails'] == 'undefined'){
+						profileSettings['disposableEmails']={};
+					}
+
+					if(Object.keys(profileSettings['disposableEmails']).length>0){
+						$.each(profileSettings['disposableEmails'], function (index, value) {
+							var dfd = $.Deferred();
+							generatePairs(testStringLength,function(keyPar){
+								userObj['keys'][SHA512(value['name'])]={
+									'email':value['name'],
+									'privateKey':to64(pki.privateKeyToPem(keyPar.keys.privateKey)),
+									'publicKey':to64(pki.publicKeyToPem(keyPar.keys.publicKey)),
+									'canSend':'0',
+									'keyLength':testStringLength,
+									'receiveHash':SHA512(pki.publicKeyToPem(keyPar.keys.publicKey)).substring(0,10)
+								};
+								userAddres.push({
+									'emailHash':SHA512(value['name']),
+									'mailKey':to64(pki.publicKeyToPem(keyPar.keys.publicKey))
+								});
+								dfd.resolve();
+							});
+							promises.push(dfd);
+						});
+					}
+					$.when.apply(undefined, promises).then(function () {
+
+						var Updare1Obj={};
+						Updare1Obj['userObj']=userObj;
+						Updare1Obj['userAddress']=userAddres;
+
+						Updare1Obj['userObj'] = profileToDb(userObj,secret,userData['saltS']);
+
+						Updare1Obj['modKey']=user1['modKey'];
+
+
+						$.ajax({
+							type: "POST",
+							url: '/updateAccount',
+							data: {
+								'userObj':Updare1Obj['userObj'],
+								'userAddress':userAddres,
+								'modKey':user1['modKey']
+							},
+							success: function (data, textStatus) {
+								if(data.result=='success'){
+									profileSettings['version'] = 1;
+									checkProfile();
+									$('#dialog_update >p').html('Your account has been updated. Please click OK to re-login.');
+									$('#checkUpdate i').remove();
+									$('#checkUpdate').text('OK');
+									$('#checkUpdate').prop('disabled',false);
+								}
+								console.log(data);
+							},
+							error: function (data, textStatus) {
+								noAnswer('Error. Please try again.');
+							},
+							dataType: 'json'
+						});
+
+					});
+
+				},function () {
+				})
+
+			}
+
+		}
+
+
+
 }
+
+
 
 function retrieveSecret() {
 
@@ -3188,77 +3338,102 @@ function retrieveSecret() {
 		var userObj={};
 		if (userObj = validateUserObject()) {
 
-			var user = dbToProfile(userObj, secret);
+			var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 			var pki = forge.pki;
 			var user1 = JSON.parse(user, true);
 			folderKey = forge.util.hexToBytes(from64(user1['folderKey']));
 			userModKey = user1['modKey'];
 			profileSettings = dbToProfileSetting();
 
-			upgradeAccount(profileSettings,function(){
+			//upgradeAccount(user1,userObj['saltS'],secret,function(){
 
-			});
+				console.log('user');
+				console.log(user1);
 
+				if(profileSettings['version']!=undefined && parseInt(profileSettings['version'])==1){
 
-			console.log(user1);
-			try {
-				mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
-				mailPublickKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
-			} catch (err) {
-				noAnswer('Keys are corrupted. Please generate new keys');
-			}
+					if(Object.keys(user1['keys']).length>0){
 
-			try {
-				seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
-				seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
-				sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
-				sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
+					$.each(user1['keys'], function (index, value) {
 
-			} catch (err) {
+						receivingKeys[value['receiveHash']]={'privateKey':pki.privateKeyFromPem(from64(value['privateKey'])),'length':value['keyLength']/4};
 
-				seedPrivateKey = '';
-				seedPublickKey ='';
-				sigPubKey = '';
-				sigPrivateKey = '';
-
-				//noAnswer('Keys are corrupted. Please generate new keys');
-
-			}
+						if(value['canSend']==1){
+							try {
+								mailPrivateKey = pki.privateKeyFromPem(from64(value['privateKey']));
+								mailPublickKey = pki.publicKeyFromPem(from64(value['publicKey']));
 
 
+							} catch (err) {
+								noAnswer('Keys are corrupted. Please generate new keys');
+							}
+
+						}
+
+					});
 
 
-			folder = dbToFolder(userObj);
+						console.log(receivingKeys);
+				}
 
-			contacts = dbToContacts();
-			//console.log(folder);
-			blackList = dbToBlackList();
-			//console.log(blackList);
+				}else if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
+					try {
+						mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
+						mailPublickKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
+
+						seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
+						seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
+						sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
+						sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
+
+					} catch (err) {
+
+						seedPrivateKey = '';
+						seedPublickKey ='';
+						sigPubKey = '';
+						sigPrivateKey = '';
+
+						noAnswer('Keys are corrupted. Please generate new keys');
+
+					}
+
+				}
+
+
+				folder = dbToFolder(userObj);
+
+				contacts = dbToContacts();
+				//console.log(folder);
+				blackList = dbToBlackList();
+				//console.log(blackList);
 
 
 
-			//console.log(profileSettings);
-			profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
-			sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+				//console.log(profileSettings);
+				profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
+				sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
 
-			if(typeof profileSettings['disposableEmails'] == 'undefined'){
-				profileSettings['disposableEmails']={};
-			}
+				if(typeof profileSettings['disposableEmails'] == 'undefined'){
+					profileSettings['disposableEmails']={};
+				}
 
-			profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
-			profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
-			//console.log(user1);
-			var test=forge.util.bytesToHex(mailPublickKey.encrypt('ggg', 'RSA-OAEP'));
-			prepadLength=test.length;
+				profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
+				profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
+				//console.log(user1);
+				var test=forge.util.bytesToHex(mailPublickKey.encrypt('ggg', 'RSA-OAEP'));
+				UserSalt=userObj['saltS'];
 
-			myTimer();
-			clearInterval(logOuttimer);
+				myTimer();
+				clearInterval(logOuttimer);
 
-			newMailCheckRoutine();
-			getNewEmailsCount();
+				newMailCheckRoutine();
+				getNewEmailsCount();
 
-			folderDecoded.resolve();
-			currentTab();
+				folderDecoded.resolve();
+				currentTab();
+
+			//});
+
 		}
 
 		//myTimer();

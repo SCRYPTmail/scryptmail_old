@@ -167,7 +167,7 @@ function retrieveKeys() {
 
 	provideSecret(function (secret) {
 		if (userObj = validateUserObject()) {
-			var user = dbToProfile(userObj, secret);
+			var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 
 			user1 = JSON.parse(user, true);
 
@@ -368,7 +368,7 @@ function saveKeys() {
 					var pki = forge.pki;
 					var dfd = $.Deferred();
 
-					var user = dbToProfile(userObj, secret);
+					var user =  dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 					user = JSON.parse(user);
 
 					var NuserObj = [];
@@ -381,12 +381,10 @@ function saveKeys() {
 					NuserObj['userObj']['MailPrivate'] = to64(pki.privateKeyToPem(mailpr)); //mailPr
 
 					NuserObj['userObj']['folderKey'] = to64(forge.util.bytesToHex(folderKey));
-					NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
+					NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), UserSalt, 216, 32));
 
-					NuserObj['secret'] = secret;
-					NuserObj['saltS'] = userObj['saltS'];
 
-					var NewObj = profileToDb(NuserObj);
+					var NewObj = profileToDb(NuserObj['userObj'],secret,UserSalt);
 
 					var presend={};
 					presend['OldModKey']=userModKey;
@@ -553,7 +551,8 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 		.always(function (data) {
 			if (data.userData && data.userRole) {
 
-				var tempPro = JSON.parse(dbToProfile(data['userData'], oldSec));
+				var tempPro = JSON.parse(dbToProfile(data['userData']['userObj'], oldSec,data['userData']['saltS']));
+
 
 				var NuserObj = [];
 				NuserObj['userObj'] = {};
@@ -565,10 +564,8 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 				NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
 				NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
 
-				NuserObj['secret'] = newSec;
-				NuserObj['saltS'] = data.userData['saltS'];
 
-				var NewObj = profileToDb(NuserObj);
+				var NewObj = profileToDb(NuserObj['userObj'],newSec, data.userData['saltS']);
 				//----------------------------------------------------
 
 				var secretnew = newSec;
@@ -938,7 +935,7 @@ function downloadTokenProfile() {
 			getObjects()
 				.always(function (data) {
 					if (data.userData && data.userRole) {
-						var tempPro = JSON.parse(dbToProfile(data['userData'], secret));
+						var tempPro = JSON.parse(dbToProfile(data['userData']['userObj'], secret,data['userData']['saltS']));
 
 						var secretnew = secret;
 						var salt = forge.util.hexToBytes(data.userData['saltS']);
@@ -1165,7 +1162,7 @@ function saveSecret() {
 					.always(function (data) {
 						if (data.userData && data.userRole) {
 
-							var tempPro = JSON.parse(dbToProfile(data['userData'], secret));
+							var tempPro = JSON.parse(dbToProfile(data['userData']['userObj'], secret,data['userData']['saltS']));
 
 							var NuserObj = [];
 							NuserObj['userObj'] = {};
@@ -1179,12 +1176,11 @@ function saveSecret() {
 							NuserObj['userObj']['SignaturePublic'] = tempPro['SignaturePublic'];
 
 							NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
-							NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
+							NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), data['userData']['saltS'], 216, 32));
 
-							NuserObj['secret'] = $('#newSec').val();
-							NuserObj['saltS'] = data.userData['saltS'];
 
-							var NewObj = profileToDb(NuserObj);
+							var NewObj = profileToDb(NuserObj['userObj'],$('#newSec').val(),data.userData['saltS']);
+
 							//----------------------------------------------------
 
 							var secretnew = $('#newSec').val();

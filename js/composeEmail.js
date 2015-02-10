@@ -332,7 +332,7 @@ function indoCrypt(value) {
 	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 	emailPreObj['meta']['opened'] = false;
 	emailPreObj['meta']['pin'] = '';
-	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+	emailPreObj['meta']['modKey'] = makeModKey(UserSalt);
 	emailPreObj['meta']['type'] = 'received';
 
 
@@ -404,7 +404,7 @@ function indoCryptFail(value, key) {
 	emailPreObj['meta']['attachment'] = '';
 	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 	emailPreObj['meta']['opened'] = false;
-	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+	emailPreObj['meta']['modKey'] = makeModKey(UserSalt);
 	emailPreObj['meta']['to'] = emailPreObj['to'];
 	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
 	emailPreObj['meta']['type'] = 'received';
@@ -495,7 +495,7 @@ function encryptWithPin(value) {
 
 	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 	emailPreObj['meta']['opened'] = true;
-	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+	emailPreObj['meta']['modKey'] = makeModKey(UserSalt);
 	emailPreObj['meta']['to'] = emailPreObj['to'];
 	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
 
@@ -580,7 +580,7 @@ function encryptWithoutPin(value) {
 
 	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
 	emailPreObj['meta']['opened'] = true;
-	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+	emailPreObj['meta']['modKey'] = makeModKey(UserSalt);
 	emailPreObj['meta']['to'] = emailPreObj['to'];
 	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
 
@@ -677,7 +677,7 @@ function encryptMessageForSent(badRcpt, senderMod, key) {
 	emailPreObj['badRcpt'] = badRcpt;
 	emailPreObj['senderMod'] = senderMod;
 
-	emailPreObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+	emailPreObj['meta']['modKey'] = makeModKey(UserSalt);
 	emailPreObj['meta']['to'] = recipientHandler('getList', '');
 
 	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
@@ -796,7 +796,7 @@ function encryptMessageToRecipient(emailparsed) {
 	$.each(emailparsed['indomain'], function (index, value) { // indomain submission
 		var dfd = $.Deferred();
 
-		if (value['mailK'] != '') { //if have pub keys
+		if (value['mailK'] != '' && value['mailK'] != null) { //if have pub keys
 			var sendMessage = indoCrypt(value);
 
 			SendMailMail(sendMessage,pki.publicKeyFromPem(from64(value['mailK'])),0,function(mailId,seedId,seedModKey){
@@ -818,7 +818,7 @@ function encryptMessageToRecipient(emailparsed) {
 
 			});
 		}
-		if (value['mailK'] == "") {
+		if (value['mailK'] == "" || value['mailK'] == null) {
 			var key = forge.random.getBytesSync(32);
 
 			var sendMessage = indoCryptFail(value, key);

@@ -202,7 +202,8 @@ class SiteController extends Controller
 					'createUserDb',
 					'deleteMyAccount',
 					'saveSecretOneStep',
-					'resetPassOneStep'
+					'resetPassOneStep',
+					'updateAccount'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -229,6 +230,15 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate())
 			$model->invite();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionUpdateAccount()
+	{
+		$model = new UpdateAccount('updateAcc');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->updateAcc(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
 	}

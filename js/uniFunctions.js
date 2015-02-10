@@ -37,7 +37,23 @@ function makerandom() {
 	return text;
 }
 
+function generatePairs(length,callback){
 
+	var rsa = forge.pki.rsa;
+
+	var KeyPair = rsa.createKeyPairGenerationState(length, 0x10001);
+
+	var step = function() {
+		if(!rsa.stepKeyPairGenerationState(KeyPair, 100)) {
+			setTimeout(step, 1);
+		}
+		else
+			callback(KeyPair);
+
+	};
+	setTimeout(step);
+
+}
 
 function to64(data) {
 
