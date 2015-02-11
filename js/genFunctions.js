@@ -419,7 +419,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 				var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
 				//console.log(decrypted);
 				decrypted = forge.util.bytesToHex(decrypted);
-				var preData={'mailId':value['id'],'mailModKey': decrypted,'seedId':value['id'],'seedModKey': decrypted,'rcpnt':''}
+				var preData={'mailId':value['id'],'mailModKey': decrypted,'seedId':value['id'],'seedModKey': decrypted,'rcpnt':''};
 				sucessfull.push(preData);
 			} catch (err) {
 				//dfd.resolve();
@@ -537,6 +537,8 @@ function moveMessagestoInbox(newMessages) {
 
 							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
 
+							//console.log(decrypted);
+
 							profileSettings['lastSeed'] = parseInt(maxIndex);
 
 							if (decrypted != '') {
@@ -577,8 +579,11 @@ function moveMessagestoInbox(newMessages) {
 						//console.log(data['data']);
 						$.each(data['data'], function (indexi, value) {
 
+							console.log(value['rcpnt']);
 							var paddedPassword=value['pass'];
 							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
+
+							console.log(decrypted);
 
 							profileSettings['lastSeed'] = parseInt(maxIndex);
 
@@ -3390,7 +3395,8 @@ function retrieveSecret() {
 
 
 
-						receivingKeys[SHA512(pki.publicKeyToPem(mailPublickKey).substring(0,10))]={'privateKey':mailPrivateKey,'length':testStringLength};
+						//var hashs=SHA512(pki.publicKeyToPem(mailPublickKey));
+						receivingKeys[""]={'privateKey':mailPrivateKey,'length':testStringLength};
 
 						seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
 						seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
