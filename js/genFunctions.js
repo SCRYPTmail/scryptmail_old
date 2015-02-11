@@ -308,6 +308,7 @@ function newMailCheckRoutine() {
 
 			$.get("getNewSeeds")
 				.done(function (newMaxSeed) {
+					newMaxSeed=JSON.parse(newMaxSeed);
 					if (!isNaN(newMaxSeed['v0']) || !isNaN(newMaxSeed['v1'])) {
 
 						if(profileSettings['version']!=undefined && profileSettings['version']==1){
@@ -412,7 +413,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 	var process = function () {
 
 		var value = parseChunk[index];
-		if(value['v1']==0){
+		if(value['v1']=="0"){
 			try {
 				//console.log(value);
 				var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
@@ -3352,6 +3353,8 @@ function retrieveSecret() {
 
 				if(profileSettings['version']!=undefined && parseInt(profileSettings['version'])==1){
 
+					profileSettings['version'] = 1;
+
 					if(Object.keys(user1['keys']).length>0){
 
 					$.each(user1['keys'], function (index, value) {
@@ -3378,8 +3381,16 @@ function retrieveSecret() {
 
 				}else if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
 					try {
+
 						mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
 						mailPublickKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
+
+						var testString=forge.util.bytesToHex(mailPublickKey.encrypt('test string', 'RSA-OAEP'));
+						var testStringLength=testString.length
+
+
+
+						receivingKeys[SHA512(pki.publicKeyToPem(mailPublickKey).substring(0,10))]={'privateKey':mailPrivateKey,'length':testStringLength};
 
 						seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
 						seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
@@ -3416,6 +3427,7 @@ function retrieveSecret() {
 				if(typeof profileSettings['disposableEmails'] == 'undefined'){
 					profileSettings['disposableEmails']={};
 				}
+
 
 				profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
 				profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;

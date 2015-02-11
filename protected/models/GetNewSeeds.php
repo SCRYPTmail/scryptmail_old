@@ -22,6 +22,9 @@ class GetNewSeeds extends CFormModel
 	}
 	public function checkHashes()
 	{
+		if(isset($this->hashes)){
+			$this->hashes=json_decode($this->hashes);
+		}
 		if(is_array($this->hashes)){
 			foreach($this->hashes as $hash)
 			{
@@ -37,8 +40,8 @@ class GetNewSeeds extends CFormModel
 	public function getLast()
 	{
 
-		$result['v0']=Yii::app()->db->createCommand('SELECT max(id) FROM seedTable WHERE v1=0')->queryScalar();
-		$result['v1']=Yii::app()->db->createCommand('SELECT max(id) FROM seedTable')->queryScalar();
+		$result['v0']=(int)Yii::app()->db->createCommand('SELECT max(id) FROM seedTable WHERE v1=0')->queryScalar();
+		$result['v1']=(int)Yii::app()->db->createCommand('SELECT max(id) FROM seedTable')->queryScalar();
 		echo json_encode($result);
 
 	}
@@ -46,15 +49,16 @@ class GetNewSeeds extends CFormModel
 	public function getSeedData()
 	{
 
+		//print_r($this->hashes);
 		if(is_array($this->hashes)){
 			foreach($this->hashes as $i=> $hash)
 			{
 				$param[":hash_$i"]=$hash;
 			}
 
-			if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1,rcpnt FROM seedTable WHERE id>=' . $this->startSeed . 'AND rcpnt IN ('.implode($param,',').') LIMIT ' . $this->limit)->queryAll($param)) {
+			if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1,rcpnt FROM seedTable WHERE id>=' . $this->startSeed . ' AND rcpnt IN ('.implode(array_keys($param),',').') LIMIT ' . $this->limit)->queryAll(true,$param)) {
 
-				print_r($seedDat);
+				//print_r($seedDat);
 
 				$seedDat['response'] = 'success';
 				//foreach($seedDat['data'] as $index=>$row){
@@ -69,7 +73,7 @@ class GetNewSeeds extends CFormModel
 
 			if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1,rcpnt FROM seedTable WHERE id>=' . $this->startSeed . ' AND v1=0 LIMIT ' . $this->limit)->queryAll()) {
 
-				print_r($seedDat);
+				//print_r($seedDat);
 
 				$seedDat['response'] = 'success';
 				//foreach($seedDat['data'] as $index=>$row){
