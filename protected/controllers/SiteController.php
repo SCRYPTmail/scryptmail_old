@@ -1267,6 +1267,7 @@ public function actionAbout_us()
 	public function actionSaveSecretOneStep()
 	{
 		if(Yii::app()->request->isAjaxRequest){
+
 			$model = new UpdateKeys('saveSecretOneStep');
 
 			$model->attributes = $_POST;
@@ -1274,6 +1275,7 @@ public function actionAbout_us()
 				$model->saveSecretOneStep(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
+
 		}
 
 	}
@@ -1296,14 +1298,17 @@ public function actionAbout_us()
 	public function actionUpdateKeys()
 	{
 
-		if(Yii::app()->request->isAjaxRequest){
-			$model = new UpdateKeys('saveKeys');
 
+		if(Yii::app()->request->isAjaxRequest){
+
+			$model = new CreateUser('updateKeys');
 			$model->attributes = $_POST;
-			if ($model->validate()) //validating json data according to action
-				$model->saveKeys();
+			if ($model->validate())
+				$model->updateKeys(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
+
+
 		}
 
 	}

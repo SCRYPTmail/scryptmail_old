@@ -131,8 +131,9 @@ lastParsedSeed = 0;
 seedLimit = 500;
 mailParsing = 100;
 mailRetrievePromises = [];
+secretWord='';
 
-
+var secretTimer;
 var timer;
 var newMailer;
 var logOuttimer;
@@ -3288,8 +3289,8 @@ function upgradeAfterSeed(newMaxSeed){
 					$.when.apply(undefined, promises).then(function () {
 
 						var Updare1Obj={};
-						Updare1Obj['userObj']=userObj;
-						Updare1Obj['userAddress']=userAddres;
+						//Updare1Obj['userObj']=userObj;
+						//Updare1Obj['userAddress']=userAddres;
 
 						Updare1Obj['userObj'] = profileToDb(userObj,secret,userData['saltS']);
 
@@ -3385,6 +3386,7 @@ function retrieveSecret() {
 				}
 
 				}else if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
+					profileSettings['version'] = 0;
 					try {
 
 						mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
@@ -3430,7 +3432,7 @@ function retrieveSecret() {
 				profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 				sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
 
-				if(typeof profileSettings['disposableEmails'] == 'undefined'){
+				if(profileSettings['disposableEmails'] == undefined){
 					profileSettings['disposableEmails']={};
 				}
 
@@ -3463,117 +3465,6 @@ function retrieveSecret() {
 }
 
 
-
-function validatePublics() {
-	var check = true;
-	var user = validateUserObject();
-	var role = validateUserRole();
-
-	var mailKey = role['role']['mailMaxKeyLength'];
-
-	if (mailKey == 512 && $('#UpdateKeys_mailPubK').val().length > 192) {
-		check = false;
-	}
-	if (mailKey == 1024 && $('#UpdateKeys_mailPubK').val().length > 282) {
-		check = false;
-	}
-	if (mailKey == 2048 && $('#UpdateKeys_mailPubK').val().length > 461) {
-		check = false;
-	}
-	if (mailKey == 4096 && $('#UpdateKeys_mailPubK').val().length > 810) {
-		check = false;
-	}
-	if (mailKey == 8192 && $('#UpdateKeys_mailPubK').val().length > 1500) {
-		check = false;
-	}
-
-	return check;
-}
-
-
-
-
-function validateSeedKeysFromUser() {
-	var pki = forge.pki;
-	var obj = $('#ReqKeys_seedPubK');
-	$('#warnSeedKey').remove();
-
-	if (obj.val() != '' && obj.val().length <= 461) {
-		try {
-			var spublicKey = pki.publicKeyFromPem(obj.val());
-			var sencrypted = spublicKey.encrypt('test', 'RSA-OAEP');
-
-			obj.parent().removeClass('state-error');
-			obj.parent().removeClass('state-error');
-			obj.parent().addClass('state-success');
-			obj.parent().addClass('state-success');
-
-		} catch (err) {
-			obj.parent().removeClass('state-success');
-			obj.parent().removeClass('state-success');
-			obj.parent().addClass('state-error');
-			obj.parent().addClass('state-error');
-		}
-
-	} else {
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-error');
-		obj.parent().removeClass('state-error');
-	}
-	if (obj.val() != '' && (obj.val().length > 461 || obj.val().length < 170)) {
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-success');
-		obj.parent().addClass('state-error');
-		obj.parent().addClass('state-error');
-		obj.parent().append('<span id="warnSeedKey">Key should be between 512 - 2048 bits.</span>');
-	}
-
-}
-
-
-
-
-
-function calcPerformance() {
-	var start = new Date().getTime();
-	var rsa = forge.pki.rsa;
-	var pki = forge.pki;
-
-	var keypair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
-
-	var publicKey = keypair.publicKey;
-
-	var encrypted = publicKey.encrypt('100000', 'RSA-OAEP');
-
-	var privateKey = keypair.privateKey;
-	var end = new Date().getTime();
-	var decrypted = privateKey.decrypt(encrypted, 'RSA-OAEP');
-	var startdec = new Date().getTime();
-	for (var i = 0; i < 10; i++) {
-		decrypted = privateKey.decrypt(encrypted, 'RSA-OAEP');
-	}
-	var enddec = new Date().getTime();
-	var time = end - start;
-	var timedec = enddec - startdec;
-
-	var optimist = ((time / 10) + (time * 5)) / 1000;
-	var optimal = ((time) + (time * 10)) / 1000;
-	var paranoid = ((time * 10) + (time * 100)) / 1000;
-
-	var optimistspeed = ((timedec * 100) / 1000) / 6;
-	var optimalspeed = (timedec * 100) / 1000;
-	var paranoidspeed = ((timedec * 100) / 1000) * 6;
-
-	$('#optimist').text(optimist.toFixed() + ' sec.');
-	$('#optimal').text(optimal.toFixed() + ' sec.');
-	$('#paranoid').text(paranoid.toFixed() + ' sec.');
-
-	$('#optimistspeed').text(optimistspeed.toFixed() + ' sec.');
-	$('#optimalspeed').text(optimalspeed.toFixed() + ' sec.');
-	$('#paranoidspeed').text(paranoidspeed.toFixed() + ' sec.');
-
-}
 
 /*
  function indomainNotice(email,emailparsed,locmails,dataBack,index){

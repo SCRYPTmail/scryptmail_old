@@ -60,14 +60,23 @@ class GetNewSeeds extends CFormModel
 
 				//print_r($seedDat);
 
-				$seedDat['response'] = 'success';
+				//$seedDat['response'] = 'success';
 				//foreach($seedDat['data'] as $index=>$row){
 				//	$seedDat['data'][$index]['id']=$row['id'];
 				//	$seedDat['data'][$index]['meta']=base64_encode($row['meta']);
 				//}
 
+				//echo json_encode($seedDat); //escaping non utf strings
+				$seedDat['response'] = 'success';
 				echo json_encode($seedDat); //escaping non utf strings
 			}
+			/*else{
+				$seedDat['data'][0]['id']=$this->startSeed;
+				$seedDat['data'][0]['meta']='';
+				$seedDat['data'][0]['password']='';
+				$seedDat['data'][0]['v1']=1;
+				$seedDat['data'][0]['rcpnt']='';
+			}*/
 
 		}else{
 
@@ -75,14 +84,23 @@ class GetNewSeeds extends CFormModel
 
 				//print_r($seedDat);
 
-				$seedDat['response'] = 'success';
+				//$seedDat['response'] = 'success';
 				//foreach($seedDat['data'] as $index=>$row){
 				//	$seedDat['data'][$index]['id']=$row['id'];
 				//	$seedDat['data'][$index]['meta']=base64_encode($row['meta']);
 				//}
 
+				//echo json_encode($seedDat); //escaping non utf strings
+				$seedDat['response'] = 'success';
 				echo json_encode($seedDat); //escaping non utf strings
+			}/*else{
+		$seedDat['data'][0]['id']=$this->startSeed;
+		$seedDat['data'][0]['meta']='';
+		$seedDat['data'][0]['password']=null;
+		$seedDat['data'][0]['v1']=0;
+		$seedDat['data'][0]['rcpnt']=null;
 			}
+*/
 		}
 
 

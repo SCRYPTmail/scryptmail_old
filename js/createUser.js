@@ -159,13 +159,25 @@ function createAccount() {
 
 				var folderKey = forge.random.getBytesSync(32);
 
+
+				var testString=forge.util.bytesToHex(mailpair.keys.publicKey.encrypt('test string', 'RSA-OAEP'));
+				var testStringLength=testString.length*4;
+				console.log(testStringLength);
+
 				var userObj = {};
-				//userObj['SeedPublic'] = to64(pki.publicKeyToPem(seedpair.keys.publicKey)); //seedPb
-				//userObj['SeedPrivate'] = to64(pki.privateKeyToPem(seedpair.keys.privateKey)); //seedPr
-				userObj['MailPublic'] = to64(pki.publicKeyToPem(mailpair.keys.publicKey)); //mailPb
-				userObj['MailPrivate'] = to64(pki.privateKeyToPem(mailpair.keys.privateKey)); //mailPr
-				//userObj['SignaturePublic'] = to64(pki.publicKeyToPem(sigpair.keys.publicKey));
-				//userObj['SignaturePrivate'] = to64(pki.privateKeyToPem(sigpair.keys.privateKey));
+
+				userObj['keys']={};
+
+
+				userObj['keys'][SHA512singl(email)]={
+					'email':email,
+					'privateKey':to64(pki.privateKeyToPem(mailpair.keys.privateKey)),
+					'publicKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey)),
+					'canSend':'1',
+					'keyLength':testStringLength,
+					'receiveHash':SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
+				};
+
 
 				userObj['folderKey'] = to64(forge.util.bytesToHex(folderKey));
 
@@ -173,7 +185,7 @@ function createAccount() {
 
 				usOb = JSON.stringify(userObj);
 
-				usObAesCipher = toAes(keyA, makerandom() + usOb + makerandom());
+				usObAesCipher = toAes(keyA, usOb);
 
 				var usObFish = toFish(keyT, usObAesCipher);
 
@@ -190,7 +202,7 @@ function createAccount() {
 
 				flOb = JSON.stringify(folderObj);
 
-				var flObAesCipher = toAes(folderKey, makerandom() + flOb + makerandom());
+				var flObAesCipher = toAes(folderKey, flOb);
 
 				var contactObj = {}
 				var blackListObj = [];
@@ -204,9 +216,9 @@ function createAccount() {
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
 
-				var prof = toAes(folderKey, makerandom() + JSON.stringify(to64(prof_setting)) + makerandom());
-				var contact = toAes(folderKey, makerandom() + JSON.stringify(contactObj) + makerandom());
-				var blackList = toAes(folderKey, makerandom() + JSON.stringify(blackListObj) + makerandom());
+				var prof = toAes(folderKey, JSON.stringify(to64(prof_setting)));
+				var contact = toAes(folderKey, JSON.stringify(contactObj));
+				var blackList = toAes(folderKey, JSON.stringify(blackListObj));
 
 				var MainObj = {};
 
@@ -225,12 +237,12 @@ function createAccount() {
 				MainObj['contacts'] = contact.toString();
 				MainObj['blackList'] = blackList.toString();
 				//MainObj['seedKey'] = userObj['SeedPublic'];
-				MainObj['mailKey'] = userObj['MailPublic'];
+				MainObj['mailKey'] =to64(pki.publicKeyToPem(mailpair.keys.publicKey));
 				//MainObj['sigKey'] = userObj['SignaturePublic'];
 
 
 				//MainObj['seedKHash'] = SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
-				MainObj['mailKHash'] = SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
+				//MainObj['mailKHash'] = SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
 				//MainObj['sigKHash'] = SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
 
 				MainObj['prof'] = prof;
@@ -245,6 +257,7 @@ function createAccount() {
 
 
 				// console.log('UserObj ' +MainObj );
+
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Saving user..");
 

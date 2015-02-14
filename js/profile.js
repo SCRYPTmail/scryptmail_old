@@ -30,9 +30,9 @@ $(document).ready(function () {
 
 });
 
-function narrowSelections(seedKey) {
+function narrowSelections(mailKey) {
 
-	if (seedKey == 0) {
+	if (mailKey == 0) {
 
 		$('#UpdateKeys_mode_0').attr('disabled', 'disabled');
 		$('#label512').css('color', '#bbb');
@@ -52,7 +52,7 @@ function narrowSelections(seedKey) {
 
 	}
 
-	if (seedKey == 512) {
+	if (mailKey == 1024) {
 
 		$('#UpdateKeys_mode_0').attr('checked', 'checked');
 
@@ -70,7 +70,7 @@ function narrowSelections(seedKey) {
 
 	}
 
-	if (seedKey == 1024) {
+	if (mailKey == 2048) {
 
 		$('#UpdateKeys_mode_1').attr('checked', 'checked');
 
@@ -84,7 +84,7 @@ function narrowSelections(seedKey) {
 
 	}
 
-	if (seedKey >= 2048) {
+	if (mailKey >= 4096) {
 
 		$('#UpdateKeys_mode_2').attr('checked', 'checked');
 
@@ -157,66 +157,30 @@ function gotoUpdateKeys() {
 		$('#UpdateKeys_mailPubK').attr('name', makerandom());
 		//calcPerformance();
 		//console.log('gggg');
-		narrowSelections(seedKey);
+		narrowSelections(mailKey);
 	}, function () {
 
 	});
 }
 
 function retrieveKeys() {
-
+	if(profileSettings['version']==1){
 	provideSecret(function (secret) {
 		if (userObj = validateUserObject()) {
 			var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
+			var user1 = JSON.parse(user, true);
 
-			user1 = JSON.parse(user, true);
 
-			//$('#UpdateKeys_seedPrK').val(from64(user1['SeedPrivate']));
-			//$('#UpdateKeys_seedPubK').val(from64(user1['SeedPublic']));
-			$('#UpdateKeys_mailPrK').val(from64(user1['MailPrivate']));
-			$('#UpdateKeys_mailPubK').val(from64(user1['MailPublic']));
-			//validateSeedKeys();
+			$('#UpdateKeys_mailPrK').val(from64(user1['keys'][SHA512(profileSettings['email'])]['privateKey']));
+			$('#UpdateKeys_mailPubK').val(from64(user1['keys'][SHA512(profileSettings['email'])]['publicKey']));
+
 			validateMailKeys();
 		}
 	}, function () {
 
 	});
-}
-
-function validateSeedKeys() {
-	var pki = forge.pki;
-	if ($('#UpdateKeys_seedPrK').val() != '' && $('#UpdateKeys_seedPubK').val() != '') {
-		try {
-			var sprivateKey = pki.privateKeyFromPem($('#UpdateKeys_seedPrK').val());
-			var spublicKey = pki.publicKeyFromPem($('#UpdateKeys_seedPubK').val());
-
-			var sencrypted = spublicKey.encrypt('test', 'RSA-OAEP');
-			var sdecrypted = sprivateKey.decrypt(sencrypted, 'RSA-OAEP');
-
-			if (sdecrypted == "test") {
-				$('#UpdateKeys_seedPrK').parent().removeClass('state-error');
-				$('#UpdateKeys_seedPubK').parent().removeClass('state-error');
-				$('#UpdateKeys_seedPrK').parent().addClass('state-success');
-				$('#UpdateKeys_seedPubK').parent().addClass('state-success');
-			} else {
-				$('#UpdateKeys_seedPrK').parent().removeClass('state-success');
-				$('#UpdateKeys_seedPubK').parent().removeClass('state-success');
-				$('#UpdateKeys_seedPrK').parent().addClass('state-error');
-				$('#UpdateKeys_seedPubK').parent().addClass('state-error');
-			}
-
-		}
-		catch (err) {
-			$('#UpdateKeys_seedPrK').parent().removeClass('state-success');
-			$('#UpdateKeys_seedPubK').parent().removeClass('state-success');
-			$('#UpdateKeys_seedPrK').parent().addClass('state-error');
-			$('#UpdateKeys_seedPubK').parent().addClass('state-error');
-		}
-	} else {
-		$('#UpdateKeys_seedPrK').parent().removeClass('state-success');
-		$('#UpdateKeys_seedPubK').parent().removeClass('state-success');
-		$('#UpdateKeys_seedPrK').parent().removeClass('state-error');
-		$('#UpdateKeys_seedPubK').parent().removeClass('state-error');
+	}else{
+		noAnswer('Please update account.');
 	}
 
 }
@@ -228,8 +192,10 @@ function validateMailKeys() {
 		try {
 			var mprivateKey = pki.privateKeyFromPem($('#UpdateKeys_mailPrK').val());
 			var mpublicKey = pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
+
 			var mencrypted = mpublicKey.encrypt('test', 'RSA-OAEP');
 			var mdecrypted = mprivateKey.decrypt(mencrypted, 'RSA-OAEP');
+
 			if (mdecrypted == "test") {
 				$('#UpdateKeys_mailPrK').parent().removeClass('state-error');
 				$('#UpdateKeys_mailPubK').parent().removeClass('state-error');
@@ -261,7 +227,7 @@ function validateMailKeys() {
 function generateKeys() {
 
 	$('#profileGenerateKeys').prop('disabled', true);
-	//$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
+	$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating keys..");
 
 	var dfdseed = new $.Deferred();
 	var dfdmail = new $.Deferred();
@@ -294,67 +260,21 @@ function generateKeys() {
 		noAnswer('Please select Key Strength');
 	} else {
 
-		//var seedpair = rsa.createKeyPairGenerationState(seedStrength, 0x10001);
-		var mailpair = '';
-		/*
-		var step = function () {
-			if (!rsa.stepKeyPairGenerationState(seedpair, 100)) {
-				setTimeout(step, 1);
-			}
-			else {
-				$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Mail keys..");
-				dfdseed.resolve();
-			}
-		};
-		setTimeout(step);
-*/
 
-		//dfdseed.done(function () {
+			generatePairs(mailStrength,function(mailpair){
+				$('#UpdateKeys_mailPrK').val(pki.privateKeyToPem(mailpair.keys.privateKey));
+				$('#UpdateKeys_mailPubK').val(pki.publicKeyToPem(mailpair.keys.publicKey));
+				$('#profileGenerateKeys').prop('disabled', false);
+				$('#profileGenerateKeys').html("<i class='fa fa-cog fa-lg'></i>&nbsp;Generate Keys");
 
-			mailpair = rsa.createKeyPairGenerationState(mailStrength, 0x10001);
-
-			var step = function () {
-				if (!rsa.stepKeyPairGenerationState(mailpair, 100)) {
-					setTimeout(step, 1);
-				}
-				else {
-					$('#profileGenerateKeys').prop('disabled', false);
-					$('#profileGenerateKeys').html("<i class='fa fa-cog'></i>&nbsp;Generate Keys");
-
-					dfdmail.resolve();
-				}
-			};
-			setTimeout(step);
-		//});
-
-		dfdmail.done(function () {
-			//$('#UpdateKeys_seedPrK').val(pki.privateKeyToPem(seedpair.keys.privateKey));
-			//$('#UpdateKeys_seedPubK').val(pki.publicKeyToPem(seedpair.keys.publicKey));
-
-			$('#UpdateKeys_mailPrK').val(pki.privateKeyToPem(mailpair.keys.privateKey));
-			$('#UpdateKeys_mailPubK').val(pki.publicKeyToPem(mailpair.keys.publicKey));
-
-			//validateSeedKeys();
-			validateMailKeys();
-		});
+				validateMailKeys();
+			});
 	}
 
 }
 
-function generateSigKeys() {
-
-	var rsa = forge.pki.rsa;
-	var pki = forge.pki;
-
-	var sigpair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
-
-	sigPubKeyTemp = sigpair.publicKey;
-	sigPrivateKeyTemp = sigpair.privateKey;
-
-
-}
-
 function saveKeys() {
+	if(profileSettings['version']==1){
 
 	if ($('#UpdateKeys_seedPubK').val() != '' && $('#UpdateKeys_mailPubK').val() != '') {
 
@@ -371,39 +291,47 @@ function saveKeys() {
 					var user =  dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 					user = JSON.parse(user);
 
-					var NuserObj = [];
-					NuserObj['userObj'] = {};
-
 					var mailp = pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
-					NuserObj['userObj']['MailPublic'] = to64(pki.publicKeyToPem(mailp)); //mailPb
-
 					var mailpr = pki.privateKeyFromPem($('#UpdateKeys_mailPrK').val());
-					NuserObj['userObj']['MailPrivate'] = to64(pki.privateKeyToPem(mailpr)); //mailPr
 
-					NuserObj['userObj']['folderKey'] = to64(forge.util.bytesToHex(folderKey));
-					NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), UserSalt, 216, 32));
+					var testString=forge.util.bytesToHex(mailp.encrypt('test string', 'RSA-OAEP'));
+					var testStringLength=testString.length*4;
 
 
-					var NewObj = profileToDb(NuserObj['userObj'],secret,UserSalt);
+					var emailHash=SHA512(profileSettings['email']);
+					user['keys'][emailHash]['privateKey']=to64(pki.privateKeyToPem(mailpr));
+					user['keys'][emailHash]['publicKey']=to64(pki.publicKeyToPem(mailp));
+					user['keys'][emailHash]['keyLength']=testStringLength;
+					user['keys'][emailHash]['receiveHash']=SHA512(pki.publicKeyToPem(mailp)).substring(0,10);
 
-					var presend={};
-					presend['OldModKey']=userModKey;
-					presend['mailKey']=NuserObj['userObj']['MailPublic'];
-					presend['userObj']=NewObj.toString();
-					presend['NewModKey']=SHA512(NuserObj['userObj']['modKey']);
-					presend['mailHash']=SHA512(profileSettings['email']);
-					presend['mailKHash']=SHA512(pki.publicKeyToPem(mailp));
 
+
+					var userObj = profileToDb(user,secret,userData['saltS']);
 
 					$.ajax({
 						type: "POST",
 						url: '/updateKeys',
-						data:  presend,
+						data:  {
+							'UserObject':userObj,
+							'modKey':userModKey,
+							'mailKey':user['keys'][emailHash]['publicKey']
+						},
 						success: function (data, textStatus) {
-							if (data.email == 'good') {
-								userModKey = NuserObj['userObj']['modKey'];
+							if (data === true) {
+								receivingKeys[SHA512(pki.publicKeyToPem(mailp)).substring(0,10)]={'privateKey':mailpr,'length':testStringLength/4};
+								console.log(SHA512(pki.publicKeyToPem(mailPublickKey)).substring(0,10));
+								delete receivingKeys[SHA512(pki.publicKeyToPem(mailPublickKey)).substring(0,10)];
+
+								mailPrivateKey = mailpr;
+								mailPublickKey = mailp;
+
+								console.log(to64(pki.publicKeyToPem(mailPublickKey)));
 								Answer('Successfully Saved!');
-								dfd.resolve();
+								$('#UpdateKeys_mailPubK').val('');
+								$('#UpdateKeys_mailPrK').val('');
+
+								userData['userObj']=userObj;
+
 							} else if (data.email == 'Keys are not saved. Please try another key or report a bug.') {
 								noAnswer('Error. Please try again.');
 							} else {
@@ -418,20 +346,6 @@ function saveKeys() {
 						dataType: 'json'
 					});
 
-					dfd.done(function () {
-						$('#UpdateKeys_mailPubK').val('');
-						$('#UpdateKeys_mailPrK').val('');
-
-						mailPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['MailPrivate']));
-						mailPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['MailPublic']));
-
-						//seedPrivateKey = pki.privateKeyFromPem(from64(NuserObj['userObj']['SeedPrivate']));
-						//seedPublickKey = pki.publicKeyFromPem(from64(NuserObj['userObj']['SeedPublic']));
-
-
-						getMainData();
-					});
-
 
 				} else
 					noAnswer('Key size larger than allowed by plan.  Please upgrade your plan or choose lesser key strength.');
@@ -443,6 +357,31 @@ function saveKeys() {
 	} else {
 		noAnswer('Provide New Keys before saving.');
 	}
+	}else{
+		noAnswer('Please update account.');
+	}
+}
+
+function validatePublics() {
+	var check = true;
+	var user = validateUserObject();
+	var role = validateUserRole();
+
+	var pki = forge.pki;
+
+	var mailKey = role['role']['mailMaxKeyLength'];
+
+	var pKey=pki.publicKeyFromPem($('#UpdateKeys_mailPubK').val());
+
+	var testString=forge.util.bytesToHex(pKey.encrypt('test string', 'RSA-OAEP'));
+	var testStringLength=testString.length*4;
+
+
+	if (mailKey < testStringLength ) {
+		check = false;
+	}
+
+	return check;
 }
 
 function initSavePass() {
@@ -554,35 +493,53 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 				var tempPro = JSON.parse(dbToProfile(data['userData']['userObj'], oldSec,data['userData']['saltS']));
 
 
-				var NuserObj = [];
-				NuserObj['userObj'] = {};
-
-
-				NuserObj['userObj']['MailPublic'] = tempPro['MailPublic'];
-				NuserObj['userObj']['MailPrivate'] = tempPro['MailPrivate'];
-
-				NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
-				NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), userObj['saltS'], 216, 32));
-
-
-				var NewObj = profileToDb(NuserObj['userObj'],newSec, data.userData['saltS']);
-				//----------------------------------------------------
+				var userObj = profileToDb(tempPro,newSec, data.userData['saltS']);
 
 				var secretnew = newSec;
 				var salt = forge.util.hexToBytes(data.userData['saltS']);
-
 				var derivedKey = makeDerived(secretnew, salt);
-
 				var Test = forge.util.bytesToHex(derivedKey);
 				var Part2 = Test.substr(64, 128);
-
 				var keyA = forge.util.hexToBytes(Part2);
-
 				var token = forge.random.getBytesSync(256);
 				var tokenHash = SHA512(token);
 
 				var tokenAes = toAesToken(keyA, token);
 				var tokenAesHash = SHA512(tokenAes);
+
+
+				$.ajax({
+					type: "POST",
+					url: '/saveSecretOneStep',
+					data:  {
+						'UserObject':userObj,
+						'modKey':tempPro['modKey'],
+						'tokenHash':tokenHash,
+						'tokenAesHash':tokenAesHash,
+						'oldPassword':SHA512(makeDerivedFancy(oldPass, 'scrypTmail')),
+						'newPassword':newPass,
+						'oneStep':oneStep
+					},
+					success: function (data, textStatus) {
+						if (data.email != 'good') {
+							noAnswer('Error. Please try again.');
+						} else {
+							userData['userObj']=userObj;
+							callback();
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+				/*
+
+				//----------------------------------------------------
+
+
 
 
 				var presend={};
@@ -597,26 +554,10 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 				presend['newPassword']=newPass;
 				presend['oneStep']=oneStep;
 
-				$.ajax({
-					type: "POST",
-					url: '/saveSecretOneStep',
-					data: presend,
-					success: function (data, textStatus) {
-						if (data.email != 'good') {
-							noAnswer('Error. Please try again.');
-						} else {
-							userModKey = NuserObj['userObj']['modKey'];
+				var userObj = profileToDb(user,secret,userData['saltS']);
 
-							callback();
-						}
 
-					},
-					error: function (data, textStatus) {
-						noAnswer('Error. Please try again.');
-					},
-					dataType: 'json'
-				});
-
+*/
 			} else
 				noAnswer('Error. Please try again.');
 		});
@@ -652,14 +593,6 @@ function CreateTwoStep()
 									checkProfile();
 									//toFile = tokenAes;
 									//downloadToken();
-									getObjects()
-										.always(function (data) {
-											logOutTime();
-											if (data.userData && data.userRole) {
-												userData = data.userData;
-												roleData = data.userRole;
-											}
-										});
 									Answer('Saved!');
 									window.location.href = '#mail';
 									$("#twoStep-dialog")[0].reset();
@@ -773,20 +706,16 @@ function CreateOneStep()
 							provideSecret(function (secret) {
 
 								var newPass=SHA512(makeDerivedFancy($('#TwStepNewPass').val(), 'scrypTmail'));
+
+								console.log(newPass);
+								console.log(newPass);
+								/*
 								saveSecAndPass(secret,newPass,secret,$('#TwStepNewPass').val(),true,function(){
 
 									profileSettings['oneStep']=true;
 									checkProfile();
 									//toFile = tokenAes;
 									//downloadToken();
-									getObjects()
-										.always(function (data) {
-											logOutTime();
-											if (data.userData && data.userRole) {
-												userData = data.userData;
-												roleData = data.userRole;
-											}
-										});
 									Answer('Saved!');
 									window.location.href = '/#mail';
 									$("#twoStep-dialog")[0].reset();
@@ -794,6 +723,7 @@ function CreateOneStep()
 
 								});
 
+								*/
 							}, function () {
 							});
 						}, function () {
@@ -871,6 +801,7 @@ function saveOneStepSecret()
 
 					//toFile = tokenAes;
 					//downloadToken();
+					/*
 					getObjects()
 						.always(function (data) {
 							logOutTime();
@@ -879,6 +810,7 @@ function saveOneStepSecret()
 								roleData = data.userRole;
 							}
 						});
+					*/
 					Answer('Saved!');
 					//dfd.resolve();
 
@@ -1493,42 +1425,49 @@ function makerandomEmail() {
 }
 
 function addNewDisposableEmail(count) {
-	count = typeof count !== 'undefined' ? count : 0;
-	if (count <= 2) {
-		if (Object.keys(profileSettings['disposableEmails']).length < roleData['role']['dispAddPerBox']) {
-			var email = makerandomEmail() + '@scryptmail.com';
-			$.ajax({
-				type: "POST",
-				url: '/verifyEmail',
-				data: {
-					'email': SHA512(email)
-				},
-				success: function (data, textStatus) {
-					if (data===true) {
-						saveNewDisposableEmail(email);
-					} else if (!data) {
-						count++;
-						addNewDisposableEmail(count);
-					}
+	if(profileSettings['version']==1){
 
-				},
-				error: function (data, textStatus) {
-					noAnswer('Error. Please try again.');
-				},
-				dataType: 'json'
-			});
+		count = typeof count !== 'undefined' ? count : 0;
+		if (count <= 2) {
+			if (Object.keys(profileSettings['disposableEmails']).length < roleData['role']['dispAddPerBox']) {
+				var email = makerandomEmail() + '@scryptmail.com';
+				$.ajax({
+					type: "POST",
+					url: '/verifyEmail',
+					data: {
+						'email': SHA512(email)
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							saveNewDisposableEmail(email);
+						} else if (!data) {
+							count++;
+							addNewDisposableEmail(count);
+						}
 
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+			} else {
+				noAnswer('Limit of disposable email addresses has been reached.');
+			}
 		} else {
-			noAnswer('Limit of disposable email addresses has been reached.');
+			noAnswer('Error. Please try again.');
 		}
-	} else {
-		noAnswer('Error. Please try again.');
-	}
 
+	}else{
+		noAnswer('Please update account.');
+	}
 
 }
 function delDisposedEmail(row, email)
 {
+	var dfd = $.Deferred();
+
 	$('#dialog_simple >p').html('<b>' + profileSettings['disposableEmails'][email]['name'] + '</b><br> will be deleted. Continue?');
 
 	$('#dialog_simple').dialog({
@@ -1542,37 +1481,7 @@ function delDisposedEmail(row, email)
 				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
 				"class": "btn btn-danger",
 				click: function () {
-
-					checkState(function () {
-						$.ajax({
-							type: "POST",
-							url: '/deleteDisposableEmail',
-							data: {
-								'email': email,
-								'modKey': userModKey
-							},
-							success: function (data, textStatus) {
-								if (data===true) {
-									$('#disposeList').DataTable().row($(row).parents('tr')).remove().draw(false);
-									delete profileSettings['disposableEmails'][email];
-									checkProfile();
-									$('#dialog_simple').dialog('close');
-									Answer('Email Removed');
-
-								} else {
-									noAnswer('Error. Please try again.');
-								}
-
-							},
-							error: function (data, textStatus) {
-								noAnswer('Error. Please try again.');
-							},
-							dataType: 'json'
-						});
-
-
-					}, function () {
-					});
+					dfd.resolve();
 
 				}
 			},
@@ -1585,43 +1494,182 @@ function delDisposedEmail(row, email)
 			}
 		]
 	});
+	dfd.done(function () {
+		checkState(function () {
+			var user1={};
+			var dfd1 = $.Deferred();
+			if(secretWord!='' && validateUserObject()){
+				var user = dbToProfile(userData['userObj'], secretWord,userData['saltS']);
+				user1 = JSON.parse(user, true);
+				dfd1.resolve();
+			}else{
+				provideSecret(function (secret) {
+					if (userObj = validateUserObject()) {
+						var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
+						secretWord=secret;
+						user1 = JSON.parse(user, true);
+						secretTime();
+						dfd1.resolve();
+					}
+				}, function () {
+
+				});
+			}
+			dfd1.done(function () {
+				var secret=secretWord;
+
+				console.log(user1);
+				//console.log(email);
+
+				//console.log(user1['keys'][email]);
+
+				var receiveHash=user1['keys'][email]['receiveHash'];
+
+				delete user1['keys'][email];
+
+				var userObj = profileToDb(user1,secret,userData['saltS']);
+
+				$.ajax({
+					type: "POST",
+					url: '/deleteDisposableEmail',
+					data: {
+						'email': email,
+						'modKey': userModKey,
+						'UserObject':userObj
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							$('#disposeList').DataTable().row($(row).parents('tr')).remove().draw(false);
+							delete profileSettings['disposableEmails'][email];
+							userData['userObj']=userObj;
+							delete receivingKeys[receiveHash];
+							checkProfile();
+							$('#dialog_simple').dialog('close');
+							Answer('Email Removed');
+
+						} else {
+							noAnswer('Error. Please try again.');
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+			});
+
+		}, function () {
+		});
+	});
 
 	$('#dialog_simple').dialog('open');
 }
 
+function secretTime() {
+	var secs = 15;
+	clearInterval(secretTimer);
+
+
+	secretTimer = setInterval(function () {
+			if (secs < 1) {
+				secretWord='';
+				clearInterval(secretTimer);
+			}
+			secs--;
+		}, 1000);
+
+}
+
 function saveNewDisposableEmail(email) {
 
+	var dfd = $.Deferred();
+	$('#disposeIcons > button').html('<i class="fa fa-refresh fa-spin"></i>');
+	$('#disposeIcons > button').prop('disabled', true);
 	checkState(function () {
-		$.ajax({
-			type: "POST",
-			url: '/saveDisposableEmail',
-			data: {
-				'email': SHA512(email),
-				'modKey': userModKey
-			},
-			success: function (data, textStatus) {
-				if (data===true) {
-					var t = $('#disposeList').DataTable();
-					t.clear();
-					profileSettings['disposableEmails'][SHA512(email)] = {'name':email};
-					checkProfile();
-					var dataSet = [];
-					$.each(profileSettings['disposableEmails'], function (index, value) {
-						var el = [value['name'], '<a class="delete" href="javascript:void(0);" onclick="delDisposedEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
-						dataSet.push(el);
-					});
-					var addId = t.rows.add(dataSet)
-					t.draw();
-
-				} else {
-					noAnswer('Error. Please try again.');
+		var user1={};
+		if(secretWord!='' && validateUserObject()){
+				var user = dbToProfile(userData['userObj'], secretWord,userData['saltS']);
+				user1 = JSON.parse(user, true);
+				dfd.resolve();
+		}else{
+			provideSecret(function (secret) {
+				if (userObj = validateUserObject()) {
+					var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
+					secretWord=secret;
+					user1 = JSON.parse(user, true);
+					secretTime();
+					dfd.resolve();
 				}
+			}, function () {
+				$('#disposeIcons > button').html('<i class="fa fa-plus"></i>');
+				$('#disposeIcons > button').prop('disabled', false);
+			});
+		}
 
-			},
-			error: function (data, textStatus) {
-				noAnswer('Error. Please try again.');
-			},
-			dataType: 'json'
+		dfd.done(function () {
+			//console.log(user1);
+			//console.log(user1['keys'][SHA512(profileSettings['email'])]['keyLength']);
+			var secret=secretWord;
+			generatePairs(user1['keys'][SHA512(profileSettings['email'])]['keyLength'],function(mailpair){
+
+				//var rsa = forge.pki.rsa;
+				var pki = forge.pki;
+
+				user1['keys'][SHA512(email)]={
+					'email':email,
+					'privateKey':to64(pki.privateKeyToPem(mailpair.keys.privateKey)),
+					'publicKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey)),
+					'canSend':'0',
+					'keyLength':user1['keys'][SHA512(profileSettings['email'])]['keyLength'],
+					'receiveHash':SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
+				};
+				//console.log(user1);
+				var userObj = profileToDb(user1,secret,userData['saltS']);
+
+				$.ajax({
+					type: "POST",
+					url: '/saveDisposableEmail',
+					data: {
+						'email': SHA512(email),
+						'UserObject':userObj,
+						'modKey': userModKey,
+						'mailKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey))
+
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							var t = $('#disposeList').DataTable();
+							t.clear();
+							profileSettings['disposableEmails'][SHA512(email)] = {'name':email};
+							receivingKeys[SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)]={'privateKey':mailpair.keys.privateKey,'length':user1['keys'][SHA512(profileSettings['email'])]['keyLength']/4};
+						//	console.log(receivingKeys);
+							userData['userObj']=userObj;
+							checkProfile();
+							$('#disposeIcons > button').html('<i class="fa fa-plus"></i>');
+							$('#disposeIcons > button').prop('disabled', false);
+							var dataSet = [];
+							$.each(profileSettings['disposableEmails'], function (index, value) {
+								var el = [value['name'], '<a class="delete" href="javascript:void(0);" onclick="delDisposedEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+								dataSet.push(el);
+							});
+							var addId = t.rows.add(dataSet)
+							t.draw();
+
+						} else {
+							noAnswer('Error. Please try again.');
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+
+			});
 		});
 
 

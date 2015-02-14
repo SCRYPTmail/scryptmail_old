@@ -313,7 +313,7 @@
 										data-original-title=""
 										data-content="Will generate new RSA keys."
 									><i
-										class="fa fa-cog"></i>
+										class="fa fa-cog fa-lg"></i>
 									Generate Keys</button>
 
 							</div>

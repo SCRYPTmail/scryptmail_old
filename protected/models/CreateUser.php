@@ -22,9 +22,12 @@ class CreateUser extends CFormModel
 			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'validatemail'),
 
 			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable'),
-			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable'),
+			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable,updateKeys'),
+			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable,updateKeys'),
+			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'saveDisposable,deleteDisposable,updateKeys'),
+			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,updateKeys'),
 
-
+			array('mailKey', 'checkKeyLength', 'on' => 'updateKeys,saveDisposable'),
 			//array('CreateUser', 'isJson', 'on' => 'createAccount'),
 			array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
 			//array('CreateUser', 'isJsonResetUser', 'on' => 'resetPassOneStep'),
@@ -41,19 +44,29 @@ class CreateUser extends CFormModel
 
 
 			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
-			array('tokenHash,tokenAesHash,ModKey,mailKHash,mailHash,password', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
+			array('tokenHash,tokenAesHash,ModKey,mailHash,password', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{4000,20000}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 			array('FolderObject,contacts,blackList', 'match', 'pattern' => "/^[a-z0-9\d]{20,1024}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
-			array('prof', 'match', 'pattern' => "/^[a-z0-9\d]{288}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
+
+			array('prof', 'match', 'pattern' => "/^[a-z0-9\d]{200,1000}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 
 		);
 	}
 
-	public function attributeLabels()
-	{
-		return array();
+public function checkKeyLength(){
+
+	if(isset($this->mailKey)){
+
+		openssl_public_encrypt('SCRYPTmail', $encrypted, base64_decode($_POST['mailKey']), OPENSSL_PKCS1_OAEP_PADDING);
+		if(strlen($encrypted)*4>Yii::app()->user->role['role']['mailMaxKeyLength']){
+			$this->addError('mailKey', 'mail key is bigger than allowed by plan');
+		}
+	}else{
+		$this->addError('mailKey', 'mailKey is not set');
 	}
+
+}
 
 
 	public function isJsonResetUser()
@@ -196,33 +209,81 @@ class CreateUser extends CFormModel
 		$param[':userId'] =$id;
 		$param[':modKey'] =hash('sha512',$this->modKey);
 
+		$paramUser[':userObj'] =$this->UserObject;
+		$paramUser[':userId'] =$id;
+		$paramUser[':modKey'] =hash('sha512',$this->modKey);
+
+		$trans = Yii::app()->db->beginTransaction();
 		if (Yii::app()->db->createCommand("
 			DELETE addresses.*
 				FROM addresses
 				LEFT JOIN user ON user.id = addresses.userId
-			WHERE user.id=:userId AND modKey=:modKey AND addresses.addressHash=:email AND addresses.addr_type=2")->execute($param)) {
+			WHERE user.id=:userId AND modKey=:modKey AND addresses.addressHash=:email AND addresses.addr_type=2")->execute($param) &&
+			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)
+		) {
+			$trans->commit();
 			echo  'true';
-		} else
+		} else{
+			$trans->rollback();
 			echo  'false';
+		}
+
+
+	}
+
+	//updateKeys
+	public function updateKeys($id)
+	{
+		$param[':userId'] =$id;
+		$param[':mailKey'] =$this->mailKey;
+
+
+		$paramUser[':userId'] =$id;
+		$paramUser[':modKey'] =hash('sha512',$this->modKey);
+		$paramUser[':userObj'] =$this->UserObject;
+
+		$trans = Yii::app()->db->beginTransaction();
+		if(Yii::app()->db->createCommand('UPDATE addresses SET mailKey=:mailKey WHERE userId=:userId AND addr_type=1')->execute($param) &&
+			Yii::app()->db->createCommand('UPDATE user SET userObj=:userObj WHERE id=:userId AND modKey=:modKey')->execute($paramUser)
+		){
+			$trans->commit();
+			echo  'true';
+		}else{
+			$trans->rollback();
+			echo  'false';
+		}
 
 	}
 
 	public function saveDisposable($id)
 	{
+
 		if(Yii::app()->db->createCommand("SELECT count(userId) FROM addresses WHERE userId=$id AND addr_type=2")->queryScalar()<Yii::app()->user->role['role']['dispAddPerBox']){
 
 			$param[':email'] =$this->email;
 			$param[':userId'] =$id;
 			$param[':modKey'] =hash('sha512',$this->modKey);
+			$param[':mailKey'] =$this->mailKey;
+
+			$paramUser[':userObj'] =$this->UserObject;
+			$paramUser[':userId'] =$id;
+			$paramUser[':modKey'] =hash('sha512',$this->modKey);
+
+			$trans = Yii::app()->db->beginTransaction();
 
 			if (Yii::app()->db->createCommand(
-				"INSERT INTO addresses (userId,addressHash,addr_type)
-					SELECT :userId, :email,'2'
+				"INSERT INTO addresses (userId,addressHash,addr_type,mailKey)
+					SELECT :userId, :email,'2',:mailKey
 						FROM user
-							WHERE id=:userId AND modkey=:modKey")->execute($param)) {
+							WHERE id=:userId AND modkey=:modKey")->execute($param) &&
+				Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)) {
+				$trans->commit();
 				echo  'true';
-			} else
+			} else{
+				$trans->rollback();
 				echo  'false';
+			}
+
 
 		}else
 			echo  'false';
@@ -232,10 +293,6 @@ class CreateUser extends CFormModel
 
 	public function createAccount()
 	{
-
-		//$obj = json_decode($this->CreateUser, true);
-
-		//if(strlen($obj['invitationToken'])==64 && Yii::app()->db->createCommand("SELECT id FROM invites WHERE invitationCode=:invitationToken AND registered IS NULL")->queryRow(true, array(':invitationToken'=>$obj['invitationToken']))) {
 
 			if($this->mailHash=='e89322d21da8e8d5dd1ef398f189bd11179f44436e9a296e8898356f34b3ecef2d6d34c9d703b2c8ea7e97684158a42d21a5af265bdc26157027af4c130ef98c'){
 				//echo  '{"email":"reserved"}'; //todo revert back before push
@@ -258,25 +315,21 @@ class CreateUser extends CFormModel
 			$param[':mailHash'] = $this->mailHash;
 			$param[':password'] = crypt($this->password);
 
-			//$param[':seedKey'] = $this->seedKey;
-			$param[':mailKey'] = $this->mailKey;
-			//$param[':sigKey'] = $this->sigKey;
-
-		//todo verify is hash
-			//$param[':seedKHash'] = $this->seedKHash;
-			$param[':mailKHash'] = $this->mailKHash;
-			//$param[':sigKHash'] = $this->sigKHash;
-
 
 			$trans = Yii::app()->db->beginTransaction();
 
 			if(
 				Yii::app()->db->createCommand(
-					"INSERT INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash,mailKey,mailKHash) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash,:mailKey,:mailKHash)")->execute($param)
+					"INSERT INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash)")->execute($param)
 			) {
 				$usId=Yii::app()->db->getLastInsertID();
+
+				//$param[':mailKey'] = $this->mailKey;
+				//$param[':mailKHash'] = $this->mailKHash;
+
+
 				if(
-					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash,addr_type) VALUES (:userId,:addressHash,'1')")->execute(array(':userId'=>$usId,':addressHash'=>$this->mailHash)) &&
+					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash,addr_type,mailKey) VALUES (:userId,:addressHash,'1',:mailKey)")->execute(array(':userId'=>$usId,':addressHash'=>$this->mailHash,':mailKey'=>$this->mailKey)) &&
 					UserGroupManager::savegroup($usId, '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
 					//&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$this->invitationToken))
 				){
@@ -288,12 +341,6 @@ class CreateUser extends CFormModel
 				$trans->rollback();
 				$this->addError('email', 'error');
 			}
-
-		//}else
-		//	$this->addError('email', 'error');
-
-
-
 
 	}
 }
