@@ -231,90 +231,36 @@ function sendMail(from,to) {
 }
 
 //encrypt message in same domain
-function indoCrypt(value,from) {
+function indoCrypt(value,from,callback) {
+
 	var d = new Date();
 	var pki = forge.pki;
 
-	var key = forge.random.getBytesSync(32);
-	var mailPubKey = pki.publicKeyFromPem(from64(value['mailK']));
+	var publicKey=pki.publicKeyFromPem(from64(value['mailK']));
+	var encryptionKey=forge.random.getBytesSync(32);
 
-	var emailPreObj = {
-		'to': '',
-		'from': '',
-		'subj': '',
-		'meta': {},
-		'body': {},
-		'attachment': {},
-		'modKey': '',
-		'mailId': ''
-	};
-	messaged = {};
+	var recipient=to64(value['display']);
+	var sender=to64(from);
+	var subject=to64(stripHTML($('#subj').val()).substring(0, 150));
+	var bodyMeta=to64(stripHTML($('#emailbody').code()).substring(0, 100));
+	var sentMeta=Math.round(d.getTime() / 1000);
+	var opened=false;
+	var metaPin='';
+	var metaStatus='';
+	var metaType='received';
+	var modKey=makeModKey(forge.random.getBytesSync(256));
+	var bodyText=to64(stripHTML($('#emailbody').code()));
+	var bodyHTML=to64(filterXSS($('#emailbody').code()));
+	var bdRcpt='';
+	var fromExtra = to64(' via SCRYPTmail');
 
-	emailPreObj['to'] = value['display'];
-	emailPreObj['from'] =from;
-	emailPreObj['subj'] = stripHTML($('#subj').val()).substring(0, 150);
-	emailPreObj['body'] = {'text': stripHTML($('#emailbody').code()), 'html': filterXSS($('#emailbody').code())};
-	emailPreObj['attachment'] = {};
+	var sndrMod='';
+	var files=fileObject;
 
-
-	emailPreObj['meta']['subject'] = stripHTML($('#subj').val()).substring(0, 150);
-	emailPreObj['meta']['body'] = stripHTML(emailPreObj['body']['text']).substring(0, 100);
-
-	if (Object.keys(fileObject).length > 0) {
-		emailPreObj['meta']['attachment'] = 1;
-		messaged['files'] = [];
-		$.each(fileObject, function (index, value) {
-			var fname = SHA512(value['name'] + emailPreObj['to'] + Math.round(d.getTime() / 1000) + d.getTime());
-			emailPreObj['attachment'][index] = {'name': value['name'], 'type': value['type'], 'filename': to64(fname), 'size': value['size'], 'base64': true};
-
-			var el = {'fname': fname, 'data': toAesBinary(key, value['data'])};
-			messaged['files'].push(el);
-		});
-
-	} else {
-		emailPreObj['meta']['attachment'] = '';
-	}
-
-	emailPreObj['meta']['timeSent'] = Math.round(d.getTime() / 1000);
-	emailPreObj['meta']['opened'] = false;
-	emailPreObj['meta']['pin'] = '';
-	emailPreObj['meta']['modKey'] = makeModKey(forge.random.getBytesSync(256));
-	emailPreObj['meta']['type'] = 'received';
-	emailPreObj['meta']['to'] = emailPreObj['to'];
-	emailPreObj['modKey'] = emailPreObj['meta']['modKey'];
-
-
-	emailPreObj['to'] = to64(value['display']);
-	emailPreObj['from'] = to64(from);
-	emailPreObj['subj'] = to64(emailPreObj['subj']);
-	emailPreObj['body']['text'] = to64(emailPreObj['body']['text']);
-	emailPreObj['body']['html'] = to64(emailPreObj['body']['html']);
-
-	emailPreObj['meta']['subject'] = to64(emailPreObj['meta']['subject']);
-	emailPreObj['meta']['body'] = to64(emailPreObj['meta']['body']);
-
-	emailPreObj['meta']['to'] = to64(value['display']);
-	emailPreObj['meta']['from'] = to64(from);
-	emailPreObj['meta']['fromExtra'] = to64(' via SCRYPTmail');
-
-
-	var body = JSON.stringify(emailPreObj);
-
-	var md = forge.md.sha256.create();
-	md.update(body, 'utf8');
-
-	emailPreObj['meta']['signature'] = '';
-	var meta = JSON.stringify(emailPreObj['meta']);
-
-	messaged['mail'] = toAes(key, body);
-	messaged['meta'] = toAes(key, meta);
-
-	messaged['ModKey'] = SHA512(emailPreObj['modKey']);
-
-	messaged['key'] = forge.util.bytesToHex(mailPubKey.encrypt(key, 'RSA-OAEP'));
-
-	var dat = {'messaged': messaged, 'modKey': emailPreObj['modKey']};
-	return dat;
+	createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,function(messaged){
+		var dat = {'messaged': messaged, 'modKey': modKey};
+		callback(dat);
+	});
 
 }
 
@@ -332,36 +278,27 @@ function encryptMessageToRecipient(emailparsed,to) {
 	$.each(emailparsed['indomain'], function (index, value) { // indomain submission
 		var dfd = $.Deferred();
 
-		if (value['seedK'] != '') { //if have pub keys
-			var sendMessage = indoCrypt(value,to);
-			//console.log(sendMessage);
-			var seedPubKey = pki.publicKeyFromPem(from64(value['seedK']));
-			var prePub = sendMessage['modKey'];
+		if (value['mailK'] != '' && value['mailK'] != null) {//if have pub keys
 
-			var cryptedPub = {'modKeySeed': SHA512(prePub), 'seedMeta': forge.util.bytesToHex(seedPubKey.encrypt(forge.util.hexToBytes(prePub), 'RSA-OAEP'))};
+				indoCrypt(value,to,function(sendMessage){
+					SendMailMail(sendMessage,pki.publicKeyFromPem(from64(value['mailK'])),0,function(mailId,seedId,seedModKey){
 
-
-			var mailId = SendMailMail(sendMessage['messaged'],cryptedPub).always(function (result) {
-				if (!isNaN(result['messageId'])) {
-					//console.log(result);
-					var elem = {'mailId': result['messageId'], 'seedId': result['messageId'], 'rcpt':value['name'],'email':value['mail'], 'mailModKey': sendMessage['modKey'], 'seedModKey': prePub};
-							senderMod.push(elem);
+						if (!isNaN(seedId)) {
 							dfd.resolve();
 
-				} else {
+						} else {
+								systemMessage('tryAgain');
+								var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
+								badRcpt.push(rcp);
+								dfd.resolve();
 
-					if(result['answer']=="Limit is reached"){
-						noAnswer('You\'ve reached the maximum of emails per hour. Please register to send more emails');
-					}else if(result.responseText=='Login Required'){
-						noAnswer('Error. Please refresh the page.');
-					}else{
-						noAnswer('Please check recipient(s) address(es) and try again.');
-						var rcp = {'mail': value['mail'], 'message': 'Failed to send.'};
-						badRcpt.push(rcp);
-						dfd.resolve();
-					}
-				}
-			});
+						}
+
+					});
+				});
+
+
+
 		}else{
 			noAnswer('Recipient not found.');
 		}
@@ -372,7 +309,7 @@ function encryptMessageToRecipient(emailparsed,to) {
 	$.when.apply(undefined, promises).then(function () {
 
 		if (Object.keys(badRcpt).length == 0) {
-			Answer('Sent');
+			systemMessage('Sent');
 			setTimeout(function() {
 				window.location='/login';
 			}, 2000);
@@ -383,22 +320,64 @@ function encryptMessageToRecipient(emailparsed,to) {
 
 }
 
-function SendMailMail(messaged,seedPart) {
+function SendMailMail(messaged,mailPubKey,count,callback) {
+	var pki = forge.pki;
+	if(count<2){
+		messaged['messaged']['messageId']=forge.util.bytesToHex(forge.random.getBytesSync(64));
+		//var prePub = messaged['modKey'];
 
-	return $.ajax({
-		type: "POST",
-		url: '/sendLocalMessageUnreg',
-		data: {
-			'message': messaged,
-			'seedPart':seedPart
-		},
-		success: function (data, textStatus) {
-			return data;
-		},
-		error: function (data, textStatus) {
-		},
-		dataType: 'json'
-	});
+		var seedMeta={
+			'mailId':messaged['messaged']['messageId'],
+			'mailModKey':messaged['modKey'],
+			'seedModKey':forge.util.bytesToHex(forge.random.getBytesSync(16))
+
+		};
+		var metaKey = forge.random.getBytesSync(32);
+		var seedMetaAes=toAes(metaKey, JSON.stringify(seedMeta));
+		var seedPassword=addPaddingToString(forge.util.bytesToHex(mailPubKey.encrypt(metaKey, 'RSA-OAEP')));
+
+		var seedData={
+			'seedMeta':seedMetaAes,
+			'seedPassword':seedPassword
+		};
+		messaged['messaged']['seedMeta']=seedMetaAes;
+		messaged['messaged']['seedPassword']=seedPassword;
+		messaged['messaged']['seedModKey']=SHA512(seedMeta['seedModKey']);
+		var rcp=SHA512(pki.publicKeyToPem(mailPubKey));
+		messaged['messaged']['seedRcpnt']=rcp.substr(0,10);
+		count++;
+
+		//SendMailMail(messaged,mailPubKey,count,callback);
+
+		$.ajax({
+			type: "POST",
+			url: '/sendLocalMessageUnreg',
+			data: messaged['messaged'],
+
+			success: function (data, textStatus) {
+				if(!isNaN(data['messageId']))
+				{
+					callback(seedMeta['mailId'],data['messageId'],seedMeta['seedModKey']);
+				}else if(data.answer=="Limit is reached"){
+					noAnswer('You\'ve reached the maximum of emails per hour. Please register to send more emails');
+				}else if(data['messageId']=="duplicate"){
+					SendMailMail(messaged,mailPubKey,count,callback);
+				}else{
+					callback(data);
+				}
+
+			},
+			error: function (data, textStatus) {
+				callback(data);
+			},
+			dataType: 'json'
+		});
+
+	}else{
+		noAnswer('Error. Please try again later.');
+		$('.sendMailButton').html('Send');
+		$('.sendMailButton').prop('disabled', false);
+	}
 
 }
 

@@ -22,8 +22,8 @@ class Crawler extends CFormModel
 
 			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()) {
 
-				foreach($emailsToClean as $row){
-					$emailToDeleteId[]=$row['id'];
+				foreach($emailsToClean as $i=>$row){
+					$emailToDeleteId[":mailId_$i"]=$row['id'];
 
 					if($files=json_decode($row['file'],true)){
 						foreach($files as $filename){
@@ -31,7 +31,7 @@ class Crawler extends CFormModel
 						}
 					}
 				}
-				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode($emailToDeleteId,',').")")->execute();
+				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode(array_keys($emailToDeleteId),',').")")->execute($emailToDeleteId);
 
 			}
 
@@ -54,10 +54,14 @@ class Crawler extends CFormModel
 				Yii::app()->db->createCommand("INSERT INTO mailToSent (indexmail) VALUES(1)")->execute();
 				//print_r($emails);
 				foreach ($emails as $row) {
+
 					if ($row['outside'] == 1) {
+
 						if ($row['pass'] == '') {
+
 							if (Crawler::sendMailOutWithPin($row)) {
-								$par[':id'] = $row['id'];
+
+								$par[':id'] = $row['messageId'];
 								$par[':meta'] = $row['meta'];
 								$par[':body'] = $row['body'];
 								$par[':modKey'] = $row['modKey'];
@@ -74,7 +78,10 @@ class Crawler extends CFormModel
 									$trans->rollback();
 
 								unset($par);
+
 							}
+
+
 						} else {
 
 							if (Crawler::sendMailOutWithoutPin($row)) {
@@ -92,6 +99,7 @@ class Crawler extends CFormModel
 
 						}
 					}
+
 					if (($row['outside'] == 0 && $row['fromOut'] == 0) ||
 						$row['fromOut'] == 1
 					) {
@@ -100,10 +108,13 @@ class Crawler extends CFormModel
 						$par[':id'] = $row['id'];
 						$par[':meta'] = $row['seedMeta'];
 						$par[':modKey'] = $row['modKeySeed'];
+						$par[':password'] = $row['seedPass'];
+						$par[':rcpnt'] = $row['rcpnt'];
+						$par[':v1'] = 1;
 
-						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey) VALUES (:id,:meta,:modKey)")->execute($par)) {
+						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey,password,rcpnt,v1) VALUES (:id,:meta,:modKey,:password,:rcpnt,:v1)")->execute($par)) {
 
-							$par1[':id'] = $row['id'];
+							$par1[':id'] = $row['messageId'];
 							$par1[':meta'] = $row['meta'];
 							$par1[':body'] = $row['body'];
 							$par1[':pass'] = $row['pass'];
@@ -310,7 +321,7 @@ class Crawler extends CFormModel
 			$message = file_get_contents(Yii::app()->basePath . '/views/templates/emailWithPin.php');
 			$message = str_replace('*|SENDER|*', $data['fromt'], $message);
 			$message = str_replace('*|RECIPIENT|*', $data['tot'], $message);
-			$message = str_replace('*|LINK_TO_MESSAGE|*', 'https://scryptmail.com/retrieveEmail/' . $data['id'].'_'.$data['modKey'], $message);
+			$message = str_replace('*|LINK_TO_MESSAGE|*', 'https://scryptmail.com/retrieveEmail/' . $data['messageId'], $message);
 			//	echo $message;
 			$to = $data['tot'];
 

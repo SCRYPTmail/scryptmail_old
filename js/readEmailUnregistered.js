@@ -99,10 +99,9 @@ function renderMessageUnreg(body, meta) {
 	body['from'] = from64(body['from']);
 	body['subj'] = from64(body['subj']);
 
-	$('#defMailOption').click(function(){
+	$('.defMailOption').click(function(){
 		replyUnreg(body['from'], body['subj'],body['to']);
 	});
-	$('.replyunsec').attr('href', 'mailto:' + body['from']);
 
 	if (meta['attachment'] != "") {
 		if (Object.keys(body['attachment']).length > 0) {
@@ -124,6 +123,35 @@ function renderMessageUnreg(body, meta) {
 
 }
 
+function deleteMailUnreg(messageId,modKey){
+
+	var selected=[];
+	var el={"id":messageId,"modKey":modKey};
+
+	selected.push(el);
+
+	$.ajax({
+		type: "POST",
+		url: '/deleteMessageUnreg',
+		data: {
+			'messageIds': JSON.stringify(selected)
+		},
+		success: function (data, textStatus) {
+			if (data.results == 'success') {
+				Answer('Deleted');
+				window.location="/login";
+			} else {
+				noAnswer('Error. Please try again.');
+			}
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+}
+
 
 function readFileUnreg(fileName) {
 
@@ -139,15 +167,7 @@ function readFileUnreg(fileName) {
 
 	var key = pin;
 
-	$.ajax({
-		type: "POST",
-		url: '/getFile',
-		data: {
-			'startSeed': lastParsedSeed,
-			'limit': seedLimit
-		},
-		success: function (data, textStatus) {
-				$.ajax({
+			$.ajax({
 					type: "POST",
 					url: '/getFile',
 					data: fd,
@@ -186,12 +206,6 @@ function readFileUnreg(fileName) {
 
 					});
 
-		},
-		error: function (data, textStatus) {
-			noAnswer('Error. Please refresh the page.');
-		},
-		dataType: 'json'
-	});
 
 
 }

@@ -105,7 +105,9 @@ Use search to find needed section.
 <!-- #NAVIGATION -->
 <!-- Left panel : Navigation area -->
 <!-- Note: This width of the aside area can be adjusted through LESS variables -->
-<aside id="left-panel">
+
+<!-- END NAVIGATION -->
+<div id="left-panel">
 
 	<!-- User info -->
 	<div class="login-info">
@@ -122,7 +124,7 @@ Use search to find needed section.
 		<span id="miniset"> <!-- User image size is adjusted inside CSS, it should stay as is -->
 
 					<a href="#profile" id="show-shortcut"  rel="tooltip" title="Settings" data-placement="right">
-					<i class="fa fa-cog"></i>
+						<i class="fa fa-cog"></i>
 					</a>
 
 				</span>
@@ -153,9 +155,7 @@ Use search to find needed section.
 
 	</nav>
 
-</aside>
-<!-- END NAVIGATION -->
-
+</div>
 <!-- #MAIN PANEL -->
 <div id="main" role="main">
 
@@ -375,11 +375,17 @@ Use search to find needed section.
 
 </div>
 
-<div id="dialog_simple" class="ui-dialog-content ui-widget-content">
+<div id="dialog_simple" class="ui-dialog-content ui-widget-content"  style="display:none;">
 		<p class="padding-5">
+
 		</p>
 	</div>
 
+<div id="dialog_update" style="display:none;">
+	<p class="padding-5">
+
+	</p>
+</div>
 
 </body>
 

@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0542';
+	public $fileVers='0552';
 
 	public function beforeAction($action)
 	{
@@ -126,7 +126,7 @@ class SiteController extends Controller
 					'getFile',
 					'retrievePublicKeys',
 					'deleteMessageUnreg',
-					'checkDomain',
+					'checkDomain'
 				),
 				'expression' => 'Yii::app()->session["unregisteredLogin"]'
 			),
@@ -202,7 +202,8 @@ class SiteController extends Controller
 					'createUserDb',
 					'deleteMyAccount',
 					'saveSecretOneStep',
-					'resetPassOneStep'
+					'resetPassOneStep',
+					'updateAccount'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -229,6 +230,15 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate())
 			$model->invite();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionUpdateAccount()
+	{
+		$model = new UpdateAccount('updateAcc');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->updateAcc(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
 	}
@@ -704,7 +714,7 @@ class SiteController extends Controller
 	public function actionMoveNewMail()
 	{
 		$model = new MoveNewMail();
-		$model->attributes = isset($_POST) ? $_POST : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->moveMail();
 		else
@@ -724,32 +734,46 @@ class SiteController extends Controller
 	}
 	public function actionResetPassOneStep()
 	{
-		$model = new CreateUser('resetPassOneStep');
-		$model->attributes = isset($_POST) ? $_POST : '';
-		if ($model->validate()) //validating json data according to action
-			$model->resetPassOneStep();
-		else
-			echo json_encode($model->getErrors());
+		if(Yii::app()->request->isAjaxRequest)
+		{
+
+			$model = new CreateUser('resetPassOneStep');
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->resetPassOneStep();
+			else
+				echo json_encode($model->getErrors());
+
+		}
+
+
 	}
 
 	public function actionResetPass()
 	{
-		$model = new UserGroupManager('resetPass');
-		$model->attributes = isset($_POST) ? $_POST : '';
-		if ($model->validate()) //validating json data according to action
-			$model->resetPass(Yii::app()->user->getId());
-		else
-			echo json_encode($model->getErrors());
+		if(Yii::app()->request->isAjaxRequest)
+		{
+
+			$model = new CreateUser('resetPass');
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->resetPass(Yii::app()->user->getId());
+			else
+				echo json_encode($model->getErrors());
+		}
 	}
 
 	public function actionChangePass()
 	{
+		if(Yii::app()->request->isAjaxRequest){
+
 		$model = new UserGroupManager('changePass');
-		$model->attributes = isset($_POST) ? $_POST : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
-			$model->savePass(Yii::app()->user->getId());
+			$model->changePass(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
+		}
 	}
 
 	public function actionGetNewSeedsData()
@@ -764,21 +788,25 @@ class SiteController extends Controller
 
 	public function actionDeleteMessageUnreg()
 	{
+		if(Yii::app()->request->isAjaxRequest){
 		$model = new DeleteMessage();
-		$model->attributes = isset($_POST) ? $_POST : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->deleteUnreg();
 		else
 			echo json_encode($model->getErrors());
+		}
 	}
 	public function actionDeleteMessage()
 	{
+		if(Yii::app()->request->isAjaxRequest){
 		$model = new DeleteMessage();
-		$model->attributes = isset($_POST) ? $_POST : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->delete();
 		else
 			echo json_encode($model->getErrors());
+		}
 	}
 
 	public function actionShowMessage()
@@ -857,22 +885,23 @@ class SiteController extends Controller
 
 	}
 
+
 	public function actionSendLocalMessageUnreg()
 	{
+		if(Yii::app()->request->isAjaxRequest){
 		$model = new SaveEmail('sendLocal');
-		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
-		$model->attributes = isset($_POST['seedPart']) ? $_POST['seedPart'] : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->sendLocal();
 		else
 			echo json_encode($model->getErrors());
+		}
 	}
 
 	public function actionSendLocalMessage()
 	{
 		$model = new SaveEmail('sendLocal');
-		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
-		$model->attributes = isset($_POST['seedPart']) ? $_POST['seedPart'] : '';
+		$model->attributes=$_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->sendLocal();
 		else
@@ -892,12 +921,15 @@ class SiteController extends Controller
 
 	public function actionSendOutMessagePin()
 	{
+		if(Yii::app()->request->isAjaxRequest){
 		$model = new SaveEmail('sendOutPin');
-		$model->attributes = isset($_POST['message']) ? $_POST['message'] : '';
+		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
 			$model->sendOutPin();
 		else
 			echo json_encode($model->getErrors());
+
+		}
 	}
 
 
@@ -1057,16 +1089,15 @@ class SiteController extends Controller
 
 	public function actionCreateUserDb()
 	{
-		$model = new CreateUser();
-
-		if (isset($_POST['CreateUser'])) {
-			$model->setScenario('createAccount');
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new CreateUser('createAccount');
 			$model->attributes = $_POST;
-			if ($model->validate() && $model->createAccount()) {
-			} else
+			if ($model->validate())
+				$model->createAccount();
+			else
 				echo json_encode($model->getErrors());
-			Yii::app()->end();
 		}
+
 	}
 
 	public function actionWhyuse()
@@ -1096,7 +1127,7 @@ class SiteController extends Controller
 		$model = new CreateUser('deleteDisposable');
 		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
-			$model->deleteDisposable(Yii::app()->user->getId());
+			$model->resetUserObject(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
 	}
@@ -1237,11 +1268,10 @@ public function actionAbout_us()
 	}
 	public function actionGenerateNewToken()
 	{
-		$model = new UpdateKeys();
+		if(Yii::app()->request->isAjaxRequest){
 
-		if (isset($_POST['sendObj'])) {
+		$model = new UpdateKeys('generateToken');
 
-			$model->setScenario('generateToken');
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->generateToken(Yii::app()->user->getId());
@@ -1252,11 +1282,10 @@ public function actionAbout_us()
 	}
 	public function actionSaveSecretOneStep()
 	{
-		$model = new UpdateKeys();
+		if(Yii::app()->request->isAjaxRequest){
 
-		if (isset($_POST['sendObj'])) {
+			$model = new UpdateKeys('saveSecretOneStep');
 
-			$model->setScenario('saveSecretOneStep');
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->saveSecretOneStep(Yii::app()->user->getId());
@@ -1264,36 +1293,36 @@ public function actionAbout_us()
 				echo json_encode($model->getErrors());
 
 		}
+
 	}
 	public function actionSaveSecret()
 	{
-		$model = new UpdateKeys();
+		if(Yii::app()->request->isAjaxRequest){
 
-		if (isset($_POST['sendObj'])) {
+			$model = new UpdateKeys('saveSecret');
 
-			$model->setScenario('saveSecret');
 			$model->attributes = $_POST;
 			if ($model->validate()) //validating json data according to action
 				$model->saveSecret(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
 
-		}
 
+		}
 	}
 	public function actionUpdateKeys()
 	{
 
-		$model = new UpdateKeys();
 
-		if (isset($_POST['sendObj'])) {
+		if(Yii::app()->request->isAjaxRequest){
 
-			$model->setScenario('saveKeys');
+			$model = new CreateUser('updateKeys');
 			$model->attributes = $_POST;
-			if ($model->validate()) //validating json data according to action
-				$model->saveKeys();
+			if ($model->validate())
+				$model->updateKeys(Yii::app()->user->getId());
 			else
 				echo json_encode($model->getErrors());
+
 
 		}
 

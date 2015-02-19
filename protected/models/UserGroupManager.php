@@ -22,10 +22,8 @@ class UserGroupManager extends CFormModel
 	public function rules()
 	{
 		return array(
-			array('oldPass, newPass', 'required','on'=>'changePass'),
-			array('mailHash, tokenHash,tokenAesHash,newPass', 'required','on'=>'resetPass'),
-			array('mailHash, tokenHash,tokenAesHash,newPass', 'match', 'pattern'=>'/^([a-z0-9_])+$/', 'message'=>'please provide correct hash','on'=>'resetPass'),
-			array('mailHash, tokenHash,tokenAesHash,newPass','length', 'min' => 128, 'max'=>128,'on'=>'resetPass'),
+			array('oldPass,newPass', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'changePass'),
+
 			array('mailHash, pass,tokenHash','length', 'min' => 128, 'max'=>128,'on'=>'verifyPass'),
 
 		);
@@ -52,24 +50,9 @@ class UserGroupManager extends CFormModel
 
 	}
 
-	public function resetPass()
-	{
-
-		$param[':mailHash']=$this->mailHash;
-		$param[':tokenHash']=$this->tokenHash;
-		$param[':tokenAesHash']=$this->tokenAesHash;
-		$param[':newPass']=crypt($this->newPass);
-
-		//print_r($param);
-
-		if(Yii::app()->db->createCommand("UPDATE user SET password=:newPass WHERE mailHash=:mailHash AND tokenHash=:tokenHash AND tokenAesHash=:tokenAesHash")->execute($param)){
-			echo '{"result":"success"}';
-		}else
-			echo '{"result":"fail"}';
-	}
 
 
-	public function savePass($id)
+	public function changePass($id)
 	{
 
 		$user = Yii::app()->db->createCommand("SELECT password FROM user WHERE id=$id")->queryRow();
@@ -78,6 +61,7 @@ class UserGroupManager extends CFormModel
 		{
 			$params[':newPass']=crypt($this->newPass);
 			$params[':id']=$id;
+
 			if(Yii::app()->db->createCommand("UPDATE user SET password=:newPass WHERE id=:id")->execute($params))
 				echo '{"result":"success"}';
 			else

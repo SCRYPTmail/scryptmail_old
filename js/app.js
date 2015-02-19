@@ -196,57 +196,6 @@ var calc_navbar_height = function() {
 
                 },
 
-                // RESET WIDGETS
-                resetWidgets: function($this){
-                    $.widresetMSG = $this.data('reset-msg');
-
-                    $.SmartMessageBox({
-                        title : "<i class='fa fa-refresh' style='color:green'></i> Clear Local Storage",
-                        content : $.widresetMSG || "Would you like to RESET all your saved widgets and clear LocalStorage?",
-                        buttons : '[No][Yes]'
-                    }, function(ButtonPressed) {
-                        if (ButtonPressed == "Yes" && localStorage) {
-                            localStorage.clear();
-                            location.reload();
-                        }
-
-                    });
-                },
-
-                // LAUNCH FULLSCREEN
-                launchFullscreen: function(element){
-
-                    if (!$.root_.hasClass("full-screen")) {
-
-                        $.root_.addClass("full-screen");
-
-                        if (element.requestFullscreen) {
-                            element.requestFullscreen();
-                        } else if (element.mozRequestFullScreen) {
-                            element.mozRequestFullScreen();
-                        } else if (element.webkitRequestFullscreen) {
-                            element.webkitRequestFullscreen();
-                        } else if (element.msRequestFullscreen) {
-                            element.msRequestFullscreen();
-                        }
-
-                    } else {
-
-                        $.root_.removeClass("full-screen");
-
-                        if (document.exitFullscreen) {
-                            document.exitFullscreen();
-                        } else if (document.mozCancelFullScreen) {
-                            document.mozCancelFullScreen();
-                        } else if (document.webkitExitFullscreen) {
-                            document.webkitExitFullscreen();
-                        }
-
-                    }
-
-                },
-
-
                 // TOGGLE MENU
 
                 // TOGGLE SHORTCUT
@@ -343,28 +292,7 @@ var calc_navbar_height = function() {
         };
         /* ~ END: SMART ACTIONS */
 
-        /*
-         * ACTIVATE NAVIGATION
-         * Description: Activation will fail if top navigation is on
-         */
-        app.leftNav = function(){
 
-            // INITIALIZE LEFT NAV
-            if (!topmenu) {
-                if (!null) {
-                    $('nav ul').jarvismenu({
-                        accordion : true,
-                        speed : menu_speed,
-                        closedSign : '<em class="fa fa-plus-square-o"></em>',
-                        openedSign : '<em class="fa fa-minus-square-o"></em>'
-                    });
-                } else {
-                    alert("Error - menu anchor does not exist");
-                }
-            }
-
-        };
-        /* ~ END: ACTIVATE NAVIGATION */
 
         /*
          * MISCELANEOUS DOM READY FUNCTIONS
@@ -478,8 +406,6 @@ initApp.menuPos();
  */
 function startApp(){
 	initApp.SmartActions();
-	initApp.leftNav();
-	initApp.domReadyMisc();
 }
 jQuery(document).ready(function() {
 
@@ -613,7 +539,6 @@ $('#main').resize(function() {
 
     if ($(window).width() < 979) {
         $.root_.addClass('mobile-view-activated');
-        $.root_.removeClass('minified');
     } else if ($.root_.hasClass('mobile-view-activated')) {
         $.root_.removeClass('mobile-view-activated');
     }
@@ -651,96 +576,6 @@ var ie = ( function() {
 
 }());
 /* ~ END: DETECT IE VERSION */
-
-/*
- * CUSTOM MENU PLUGIN
- */
-$.fn.extend({
-
-    //pass the options variable to the function
-    jarvismenu : function(options) {
-
-        var defaults = {
-                accordion : 'true',
-                speed : 200,
-                closedSign : '[+]',
-                openedSign : '[-]'
-            },
-
-        // Extend our default options with those provided.
-            opts = $.extend(defaults, options),
-        //Assign current element to variable, in this case is UL element
-            $this = $(this);
-
-        //add a mark [+] to a multilevel menu
-        $this.find("li").each(function() {
-            if ($(this).find("ul").size() !== 0) {
-                //add the multilevel sign next to the link
-                $(this).find("a:first").append("<b class='collapse-sign'>" + opts.closedSign + "</b>");
-
-                //avoid jumping to the top of the page when the href is an #
-                if ($(this).find("a:first").attr('href') == "#") {
-                    $(this).find("a:first").click(function() {
-                        return false;
-                    });
-                }
-            }
-        });
-
-        //open active level
-        $this.find("li.active").each(function() {
-            $(this).parents("ul").slideDown(opts.speed);
-            $(this).parents("ul").parent("li").find("b:first").html(opts.openedSign);
-            $(this).parents("ul").parent("li").addClass("open");
-        });
-
-        $this.find("li a").click(function() {
-
-            if ($(this).parent().find("ul").size() !== 0) {
-
-                if (opts.accordion) {
-                    //Do nothing when the list is open
-                    if (!$(this).parent().find("ul").is(':visible')) {
-                        parents = $(this).parent().parents("ul");
-                        visible = $this.find("ul:visible");
-                        visible.each(function(visibleIndex) {
-                            var close = true;
-                            parents.each(function(parentIndex) {
-                                if (parents[parentIndex] == visible[visibleIndex]) {
-                                    close = false;
-                                    return false;
-                                }
-                            });
-                            if (close) {
-                                if ($(this).parent().find("ul") != visible[visibleIndex]) {
-                                    $(visible[visibleIndex]).slideUp(opts.speed, function() {
-                                        $(this).parent("li").find("b:first").html(opts.closedSign);
-                                        $(this).parent("li").removeClass("open");
-                                    });
-
-                                }
-                            }
-                        });
-                    }
-                }// end if
-                if ($(this).parent().find("ul:first").is(":visible") && !$(this).parent().find("ul:first").hasClass("active")) {
-                    $(this).parent().find("ul:first").slideUp(opts.speed, function() {
-                        $(this).parent("li").removeClass("open");
-                        $(this).parent("li").find("b:first").delay(opts.speed).html(opts.closedSign);
-                    });
-
-                } else {
-                    $(this).parent().find("ul:first").slideDown(opts.speed, function() {
-                        /*$(this).effect("highlight", {color : '#616161'}, 500); - disabled due to CPU clocking on phones*/
-                        $(this).parent("li").addClass("open");
-                        $(this).parent("li").find("b:first").delay(opts.speed).html(opts.openedSign);
-                    });
-                } // end else
-            } // end if
-        });
-    } // end function
-});
-/* ~ END: CUSTOM MENU PLUGIN */
 
 /*
  * ELEMENT EXIST OR NOT
@@ -826,27 +661,6 @@ function runAllForms() {
         });
     }
 
-    /*
-     * JQUERY UI DATE
-     * Dependency: js/libs/jquery-ui-1.10.3.min.js
-     * Usage: <input class="datepicker" />
-     */
-    if ($.fn.datepicker) {
-        $('.datepicker').each(function() {
-
-            var $this = $(this),
-                dataDateFormat = $this.attr('data-dateformat') || 'dd.mm.yy';
-
-            $this.datepicker({
-                dateFormat : dataDateFormat,
-                prevText : '<i class="fa fa-chevron-left"></i>',
-                nextText : '<i class="fa fa-chevron-right"></i>',
-            });
-
-            //clear memory reference
-            $this = null;
-        });
-    }
 
     /*
      * AJAX BUTTON LOADING TEXT
@@ -864,150 +678,7 @@ function runAllForms() {
     });
 
 }
-/* ~ END: INITIALIZE FORMS */
 
-/*
- * INITIALIZE CHARTS
- * Description: Sparklines, PieCharts
- */
-
-/*
- * INITIALIZE JARVIS WIDGETS
- * Setup Desktop Widgets
- */
-function setup_widgets_desktop() {
-
-    if ($.fn.jarvisWidgets && enableJarvisWidgets) {
-
-        $('#widget-grid').jarvisWidgets({
-
-            grid : 'article',
-            widgets : '.jarviswidget',
-            localStorage : true,
-            deleteSettingsKey : '#deletesettingskey-options',
-            settingsKeyLabel : 'Reset settings?',
-            deletePositionKey : '#deletepositionkey-options',
-            positionKeyLabel : 'Reset position?',
-            sortable : true,
-            buttonsHidden : false,
-            // toggle button
-            toggleButton : true,
-            toggleClass : 'fa fa-minus | fa fa-plus',
-            toggleSpeed : 200,
-            onToggle : function() {
-            },
-            // delete btn
-            deleteButton : true,
-            deleteClass : 'fa fa-times',
-            deleteSpeed : 200,
-            onDelete : function() {
-            },
-            // edit btn
-            editButton : true,
-            editPlaceholder : '.jarviswidget-editbox',
-            editClass : 'fa fa-cog | fa fa-save',
-            editSpeed : 200,
-            onEdit : function() {
-            },
-            // color button
-            colorButton : true,
-            // full screen
-            fullscreenButton : true,
-            fullscreenClass : 'fa fa-expand | fa fa-compress',
-            fullscreenDiff : 3,
-            onFullscreen : function() {
-            },
-            // custom btn
-            customButton : false,
-            customClass : 'folder-10 | next-10',
-            customStart : function() {
-                alert('Hello you, this is a custom button...');
-            },
-            customEnd : function() {
-                alert('bye, till next time...');
-            },
-            // order
-            buttonOrder : '%refresh% %custom% %edit% %toggle% %fullscreen% %delete%',
-            opacity : 1.0,
-            dragHandle : '> header',
-            placeholderClass : 'jarviswidget-placeholder',
-            indicator : true,
-            indicatorTime : 600,
-            ajax : true,
-            timestampPlaceholder : '.jarviswidget-timestamp',
-            timestampFormat : 'Last update: %m%/%d%/%y% %h%:%i%:%s%',
-            refreshButton : true,
-            refreshButtonClass : 'fa fa-refresh',
-            labelError : 'Sorry but there was a error:',
-            labelUpdated : 'Last Update:',
-            labelRefresh : 'Refresh',
-            labelDelete : 'Delete widget:',
-            afterLoad : function() {
-            },
-            rtl : false, // best not to toggle this!
-            onChange : function() {
-
-            },
-            onSave : function() {
-
-            },
-            ajaxnav : $.navAsAjax // declears how the localstorage should be saved (HTML or AJAX page)
-
-        });
-
-    }
-
-}
-/*
- * SETUP DESKTOP WIDGET
- */
-function setup_widgets_mobile() {
-
-    if (enableMobileWidgets && enableJarvisWidgets) {
-        setup_widgets_desktop();
-    }
-
-}
-/* ~ END: INITIALIZE JARVIS WIDGETS */
-
-
-/*
- * LOAD SCRIPTS
- * Usage:
- * Define function = myPrettyCode ()...
- * loadScript("js/my_lovely_script.js", myPrettyCode);
- */
-function loadScript(scriptName, callback) {
-
-    if (!jsArray[scriptName]) {
-        jsArray[scriptName] = true;
-
-        // adding the script tag to the head as suggested before
-        var body = document.getElementsByTagName('body')[0],
-            script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = scriptName;
-
-        // then bind the event to the callback function
-        // there are several events for cross browser compatibility
-        script.onload = callback;
-
-        // fire the loading
-        body.appendChild(script);
-
-        // clear DOM reference
-        //body = null;
-        //script = null;
-
-    } else if (callback) {
-        // changed else to else if(callback)
-        //console.log("JS file already added!");
-        //execute function
-        callback();
-    }
-
-}
-/* ~ END: LOAD SCRIPTS */
 
 /*
  * APP AJAX REQUEST SETUP
@@ -1299,7 +970,6 @@ function pageSetUp() {
         });
 
         // setup widgets
-        setup_widgets_desktop();
 
         // run form elements
         runAllForms();
@@ -1320,7 +990,6 @@ function pageSetUp() {
        // runAllCharts();
 
         // setup widgets
-        setup_widgets_mobile();
 
         // run form elements
         runAllForms();

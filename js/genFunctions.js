@@ -57,21 +57,25 @@ $(document).ready(function () {
 });
 
 recipient={};
+isOneStep=false;
 resetRawTokenHash='';
 fileSelector='';
 resetAesTokenHash='';
+keysObject={};
 resSalt='';
+UserSalt='';
 folderDecoded = $.Deferred();
 sessionKey = '';
 key = makeModKey('f');
 mailPrivateKey = '';
-mailPublickKey = '';
+mailPublicKey = '';
 seedPrivateKey = '';
 seedPublickKey = '';
 sigPubKey = '';
 sigPrivateKey = '';
 folderKey = '';
 userModKey = '';
+receivingKeys={};
 contactTable = '';
 sessionTimeOut=40;
 toFile='';
@@ -124,13 +128,13 @@ profileSettings = {};
 
 lastAvailableSeed = 0;
 lastParsedSeed = 0;
-lastParsedEmail = 0;
 
 seedLimit = 500;
 mailParsing = 100;
 mailRetrievePromises = [];
+secretWord='';
 
-
+var secretTimer;
 var timer;
 var newMailer;
 var logOuttimer;
@@ -142,7 +146,7 @@ function resetGlobal() {
 	fileObject = {};
 	fileSize = 0;
 	mailPrivateKey = '';
-	mailPublickKey = '';
+	mailPublicKey = '';
 	newMails = 0;
 	seedPrivateKey = '';
 	seedPublickKey = '';
@@ -153,6 +157,7 @@ function resetGlobal() {
 	sigPrivateKeyTemp = '';
 
 	contactTable = '';
+	receivingKeys={};
 	folderKey = '';
 	userModKey = '';
 	contacts = {};
@@ -169,7 +174,6 @@ function resetGlobal() {
 	folderHash = '';
 	lastAvailableSeed = 0;
 	lastParsedSeed = 0;
-	lastParsedEmail = 0;
 
 	$("#folderul").empty();
 	$("#folderulcustom").empty();
@@ -219,6 +223,7 @@ function initialFunction() {
 					});
 
 			} else {
+				$.get("/logOut");
 				resetGlobal();
 				sessionKey = '';
 				showLog(function () {
@@ -300,27 +305,55 @@ function checkState(success, cancel) {
 function newMailCheckRoutine() {
 
 	clearInterval(newMailer);
-	if (seedPrivateKey != '') {
+	if (mailPrivateKey != '') {
 		newMailer = setInterval(function () {
 
 			$.get("getNewSeeds")
 				.done(function (newMaxSeed) {
-					if (!isNaN(newMaxSeed)) {
-						//profileSettings['lastSeed'] = 0;
-						//profileSettings['newMails'] = 0;
-						//checkProfile();
-						//console.log(profileSettings);
-						//console.log(profileSettings);
-						if (newMaxSeed > profileSettings['lastSeed']) {
-							lastAvailableSeed = parseInt(newMaxSeed);
-							lastParsedSeed = parseInt(profileSettings['lastSeed']);
-							clearInterval(newMailer);
-							checkMailTime=30000;
-							//showEmailFetch();
-							newMailSeedRoutine();
-						}
+					if(newMaxSeed=='Login Required'){
+						initialFunction();
+					}else{
+						newMaxSeed=JSON.parse(newMaxSeed);
+						if (!isNaN(newMaxSeed['v0']) || !isNaN(newMaxSeed['v1'])) {
 
+							if(profileSettings['version']!=undefined && profileSettings['version']==1){
+
+								if (newMaxSeed['v1'] > profileSettings['lastSeed']) {
+									lastAvailableSeed = parseInt(newMaxSeed['v1']);
+									lastParsedSeed = parseInt(profileSettings['lastSeed']);
+									clearInterval(newMailer);
+									checkMailTime=30000;
+
+									newMailSeedRoutine();
+								}//else{
+								//	upgradeAfterSeed(newMaxSeed['v1']);
+								//}
+
+
+
+							}else if(profileSettings['version']==undefined || profileSettings['version']<1) {
+
+
+								if (newMaxSeed['v0'] > profileSettings['lastSeed']) {
+									lastAvailableSeed = parseInt(newMaxSeed['v0']);
+									lastParsedSeed = parseInt(profileSettings['lastSeed']);
+									clearInterval(newMailer);
+									checkMailTime=30000;
+
+									newMailSeedRoutine();
+								}else
+									upgradeAfterSeed(newMaxSeed['v0']);
+
+							}
+
+
+						}else{
+							initialFunction();
+						}
 					}
+
+
+
 				})
 				.fail(function () {
 					initialFunction();
@@ -340,16 +373,23 @@ function newMailSeedRoutine() {
 
 		if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
 			checkState(function () {
+				var hashes=(profileSettings['version']!=undefined && profileSettings['version']==1)?JSON.stringify(Object.keys(receivingKeys)):''
 				$.ajax({
 					type: "POST",
 					url: '/getNewSeedsData',
 					data: {
 						'startSeed': lastParsedSeed,
-						'limit': seedLimit
+						'limit': seedLimit,
+						'hashes':hashes
 					},
 					success: function (data, textStatus) {
 						if (data['response'] == 'success') {
+							//console.log(data);
 							tryDecryptSeed(data.data);
+						}else if(data['response'] == 'empty'){
+							profileSettings['lastSeed'] = parseInt(lastAvailableSeed);
+							checkProfile();
+							newMailCheckRoutine();
 						}
 					},
 					error: function (data, textStatus) {
@@ -371,8 +411,9 @@ function newMailSeedRoutine() {
 }
 
 function tryDecryptSeed(data) { //TODO check internal and outside mail can be detected
+	var pki = forge.pki;
 	var start = new Date().getTime();
-	var sucessfull = {};
+	var sucessfull = [];
 
 	var parseChunk = data.splice(0, mailParsing);
 
@@ -383,15 +424,36 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 	var process = function () {
 
 		var value = parseChunk[index];
-		try {
-			//console.log(value);
-			var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
-			//console.log(decrypted);
-			decrypted = forge.util.bytesToHex(decrypted);
-			sucessfull[value['id']] = {'mod': decrypted};
-		} catch (err) {
-			//dfd.resolve();
+		if(value['v1']=="0"){
+			try {
+				//console.log(value);
+				var decrypted = seedPrivateKey.decrypt(forge.util.hexToBytes(value['meta']), 'RSA-OAEP');
+				//console.log(decrypted);
+				decrypted = forge.util.bytesToHex(decrypted);
+				var preData={'mailId':value['id'],'mailModKey': decrypted,'seedId':value['id'],'seedModKey': decrypted,'rcpnt':''};
+				sucessfull.push(preData);
+			} catch (err) {
+				//dfd.resolve();
+			}
+		}else if(value['v1']=="1"){
+
+			try {
+				//console.log(value);
+			var paddedPassword=value['password'];
+				//console.log(value);
+				var decrypted = receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP');
+				var messageData=JSON.parse(fromAes(decrypted,value['meta']));
+				//console.log();
+				//console.log(decrypted);
+				decrypted = forge.util.bytesToHex(decrypted);
+				var preData={'mailId':messageData['mailId'],'mailModKey': messageData['mailModKey'],'seedId':value['id'],'seedModKey': messageData['seedModKey'],'rcpnt':value['rcpnt']};
+				sucessfull.push(preData);
+				//console.log(sucessfull);
+			} catch (err) {
+				//dfd.resolve();
+			}
 		}
+
 
 		if (index + 1 < cont) {
 			setTimeout(process, 2);
@@ -411,7 +473,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 					mailParsing = 10;
 
 
-				if (jQuery.isEmptyObject(sucessfull)) { //if no mail is found, save last seed and go to next chunk
+				if (sucessfull.length==0) { //if no mail is found, save last seed and go to next chunk
 					profileSettings['lastSeed'] = parseInt(lastParsedSeed);
 					checkProfile();
 				} else {
@@ -422,7 +484,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 				tryDecryptSeed(data);
 
 			} else { //no more chunks left
-				if (jQuery.isEmptyObject(sucessfull)) {
+				if (sucessfull.length==0) {
 					profileSettings['lastSeed'] = parseInt(lastParsedSeed);
 					checkProfile();
 				}
@@ -456,6 +518,146 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 		process();
 
 
+}
+
+
+function moveMessagestoInbox(newMessages) {
+
+	var chunks = {};
+	var cont = 0;
+	var ct = Object.keys(newMessages).length;
+	var maxIndex=0;
+
+	//console.log(newMessages);
+
+	$.each(newMessages, function (index, value) {
+
+		if(value['seedId']>maxIndex)
+			maxIndex=value['seedId'];
+
+		chunks[index] = value;
+
+		if (cont > 30) {
+			//console.log(chunks);
+			retrieveNewTable(chunks)
+				.always(function (data) {
+					if (data.response == 'success') {
+						$.each(data['data'], function (indexi, value) {
+
+							var paddedPassword=value['pass'];
+
+							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
+
+							//console.log(decrypted);
+
+							profileSettings['lastSeed'] = parseInt(maxIndex);
+
+							if (decrypted != '') {
+								var key = forge.util.hexToBytes(decrypted);
+								var z = fromAes(key, value['meta']);
+								var meta=JSON.parse(z)
+								var from=from64(meta['from']);
+
+								if (from.indexOf('<') != -1) {
+									var toEmail=getEmailsFromString(from);
+								} else {
+									var toEmail=stripHTML(from);
+								}
+
+								if(SHA256(toEmail) in blackList){
+									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+								}else{
+									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+								}
+
+								getNewEmailsCount();
+								if(folder_navigate=="Inbox" && activePage=="mail"){
+									displayFolderContent('Inbox');
+								}
+							}
+						});
+						checkFolders();
+					}
+				});
+			chunks = {};
+			cont = -1;
+		}
+		if (!--ct) {
+			retrieveNewTable(chunks)
+				.always(function (data) {
+					if (data.response == 'success') {
+						//console.log(chunks);
+						//console.log(data['data']);
+						$.each(data['data'], function (indexi, value) {
+
+							//console.log(value['rcpnt']);
+							var paddedPassword=value['pass'];
+							var decrypted = forge.util.bytesToHex(receivingKeys[value['rcpnt']]['privateKey'].decrypt(forge.util.hexToBytes(paddedPassword.substr(0,receivingKeys[value['rcpnt']]['length'])), 'RSA-OAEP'));
+
+							//console.log(decrypted);
+
+							profileSettings['lastSeed'] = parseInt(maxIndex);
+
+							if (decrypted != '') {
+
+								var key = forge.util.hexToBytes(decrypted);
+
+								var z = fromAes(key, value['meta']);
+								var meta=JSON.parse(z)
+								var from=from64(meta['from']);
+								//console.log(meta);
+								if (from.indexOf('<') != -1) {
+									var toEmail=getEmailsFromString(from);
+								} else {
+									var toEmail=stripHTML(from);
+								}
+
+								if(SHA256(toEmail) in blackList){
+									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+								}else{
+									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+								}
+
+								getNewEmailsCount();
+								if(folder_navigate=="Inbox" && activePage=="mail"){
+									displayFolderContent('Inbox');
+								}
+							}
+						});
+
+						checkFolders();
+					}
+				});
+
+			chunks = {};
+			cont = -1;
+		}
+
+		cont++;
+	});
+	//profileSettings['lastSeed']=lastAvailableSeed;
+
+	checkProfile();
+	//displayFolderContent();
+	//console.log(folder_navigate);
+
+}
+
+
+function retrieveNewTable(chunks) { //todo change modkey when copy, to differ from sender
+
+	return $.ajax({
+		type: "POST",
+		url: '/moveNewMail',
+		data:  {
+			chunks:chunks
+		},
+		success: function (data, textStatus) {
+		},
+		error: function (data, textStatus) {
+		},
+		dataType: 'json'
+	});
 }
 
 function showFetcher() {
@@ -541,158 +743,9 @@ function showLimits() {
 
 }
 
-
-function moveMessagestoInbox(newMessages) {
-
-	var chunks = {};
-	var cont = 0;
-	var ct = Object.keys(newMessages).length;
-
-	$.each(newMessages, function (index, value) {
-		chunks[index] = value;
-		if (cont > 30) {
-			//console.log(chunks);
-			retrieveNewTable(chunks)
-				.always(function (data) {
-					if (data.response == 'success') {
-						$.each(data['data'], function (indexi, value) {
-							var decrypted = forge.util.bytesToHex(mailPrivateKey.decrypt(forge.util.hexToBytes(value['pass']), 'RSA-OAEP'));
-
-							profileSettings['lastSeed'] = parseInt(index);
-
-							if (decrypted != '') {
-								var key = forge.util.hexToBytes(decrypted);
-								var z = fromAes(key, value['meta']);
-								var meta=JSON.parse(z)
-								var from=from64(meta['from']);
-
-								if (from.indexOf('<') != -1) {
-									var toEmail=getEmailsFromString(from);
-								} else {
-									var toEmail=stripHTML(from);
-								}
-
-								if(SHA256(toEmail) in blackList){
-									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
-								}else{
-									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
-								}
-
-								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && activePage=="mail"){
-									displayFolderContent('Inbox');
-								}
-							}
-						});
-						checkFolders();
-					}
-				});
-			chunks = {};
-			cont = -1;
-		}
-		if (!--ct) {
-
-			retrieveNewTable(chunks)
-				.always(function (data) {
-					if (data.response == 'success') {
-						$.each(data['data'], function (indexi, value) {
-
-							var decrypted = forge.util.bytesToHex(mailPrivateKey.decrypt(forge.util.hexToBytes(value['pass']), 'RSA-OAEP'));
-
-							profileSettings['lastSeed'] = parseInt(index);
-
-							if (decrypted != '') {
-
-								var key = forge.util.hexToBytes(decrypted);
-								var z = fromAes(key, value['meta']);
-								var meta=JSON.parse(z)
-								var from=from64(meta['from']);
-								if (from.indexOf('<') != -1) {
-									var toEmail=getEmailsFromString(from);
-								} else {
-									var toEmail=stripHTML(from);
-								}
-
-								if(SHA256(toEmail) in blackList){
-									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
-								}else{
-									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
-								}
-
-								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && activePage=="mail"){
-									displayFolderContent('Inbox');
-								}
-							}
-						});
-
-						checkFolders();
-					}
-				});
-
-			chunks = {};
-			cont = -1;
-		}
-
-		cont++;
-	});
-	//profileSettings['lastSeed']=lastAvailableSeed;
-
-	checkProfile();
-	//displayFolderContent();
-	//console.log(folder_navigate);
-
-}
-
-
-function retrieveNewTable(chunks) { //todo change modkey when copy, to differ from sender
-	return $.ajax({
-		type: "POST",
-		url: '/moveNewMail',
-		data: {
-			'chunks': chunks
-		},
-		success: function (data, textStatus) {
-		},
-		error: function (data, textStatus) {
-		},
-		dataType: 'json'
-	});
-}
-
-
-function providePassword(success, cancel) {
-
-	$('#dialog-form-pin').dialog({
-		autoOpen: false,
-		height: 230,
-		modal: true,
-		resizable: false,
-		buttons: [
-			{
-				html: "<i class='fa fa-check'></i>&nbsp; Continue",
-				"class": "btn btn-primary",
-				"id": 'secretok',
-				click: function () {
-					if ($('#pin').val() != "") {
-						success($('#pin').val());
-						$('#pin').val('');
-						$(this).dialog("close");
-					} else {
-						noAnswer('PIN can not be empty');
-					}
-
-				}
-			}
-		]
-	});
-	$('#pin').val(Math.floor(Math.random() * 90000) + 10000);
-	$('#dialog-form-pin').dialog('open');
-}
-
-
 function provideSecret(success, cancel) {
-	if(profileSettings['oneStep']=='true' || profileSettings['oneStep']===true){
+
+	if(profileSettings['oneStep']=='true' || profileSettings['oneStep']===true || isOneStep===true){
 		var title='Provide Password';
 		$("#forSecPh").css('display','none');
 	}else{
@@ -758,18 +811,18 @@ function provideSecret(success, cancel) {
 function logOut() {
 	resetGlobal();
 	$(window).unbind('beforeunload');
-	window.location = 'logout';
+	window.location = '/logout';
 }
 function logOutTime() {
 	var secs = 300;
 	clearInterval(logOuttimer);
 
-	if (seedPrivateKey == '') {
+	if (mailPrivateKey == '') {
 
 		logOuttimer = setInterval(function () {
 			if (secs < 0) {
 				unbindElement();
-				window.location='logout';
+				window.location='/logout';
 			}
 			secs--;
 		}, 1000);
@@ -781,7 +834,7 @@ function myTimer() {
 	var sec = sessionTimeOut;
 	clearInterval(timer);
 
-	if (seedPrivateKey != '') {
+	if (mailPrivateKey != '') {
 
 		timer = setInterval(function () {
 
@@ -854,10 +907,11 @@ function currentTab() {
 
 function verifySecret(secret) {
 	if (secret != '') {
+		var userObj={};
 		if (userObj = validateUserObject()) {
 
 			try {
-				var user = dbToProfile(userObj, secret);
+				var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 				var user1 = JSON.parse(user, true);
 				return true;
 			} catch (err) {
@@ -883,27 +937,9 @@ function makeModKey(salt) {
 }
 
 
+function dbToProfile(obj, secret,salt) {
 
-function profileToDb(obj) {
-	var salt = forge.util.hexToBytes(obj['saltS']);
-	var derivedKey = makeDerived(obj['secret'], salt)
-
-	var Test = forge.util.bytesToHex(derivedKey);
-
-	var keyT = CryptoJS.enc.Hex.parse(Test.substr(0, 64));
-	var keyA = forge.util.hexToBytes(Test.substr(64, 128));
-
-	var f = toAes(keyA, makerandom() + JSON.stringify(obj['userObj']) + makerandom());
-	var Fis = toFish(keyT, f);
-
-	return Fis;
-
-}
-function dbToProfile(obj, secret) {
-
-	//console.log(obj);
-
-	var salt = forge.util.hexToBytes(obj['saltS']);
+	salt = forge.util.hexToBytes(salt);
 	var derivedKey = makeDerived(secret, salt)
 
 	var Test = forge.util.bytesToHex(derivedKey);
@@ -914,13 +950,13 @@ function dbToProfile(obj, secret) {
 	//var ivT = CryptoJS.enc.Hex.parse(obj['vectorT']);
 	//var ivA = forge.util.hexToBytes(obj['vectorA']);
 
-	var Fis = fromFish(keyT, obj['userObj']);
+	var Fis = fromFish(keyT, obj);
 
 	//console.log(Fis);
 
 	var f = fromAes(keyA, Fis);
 
-	return f.substring(f.indexOf('{'), f.indexOf('}') + 1);
+	return f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
 
 
 }
@@ -938,7 +974,7 @@ function dbToFolder(obj) {
 
 function folderToDb(folderObj) {
 
-	var f = toAes(folderKey, makerandom() + JSON.stringify(folderObj) + makerandom());
+	var f = toAes(folderKey, JSON.stringify(folderObj));
 
 	return f;
 }
@@ -959,13 +995,11 @@ function dbToProfileSetting() {
 
 function profileSettingToDb(prof) {
 
-	//console.log('profileSettingToDb');
-	//console.log(profileSettings);
 
 	var t = jQuery.extend(true, {}, profileSettings);
 
 	//var iv = forge.util.hexToBytes(userData['vectorA']);
-	var f = toAes(folderKey, makerandom() + JSON.stringify(to64(t)) + makerandom());
+	var f = toAes(folderKey, JSON.stringify(to64(t)));
 
 	return f;
 
@@ -1111,6 +1145,11 @@ function checkProfile() {
 
 			//console.log('hash write');
 			var prof = profileSettingToDb(profileSettings);
+
+			if(profileSettings['oneStep']=="true" || profileSettings['oneStep']==true){
+				isOneStep=true;
+			}else
+				isOneStep=false;
 
 			$.ajax({
 				type: "POST",
@@ -1461,7 +1500,7 @@ function renderMessages(data) {
 				//	console.log(meta);
 				modkeyToMessag[value['messageHash']] = meta['modKey'];
 				if (folder_navigate == 'Sent' || folder_navigate == 'Draft') {
-					var from = (meta['to'] !== undefined) ? sanitize(meta['to'].toString()) : '';
+					var from ='To: '+( (meta['to'] !== undefined) ? sanitize(meta['to'].toString()) : '');
 				} else {
 					var from = sanitize(meta['from']);
 					if(meta['fromExtra']!=undefined){
@@ -1573,6 +1612,7 @@ function showSavedDraft(body, meta, datas) {
 	var md = forge.md.sha256.create();
 	md.update(JSON.stringify(body), 'utf8');
 
+/*
 	if (datas != '') {
 		if (meta['signature'] !== undefined) {
 			try {
@@ -1584,7 +1624,7 @@ function showSavedDraft(body, meta, datas) {
 			signature = 'unknown';
 		}
 	}
-
+*/
 	iniEmailBody(meta['pin']);
 	if (body['to'] != '') {
 		var to = from64(body['to']);
@@ -1625,6 +1665,7 @@ function showSavedDraft(body, meta, datas) {
 	modKeys.push(body.modKey);
 
 	$('.email-open-header').append('<span class="label bg-color-blue" rel="tooltip" data-placement="bottom" data-original-title="Message saved">DRAFT</span> ');
+	/*
 	if (datas != '') {
 		if (signature === true) {
 			$('.email-open-header').append('<span class="label bg-color-green" rel="tooltip" data-placement="bottom" data-original-title="Message signature has been verified" >Signed</span>');
@@ -1637,6 +1678,7 @@ function showSavedDraft(body, meta, datas) {
 			$('.email-open-header').append('<span class="label bg-color-yellow" rel="tooltip" data-placement="bottom" data-original-title="Signature error. If you change your RSA keys, we can not verify signature." >Error</span>');
 		}
 	}
+	*/
 	finishRendering();
 
 }
@@ -1676,7 +1718,7 @@ function saveDraft() {
 			emailObj['meta']['type'] = 'draft';
 			emailObj['meta']['pin'] = $('#pincheck').is(':checked')?true:false;
 			emailObj['meta']['status'] = '';
-			emailObj['meta']['modKey'] = makeModKey(userObj['saltS']);
+			emailObj['meta']['modKey'] = makeModKey(UserSalt);
 			emailObj['meta']['to'] = emailObj['to']
 			emailObj['meta']['from'] = emailObj['from'];
 			emailObj['modKey'] = emailObj['meta']['modKey'];
@@ -1754,7 +1796,8 @@ function encryptMessage(emailObj, key) {
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	emailObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
+
+	//emailObj['meta']['signature'] = forge.util.bytesToHex(sigPrivateKey.sign(md));
 
 	var meta = JSON.stringify(emailObj['meta']);
 	//console.log(emailObj['meta']);
@@ -2106,34 +2149,6 @@ function deleteMail() {
 		}, 1000);
 	}
 	
-}
-function deleteMailUnreg(messageId,modKey){
-
-var selected=[];
-	var el={"id":messageId,"modKey":modKey};
-
-	selected.push(el);
-
-	$.ajax({
-		type: "POST",
-		url: '/deleteMessageUnreg',
-		data: {
-			'messageIds': JSON.stringify(selected)
-		},
-		success: function (data, textStatus) {
-			if (data.results == 'success') {
-					Answer('Deleted');
-				window.location="/login";
-			} else {
-				noAnswer('Error. Please try again.');
-			}
-
-		},
-		error: function (data, textStatus) {
-			noAnswer('Error. Please try again.');
-		},
-		dataType: 'json'
-	});
 }
 
 function initializeMailList() {
@@ -3145,67 +3160,279 @@ function BlackListToDb() {
 	return f;
 }
 
+function upgradeAfterSeed(newMaxSeed){
+
+	var divObj = $('#dialog_update');
+
+
+	divObj.dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		html:false,
+		modal: true,
+		title: "Account Update..",
+		buttons: [
+			{
+				html: "<i class='fa fa-refresh fa-spin'></i>&nbsp;Updating",
+				"class": "btn btn-normal",
+				"id":'checkUpdate',
+				click: function () {
+					$(window).unbind('beforeunload');
+					window.location = '/logout';
+					$('#dialog_update').dialog('close');
+				}
+			}
+		]
+	});
+	$('#dialog_update >p').html('Do not refresh your browser. We are updating your account. It may take few minutes..');
+
+
+		if(profileSettings['lastSeed']>=newMaxSeed){
+
+			if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
+				$('#checkUpdate').prop('disabled',true);
+
+				provideSecret(function (secret) {
+					divObj.dialog('open');
+					clearInterval(newMailer);
+					var user = dbToProfile(userData['userObj'], secret,userData['saltS']);
+					var user1 = JSON.parse(user, true);
+
+
+					var promises = [];
+
+					//prof_setting['version'] = 1;
+					//userobject converting
+					var pki = forge.pki;
+					var prKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
+					var pubKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
+					var testString=forge.util.bytesToHex(pubKey.encrypt('test string', 'RSA-OAEP'));
+					var testStringLength=testString.length*4;
+					//console.log(testStringLength);
+
+					var userObj = {};
+					var userAddres = [];
+					userObj['folderKey']=user1['folderKey'];
+					userObj['modKey']=user1['modKey'];
+					userObj['keys']={};
+
+					userObj['keys'][SHA512(profileSettings['email'])]={
+						'email':profileSettings['email'],
+						'privateKey':user1['MailPrivate'],
+						'publicKey':user1['MailPublic'],
+						'canSend':'1',
+						'keyLength':testStringLength,
+						'receiveHash':SHA512(pki.publicKeyToPem(pubKey)).substring(0,10)
+					};
+					userAddres.push({
+						'emailHash':SHA512(profileSettings['email']),
+						'mailKey':user1['MailPublic']
+					});
+
+					if(typeof profileSettings['disposableEmails'] == 'undefined'){
+						profileSettings['disposableEmails']={};
+					}
+
+					if(Object.keys(profileSettings['disposableEmails']).length>0){
+						$.each(profileSettings['disposableEmails'], function (index, value) {
+							var dfd = $.Deferred();
+							generatePairs(testStringLength,function(keyPar){
+								userObj['keys'][SHA512(value['name'])]={
+									'email':value['name'],
+									'privateKey':to64(pki.privateKeyToPem(keyPar.keys.privateKey)),
+									'publicKey':to64(pki.publicKeyToPem(keyPar.keys.publicKey)),
+									'canSend':'0',
+									'keyLength':testStringLength,
+									'receiveHash':SHA512(pki.publicKeyToPem(keyPar.keys.publicKey)).substring(0,10)
+								};
+								userAddres.push({
+									'emailHash':SHA512(value['name']),
+									'mailKey':to64(pki.publicKeyToPem(keyPar.keys.publicKey))
+								});
+								dfd.resolve();
+							});
+							promises.push(dfd);
+						});
+					}
+					$.when.apply(undefined, promises).then(function () {
+
+						var Updare1Obj={};
+						//Updare1Obj['userObj']=userObj;
+						//Updare1Obj['userAddress']=userAddres;
+
+						Updare1Obj['userObj'] = profileToDb(userObj,secret,userData['saltS']);
+
+						Updare1Obj['modKey']=user1['modKey'];
+
+
+						$.ajax({
+							type: "POST",
+							url: '/updateAccount',
+							data: {
+								'userObj':Updare1Obj['userObj'],
+								'userAddress':userAddres,
+								'modKey':user1['modKey']
+							},
+							success: function (data, textStatus) {
+								if(data.result=='success'){
+									profileSettings['version'] = 1;
+									checkProfile();
+									$('#dialog_update >p').html('Your account has been updated. Please click OK to re-login.');
+									$('#checkUpdate i').remove();
+									$('#checkUpdate').text('OK');
+									$('#checkUpdate').prop('disabled',false);
+								}
+
+							},
+							error: function (data, textStatus) {
+								//noAnswer('Error. Please try again.');
+								systemMessage('tryAgain');
+							},
+							dataType: 'json'
+						});
+
+					});
+
+				},function () {
+				})
+
+			}
+
+		}
+
+
+
+}
+
+
 
 function retrieveSecret() {
 
 
 	provideSecret(function (secret) {
 
+		var userObj={};
 		if (userObj = validateUserObject()) {
 
-			var user = dbToProfile(userObj, secret);
-
+			var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
 			var pki = forge.pki;
-
-			user1 = JSON.parse(user, true);
-
-			//console.log(user1);
-			try {
-				mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
-				mailPublickKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
-				seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
-				seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
-				sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
-				sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
-			} catch (err) {
-				noAnswer('Keys are corrupted. Please generate new keys');
-			}
-
+			var user1 = JSON.parse(user, true);
 			folderKey = forge.util.hexToBytes(from64(user1['folderKey']));
 			userModKey = user1['modKey'];
-
-			folder = dbToFolder(userObj);
-
-			contacts = dbToContacts();
-			//console.log(folder);
-			blackList = dbToBlackList();
-			//console.log(blackList);
 			profileSettings = dbToProfileSetting();
 
+			if(profileSettings['oneStep']=="true"){
+				isOneStep=true;
+			}else
+				isOneStep=false;
 
-			//console.log(profileSettings);
-			profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
-			sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+			//upgradeAccount(user1,userObj['saltS'],secret,function(){
 
-			if(typeof profileSettings['disposableEmails'] == 'undefined'){
-				profileSettings['disposableEmails']={};
-			}
+				//console.log('user');
+				//console.log(user1);
 
-			profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
-			profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
-			//console.log(user1);
-			myTimer();
-			clearInterval(logOuttimer);
+				if(profileSettings['version']!=undefined && parseInt(profileSettings['version'])==1){
 
-			newMailCheckRoutine();
-			getNewEmailsCount();
+					profileSettings['version'] = 1;
 
-			folderDecoded.resolve();
+					if(Object.keys(user1['keys']).length>0){
+
+					$.each(user1['keys'], function (index, value) {
+
+						receivingKeys[value['receiveHash']]={'privateKey':pki.privateKeyFromPem(from64(value['privateKey'])),'length':value['keyLength']/4};
+
+						if(value['canSend']==1){
+							try {
+								mailPrivateKey = pki.privateKeyFromPem(from64(value['privateKey']));
+								mailPublicKey = pki.publicKeyFromPem(from64(value['publicKey']));
+
+
+							} catch (err) {
+								noAnswer('Keys are corrupted. Please generate new keys');
+							}
+
+						}
+
+					});
+
+
+						//console.log(receivingKeys);
+				}
+
+				}else if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
+					profileSettings['version'] = 0;
+					try {
+
+						mailPrivateKey = pki.privateKeyFromPem(from64(user1['MailPrivate']));
+						mailPublicKey = pki.publicKeyFromPem(from64(user1['MailPublic']));
+
+						var testString=forge.util.bytesToHex(mailPublicKey.encrypt('test string', 'RSA-OAEP'));
+						var testStringLength=testString.length
+
+
+
+						//var hashs=SHA512(pki.publicKeyToPem(mailPublicKey));
+						receivingKeys[""]={'privateKey':mailPrivateKey,'length':testStringLength};
+
+						seedPrivateKey = pki.privateKeyFromPem(from64(user1['SeedPrivate']));
+						seedPublickKey = pki.publicKeyFromPem(from64(user1['SeedPublic']));
+						sigPubKey = pki.publicKeyFromPem(from64(user1['SignaturePublic']));
+						sigPrivateKey = pki.privateKeyFromPem(from64(user1['SignaturePrivate']));
+
+					} catch (err) {
+
+						seedPrivateKey = '';
+						seedPublickKey ='';
+						sigPubKey = '';
+						sigPrivateKey = '';
+
+						noAnswer('Keys are corrupted. Please generate new keys');
+
+					}
+
+				}
+
+
+				folder = dbToFolder(userObj);
+
+				contacts = dbToContacts();
+				//console.log(folder);
+				blackList = dbToBlackList();
+				//console.log(blackList);
+
+
+
+				//console.log(profileSettings);
+				profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
+				sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+
+				if(profileSettings['disposableEmails'] == undefined){
+					profileSettings['disposableEmails']={};
+				}
+
+
+				profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
+				profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
+				//console.log(user1);
+				var test=forge.util.bytesToHex(mailPublicKey.encrypt('ggg', 'RSA-OAEP'));
+				UserSalt=userObj['saltS'];
+
+				myTimer();
+				clearInterval(logOuttimer);
+
+				newMailCheckRoutine();
+				getNewEmailsCount();
+
+				folderDecoded.resolve();
+				currentTab();
+
+			//});
 
 		}
 
-		myTimer();
-		currentTab();
+		//myTimer();
+		//
 
 	}, function () {
 		noAnswer('Without providing correct secret you would not be able to read or post any emails');
@@ -3213,133 +3440,6 @@ function retrieveSecret() {
 }
 
 
-
-function validatePublics() {
-	var check = true;
-	var user = validateUserObject();
-	var role = validateUserRole();
-	var seedKey = role['role']['seedMaxKeyLength'];
-	var mailKey = role['role']['mailMaxKeyLength'];
-
-	if (seedKey == 512 && $('#UpdateKeys_seedPubK').val().length > 192) {
-		check = false;
-	}
-	if (seedKey == 1024 && $('#UpdateKeys_seedPubK').val().length > 282) {
-		check = false;
-	}
-	if (seedKey == 2048 && $('#UpdateKeys_seedPubK').val().length > 461) {
-		check = false;
-	}
-	if (seedKey == 4096 && $('#UpdateKeys_seedPubK').val().length > 810) {
-		check = false;
-	}
-	if (seedKey == 8192 && $('#UpdateKeys_seedPubK').val().length > 1500) {
-		check = false;
-	}
-
-	if (mailKey == 512 && $('#UpdateKeys_mailPubK').val().length > 192) {
-		check = false;
-	}
-	if (mailKey == 1024 && $('#UpdateKeys_mailPubK').val().length > 282) {
-		check = false;
-	}
-	if (mailKey == 2048 && $('#UpdateKeys_mailPubK').val().length > 461) {
-		check = false;
-	}
-	if (mailKey == 4096 && $('#UpdateKeys_mailPubK').val().length > 810) {
-		check = false;
-	}
-	if (mailKey == 8192 && $('#UpdateKeys_mailPubK').val().length > 1500) {
-		check = false;
-	}
-
-	return check;
-}
-
-
-
-
-function validateSeedKeysFromUser() {
-	var pki = forge.pki;
-	var obj = $('#ReqKeys_seedPubK');
-	$('#warnSeedKey').remove();
-
-	if (obj.val() != '' && obj.val().length <= 461) {
-		try {
-			var spublicKey = pki.publicKeyFromPem(obj.val());
-			var sencrypted = spublicKey.encrypt('test', 'RSA-OAEP');
-
-			obj.parent().removeClass('state-error');
-			obj.parent().removeClass('state-error');
-			obj.parent().addClass('state-success');
-			obj.parent().addClass('state-success');
-
-		} catch (err) {
-			obj.parent().removeClass('state-success');
-			obj.parent().removeClass('state-success');
-			obj.parent().addClass('state-error');
-			obj.parent().addClass('state-error');
-		}
-
-	} else {
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-error');
-		obj.parent().removeClass('state-error');
-	}
-	if (obj.val() != '' && (obj.val().length > 461 || obj.val().length < 170)) {
-		obj.parent().removeClass('state-success');
-		obj.parent().removeClass('state-success');
-		obj.parent().addClass('state-error');
-		obj.parent().addClass('state-error');
-		obj.parent().append('<span id="warnSeedKey">Key should be between 512 - 2048 bits.</span>');
-	}
-
-}
-
-
-
-
-
-function calcPerformance() {
-	var start = new Date().getTime();
-	var rsa = forge.pki.rsa;
-	var pki = forge.pki;
-
-	var keypair = rsa.generateKeyPair({bits: 1024, e: 0x10001});
-
-	var publicKey = keypair.publicKey;
-
-	var encrypted = publicKey.encrypt('100000', 'RSA-OAEP');
-
-	var privateKey = keypair.privateKey;
-	var end = new Date().getTime();
-	var decrypted = privateKey.decrypt(encrypted, 'RSA-OAEP');
-	var startdec = new Date().getTime();
-	for (var i = 0; i < 10; i++) {
-		decrypted = privateKey.decrypt(encrypted, 'RSA-OAEP');
-	}
-	var enddec = new Date().getTime();
-	var time = end - start;
-	var timedec = enddec - startdec;
-
-	var optimist = ((time / 10) + (time * 5)) / 1000;
-	var optimal = ((time) + (time * 10)) / 1000;
-	var paranoid = ((time * 10) + (time * 100)) / 1000;
-
-	var optimistspeed = ((timedec * 100) / 1000) / 6;
-	var optimalspeed = (timedec * 100) / 1000;
-	var paranoidspeed = ((timedec * 100) / 1000) * 6;
-
-	$('#optimist').text(optimist.toFixed() + ' sec.');
-	$('#optimal').text(optimal.toFixed() + ' sec.');
-	$('#paranoid').text(paranoid.toFixed() + ' sec.');
-
-	$('#optimistspeed').text(optimistspeed.toFixed() + ' sec.');
-	$('#optimalspeed').text(optimalspeed.toFixed() + ' sec.');
-	$('#paranoidspeed').text(paranoidspeed.toFixed() + ' sec.');
-
-}
 
 /*
  function indomainNotice(email,emailparsed,locmails,dataBack,index){

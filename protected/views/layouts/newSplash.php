@@ -171,7 +171,7 @@
 
 						<div class="text-align-left">
 						<label class="input">
-							<input class="input-box" placeholder="email" maxlength="50"
+							<input class="input-box" placeholder="email" maxlength="160"  style="padding-right:150px;"
 								   name="email" id="CreateUser_email" type="text">
 							<span style="position:absolute;top:5px;right:10px;padding:6px;">@scryptmail.com</span>
 						</label>
@@ -218,10 +218,13 @@
 				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
 					<div style='position:relative;'>
-								<div class="input-group">
-									<input type="text" name="uN" id="LoginForm_username" placeholder="email" class="col col-xs-12 input-box" style="margin:0px; height:50px;">
-									<span class="input-group-addon input-box" id="cremail" style="padding-left: 5px;">@scryptmail.com</span>
-								</div>
+									<label class="input">
+										<input class="input-box" placeholder="email" maxlength="160"  style="padding-right:150px;"
+											   name="email" id="LoginForm_username" type="text">
+										<span style="position:absolute;top:5px;right:10px;padding:6px;">@scryptmail.com</span>
+									</label>
+
+
 
 
 							<label class="input">

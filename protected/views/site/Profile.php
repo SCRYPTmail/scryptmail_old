@@ -225,20 +225,15 @@
 			<div class="panel-heading">
 				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="collapsed"
 										   onclick="gotoUpdateKeys()"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
-							class="fa fa-lg fa-angle-up pull-right"></i> RSA Keys </a></h4>
+							class="fa fa-lg fa-angle-up pull-right"></i> PGP Keys </a></h4>
 			</div>
 			<div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
 				<div class="panel-body">
-					<form class="smart-form" id="keyGenForm">
+					<div class="smart-form" id="keyGenForm">
 
 						<fieldset>
 							<section>
-								<label class="label">Recommended Keys Strength (seed/mail)
-									<a href="javascript:void(0);"
-									   rel="popover-hover"
-									   data-placement="bottom"
-									   data-original-title="Strength"
-									   data-content="Seed - encrypted message id<br>Mail - encrypted message key.<br>Message body encrypted with AES 256."><b>?</b></a></label>
+								<label class="label">Key Strength</label>
 
 								<div class="row">
 									<div class="col col-12">
@@ -246,23 +241,23 @@
 											<input type="radio" id="UpdateKeys_mode_0" value="light" name="UpdateKeys[mode]">
 											<i></i><span id="label512"
 														 rel="popover-hover" data-placement="bottom"
-														 data-original-title="512/1024"
-														 data-content="Fastest encryption providing basic protection.">Light Mode (512/1024) ~ 4sec. to generate</label>
+														 data-original-title=" 1024"
+														 data-content="Fastest encryption providing basic protection.">Light Mode (1024 bit) ~ 4sec. to generate</label>
 
 										<label class="radio">
 											<input type="radio" id="UpdateKeys_mode_1" value="normal" name="UpdateKeys[mode]">
 											<i></i><span id='label1024'
 														 rel="popover-hover" data-placement="bottom"
-														 data-original-title="1024/2048"
-														 data-content="Compromise between speed and security. Message encrypted using 2012 NIST recommendations up to 2030."> Normal Mode (1024/2048) ~20 sec. to generate
+														 data-original-title=" 2048"
+														 data-content="Compromise between speed and security. Message encrypted using 2012 NIST recommendations up to 2030."> Normal Mode (2048) ~20 sec. to generate
 										</label>
 
 										<label class="radio">
 											<input type="radio" id="UpdateKeys_mode_2" value="paranoid" name="UpdateKeys[mode]">
 											<i></i><span id='label2048'
 														 rel="popover-hover" data-placement="bottom"
-														 data-original-title="2048/4096"
-														 data-content="Slowest and most secure communication. Message key encryption should survive the next 10 years or until dramatic quantum computer breakthrough."> Secured Mode (2048/4096) ~2 minutes to generate</label>
+														 data-original-title=" 4096"
+														 data-content="Slowest and most secure communication. Message key encryption should survive the next 10 years or until dramatic quantum computer breakthrough."> Secured Mode (4096) ~2 minutes to generate</label>
 
 									</div>
 
@@ -275,13 +270,13 @@
 						<!-- widget content -->
 
 
-						<a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="retrieveKeys();"
+						<button class="btn btn-primary btn-sm" onclick="retrieveKeys();" type="button"
 						   rel="popover-hover"
 						   data-placement="bottom"
 						   data-original-title=""
 						   data-content="Retrieve Key for offline storage or verification."
 
-							><i class="fa fa-upload"></i> Retrieve</a>
+							><i class="fa fa-upload"></i> Retrieve</button>
 
 
 						<br><br>
@@ -289,35 +284,22 @@
 							<legend><p class="note">Public keys are required.</p></legend>
 
 							<div class="row">
-								<section class="col col-6">
-									<label class="textarea"> <i class="icon-append fa fa-key" style="margin-right: 10px;"></i>
-										<textarea rows="7" cols="30" name="UpdateKeys[seedPrK]" placeholder="Seed Private Key"
-												  class="valid" id="UpdateKeys_seedPrK" spellcheck="false" disabled="disabled"
-												  oninput="validateSeedKeys();"></textarea>
+								<section>
+									<label class="textarea"><i class="icon-append fa fa-key" style="margin-right: 10px;"></i>
+
+										<textarea rows="7" class="custom-scroll" name="UpdateKeys[mailPrK]" placeholder="Mail Private Key"
+												  class="valid" id="UpdateKeys_mailPrK" spellcheck="false" disabled="disabled"
+												  oninput="validateMailKeys();"></textarea>
+
 									</label>
 								</section>
 
-								<section class="col col-6">
-									<label class="textarea"> <i class="icon-append fa fa-key" style="margin-right: 10px;"></i>
-										<textarea rows="7" cols="30" name="UpdateKeys[mailPrK]" placeholder="Mail Private Key"
-												  class="valid" id="UpdateKeys_mailPrK" spellcheck="false" disabled="disabled"
-												  oninput="validateMailKeys();"></textarea>
-									</label>
-								</section>
 							</div>
 
 							<div class="row">
-								<section class="col col-6">
+								<section>
 									<label class="textarea"> <i class="icon-append fa fa-key" style="margin-right: 10px;"></i>
-										<textarea rows="7" cols="30" name="UpdateKeys[seedPubK]" placeholder="Seed Public Key"
-												  class="valid" id="UpdateKeys_seedPubK" spellcheck="false" disabled="disabled"
-												  oninput="validateSeedKeys();"></textarea>
-									</label>
-								</section>
-
-								<section class="col col-6">
-									<label class="textarea"> <i class="icon-append fa fa-key" style="margin-right: 10px;"></i>
-										<textarea rows="7" cols="30" name="UpdateKeys[mailPubK]" placeholder="Mail Public Key"
+										<textarea rows="7"  class="custom-scroll" name="UpdateKeys[mailPubK]" placeholder="Mail Public Key"
 												  class="valid" id="UpdateKeys_mailPubK" spellcheck="false" disabled="disabled"
 												  oninput="validateMailKeys();"></textarea>
 									</label>
@@ -325,43 +307,34 @@
 							</div>
 							<div class="row">
 							<div class="buttons pull-left col col-sm-6">
-								<button class="btn btn-primary btn-sm" onclick="generateKeys()" id="profileGenerateKeys"
+								<button class="btn btn-primary btn-sm" onclick="generateKeys()" id="profileGenerateKeys" type="button"
 										rel="popover-hover"
 										data-placement="bottom"
 										data-original-title=""
 										data-content="Will generate new RSA keys."
 									><i
-										class="fa fa-cog"></i>
+										class="fa fa-cog fa-lg"></i>
 									Generate Keys</button>
 
 							</div>
 
-							<div class="buttons pull-left col col-sm-6">
-								<a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="generateSigKeys()"
-								   rel="popover-hover" data-placement="top" data-original-title="Caution:"
-								   data-content="Use only when your keys are corrupted. New Signature Keys will render all your previous message to be shown as forged."><i
-										class="fa fa-cog"></i>
-									Generate Signature Keys</a>
+								<div class="buttons col col-sm-6">
 
-							</div>
-							</div>
+									<a class="btn btn-primary btn-sm pull-right " href="javascript:void(0);" onclick="saveKeys();"
+									   rel="popover-hover"
+									   data-placement="left"
+									   data-original-title="Caution:"
+									   data-content="Saving Keys will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.">
+										<i class="fa fa-save"></i> Save</a>
 
-							<div class="row">
-							<div class="buttons col col-sm-12">
 
-								<a class="btn btn-primary btn-sm pull-right " href="javascript:void(0);" onclick="saveKeys();"
-								   rel="popover-hover"
-								   data-placement="left"
-								   data-original-title="Caution:"
-								   data-content="Saving Keys will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.">
-									<i class="fa fa-save"></i> Save</a>
+								</div>
+							</div>
+							<div class="row"><p class="note">Caution: This action will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.</p></div>
 
-								<p class="note">Caution: This action will overwrite your existing keys. You won't be able to receive messages encrypted with old keys.</p>
-							</div>
-							</div>
 						</fieldset>
 
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>

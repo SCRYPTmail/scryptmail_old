@@ -122,7 +122,7 @@
 							<strong>Heartbleed attack? POODLE or BEAST? - We got you covered.</strong>
 							<br>
 							<br>
-							We are regularly testing our service with third party security services to ensure up to date communication protection.
+							We are regularly testing our service with third party security services to ensure up to date communication protection.<br><br>
 							* Based on Qualys SSL <a href='https://www.ssllabs.com/ssltest/index.html' target='_blank'>evaluation</a>.
 
 						</p>
@@ -142,7 +142,7 @@
 							<strong>We mean it, no half measures. Your message encrypted from start to finish.</strong>
 							<br>
 							<br>
-							Many similar services advertise email encryption, but not all of them truly encrypt your emails. Attachments, recipients, other metadata often are left in clear text. We encrypt all of it!*
+							Many similar services advertise email encryption, but not all of them truly encrypt your emails. Attachments, recipients, other metadata often are left in clear text. We encrypt all of it!*<br><br>
 							* Not applicable if you are sending an email to third party servers.
 						</p>
 					</div>

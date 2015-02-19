@@ -29,16 +29,24 @@ class RetrievePublicKeys extends CFormModel
 		}
 		//print_r($param);
 		$result = array();
+
 		if ($hashes = Yii::app()->db->createCommand(
-			"SELECT addresses.addressHash as mailHash,user.seedKey,user.mailKey
+			"SELECT addresses.addressHash as mailHash,addresses.mailKey, user.mailKey as userMailKey
 			FROM addresses
 			LEFT JOIN user ON user.id=addresses.userId
 			WHERE addresses.addressHash IN(" . implode($temp, ',') . ")")->queryAll(true, $param)) {
-			foreach ($hashes as $row)
-				$result[$row['mailHash']] = $row;
-		}
 
-		//print_r($hashes);
+			foreach ($hashes as $row)
+			{
+				if(isset($row['mailKey'])){
+					unset($row['userMailKey']);
+				}else{
+					$row['mailKey']=$row['userMailKey'];
+					unset($row['userMailKey']);
+				}
+				$result[$row['mailHash']] = $row;
+			}
+		}
 
 		//$result[0]['whatIGet']=$this->mails;
 		//$result[0]['whatHash']=$emailsArr;

@@ -18,12 +18,16 @@ class Acceptemailfrompostfix extends CFormModel
 			set_time_limit(300);
 			$current = file_get_contents('newfile.txt');
 			//$enc=urldecode($current)			;
-			//$enc = base64_decode($current);
+			$enc = base64_decode($current);
 			//$enc=json_encode($current);
-			$ff = json_decode($current, true);
-			//$rr = json_decode($ff['mandrill_events'], true);
-			$rr=$ff['mandrill_events'];
+			$ff = json_decode($enc, true);
+			$rr = json_decode($ff['mandrill_events'], true);
+			//$rr=$ff['mandrill_events'];
 		}
+
+		//print_r($rr);
+
+		//Yii::app()->end();
 		//print_r($rr);
 		//Yii::app()->end();
 		//;	print_r($rr);
@@ -58,6 +62,8 @@ class Acceptemailfrompostfix extends CFormModel
 //for($k=0;$k<5000;$k++){
 		//echo $k.'
 		//';
+
+
 		foreach ($rr as $index => $row) {
 			unset($row['msg']['raw_msg']);
 			//print_r($row);
@@ -69,11 +75,18 @@ class Acceptemailfrompostfix extends CFormModel
 
 					//print_r($rcpt);
 					if ($mailhash = Yii::app()->db->createCommand(
-						"SELECT user.seedKey,user.mailKey
+						"SELECT addresses.mailKey, user.mailKey as userMailKey
 			FROM addresses
 			LEFT JOIN user ON user.id=addresses.userId
 			WHERE addresses.addressHash= '" . hash('sha512', $rcpt[0]) . "'")->queryRow()) {
-						$seedKey = $mailhash['seedKey'];
+
+						if(isset($mailhash['mailKey'])){
+							unset($mailhash['userMailKey']);
+						}else{
+							$mailhash['mailKey']=$mailhash['userMailKey'];
+							unset($mailhash['userMailKey']);
+						}
+
 						$mailKey = $mailhash['mailKey'];
 
 						$emailPreObj['from'] = (isset($row['msg']['from_name']) && $row['msg']['from_name'] != $row['msg']['from_email']) ? strip_tags($row['msg']['from_name']) . '<' . $row['msg']['from_email'] . '>' : $row['msg']['from_email'];
@@ -135,65 +148,34 @@ class Acceptemailfrompostfix extends CFormModel
 
 						$meta = Acceptemailfrompostfix::toAes($key,json_encode($emailPreObj['meta']));
 
-
 						$params[':body'] = $body;
 						$params[':modKey'] = hash('sha512', $emailPreObj['modKey']);
 						$params[':pass'] = bin2hex(Acceptemailfrompostfix::encrypt($mailKey, $key));
+						$params[':messageId'] =bin2hex(Acceptemailfrompostfix::makeModKey(32));
+						$params[':rcpnt'] = substr(hash('sha512',base64_decode($mailKey)), 0, 10);
 
-						//echo '
-						//';
-						//print_r(json_decode(json_encode($emailPreObj)));
 						$params[':meta'] = $meta;
 						$params[':whens'] = Date("Y-m-d H:i:s");
 
-						//print_r($params);
-
-						//	print_r(bin2hex($key));
-
-						//	echo 'pass in_hex Encr ' . $params[':pass'];
-
-						//echo '
-
-						//meta in_hex encrypted ' . $meta;
-
-						//echo '
-
-						//body in_hex encrypted ' . $body;
-
-
-
-						//echo '
-
-						//pass in hex Decrypted ' . bin2hex($key);
-
-
-						//echo '
-
-						//meta in_sctring decr' . json_encode($emailPreObj['meta']);
-
-						//echo '
-
-						//body in_sctring decr' . json_encode($emailPreObj);
-
-
 						unset($key, $iv);
+
+						$r['mailId']=$params[':messageId'];
+						$r['mailModKey']=$emailPreObj['modKey'];
+						$r['seedModKey']=bin2hex(Acceptemailfrompostfix::makeModKey(16));
+
+
+						$seedKey = Acceptemailfrompostfix::makeModKey(32);
+						$params[':seedMeta'] =Acceptemailfrompostfix::toAes($seedKey,json_encode($r));
+						$padstrHex=bin2hex(Acceptemailfrompostfix::makeModKey(512));
+						$seedPass=bin2hex(Acceptemailfrompostfix::encrypt($mailKey, $seedKey));
+						$params[':seedPass'] = substr_replace($padstrHex, $seedPass, 0, strlen($seedPass));
+						$params[':modKeySeed'] = hash('sha512',$r['seedModKey']);
+
 
 						$trans = Yii::app()->db->beginTransaction();
 
-						if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,fromOut) VALUES(:meta,:body,:pass,:modKey,:whens,1)")->execute($params)) {
-
-							$r = hex2bin($emailPreObj['meta']['modKey']);
-							//$prePub['modKey'] = bin2hex($r);
-							$param[':id'] = Yii::app()->db->getLastInsertID();
-							$param[':seedMeta'] = bin2hex(Acceptemailfrompostfix::encrypt($seedKey, $r));
-							$param[':modKeySeed'] = hash('sha512', bin2hex($r));
-							//print_r($prePub);
-							$param[':modKey'] = $params[':modKey'];
-
-							if (Yii::app()->db->createCommand("UPDATE mailToSent SET seedMeta=:seedMeta,modKeySeed=:modKeySeed WHERE id=:id AND modKey=:modKey")->execute($param))
+						if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,fromOut,messageId,rcpnt,seedMeta,modKeySeed,seedPass) VALUES(:meta,:body,:pass,:modKey,:whens,1,:messageId,:rcpnt,:seedMeta,:modKeySeed,:seedPass)")->execute($params)) {
 								$trans->commit();
-							else
-								$trans->rollback();
 						} else {
 							$trans->rollback();
 						}
@@ -201,24 +183,10 @@ class Acceptemailfrompostfix extends CFormModel
 						unset($params, $param);
 
 
-						//	$plaintext_dec = json_decode(base64_decode(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key,	hex2bin($ciphertext), MCRYPT_MODE_CBC, $iv)),true);
-
-						//print_r($body);
-
-
-						//$seed=Acceptemailfrompostfix::encrypt($seedKey,'serg');
-						//print_r($seed);
 					}
 
-					//print_r($mailhash);
-
-					//print_r($emailPreObj);
 				}
 			}
-
-//print_r(Yii::app()->basePath);
-			//print_r($row);
-			//unset($rr[$index]);
 
 		}
 		echo 'success';
