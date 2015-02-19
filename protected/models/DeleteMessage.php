@@ -44,6 +44,8 @@ class DeleteMessage extends CFormModel
 
 	public function delete()
 	{
+		try {
+			$this->messageIds = json_decode($this->messageIds, true);
 		if (count($this->messageIds) > 0) {
 			foreach ($this->messageIds as $i => $row) {
 				$par[] = "(:id_$i,:mod_$i)";
@@ -70,7 +72,9 @@ class DeleteMessage extends CFormModel
 		} else {
 			echo '{"results":"success"}';
 		}
-
+		} catch (Exception $e) {
+			echo '{"results":"Messages should be in an array"}';
+		}
 	}
 
 	public function deleteUnreg()
