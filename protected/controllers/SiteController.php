@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0552';
+	public $fileVers='0551';
 
 	public function beforeAction($action)
 	{
@@ -115,6 +115,7 @@ class SiteController extends Controller
 					'createUserDb',
 					'createSelectedUser',
 					'resetPassOneStep',
+					'getNewSeeds',
 					'whyuse'
 				),
 				'expression' => 'Yii::app()->user->role["role"]==0'
