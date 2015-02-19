@@ -1125,12 +1125,14 @@ class SiteController extends Controller
 
 	public function actionDeleteDisposableEmail()
 	{
+		if(Yii::app()->request->isAjaxRequest){
 		$model = new CreateUser('deleteDisposable');
 		$model->attributes = $_POST;
 		if ($model->validate()) //validating json data according to action
-			$model->resetUserObject(Yii::app()->user->getId());
+			$model->deleteDisposable(Yii::app()->user->getId());
 		else
 			echo json_encode($model->getErrors());
+		}
 	}
 
 	public function actionSaveDisposableEmail()
