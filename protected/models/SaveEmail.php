@@ -36,7 +36,14 @@ class SaveEmail extends CFormModel
 			array('mailHash', 'numerical', 'integerOnly' => true, 'allowEmpty' => true, 'on' => 'save,saveMailInSent'),
 
 
-			array('mail,ModKey,meta,from,to,pinHash', 'required', 'on' => 'sendOutPin'),
+			array('from', 'checkFrom', 'on' => 'sendOutPin'),
+			array('to', 'safe', 'on' => 'sendOutPin'),
+			array('messageId,pinHash,ModKey', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'sendOutPin'),
+			array('mail,meta', 'match', 'pattern' => "/^[a-z0-9\d]+$/i", 'allowEmpty' => false, 'on' => 'sendOutPin'),
+			array('mail,meta', 'checkEmail', 'on' => 'sendOutPin'),
+
+
+
 			array('mail,ModKey,key,meta', 'required', 'on' => 'sendOutNoPin'),
 
 			//array('mail,ModKey,iv,key,meta', 'required','on'=>'saveMailInSentWithErrors'),
@@ -53,6 +60,22 @@ class SaveEmail extends CFormModel
 
 		);
 	}
+	public function checkFrom()
+	{
+
+		$t=explode('<',$this->from);
+		if(count($t)>=2){
+			$email=hash('sha512',substr($t[1],0,-1));
+		}else{
+			$email=hash('sha512',$t);
+		}
+		$param[':id']=Yii::app()->user->getId();
+		$param[':mailHash']=$email;
+
+		if(!Yii::app()->db->createCommand("SELECT id FROM user WHERE id=:id AND mailHash=:mailHash")->execute($param)){
+			$this->addError('email', 'Email not correct');
+		}
+	}
 	public function checkEmail()
 	{
 
@@ -60,7 +83,7 @@ class SaveEmail extends CFormModel
 				$this->addError('mail', 'Email is too big');
 			}
 
-			if(!isset($this->meta) || strlen($this->meta)>2000000){
+			if(!isset($this->meta) || strlen($this->meta)>20000){
 				$this->addError('mail', 'Email is too big');
 			}
 
@@ -184,6 +207,7 @@ class SaveEmail extends CFormModel
 	{
 
 		$params[':body'] = $this->mail;
+		$params[':messageId'] = $this->messageId;
 		$params[':modKey'] = $this->ModKey;
 		$params[':meta'] = $this->meta;
 		$params[':outside'] = 1;
@@ -205,11 +229,14 @@ class SaveEmail extends CFormModel
 		}else
 			$params[':file'] = null;
 
+		if(!Yii::app()->db->createCommand("SELECT id FROM mailTable WHERE id=:id")->queryRow(true,array(':id'=>$this->messageId))){
 
-		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,fromt,tot,modKey,whens,outside,file,pinHash) VALUES(:meta,:body,:fromt,:tot,:modKey,:whens,:outside,:file,:pinHash)")->execute($params))
+		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,fromt,tot,modKey,whens,outside,file,pinHash,messageId) VALUES(:meta,:body,:fromt,:tot,:modKey,:whens,:outside,:file,:pinHash,:messageId)")->execute($params))
 			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
 		else
 			echo '{"messageId":"fail"}';
+		}else
+			echo '{"messageId":"duplicate"}';
 	}
 
 	public function sendOutNoPin()

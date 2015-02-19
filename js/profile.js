@@ -229,9 +229,6 @@ function generateKeys() {
 	$('#profileGenerateKeys').prop('disabled', true);
 	$('#profileGenerateKeys').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating keys..");
 
-	var dfdseed = new $.Deferred();
-	var dfdmail = new $.Deferred();
-
 
 	var selected = 0;
 	var rsa = forge.pki.rsa;
@@ -319,13 +316,13 @@ function saveKeys() {
 						success: function (data, textStatus) {
 							if (data === true) {
 								receivingKeys[SHA512(pki.publicKeyToPem(mailp)).substring(0,10)]={'privateKey':mailpr,'length':testStringLength/4};
-								console.log(SHA512(pki.publicKeyToPem(mailPublickKey)).substring(0,10));
-								delete receivingKeys[SHA512(pki.publicKeyToPem(mailPublickKey)).substring(0,10)];
+								//console.log(SHA512(pki.publicKeyToPem(mailPublicKey)).substring(0,10));
+								delete receivingKeys[SHA512(pki.publicKeyToPem(mailPublicKey)).substring(0,10)];
 
 								mailPrivateKey = mailpr;
-								mailPublickKey = mailp;
+								mailPublicKey = mailp;
 
-								console.log(to64(pki.publicKeyToPem(mailPublickKey)));
+								//console.log(to64(pki.publicKeyToPem(mailPublicKey)));
 								Answer('Successfully Saved!');
 								$('#UpdateKeys_mailPubK').val('');
 								$('#UpdateKeys_mailPrK').val('');
@@ -417,7 +414,7 @@ function initSavePass() {
 }
 
 function savePassword() {
-
+	if(profileSettings['version']==1){
 	validator.form();
 
 	if (validator.numberOfInvalids() == 0) {
@@ -448,6 +445,9 @@ function savePassword() {
 			});
 		}, function () {
 		});
+	}
+	}else{
+		noAnswer('Please update account.');
 	}
 }
 
@@ -566,6 +566,7 @@ function saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
 
 function CreateTwoStep()
 {
+	if(profileSettings['version']==1){
 	$('#twoStep-dialog').dialog({
 		autoOpen: false,
 		height: 340,
@@ -680,11 +681,14 @@ function CreateTwoStep()
 		}
 	});
 
+	}else{
+		noAnswer('Please update account.');
+	}
 }
 
 function CreateOneStep()
 {
-
+	if(profileSettings['version']==1){
 	$('#twoStep-dialog').dialog({
 		autoOpen: false,
 		height: 240,
@@ -707,9 +711,8 @@ function CreateOneStep()
 
 								var newPass=SHA512(makeDerivedFancy($('#TwStepNewPass').val(), 'scrypTmail'));
 
-								console.log(newPass);
-								console.log(newPass);
-								/*
+								//saveSecAndPass(oldPass,newPass,oldSec,newSec,oneStep,callback)
+
 								saveSecAndPass(secret,newPass,secret,$('#TwStepNewPass').val(),true,function(){
 
 									profileSettings['oneStep']=true;
@@ -720,10 +723,9 @@ function CreateOneStep()
 									window.location.href = '/#mail';
 									$("#twoStep-dialog")[0].reset();
 
-
 								});
 
-								*/
+
 							}, function () {
 							});
 						}, function () {
@@ -782,9 +784,14 @@ function CreateOneStep()
 		}
 	});
 
+	}else{
+		noAnswer('Please update account.');
+	}
 }
 function saveOneStepSecret()
 {
+	if(profileSettings['version']==1){
+
 	validatorOneStepSecret.form();
 
 	if (validatorOneStepSecret.numberOfInvalids() == 0) {
@@ -825,6 +832,9 @@ function saveOneStepSecret()
 
 
 	}
+	}else{
+		noAnswer('Please update account.');
+	}
 
 	//console.log($('#OneStepNewSec').val());
 }
@@ -862,6 +872,7 @@ function initSaveSecret() {
 }
 
 function downloadTokenProfile() {
+
 	checkState(function () {
 		provideSecret(function (secret) {
 			getObjects()
@@ -881,17 +892,13 @@ function downloadTokenProfile() {
 						var tokenAesHash = SHA512(tokenAes);
 
 
-						var presend = {
-							'OldModKey': tempPro['modKey'],
-							'tokenHash': tokenHash,
-							'tokenAesHash': tokenAesHash,
-							'mailHash': SHA512(profileSettings['email'])
-						};
 						$.ajax({
 							type: "POST",
 							url: '/generateNewToken',
 							data: {
-								'sendObj': presend
+								'modKey':tempPro['modKey'],
+								'tokenHash': tokenHash,
+								'tokenAesHash': tokenAesHash
 							},
 							success: function (data, textStatus) {
 								if (data.email != 'good') {
@@ -1084,6 +1091,7 @@ function deleteAccount()
 }
 
 function saveSecret() {
+	if(profileSettings['version']==1){
 	validatorSecret.form();
 
 	if (validatorSecret.numberOfInvalids() == 0) {
@@ -1095,31 +1103,12 @@ function saveSecret() {
 						if (data.userData && data.userRole) {
 
 							var tempPro = JSON.parse(dbToProfile(data['userData']['userObj'], secret,data['userData']['saltS']));
+							var userObj = profileToDb(tempPro,$('#newSec').val(), data.userData['saltS']);
 
-							var NuserObj = [];
-							NuserObj['userObj'] = {};
-
-							NuserObj['userObj']['SeedPublic'] = tempPro['SeedPublic'];
-							NuserObj['userObj']['SeedPrivate'] = tempPro['SeedPrivate'];
-							NuserObj['userObj']['MailPublic'] = tempPro['MailPublic'];
-							NuserObj['userObj']['MailPrivate'] = tempPro['MailPrivate'];
-
-							NuserObj['userObj']['SignaturePrivate'] = tempPro['SignaturePrivate'];
-							NuserObj['userObj']['SignaturePublic'] = tempPro['SignaturePublic'];
-
-							NuserObj['userObj']['folderKey'] = tempPro['folderKey'];
-							NuserObj['userObj']['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), data['userData']['saltS'], 216, 32));
-
-
-							var NewObj = profileToDb(NuserObj['userObj'],$('#newSec').val(),data.userData['saltS']);
-
-							//----------------------------------------------------
 
 							var secretnew = $('#newSec').val();
 							var salt = forge.util.hexToBytes(data.userData['saltS']);
-
 							var derivedKey = makeDerived(secretnew, salt);
-
 							var Test = forge.util.bytesToHex(derivedKey);
 							var Part2 = Test.substr(64, 128);
 
@@ -1132,19 +1121,14 @@ function saveSecret() {
 							var tokenAesHash = SHA512(tokenAes);
 
 
-							var presend = {
-								'OldModKey': tempPro['modKey'],
-								'userObj': NewObj.toString(),
-								'NewModKey': SHA512(NuserObj['userObj']['modKey']),
-								'mailHash': SHA512(profileSettings['email']),
-								'tokenHash': tokenHash,
-								'tokenAesHash': tokenAesHash
-							};
 							$.ajax({
 								type: "POST",
 								url: '/saveSecret',
 								data: {
-									'sendObj': presend
+									'UserObject':userObj,
+									'modKey':tempPro['modKey'],
+									'tokenHash':tokenHash,
+									'tokenAesHash':tokenAesHash
 								},
 								success: function (data, textStatus) {
 									if (data.email != 'good') {
@@ -1173,6 +1157,7 @@ function saveSecret() {
 								},
 								dataType: 'json'
 							});
+
 						} else
 							noAnswer('Error. Please try again.');
 					});
@@ -1181,6 +1166,9 @@ function saveSecret() {
 			});
 		}, function () {
 		});
+	}
+	}else{
+		noAnswer('Please update account.');
 	}
 }
 
@@ -1518,7 +1506,7 @@ function delDisposedEmail(row, email)
 			dfd1.done(function () {
 				var secret=secretWord;
 
-				console.log(user1);
+				//console.log(user1);
 				//console.log(email);
 
 				//console.log(user1['keys'][email]);

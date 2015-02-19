@@ -24,68 +24,32 @@ class UpdateKeys extends CFormModel
 	public function rules()
 	{
 		return array(
-			//array('sendObj', 'validateObj', 'on' => 'saveKeys'),
-
-			array('sendObj', 'validateSecretObj', 'on' => 'saveSecret'),
-			array('sendObj', 'validateTokObj', 'on' => 'generateToken'),
 
 			//saveSecretOneStep
-			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep'),
-			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'saveSecretOneStep'),
-			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep'),
+			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep,saveSecret'),
+			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'saveSecretOneStep,saveSecret'),
+
+			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep,saveSecret,generateToken'),
 			array('tokenHash,tokenAesHash,oldPassword,newPassword', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep'),
 			array('oneStep','required', 'on' => 'saveSecretOneStep'),
 
-
+			array('tokenHash,tokenAesHash', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveSecret,generateToken'),
 		);
 	}
 
-	public function validateTokObj()
+
+	public function generateToken($id)
 	{
-		if (isset($this->sendObj) && is_array($this->sendObj)) {
-			if (isset($this->sendObj['tokenHash']) &&
-				isset($this->sendObj['OldModKey'])&&
-				isset($this->sendObj['mailHash']) &&
-				isset($this->sendObj['tokenAesHash'])
-			) {
-				return true;
-			} else
-				$this->addError('sendObj', 'not valid');
 
-		} else
-			$this->addError('sendObj', 'empty');
-	}
-
-
-	public function validateSecretObj()
-	{
-		if (isset($this->sendObj) && is_array($this->sendObj)) {
-			if (isset($this->sendObj['userObj']) &&
-				isset($this->sendObj['NewModKey']) &&
-				isset($this->sendObj['OldModKey'])&&
-				isset($this->sendObj['tokenHash'])&&
-				isset($this->sendObj['tokenAesHash'])&&
-				isset($this->sendObj['mailHash'])
-			) {
-				return true;
-			} else
-				$this->addError('sendObj', 'not valid');
-
-		} else
-			$this->addError('sendObj', 'empty');
-	}
-
-	public function generateToken($id){
-
-		$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
+		$param[':modKey'] = hash('sha512', $this->modKey);
 		$param[':id'] = $id;
-		$param[':mailHash']=$this->sendObj['mailHash'];
-		$param[':tokenHash']=$this->sendObj['tokenHash'];
-		$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
+
+		$param[':tokenHash']=$this->tokenHash;
+		$param[':tokenAesHash']=$this->tokenAesHash;
 
 		$trans = Yii::app()->db->beginTransaction();
 		if (
-			Yii::app()->db->createCommand("UPDATE user SET tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)){
+			Yii::app()->db->createCommand("UPDATE user SET tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:modKey")->execute($param)){
 				$trans->commit();
 				echo '{"email":"good"}';
 			} else {
@@ -98,17 +62,21 @@ class UpdateKeys extends CFormModel
 
 	public function saveSecret($id)
 	{
-		$param[':oldModKey'] = hash('sha512', $this->sendObj['OldModKey']);
-		$param[':userObj'] = $this->sendObj['userObj'];
+		$param[':modKey'] = hash('sha512', $this->modKey);
+
+		$param[':userObj'] = $this->UserObject;
 		$param[':id'] = $id;
-		$param[':newModKey'] = $this->sendObj['NewModKey'];
-		$param[':mailHash']=$this->sendObj['mailHash'];
+
 		$param[':tokenHash']=$this->sendObj['tokenHash'];
 		$param[':tokenAesHash']=$this->sendObj['tokenAesHash'];
 
 		$trans = Yii::app()->db->beginTransaction();
+
 		if (
-			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj,modKey=:newModKey,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:oldModKey AND mailHash=:mailHash")->execute($param)
+			Yii::app()->db->createCommand("UPDATE user SET
+			userObj=:userObj,
+			tokenHash=:tokenHash,
+			tokenAesHash=:tokenAesHash WHERE id=:id AND modKey=:modKey")->execute($param)
 
 		){
 			$trans->commit();
@@ -128,9 +96,9 @@ class UpdateKeys extends CFormModel
 	{
 
 		if($this->oneStep=="true"){
-			$user = Yii::app()->db->createCommand("SELECT password FROM user WHERE id=$id")->queryRow();
+			$user = Yii::app()->db->createCommand("SELECT password,oneStep FROM user WHERE id=$id")->queryRow();
 
-			if($user['password']==crypt($this->oldPassword,$user['password']))
+			if(($user['oneStep']==1 && $user['password']==crypt($this->oldPassword,$user['password'])) ||	($user['oneStep']==0))
 			{
 				$param[':id'] = $id;
 				$param[':userObj'] = $this->UserObject;

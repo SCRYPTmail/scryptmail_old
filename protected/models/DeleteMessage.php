@@ -16,7 +16,8 @@ class DeleteMessage extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('messageIds', 'checkArray'),
+			//array('messageIds', 'checkArray'),
+			array('messageIds', 'safe'),
 			//	array('mailHash', 'numerical','integerOnly'=>true,'allowEmpty'=>true),
 		);
 	}
@@ -74,31 +75,38 @@ class DeleteMessage extends CFormModel
 
 	public function deleteUnreg()
 	{
-		if (count($this->messageIds) > 0) {
-			foreach ($this->messageIds as $i => $row) {
-				$par[] = "(:id_$i,:mod_$i)";
-				$param[":id_$i"] = $row['id'];
-				$param[":mod_$i"] = hash('sha512', $row['modKey']);
-			}
-			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
-				foreach($fileRemove as $filejson){
-					if($files=json_decode($filejson['file'],true)){
-						foreach($files as $names){
-							try {
-								@unlink(Yii::app()->basePath . '/attachments/' . $names);
-							} catch (Exception $e) {
+		try {
+			$this->messageIds = json_decode($this->messageIds, true);
+			if (count($this->messageIds) > 0) {
+				foreach ($this->messageIds as $i => $row) {
+					$par[] = "(:id_$i,:mod_$i)";
+					$param[":id_$i"] = $row['id'];
+					$param[":mod_$i"] = hash('sha512', $row['modKey']);
+				}
+				if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
+					foreach($fileRemove as $filejson){
+						if($files=json_decode($filejson['file'],true)){
+							foreach($files as $names){
+								try {
+									@unlink(Yii::app()->basePath . '/attachments/' . $names);
+								} catch (Exception $e) {
+								}
 							}
 						}
 					}
 				}
-			}
-			if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)) {
-				echo '{"results":"success"}';
-			} else
-				echo '{"results":"fail"}';
 
-		} else {
-			echo '{"results":"success"}';
+				if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)) {
+					echo '{"results":"success"}';
+				} else
+					echo '{"results":"fail"}';
+
+			} else {
+				echo '{"results":"success"}';
+			}
+
+		} catch (Exception $e) {
+			echo '{"results":"Messages should be in an array"}';
 		}
 
 	}

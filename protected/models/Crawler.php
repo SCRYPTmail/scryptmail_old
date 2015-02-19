@@ -22,8 +22,8 @@ class Crawler extends CFormModel
 
 			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()) {
 
-				foreach($emailsToClean as $row){
-					$emailToDeleteId[]=$row['id'];
+				foreach($emailsToClean as $i=>$row){
+					$emailToDeleteId[":mailId_$i"]=$row['id'];
 
 					if($files=json_decode($row['file'],true)){
 						foreach($files as $filename){
@@ -31,7 +31,7 @@ class Crawler extends CFormModel
 						}
 					}
 				}
-				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode($emailToDeleteId,',').")")->execute();
+				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode(array_keys($emailToDeleteId),',').")")->execute($emailToDeleteId);
 
 			}
 
@@ -60,7 +60,8 @@ class Crawler extends CFormModel
 						if ($row['pass'] == '') {
 
 							if (Crawler::sendMailOutWithPin($row)) {
-								$par[':id'] = $row['id'];
+
+								$par[':id'] = $row['messageId'];
 								$par[':meta'] = $row['meta'];
 								$par[':body'] = $row['body'];
 								$par[':modKey'] = $row['modKey'];
@@ -77,7 +78,10 @@ class Crawler extends CFormModel
 									$trans->rollback();
 
 								unset($par);
+
 							}
+
+
 						} else {
 
 							if (Crawler::sendMailOutWithoutPin($row)) {
@@ -317,7 +321,7 @@ class Crawler extends CFormModel
 			$message = file_get_contents(Yii::app()->basePath . '/views/templates/emailWithPin.php');
 			$message = str_replace('*|SENDER|*', $data['fromt'], $message);
 			$message = str_replace('*|RECIPIENT|*', $data['tot'], $message);
-			$message = str_replace('*|LINK_TO_MESSAGE|*', 'https://scryptmail.com/retrieveEmail/' . $data['id'].'_'.$data['modKey'], $message);
+			$message = str_replace('*|LINK_TO_MESSAGE|*', 'https://scryptmail.com/retrieveEmail/' . $data['messageId'], $message);
 			//	echo $message;
 			$to = $data['tot'];
 

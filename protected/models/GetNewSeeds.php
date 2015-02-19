@@ -58,49 +58,21 @@ class GetNewSeeds extends CFormModel
 
 			if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1,rcpnt FROM seedTable WHERE id>=' . $this->startSeed . ' AND rcpnt IN ('.implode(array_keys($param),',').') LIMIT ' . $this->limit)->queryAll(true,$param)) {
 
-				//print_r($seedDat);
 
-				//$seedDat['response'] = 'success';
-				//foreach($seedDat['data'] as $index=>$row){
-				//	$seedDat['data'][$index]['id']=$row['id'];
-				//	$seedDat['data'][$index]['meta']=base64_encode($row['meta']);
-				//}
-
-				//echo json_encode($seedDat); //escaping non utf strings
 				$seedDat['response'] = 'success';
 				echo json_encode($seedDat); //escaping non utf strings
+			}else{
+				$seedDat['response'] = 'empty';
+				echo json_encode($seedDat); //escaping non utf strings
 			}
-			/*else{
-				$seedDat['data'][0]['id']=$this->startSeed;
-				$seedDat['data'][0]['meta']='';
-				$seedDat['data'][0]['password']='';
-				$seedDat['data'][0]['v1']=1;
-				$seedDat['data'][0]['rcpnt']='';
-			}*/
 
 		}else{
 
 			if ($seedDat['data'] = Yii::app()->db->createCommand('SELECT id,meta,password,v1,rcpnt FROM seedTable WHERE id>=' . $this->startSeed . ' AND v1=0 LIMIT ' . $this->limit)->queryAll()) {
 
-				//print_r($seedDat);
-
-				//$seedDat['response'] = 'success';
-				//foreach($seedDat['data'] as $index=>$row){
-				//	$seedDat['data'][$index]['id']=$row['id'];
-				//	$seedDat['data'][$index]['meta']=base64_encode($row['meta']);
-				//}
-
-				//echo json_encode($seedDat); //escaping non utf strings
 				$seedDat['response'] = 'success';
 				echo json_encode($seedDat); //escaping non utf strings
-			}/*else{
-		$seedDat['data'][0]['id']=$this->startSeed;
-		$seedDat['data'][0]['meta']='';
-		$seedDat['data'][0]['password']=null;
-		$seedDat['data'][0]['v1']=0;
-		$seedDat['data'][0]['rcpnt']=null;
 			}
-*/
 		}
 
 

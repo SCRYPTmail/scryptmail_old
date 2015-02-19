@@ -17,8 +17,11 @@ function showPin(email){
 	//window.prompt("Copy to clipboard: Ctrl+C, Enter", recipient[email]['pin']);
 
 	$('#dialog_simple >p').html('<b>' + recipient[email]['name'] + '</b><input type="text" class="col col-xs-12" id="pinfor" readonly onClick="this.setSelectionRange(0, this.value.length)">');
+	$('#pinfor').val(recipient[email]['pin']);
 
-	$('#dialog_simple').dialog({
+	var divObj = $('#dialog_simple');
+
+	divObj.dialog({
 		autoOpen: false,
 		width: 300,
 		resizable: false,
@@ -29,15 +32,14 @@ function showPin(email){
 				html: "OK",
 				"class": "btn btn-default",
 				click: function () {
-						$(dialog_simple).dialog("close");
+					divObj.dialog("close");
 				}
 			}
 		]
 	});
-	$('#pinfor').val(recipient[email]['pin']);
 
 
-	$('#dialog_simple').dialog('open');
+	divObj.dialog('open');
 
 }
 
@@ -112,7 +114,8 @@ function saniziteEmailAttachment(body,meta)
 	if(typeof body['badRcpt'] != 'undefined' && body['badRcpt'].length>0){
 		rcphead = rcphead+'<br><i class="fa fa-warning txt-color-yellow"></i>&nbsp;';
 		$.each(body['badRcpt'], function (index, value) {
-			rcphead = rcphead+escapeTags(value['mail'])+'- '+escapeTags(value['message'])+'; ';
+			//console.log(value);
+			rcphead = rcphead+escapeTags(value['mail'])+' - '+escapeTags(value['answer'])+'; ';
 		});
 
 	}

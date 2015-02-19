@@ -69,49 +69,4 @@ class UpdateAccount extends CFormModel
 		//print_r($this->modKey);
 	}
 
-	public function resetPassOneStep()
-	{
-
-
-		$param[':mailHash'] = $this->mailHash;
-		$param[':oldAesTokenHash'] = $this->oldAesTokenHash;
-
-		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND oneStep=1 AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
-
-				$param[':profileSettings'] = $this->prof;
-				$param[':userObj'] = $this->UserObject;
-				$param[':folderObj'] = $this->FolderObject;
-				$param[':contacts'] = $this->contacts;
-				$param[':blackList'] = $this->blackList;
-				$param[':modKey'] = $this->ModKey;
-				$param[':saltS'] = $this->salt;
-				$param[':tokenHash'] = $this->tokenHash;
-				$param[':tokenAesHash'] = $this->tokenAesHash;
-				$param[':mailKey'] = $this->mailKey;
-				$param[':mailKHash'] = $this->mailKHash;
-				$param[':password'] = crypt($this->password);
-
-				$trans = Yii::app()->db->beginTransaction();
-
-				if(Yii::app()->db->createCommand(
-					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,mailKey=:mailKey,mailKHash=:mailKHash,password=:password WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
-				)->execute($param))
-				{
-					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type IN (2,3)')->execute();
-					$trans->commit();
-					echo  '{"email":"success"}';
-				}else{
-					echo  '{"email":"error"}';
-					$trans->rollback();
-				}
-
-
-		}else{
-			echo  '{"email":"not found"}';
-		}
-
-
-
-	}
-
 }

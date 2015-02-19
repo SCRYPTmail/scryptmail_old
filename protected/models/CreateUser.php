@@ -15,6 +15,8 @@ class CreateUser extends CFormModel
 
 	public $oldAesTokenHash;
 
+	public $newPass;
+
 	public function rules()
 	{
 		return array(
@@ -29,18 +31,21 @@ class CreateUser extends CFormModel
 
 			array('mailKey', 'checkKeyLength', 'on' => 'updateKeys,saveDisposable'),
 			//array('CreateUser', 'isJson', 'on' => 'createAccount'),
-			array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
+			//array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
+
 			//array('CreateUser', 'isJsonResetUser', 'on' => 'resetPassOneStep'),
 
 			//Reset One Step password
-			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
-			array('tokenHash,tokenAesHash,ModKey,mailKHash,mailHash,password,oldAesTokenHash', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
-			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{4000,20000}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
-			array('FolderObject,contacts,blackList', 'match', 'pattern' => "/^[a-z0-9\d]{20,1024}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
-			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
-			array('prof', 'match', 'pattern' => "/^[a-z0-9\d]{288}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep'),
+			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
+			array('tokenHash,tokenAesHash,ModKey,mailHash,password,oldAesTokenHash', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
+			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
+			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'resetPassOneStep,resetUser'),
+			array('FolderObject,contacts,blackList,prof', 'match', 'pattern' => "/^[a-z0-9\d]{20,1024}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
+			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
 
 
+			//resetPass 2-Fact
+			array('mailHash,tokenHash,tokenAesHash,newPass', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'resetPass'),
 
 
 			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
@@ -69,33 +74,22 @@ public function checkKeyLength(){
 }
 
 
-	public function isJsonResetUser()
+	public function resetPass()
 	{
-		if (isset($this->CreateUser)) {
-			if ($g = json_decode($this->CreateUser, true))
-				if (isset($g['seedKey']) &&
-					isset($g['sigKey']) &&
-					isset($g['tokenHash']) &&
-					isset($g['oldAesTokenHash']) &&
-					isset($g['tokenAesHash']) &&
-					isset($g['mailKey']) &&
-					isset($g['mailHash']) &&
-					isset($g['password']) &&
-					isset($g['FolderObject']) &&
-					isset($g['ModKey']) &&
-					isset($g['contacts']) &&
-					isset($g['blackList']) &&
-					isset($g['UserObject']) &&
-					isset($g['salt']) &&
-					isset($g['prof'])&&
-					isset($g['seedKHash']) &&
-					isset($g['mailKHash']) &&
-					isset($g['sigKHash'])
-				) {
-				} else
-					$this->addError('email', 'Error in Object Data please try again');
-		}
+
+		$param[':mailHash']=$this->mailHash;
+		$param[':tokenHash']=$this->tokenHash;
+		$param[':tokenAesHash']=$this->tokenAesHash;
+		$param[':newPass']=crypt($this->newPass);
+
+		//print_r($param);
+
+		if(Yii::app()->db->createCommand("UPDATE user SET password=:newPass WHERE mailHash=:mailHash AND tokenHash=:tokenHash AND tokenAesHash=:tokenAesHash")->execute($param)){
+			echo '{"result":"success"}';
+		}else
+			echo '{"result":"fail"}';
 	}
+
 
 	public function resetPassOneStep()
 	{
@@ -115,16 +109,19 @@ public function checkKeyLength(){
 				$param[':saltS'] = $this->salt;
 				$param[':tokenHash'] = $this->tokenHash;
 				$param[':tokenAesHash'] = $this->tokenAesHash;
-				$param[':mailKey'] = $this->mailKey;
-				$param[':mailKHash'] = $this->mailKHash;
+				$param[':userId'] =$user['id'];
+
 				$param[':password'] = crypt($this->password);
 
 				$trans = Yii::app()->db->beginTransaction();
 
 				if(Yii::app()->db->createCommand(
-					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,mailKey=:mailKey,mailKHash=:mailKHash,password=:password WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
-				)->execute($param))
+					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,password=:password WHERE id=:userId AND mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
+				)->execute($param) &&
+					Yii::app()->db->createCommand(
+						"UPDATE addresses SET mailKey=:mailKey WHERE userId=:userId AND addressHash=:addressHash AND addr_type=1")->execute(array(':mailKey'=>$this->mailKey,':addressHash'=>$this->mailHash,':userId'=>$user['id'])))
 				{
+
 					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type IN (2,3)')->execute();
 					$trans->commit();
 					echo  '{"email":"success"}';
@@ -143,40 +140,45 @@ public function checkKeyLength(){
 	}
 	public function resetUser()
 	{
-		$obj = json_decode($this->CreateUser, true);
 
 
-		$param[':mailHash'] = $obj['mailHash'];
-		$param[':oldAesTokenHash'] = $obj['oldAesTokenHash'];
+		$param[':mailHash'] = $this->mailHash;
+		$param[':oldAesTokenHash'] = $this->oldAesTokenHash;
 
 		if($user=Yii::app()->db->createCommand("SELECT id,password FROM user WHERE mailHash=:mailHash AND oneStep=0 AND tokenAesHash=:oldAesTokenHash")->queryRow(true,$param)){
 
-			if($user['password']==crypt($obj['password'],$user['password']))
+			if($user['password']==crypt($this->password,$user['password']))
 			{
-				$param[':profileSettings'] = $obj['prof'];
-				$param[':userObj'] = $obj['UserObject'];
-				$param[':folderObj'] = $obj['FolderObject'];
-				$param[':contacts'] = $obj['contacts'];
-				$param[':blackList'] = $obj['blackList'];
-				$param[':modKey'] = $obj['ModKey'];
-				$param[':saltS'] = $obj['salt'];
-				$param[':tokenHash'] = $obj['tokenHash'];
-				$param[':tokenAesHash'] = $obj['tokenAesHash'];
+				$param[':profileSettings'] = $this->prof;
+				$param[':userObj'] = $this->UserObject;
+				$param[':folderObj'] = $this->FolderObject;
+				$param[':contacts'] = $this->contacts;
+				$param[':blackList'] = $this->blackList;
+				$param[':modKey'] = $this->ModKey;
+				$param[':saltS'] = $this->salt;
+				$param[':tokenHash'] = $this->tokenHash;
+				$param[':tokenAesHash'] = $this->tokenAesHash;
 
-				$param[':seedKey'] = $obj['seedKey'];
-				$param[':mailKey'] = $obj['mailKey'];
-				$param[':sigKey'] = $obj['sigKey'];
 
-				$param[':seedKHash'] = $obj['seedKHash'];
-				$param[':mailKHash'] = $obj['mailKHash'];
-				$param[':sigKHash'] = $obj['sigKHash'];
+				//$param[':mailKey'] = $this->mailKey;
 
 
 				$trans = Yii::app()->db->beginTransaction();
 
 				if(Yii::app()->db->createCommand(
-					"UPDATE user SET profileSettings=:profileSettings, userObj=:userObj,folderObj=:folderObj,contacts=:contacts,blackList=:blackList,modKey=:modKey,saltS=:saltS,tokenHash=:tokenHash,tokenAesHash=:tokenAesHash,seedKey=:seedKey,mailKey=:mailKey,sigKey=:sigKey,seedKHash=:seedKHash,mailKHash=:mailKHash,sigKHash=:sigKHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
-				)->execute($param))
+					"UPDATE user SET
+					profileSettings=:profileSettings,
+					userObj=:userObj,
+					folderObj=:folderObj,
+					contacts=:contacts,
+					blackList=:blackList,
+					modKey=:modKey,
+					saltS=:saltS,
+					tokenHash=:tokenHash,
+					tokenAesHash=:tokenAesHash WHERE mailHash=:mailHash AND tokenAesHash=:oldAesTokenHash"
+				)->execute($param) &&
+					Yii::app()->db->createCommand(
+						"UPDATE addresses SET mailKey=:mailKey WHERE userId=:userId AND addressHash=:addressHash AND addr_type=1")->execute(array(':mailKey'=>$this->mailKey,':addressHash'=>$this->mailHash,':userId'=>$user['id'])))
 				{
 					Yii::app()->db->createCommand('DELETE FROM addresses WHERE userId='.$user['id'].' AND addr_type IN (2,3)')->execute();
 						$trans->commit();
@@ -254,6 +256,7 @@ public function checkKeyLength(){
 		}
 
 	}
+
 
 	public function saveDisposable($id)
 	{

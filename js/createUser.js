@@ -111,12 +111,8 @@ function createAccount() {
 
 			//$('#CreateUser_email').val($('#CreateUser_email').val()+'@scryptmail.com');
 
-			var rsa = forge.pki.rsa;
-			var pki = forge.pki;
 
-			var dfdseed = new $.Deferred();
 			var dfdmail = new $.Deferred();
-			var dfdsig = new $.Deferred();
 
 			//$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Seed keys..");
 			$('#reguser').prop('disabled', true);
@@ -125,178 +121,64 @@ function createAccount() {
 			var mailpair ='';
 
 
+			generatePairs(1024,function(keyPair){
+				mailpair=keyPair;
+				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
+				dfdmail.resolve();
+			});
 
-				mailpair = rsa.createKeyPairGenerationState(1024, 0x10001);
-
-				var step = function() {
-					// run for 100 msvar t=0;
-					if(!rsa.stepKeyPairGenerationState(mailpair, 100)) {
-						setTimeout(step, 1);
-					}
-					else {
-						$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
-						dfdmail.resolve();
-					}
-				};
-				setTimeout(step);
 
 
 			dfdmail.done(function () {
 
-				var salt = forge.random.getBytesSync(256);
 				var secret = $('#CreateUser_password').val();
-
-				var derivedKey = makeDerived(secret, salt);
-				var derivedPass = makeDerivedFancy(secret, 'scrypTmail');
-
-				var Test = forge.util.bytesToHex(derivedKey);
-
-				var Part1 = Test.substr(0, 64);
-				var Part2 = Test.substr(64, 128);
-
-				var keyT = CryptoJS.enc.Hex.parse(Part1);
-				var keyA = forge.util.hexToBytes(Part2);
-
-				var folderKey = forge.random.getBytesSync(32);
-
-
-				var testString=forge.util.bytesToHex(mailpair.keys.publicKey.encrypt('test string', 'RSA-OAEP'));
-				var testStringLength=testString.length*4;
-				console.log(testStringLength);
-
-				var userObj = {};
-
-				userObj['keys']={};
-
-
-				userObj['keys'][SHA512singl(email)]={
-					'email':email,
-					'privateKey':to64(pki.privateKeyToPem(mailpair.keys.privateKey)),
-					'publicKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey)),
-					'canSend':'1',
-					'keyLength':testStringLength,
-					'receiveHash':SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
-				};
-
-
-				userObj['folderKey'] = to64(forge.util.bytesToHex(folderKey));
-
-				userObj['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), salt, 216, 32));
-
-				usOb = JSON.stringify(userObj);
-
-				usObAesCipher = toAes(keyA, usOb);
-
-				var usObFish = toFish(keyT, usObAesCipher);
-
-				// console.log('UserObj ' + usObFish);
-
-				var folderObj = {};
-
-				folderObj['Inbox'] = {};
-				folderObj['Sent'] = {};
-				folderObj['Draft'] = {};
-				folderObj['Spam'] = {};
-				folderObj['Trash'] = {};
-				folderObj['Custom'] = {};
-
-				flOb = JSON.stringify(folderObj);
-
-				var flObAesCipher = toAes(folderKey, flOb);
-
-				var contactObj = {}
-				var blackListObj = [];
-				var prof_setting = {};
-				prof_setting['email'] = email;
-				prof_setting['name'] = '';
-				prof_setting['lastSeed'] = 0;
-				prof_setting['oneStep'] = true;
-				prof_setting['version'] = 1;
-				prof_setting['disposableEmails'] = {};
 
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Encrypting User Object..");
 
-				var prof = toAes(folderKey, JSON.stringify(to64(prof_setting)));
-				var contact = toAes(folderKey, JSON.stringify(contactObj));
-				var blackList = toAes(folderKey, JSON.stringify(blackListObj));
+				generateUserObj(mailpair,secret,email,true,function(DATA){
+					var derivedPass = makeDerivedFancy(secret, 'scrypTmail');
+					MainObj=DATA['MainObj'];
+					toFile=DATA['toFile'];
+					MainObj['password'] = SHA512singl(derivedPass);
 
-				var MainObj = {};
+					$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Saving user..");
 
-				var token = forge.random.getBytesSync(256);
-				var tokenHash=SHA512singl(token);
-				var tokenAes=toAesToken(keyA, token);
-				var tokenAesHash=SHA512singl(tokenAes);
-				toFile=tokenAes;
+					$.ajax({
+						type: "POST",
+						url: '/CreateUserDb',
+						data:  DATA['MainObj'],
+						success: function (data, textStatus) {
+							if (data.email == 'success') {
+								$('#reguser').text('User Created');
+								$('#reguser i').remove();
+								//$('#reguser').prop('disabled', true);
+								$("#createUser-form")[0].reset();
+								$('#createAccount-modal').modal('hide');
+								$('#yModal').modal("show");
+								$('#reguser').prop('disabled', false);
 
-				MainObj['salt'] = forge.util.bytesToHex(salt);
-				MainObj['tokenHash'] = tokenHash;
-				MainObj['tokenAesHash'] = tokenAesHash;
-				MainObj['UserObject'] = usObFish.toString();
-				MainObj['FolderObject'] = flObAesCipher.toString();
-				MainObj['ModKey'] = SHA512singl(userObj['modKey']);
-				MainObj['contacts'] = contact.toString();
-				MainObj['blackList'] = blackList.toString();
-				//MainObj['seedKey'] = userObj['SeedPublic'];
-				MainObj['mailKey'] =to64(pki.publicKeyToPem(mailpair.keys.publicKey));
-				//MainObj['sigKey'] = userObj['SignaturePublic'];
-
-
-				//MainObj['seedKHash'] = SHA512singl(pki.publicKeyToPem(seedpair.keys.publicKey));
-				//MainObj['mailKHash'] = SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey));
-				//MainObj['sigKHash'] = SHA512singl(pki.publicKeyToPem(sigpair.keys.publicKey));
-
-				MainObj['prof'] = prof;
-				MainObj['mailHash'] = SHA512singl(email);
-				MainObj['password'] = SHA512singl(derivedPass);
-				//MainObj['invitationToken']=$('#CreateUser_invitation').val().toLowerCase();
-
-				///console.log(MainObj['password']);
+							}else if (data.email == 'reserved') {
+								noAnswer('This email address reserved for internal use.');
+								$('#reguser').prop('disabled', false);
+								$('#reguser i').remove();
+							}else{
+								$('#reguser').prop('disabled', false);
+								$('#reguser').text('Create');
+								$('#reguser i').remove();
+								noAnswer('Error. Please try again.');
+							}
 
 
-				//MainObj = JSON.stringify(MainObj);
-
-
-				// console.log('UserObj ' +MainObj );
-
-
-				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Saving user..");
-
-				$.ajax({
-					type: "POST",
-					url: '/CreateUserDb',
-					data:  MainObj,
-					success: function (data, textStatus) {
-						if (data.email == 'success') {
-							$('#reguser').text('User Created');
-							$('#reguser i').remove();
-							//$('#reguser').prop('disabled', true);
-							$("#createUser-form")[0].reset();
-							$('#createAccount-modal').modal('hide');
-							$('#yModal').modal("show");
-							$('#reguser').prop('disabled', false);
-
-						}else if (data.email == 'reserved') {
-							noAnswer('This email address reserved for internal use.');
-							$('#reguser').prop('disabled', false);
-							$('#reguser i').remove();
-						}else{
+						},
+						error: function (data, textStatus) {
 							$('#reguser').prop('disabled', false);
 							$('#reguser').text('Create');
 							$('#reguser i').remove();
 							noAnswer('Error. Please try again.');
-						}
-
-
-					},
-					error: function (data, textStatus) {
-						$('#reguser').prop('disabled', false);
-						$('#reguser').text('Create');
-						$('#reguser i').remove();
-						noAnswer('Error. Please try again.');
-					},
-					dataType: 'json'
+						},
+						dataType: 'json'
+					});
 				});
-
 
 			});
 

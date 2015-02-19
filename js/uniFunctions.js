@@ -54,6 +54,109 @@ function generatePairs(length,callback){
 	setTimeout(step);
 
 }
+function generateUserObj(mailpair,secret,email,oneStep,callback)
+{
+	var rsa = forge.pki.rsa;
+	var pki = forge.pki;
+
+	var salt = forge.random.getBytesSync(256);
+	var derivedKey = makeDerived(secret, salt);
+
+	var Test = forge.util.bytesToHex(derivedKey);
+	var Part1 = Test.substr(0, 64);
+	var Part2 = Test.substr(64, 128);
+	var keyT = CryptoJS.enc.Hex.parse(Part1);
+	var keyA = forge.util.hexToBytes(Part2);
+	var folderKey = forge.random.getBytesSync(32);
+	var testString=forge.util.bytesToHex(mailpair.keys.publicKey.encrypt('test string', 'RSA-OAEP'));
+	var testStringLength=testString.length*4;
+	var userObj = {};
+
+	userObj['keys']={};
+	userObj['keys'][SHA512singl(email)]={
+		'email':email,
+		'privateKey':to64(pki.privateKeyToPem(mailpair.keys.privateKey)),
+		'publicKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey)),
+		'canSend':'1',
+		'keyLength':testStringLength,
+		'receiveHash':SHA512singl(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
+	};
+	userObj['folderKey'] = to64(forge.util.bytesToHex(folderKey));
+	userObj['modKey'] = forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), salt, 216, 32));
+
+
+	var folderObj = {};
+	folderObj['Inbox'] = {};
+	folderObj['Sent'] = {};
+	folderObj['Draft'] = {};
+	folderObj['Spam'] = {};
+	folderObj['Trash'] = {};
+	folderObj['Custom'] = {};
+
+	var flObAesCipher = toAes(folderKey, JSON.stringify(folderObj));
+
+
+	var contactObj = {}
+	var blackListObj = [];
+
+	var prof_setting = {};
+	prof_setting['email'] = email;
+	prof_setting['name'] = '';
+	prof_setting['lastSeed'] = 0;
+	prof_setting['oneStep'] = oneStep;
+
+	prof_setting['version'] = 1;
+	prof_setting['disposableEmails'] = {};
+
+	var prof = toAes(folderKey, JSON.stringify(to64(prof_setting)));
+	var contact = toAes(folderKey, JSON.stringify(contactObj));
+	var blackList = toAes(folderKey, JSON.stringify(blackListObj));
+
+	var ret = {};
+
+	var MainObj = {};
+
+	var token = forge.random.getBytesSync(256);
+	var tokenHash=SHA512singl(token);
+	var tokenAes=toAesToken(keyA, token);
+	var tokenAesHash=SHA512singl(tokenAes);
+
+	MainObj['salt'] = forge.util.bytesToHex(salt);
+	MainObj['tokenHash'] = tokenHash;
+	MainObj['tokenAesHash'] = tokenAesHash;
+	MainObj['UserObject'] = profileToDb(userObj,secret,forge.util.bytesToHex(salt));
+	MainObj['FolderObject'] = flObAesCipher.toString();
+	MainObj['ModKey'] = SHA512singl(userObj['modKey']);
+	MainObj['contacts'] = contact.toString();
+	MainObj['blackList'] = blackList.toString();
+	MainObj['mailKey'] =to64(pki.publicKeyToPem(mailpair.keys.publicKey));
+
+	MainObj['prof'] = prof;
+	MainObj['mailHash'] = SHA512singl(email);
+
+
+	ret['MainObj']=MainObj;
+	ret['toFile']=tokenAes;
+	callback(ret);
+}
+
+function profileToDb(obj,secret,salt) {
+
+
+	salt = forge.util.hexToBytes(salt);
+	var derivedKey = makeDerived(secret, salt)
+
+	var Test = forge.util.bytesToHex(derivedKey);
+
+	var keyT = CryptoJS.enc.Hex.parse(Test.substr(0, 64));
+	var keyA = forge.util.hexToBytes(Test.substr(64, 128));
+
+	var f = toAes(keyA, JSON.stringify(obj));
+	var Fis = toFish(keyT, f);
+
+	return Fis;
+
+}
 
 function to64(data) {
 
@@ -254,4 +357,114 @@ function isCompatible(){
 
 	});
 
+}
+
+function createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,callback){
+
+	var d = new Date();
+	var pki = forge.pki;
+
+	var key = encryptionKey;
+
+	var emailPreObj = {
+		'to': '',
+		'from': '',
+		'subj': '',
+		'meta': {},
+		'body': {},
+		'attachment': {},
+		'modKey': '',
+		'mailId': ''
+	};
+	messaged = {};
+
+	emailPreObj['attachment'] = {};
+
+	if (Object.keys(files).length > 0) {
+		emailPreObj['meta']['attachment'] = 1;
+		messaged['files'] = [];
+		$.each(files, function (index, valueFile) {
+			var fname = SHA512(valueFile['name'] + recipient + Math.round(d.getTime() / 1000) + d.getTime());
+			emailPreObj['attachment'][index] = {'name': valueFile['name'], 'type': valueFile['type'], 'filename': to64(fname), 'size': valueFile['size'], 'base64': true};
+
+			var el = {'fname': fname, 'data': toAesBinary(key, valueFile['data'])};
+			messaged['files'].push(el);
+		});
+
+	} else {
+		emailPreObj['meta']['attachment'] = '';
+	}
+
+	emailPreObj['meta']['to'] = recipient;
+	emailPreObj['meta']['from'] = sender;
+	emailPreObj['meta']['subject'] =subject;
+	emailPreObj['meta']['body'] = bodyMeta;
+	emailPreObj['meta']['fromExtra'] = fromExtra;
+
+	emailPreObj['meta']['timeSent'] = sentMeta;
+	emailPreObj['meta']['opened'] = opened;
+	emailPreObj['meta']['pin'] = metaPin;
+	emailPreObj['meta']['modKey'] = modKey;
+	emailPreObj['meta']['type'] = metaType;
+	emailPreObj['meta']['status'] =metaStatus;
+
+
+	emailPreObj['to'] = recipient;
+	emailPreObj['from'] = sender;
+	emailPreObj['subj'] = subject;
+
+	emailPreObj['body']['text'] =bodyText;
+	emailPreObj['body']['html'] = bodyHTML;
+
+	emailPreObj['modKey'] = modKey;
+
+	emailPreObj['badRcpt'] = bdRcpt;
+	emailPreObj['senderMod'] = sndrMod;
+
+
+	var body = JSON.stringify(emailPreObj);
+
+	var md = forge.md.sha256.create();
+	md.update(body, 'utf8');
+
+	if(mailPrivateKey!=''){
+		emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
+	}else{
+		emailPreObj['meta']['signature'] = '';
+	}
+
+
+	var meta = JSON.stringify(emailPreObj['meta']);
+
+	messaged['mail'] = toAes(key, body);
+	messaged['meta'] = toAes(key, meta);
+	messaged['ModKey'] = SHA512(modKey);
+	if(publicKey!==false){
+		messaged['key'] = addPaddingToString(forge.util.bytesToHex(publicKey.encrypt(key, 'RSA-OAEP')));
+	}
+
+	callback(messaged);
+}
+
+function addPaddingToString(pass){
+
+	var padstrHex=forge.util.bytesToHex(forge.random.getBytesSync(512));
+
+	return pass+padstrHex.substr(0,1024-pass.length);
+
+}
+
+function systemMessage(messageCode)
+{
+	switch (messageCode) {
+		case 'tryAgain':
+			noAnswer('Error. Please try again.');
+			break;
+		case 'Saved':
+			Answer('Saved.');
+			break;
+		case 'Sent':
+			Answer('Sent');
+			break;
+	}
 }
