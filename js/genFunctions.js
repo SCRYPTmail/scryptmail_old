@@ -3164,6 +3164,7 @@ function upgradeAfterSeed(newMaxSeed){
 
 	var divObj = $('#dialog_update');
 
+	$('#dialog_update >p').html('Do not refresh your browser. We are updating your account. It may take few minutes..');
 
 	divObj.dialog({
 		autoOpen: false,
@@ -3180,21 +3181,20 @@ function upgradeAfterSeed(newMaxSeed){
 				click: function () {
 					$(window).unbind('beforeunload');
 					window.location = '/logout';
-					$('#dialog_update').dialog('close');
+					divObj.dialog('close');
 				}
 			}
 		]
 	});
-	$('#dialog_update >p').html('Do not refresh your browser. We are updating your account. It may take few minutes..');
 
 
 		if(profileSettings['lastSeed']>=newMaxSeed){
 
 			if(profileSettings['version']==undefined || parseInt(profileSettings['version'])<1){
 				$('#checkUpdate').prop('disabled',true);
-
+				//divObj.dialog('open');
 				provideSecret(function (secret) {
-					divObj.dialog('open');
+					alert('Do not refresh your browser. We are updating your account. It may take few minutes.. It will log you out when completed. Click OK when ready! ');
 					clearInterval(newMailer);
 					var user = dbToProfile(userData['userObj'], secret,userData['saltS']);
 					var user1 = JSON.parse(user, true);
@@ -3278,10 +3278,14 @@ function upgradeAfterSeed(newMaxSeed){
 								if(data.result=='success'){
 									profileSettings['version'] = 1;
 									checkProfile();
-									$('#dialog_update >p').html('Your account has been updated. Please click OK to re-login.');
-									$('#checkUpdate i').remove();
-									$('#checkUpdate').text('OK');
-									$('#checkUpdate').prop('disabled',false);
+									//$('#dialog_update >p').html('Your account has been updated. Please click OK to re-login.');
+									//$('#checkUpdate i').remove();
+									//$('#checkUpdate').text('OK');
+									//$('#checkUpdate').prop('disabled',false);
+									setTimeout(function(){
+										$(window).unbind('beforeunload');
+										window.location = '/logout';
+									},3000)
 								}
 
 							},
@@ -3300,8 +3304,6 @@ function upgradeAfterSeed(newMaxSeed){
 			}
 
 		}
-
-
 
 }
 
