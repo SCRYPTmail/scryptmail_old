@@ -64,17 +64,20 @@ class SaveEmail extends CFormModel
 	{
 
 		$t=explode('<',$this->from);
+
 		if(count($t)>=2){
 			$email=hash('sha512',substr($t[1],0,-1));
 		}else{
-			$email=hash('sha512',$t);
+			$email=hash('sha512',$t[0]);
 		}
+
 		$param[':id']=Yii::app()->user->getId();
 		$param[':mailHash']=$email;
 
 		if(!Yii::app()->db->createCommand("SELECT id FROM user WHERE id=:id AND mailHash=:mailHash")->execute($param)){
 			$this->addError('email', 'Email not correct');
 		}
+
 	}
 	public function checkEmail()
 	{
