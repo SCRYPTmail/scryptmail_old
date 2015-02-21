@@ -45,7 +45,10 @@ $(document).ready(function () {
 	$('#LoginForm_username').attr('name', makerandom());
 	$('#LoginForm_password').attr('name', makerandom());
 
-	initialFunction();
+	if(window.location.pathname=='/'){
+		initialFunction();
+	}
+
 
 	$(document).bind('click', function () {
 		myTimer();
