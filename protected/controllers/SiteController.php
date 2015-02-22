@@ -634,15 +634,13 @@ class SiteController extends Controller
 
 	public function actionLoginStatus()
 	{
-		//if(Yii::app()->user->isGuest){
-		//	echo '0';
-		//}else{
+
 			$secTok=Yii::app()->session['secureToken'];
+
 			if((isset($_POST['secureToken']) && isset($secTok)) && hash('sha512',$secTok)==$_POST['secureToken'] ){
 				echo '1';
 			}else
 				echo '0';
-		//}
 
 	}
 
@@ -991,7 +989,6 @@ class SiteController extends Controller
 		// collect user input data
 		if (isset($_POST['LoginForm'])) {
 			$model->attributes = $_POST['LoginForm'];
-			// validate user input and redirect to the previous page if valid
 			$secTok=bin2hex(openssl_random_pseudo_bytes(16));
 			Yii::app()->session['secureToken'] = $secTok;
 

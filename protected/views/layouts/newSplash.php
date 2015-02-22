@@ -86,6 +86,7 @@
 						<li><a href='#why' onclick='scrollToPosition($("#why").offset())'>why</a></li>
 						<li><a href='#aboutUs' onclick='scrollToPosition($("#aboutUs").offset())'>about us</a></li>
 						<li><a href='http://blog.scryptmail.com'>blog</a></li>
+						<li><a href='http://blog.scryptmail.com/2015/02/q.html'>Q & A</a></li>
 						<li><a href='http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html'>how to use</a></li>
 
 						<!-- <li><a href="http://example.com" class="external">External Link Example</a></li> -->

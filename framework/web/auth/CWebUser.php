@@ -391,7 +391,8 @@ class CWebUser extends CApplicationComponent implements IWebUser
 			Yii::app()->end();
 		}
 
-		throw new CHttpException(200,Yii::t('yii','Login Required'));
+		echo 'Login Required';
+		//throw new CHttpException(403,Yii::t('yii','Login Required'));
 	}
 
 	/**

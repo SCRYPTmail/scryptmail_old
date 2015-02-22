@@ -226,7 +226,7 @@ function initialFunction() {
 					});
 
 			} else {
-				$.get("/logOut");
+				//$.get("/logOut");
 				resetGlobal();
 				sessionKey = '';
 				showLog(function () {
