@@ -27,6 +27,7 @@ $(document).ready(function () {
 	safeBoxProfileInitialized = false;
 	blackListProfileInitialized = false;
 	disposableListProfileInitialized = false;
+	tagListProfileInitialized=false;
 
 });
 
@@ -130,6 +131,7 @@ function saveProfileName() {
 }
 function initBaseSettings()
 {
+
 	$("[rel=popover-hover]").popover({
 		trigger : "hover",
 		html: true
@@ -1286,6 +1288,12 @@ function initSafeBox() {
 
 }
 
+function delFromTagList(row, tag)
+{
+	$('#tagListTable').DataTable().row($(row).parents('tr')).remove().draw(false);
+	delete profileSettings['tags'][tag];
+	checkProfile();
+}
 
 function delFromBlackList(row, email) {
 	$('#blackListTable').DataTable().row($(row).parents('tr')).remove().draw(false);
@@ -1344,6 +1352,62 @@ function initBlackList() {
 	}
 
 }
+
+
+function initTagList() {
+	if (!tagListProfileInitialized) {
+
+		var dataSet = [];
+		//console.log(contacts);
+		if (Object.keys(profileSettings['tags']).length > 0) {
+			$.each(profileSettings['tags'], function (index, value) {
+				var el = [from64(value['name']), '<a class="delete" href="javascript:void(0);" onclick="delFromTagList($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+
+		contactTable = $('#tagListTable').dataTable({
+			"sDom": "R<'dt-toolbar'" +
+				"<'#contactSearch'f>" +
+				"<''>" +
+				"<'col-sm-3 pull-right'l>" +
+				"r>t" +
+				"<'dt-toolbar-footer'" +
+				"<'col-sm-6 col-xs-2'i>" +
+				"<'#paginator'p>" +
+				">",
+			"columnDefs": [
+				{ "sClass": 'col col-xs-10', "targets": 0},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
+				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ 'bSearchable': false, 'aTargets': [ 1 ] },
+				{ "orderDataType": "data-sort", "targets": 0 }
+			],
+			"order": [
+				[ 0, "asc" ]
+			],
+			"iDisplayLength": 10,
+			"data": dataSet,
+			columns: [
+				{ "title": "Tag"},
+				{ "title": "delete"}
+
+			],
+			"language": {
+				"emptyTable": "Empty"
+			}
+
+		});
+
+		tagListProfileInitialized = true;
+
+	}
+
+}
+
 
 function initdisposable() {
 	//disposableListProfileInitialized
@@ -1934,4 +1998,3 @@ function addNewContact() {
 
 
 }
-

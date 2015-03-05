@@ -125,6 +125,16 @@
 				<i class="fa-fw fa fa-warning"></i>
 				<strong>Warning: </strong><span></span>
 			</div>
+
+			<div id="warnin" class="alert alert-warning fade in">
+				<button class="close" data-dismiss="alert">
+					×
+				</button>
+				<i class="fa-fw fa fa-warning"></i>
+				<strong>Warning: </strong><span>March 8, 2015. 9:00 pm (UTC) Our server will be offline for 2 hours due to undergoing update. Thank you for patience. We still will be receiving new emails during this period.</span>
+			</div>
+
+
 			<div class="container">
 
 				<div class="row">

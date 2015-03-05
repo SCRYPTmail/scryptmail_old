@@ -121,7 +121,7 @@ function iniEmailBody(pin) {
 				['color', ['color']],
 				['para', ['ul', 'ol', 'paragraph']],
 				['height', ['height']],
-				['insert', ['link']], // no insert buttons
+				['insert', ['link']] // no insert buttons
 			]
 
 		});
@@ -646,7 +646,7 @@ function encryptMessageToRecipient(emailparsed) {
 						Answer('Email sent');
 						$('.sendMailButton').html('Send');
 						$('.sendMailButton').prop('disabled', false);
-						$('#sendMaildiv').css('display', 'none');
+						readMailclean();
 						getDataFromFolder('Inbox');
 
 					} else {

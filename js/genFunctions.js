@@ -82,6 +82,8 @@ receivingKeys={};
 contactTable = '';
 sessionTimeOut=40;
 toFile='';
+mailBox={};
+messageFolder='';
 
 contactListProfileInitialized = false;
 blackListProfileInitialized=false;
@@ -158,6 +160,8 @@ function resetGlobal() {
 
 	sigPubKeyTemp = '';
 	sigPrivateKeyTemp = '';
+	mailBox={};
+	messageFolder='';
 
 	contactTable = '';
 	receivingKeys={};
@@ -574,8 +578,40 @@ function moveMessagestoInbox(newMessages) {
 								}
 
 								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && activePage=="mail"){
-									displayFolderContent('Inbox');
+								if(folder_navigate=="Inbox" && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
+									var to= from64(meta['to']);
+									var from=from64(meta['from']);
+									var subject=stripHTML(from64(meta['subject']).toString());
+									var attachment=meta['attachment'];
+									var modKey=meta['modKey'];
+									var status=meta['status'];
+									var timeSent=meta['timeSent'];
+									var pin=meta['pin'];
+									var signature=meta['signature'];
+									var body= from64(meta['body']);
+									var tag={};
+									if(meta['fromExtra']!=undefined){
+										from=from+sanitize(from64(meta['fromExtra']));
+									}
+
+									mailBox['Data'][value['id']]={
+										'modKey':modKey,
+										'to':to,
+										'from':from,
+										'subject':subject,
+										'body':body,
+										'opened':false,
+										'timeSent':timeSent,
+										'pin':pin,
+										'signature':signature,
+										'attachment':attachment,
+										'checked':false,
+										'tags':tag
+									};
+									if(folder_navigate=="Inbox" && activePage=="mail"){
+										displayFolderContent('Inbox');
+									}
+
 								}
 							}
 						});
@@ -622,8 +658,41 @@ function moveMessagestoInbox(newMessages) {
 								}
 
 								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && activePage=="mail"){
-									displayFolderContent('Inbox');
+								if(folder_navigate=="Inbox" && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
+									var to= from64(meta['to']);
+									var from=from64(meta['from']);
+									var subject=stripHTML(from64(meta['subject']).toString());
+									var attachment=meta['attachment'];
+									var modKey=meta['modKey'];
+									var status=meta['status'];
+									var timeSent=meta['timeSent'];
+									var pin=meta['pin'];
+									var signature=meta['signature'];
+									var body= from64(meta['body']);
+									var tag={};
+
+									if(meta['fromExtra']!=undefined){
+										from=from+sanitize(from64(meta['fromExtra']));
+									}
+
+									mailBox['Data'][value['id']]={
+										'modKey':modKey,
+										'to':to,
+										'from':from,
+										'subject':subject,
+										'body':body,
+										'opened':false,
+										'timeSent':timeSent,
+										'pin':pin,
+										'signature':signature,
+										'attachment':attachment,
+										'checked':false,
+										'tags':tag
+									};
+
+									if(folder_navigate=="Inbox" && activePage=="mail"){
+										displayFolderContent('Inbox');
+									}
 								}
 							}
 						});
@@ -867,6 +936,14 @@ function emailSelection(object, container) {
 	return object.text;
 }
 
+function tagSelection(object, container) {
+	container.parent().addClass("label bg-color-teal");
+	container.parent().css('text-transform','uppercase');
+	//console.log(object.text);
+	//return 'fff';
+	return filterXSS(object.text);
+}
+
 function fileSelection(object, container) {
 	container.parent().addClass("label-success");
 	return object.text;
@@ -966,7 +1043,7 @@ function dbToProfile(obj, secret,salt) {
 
 function dbToFolder(obj) {
 
-	var f = fromAes(folderKey, obj['folderObj']);
+	var f = fromAes64(folderKey, obj['folderObj']);
 
 	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
 
@@ -977,7 +1054,7 @@ function dbToFolder(obj) {
 
 function folderToDb(folderObj) {
 
-	var f = toAes(folderKey, JSON.stringify(folderObj));
+	var f = toAes64(folderKey, JSON.stringify(folderObj));
 
 	return f;
 }
@@ -1228,6 +1305,8 @@ function clearComposeMail() {
 	message['mailHash'] = '';
 	$('.sendMailButton').html('Send');
 	$('.sendMailButton').prop('disabled',false);
+
+	$('#mailIcons').css('display','block');
 }
 
 
@@ -1325,6 +1404,7 @@ function getDataFromFolder(thisObj) {
 					//$('#custPaginator').html('');
 					$('#pag').css('display','none');
 					$('#sendMaildiv').css('display','block');
+					$('#mailIcons').css('display','none');
 					iniEmailBody('');
 					emailTimer();
 				});
@@ -1358,7 +1438,7 @@ function getDataFromFolder(thisObj) {
 			// $('#mobfolder >li').eq(thisObj.parent().index()).children().append(' <i class="fa fa-check"></i>');
 
 			clearInterval(mailt);
-			$('#sendMaildiv').css('display','none');
+			readMailclean();
 			clearComposeMail();
 			checkState(function () {
 				//  console.log($('#mail-table').parents('#mail-table_wrapper').length);
@@ -1407,6 +1487,7 @@ function displayFolderContent(folderName) {
 
 	folderDecoded.done(function () {
 
+
 		var messagesId = [];
 		$("#selectAll").prop('checked', '');
 		//	console.log(folder);
@@ -1425,6 +1506,20 @@ function displayFolderContent(folderName) {
 				messagesId = customMessageIds(folder['Custom'][folderName]);
 			}
 		}
+		parseMessagesObject(messagesId);
+	});
+}
+
+function parseMessagesObject(messagesId){
+
+	if(mailBox['boxName']==folder_navigate){
+
+		renderMessages();
+	}else{
+		//var dfd = $.Deferred();
+		mailBox={};
+		mailBox={'boxName':folder_navigate};
+		mailBox['Data']={};
 
 		if (messagesId.length != 0) {
 			$.ajax({
@@ -1435,7 +1530,10 @@ function displayFolderContent(folderName) {
 				},
 				success: function (data, textStatus) {
 					if (data.results !== undefined) {
-						renderMessages(data);
+						decryptMessages(data,function(){
+							renderMessages();
+						});
+
 					} else {
 						noAnswer('Error. Please try again.');
 					}
@@ -1453,14 +1551,141 @@ function displayFolderContent(folderName) {
 			t.clear();
 			t.draw();
 		}
+	}
+
+	//dfd.done(function () {
+	//});
+
+	//
+	//console.log(folder_navigate);
+}
+
+function decryptMessages(data,callback){
+	var dfd = $.Deferred();
+
+	if(folder_navigate in folder['Custom']){
+		var keyFolder=folder['Custom'][folder_navigate];
+	}else{
+		var keyFolder=folder[folder_navigate];
+	}
+
+	if (data['results'].length > 0 && $.isArray(data['results'])) {
+		var count = data['results'].length;
+		mailBox['Data']={};
+		//console.log(keyFolder);
+		$.each(data['results'], function (index, value) {
+		try {
+			var key = forge.util.hexToBytes(keyFolder[value['messageHash']]['p']);
+
+
+			var z = fromAes64(key, value['meta']);
+			var meta = JSON.parse(z);
+
+			//console.log(keyFolder);
+
+			var to= from64(meta['to']);
+			var from=from64(meta['from']);
+			var subject=stripHTML(from64(meta['subject']).toString());
+			var attachment=meta['attachment'];
+			var modKey=meta['modKey'];
+			var status=meta['status'];
+			var timeSent=meta['timeSent'];
+			var pin=meta['pin'];
+			var signature=meta['signature'];
+			var opened=keyFolder[value['messageHash']]['opened'];
+			var tags={};
+
+			if(keyFolder[value['messageHash']]['tags']!=undefined){
+				if (Object.keys(keyFolder[value['messageHash']]['tags']).length > 0) {
+					tags=keyFolder[value['messageHash']]['tags'];
+				//	tags='<i class="fa fa-tags fa-lg"></i>: ';
+					//$.each(keyFolder[value['messageHash']]['tags'], function (index, value) {
+					//	tags[value['name']]={'name':};
+					//	tags+='<span class="label bg-color-teal" style="text-transform:uppercase; margin-right:5px;">'+from64(value['name'])+'</span>';
+					//});
+				}
+			}
+
+			try {
+				var body= from64(meta['body']);
+				} catch (err) {
+				var body='';
+			}
+
+
+			if (folder_navigate == 'Sent' || folder_navigate == 'Draft') {
+				from ='To: '+( (to !== undefined) ? sanitize(to.toString()) : '');
+				//var opened=true;
+			} else {
+				from = sanitize(from);
+				if(meta['fromExtra']!=undefined){
+					from=from+sanitize(from64(meta['fromExtra']));
+				}
+			}
+
+
+		} catch (err) {
+			//var meta=[];
+			var to= 'Error';
+			var from = 'Error';
+			var subject = 'Failed to Decrypt. Please Report Bug';
+			var body='Error';
+			var attachment='';
+			var opened=false;
+			var modKey=false;
+			var status='warning';
+
+			var timeSent=Math.round((new Date).getTime() / 1000);
+			var pin='Error';
+			var signature='Error';
+			var tags={};
+
+		}
+
+//console.log(value['messageHash']);
+
+			mailBox['Data'][value['messageHash']]={
+				'modKey':modKey,
+				'to':to,
+				'from':from,
+				'subject':subject,
+				'body':body,
+				'opened':opened,
+				'timeSent':timeSent,
+				'pin':pin,
+				'signature':signature,
+				'attachment':attachment,
+				'checked':false,
+				'tags':tags
+			};
+
+			if (!--count) dfd.resolve();
+		});
+	}else{
+		//console.log('ddd');
+		mailBox['Data']={};
+		dfd.resolve();
+	}
+
+	dfd.done(function () {
+		//console.log(mailBox);
+callback();
 	});
 }
 
-function renderMessages(data) {
+function markMessage(messageId)
+{
+	if(mailBox['Data'][messageId]['checked']==true)
+		mailBox['Data'][messageId]['checked']=false;
+	else
+		mailBox['Data'][messageId]['checked']=true;
 
-	//console.log(data);
+}
+
+function renderMessages() {
+
 	$('#pag').css('display','block');
-	var to, subj, time, body;
+
 	var d = new Date();
 	var t = $('#mail-table').DataTable();
 
@@ -1468,93 +1693,36 @@ function renderMessages(data) {
 	var dataSet = [];
 
 	var dfd = $.Deferred();
-	modkeyToMessag = {};
+
 	//$('.table-wrap').css('margin-right','-8px');
 
-	if (data['results'].length > 0 && $.isArray(data['results'])) {
-		var count = data['results'].length;
-		//console.log(index);
+	if (Object.keys(mailBox['Data']).length > 0) {
+		var frField='<div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>';
+		var count = Object.keys(mailBox['Data']).length;
 
-		if(folder_navigate in folder['Custom']){
-			var keyFolder=folder['Custom'][folder_navigate];
-		}else{
-			var keyFolder=folder[folder_navigate];
-		}
-		$.each(data['results'], function (index, value) {
+		$.each(mailBox['Data'], function (index, value) {
 
-			try {
-				var key = forge.util.hexToBytes(keyFolder[value['messageHash']]['p']);
+//console.log(value['tags']);
+			if(Object.keys(value['tags']).length > 0){
 
-				var z = fromAes(key, value['meta']);
-				var meta = JSON.parse(z);
+						var tags='<i class="fa fa-tags fa-lg"></i>: ';
+						$.each(value['tags'], function (index, value) {
 
+							tags+='<span class="label bg-color-teal" style="text-transform:uppercase; margin-right:5px;">'+from64(value['name'])+'</span>';
+						});
 
-				meta['to'] = from64(meta['to']);
-				meta['from'] = from64(meta['from']);
-				meta['subject'] = stripHTML(from64(meta['subject']).toString());
-
-				try {
-				meta['body'] = from64(meta['body']);
-				} catch (err) {
-					meta['body'] ='';
-				}
-				//console.log(meta['modKey']);
-			//sanitize
-				//	console.log(meta);
-				modkeyToMessag[value['messageHash']] = meta['modKey'];
-				if (folder_navigate == 'Sent' || folder_navigate == 'Draft') {
-					var from ='To: '+( (meta['to'] !== undefined) ? sanitize(meta['to'].toString()) : '');
-				} else {
-					var from = sanitize(meta['from']);
-					if(meta['fromExtra']!=undefined){
-						from=from+sanitize(from64(meta['fromExtra']));
-					}
-				}
-				if(folder_navigate in folder['Custom']){
-					var mesHash=folder['Custom'][folder_navigate][value['messageHash']]['opened'];
-				}else{
-					var mesHash=folder[folder_navigate][value['messageHash']]['opened'];
-				}
-				var emid=value['messageHash']+'_'+meta['modKey'];
-			} catch (err) {
-				var meta=[];
-				meta['to'] = 'Error';
-				meta['from'] = 'Error';
-				meta['subject'] = 'Failed to Decrypt. Please Report Bug';
-				meta['body']='Error';
-				var from='Error';
-				meta['attachment']='';
-				var mesHash=false;
-				var emid=value['messageHash']+'_failed';
+				//console.log(value['tags']);
+				var tag='<div rel="tooltip" data-original-title="Tag" data-placement="bottom">'+tags+'</div>';
+			}else{
+				var tag='';
 			}
-				var frField='<div class="col-xs-4" style="display: block;height: 20px;position: absolute;z-index:999;"></div>';
 
-
-
-				var el = ['<div class="checkbox" id="msg_' + value['messageHash'] + '"><label><input type="checkbox" class="checkbox style-2"><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
-					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '>' + ((meta['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') +  frField + from + '</div>',
-					'<div id="' + emid + '"' + (!mesHash ? 'class="unread"' : '') + '><span>' + ((meta['subject'] !== undefined) ? meta['subject'] : '[No Subject]') + '</span> ' + ((meta['body'] !== undefined) ? meta['body'].toString() : '') + '</div>',
-					(meta['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
-					new Date(parseInt(meta['timeSent'] + '000')).getTime()];
-				dataSet.push(el);
-
-
-			//} catch (err) {
-
-//console.log(index);
-			//	console.log(key);
-			//	console.log(value);
-			//	console.log(fromAes(key, value['body']));
-				//console.log(fromAes(key, value['meta']));
-				//if(folder_navigate =='Draft'){
-					//noAnswer('Error. Please re')
-					//delete folder['Draft'][parseInt(value['messageHash'])];
-				//}//else{
-					//delete folder[folder_navigate][parseInt(value['messageHash'])];
-				//}
-
-				//checkFolders();
-			//}
+			var el = ['<div class="checkbox" id="msg_' + index + '"><label><input type="checkbox" class="checkbox style-2" '+ (value['checked'] ? 'checked="checked"' : '') +'><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
+				'<div id="' + index + '"' + (!value['opened'] ? 'class="unread"' : '') + '>' + ((value['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') +  frField + value['from'] + '</div>',
+				tag+'<div ' + (!value['opened'] ? 'class="unread"' : '') + '><span>' + ((value['subject'] !== undefined) ? value['subject'] : '[No Subject]') + '</span> - ' + ((value['body'] !== undefined) ? value['body'].toString() : '') + '</div>',
+				(value['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
+				new Date(parseInt(value['timeSent'] + '000')).getTime()];
+			dataSet.push(el);
 			if (!--count) dfd.resolve();
 		});
 
@@ -1563,9 +1731,6 @@ function renderMessages(data) {
 			t.draw(false);
 
 			if ($('#mail-table').children().get(1) === undefined) {
-				//t.draw();
-				//noAnswer('Fail to render table, please try again')
-			//	console.log(activePage);
 				setTimeout(
 					function () {
 						getDataFromFolder(folder_navigate);
@@ -1573,10 +1738,11 @@ function renderMessages(data) {
 			}
 
 		});
-
-
+	}else{
+		var t = $('#mail-table').DataTable();
+		t.clear();
+		t.draw();
 	}
-
 }
 
 function getNewEmailsCount() {
@@ -1720,12 +1886,24 @@ function saveDraft() {
 			emailObj['meta']['opened'] = true;
 			emailObj['meta']['type'] = 'draft';
 			emailObj['meta']['pin'] = $('#pincheck').is(':checked')?true:false;
-			emailObj['meta']['status'] = '';
+			emailObj['meta']['status'] = 'normal';
 			emailObj['meta']['modKey'] = makeModKey(UserSalt);
 			emailObj['meta']['to'] = emailObj['to']
 			emailObj['meta']['from'] = emailObj['from'];
 			emailObj['modKey'] = emailObj['meta']['modKey'];
 
+
+				var to= recipientHandler('getList','');
+				var from=emailObj['from'];
+				var subject=emailObj['subj'];
+				var attachment='';
+
+				var modKey=emailObj['meta']['modKey'];
+				var status='normal';
+				var timeSent=emailObj['meta']['timeSent'];
+				var pin='';
+				var signature='';
+				var body= emailObj['body']['text'];
 
 			emailObj['to'] = to64(emailObj['to']);
 			emailObj['from'] = to64(emailObj['from']);
@@ -1763,6 +1941,24 @@ function saveDraft() {
 
 							//folder['Draft'] = jQuery.unique(folder['Draft']);
 							checkFolders();
+							if(mailBox['boxName']=="Draft"){
+
+								mailBox['Data'][data.messageId]={
+									'modKey':modKey,
+									'to':from ='To: '+( (to !== undefined) ? sanitize(to.toString()) : ''),
+									'from':from,
+									'subject':subject,
+									'body':body,
+									'opened':true,
+									'timeSent':timeSent,
+									'pin':pin,
+									'signature':'',
+									'attachment':'',
+									'checked':false
+								};
+							}
+
+
 							if (modKeys.length == 1) {
 								$('.email-open-header').append('<span class="label bg-color-blue" rel="tooltip" data-placement="bottom" data-original-title="Message Saved">DRAFT</span>');
 							}
@@ -1923,22 +2119,6 @@ function escapeTags(html) {
 	return escape.innerHTML;
 }
 
-
-function from64(data) {
-	if (data instanceof Array) {
-		$.each(data, function (index, value) {
-			data[index] = from64(value);
-		});
-		return data;
-	} else if (data instanceof Object) {
-		//console.log('object');
-		$.each(data, function (index, value) {
-			data[index] = from64(value);
-		});
-		return data;
-	} else
-		return forge.util.decodeUtf8(forge.util.decode64(data));
-}
 //util.binary.base64.decode
 
 function from64binary(data) {
@@ -1991,7 +2171,12 @@ function readFile(fileName) {
 	var fd = new FormData();
 	fd.append('fileName', from64(emailObj['body']['attachment'][fileName]['filename']));
 
-	var key = forge.util.hexToBytes(folder[folder_navigate][emailObj['mailId']]['p']);
+
+	if(messageFolder in folder['Custom']){
+		var key = forge.util.hexToBytes(folder['Custom'][messageFolder][emailObj['mailId']]['p']);
+	}else{
+		var key = forge.util.hexToBytes(folder[messageFolder][emailObj['mailId']]['p']);
+	}
 
 	$.ajax({
 		type: "POST",
@@ -2040,6 +2225,7 @@ function replyToMail() {
 
 	clearInterval(mailt);
 	clearComposeMail();
+	$('#mailIcons').css('display','none');
 
 	$.ajax({
 		type: "GET",
@@ -2084,7 +2270,7 @@ function forwardMail() {
 
 	clearInterval(mailt);
 	clearComposeMail();
-
+	$('#mailIcons').css('display','none');
 
 	$.ajax({
 		type: "GET",
@@ -2129,30 +2315,18 @@ function markSpam() {
 	//console.log(blackList);
 	clearComposeMail();
 }
+function readMailclean(){
+	$('#sendMaildiv').css('display','none');
+	//$('#readMaildiv').css('display','none');
+	$('#readEmailOpt').css('display','none');
+	$('#boxEmailOption').css('display','inline-block');
 
-function deleteMail() {
+	$('#mailIcons').addClass('col-xs-8');
+	$('#mailIcons').removeClass('col-xs-6');
 
-	if (emailObj['mailId'] != '') {
-		//console.log(emailObj);
-		var selected = {};
-		selected['0'] = {'id': emailObj['mailId'], 'modKey': emailObj['meta']['modKey']};
-		//console.log(selected);
-		$('#sendMaildiv').css('display','none');
-		deleteMessage(selected,folder_navigate);
-		getDataFromFolder(folder_navigate);
-		clearComposeMail();
-		setTimeout(function() {
-			getNewEmailsCount();
-		}, 1000);
 
-	} else {
-		getDataFromFolder(folder_navigate);
-		setTimeout(function() {
-			getNewEmailsCount();
-		}, 1000);
-	}
-	
 }
+
 
 function initializeMailList() {
 
@@ -2186,7 +2360,7 @@ function initializeMailList() {
 		"iDisplayLength": profileSettings['mailPerPage'],
 		"sDom": "R<'dt-toolbar'" +
 			"<'#mailSearch'f>" +
-			"<'#mailIcons'>" +
+			"<>" +
 			"<'#mailList'l>" +
 			"r>t" +
 			"<'dt-toolbar-footer'" +
@@ -2196,6 +2370,25 @@ function initializeMailList() {
 		"deferRender": true,
 		"autoWidth": true,
 		fnCreatedRow: function (nRow, aData, iDataIndex) {
+			//console.log(nRow);
+
+			var mailId=$('td:eq(1) > div', nRow).attr('id');
+
+			if(mailId!=undefined){
+				$('td:eq(1)', nRow).css('cursor','pointer');
+				$('td:eq(2)', nRow).css('cursor','pointer');
+
+				if(mailBox['Data'][mailId]['modKey']===false){
+					$('td:eq(1)', nRow).attr('onclick', 'deleteFailed("'+mailId+'")');
+					$('td:eq(2)', nRow).attr('onclick', 'deleteFailed("'+mailId+'")');
+				}else{
+					$('td:eq(0) > div > label > span', nRow).attr('onclick', 'markMessage("'+mailId+'")');
+
+					$('td:eq(1)', nRow).attr('onclick', "getMail('"+mailId+"','"+mailBox['Data'][mailId]['modKey']+"')");
+					$('td:eq(2)', nRow).attr('onclick', "getMail('"+mailId+"','"+mailBox['Data'][mailId]['modKey']+"')");
+				}
+			}
+
 			if (d.toDateString() == new Date(parseInt($('td:eq(4)', nRow).text())).toDateString()) {
 				$('td:eq(4)', nRow).text(new Date(parseInt($('td:eq(4)', nRow).text())).toLocaleTimeString());
 			} else {
@@ -2227,89 +2420,87 @@ function initializeMailList() {
 	$('#mailList').css('float', 'right');
 
 
-	var trash = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"  class="deletebutton btn btn-default" style="margin-left:0px;"><strong><i class="fa fa-trash-o fa-lg"></i></strong></a>';
-
-	var move = '<a href="javascript:void(0);" rel="tooltip" data-toggle="dropdown" title="" data-placement="left" data-original-title="Move to Folder"  class="movebutton btn btn-default"><i class="fa  fa-folder-open-o fa-lg"></i> Move</a>' +
-		'<ul id="mvtofolder" class="dropdown-menu"></ul>';
-
-	var spam = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"  class="spambutton btn btn-default" onclick="movetofolder(\'Spam\');"><i class="fa fa-ban fa-lg"></i> Spam</a>';
-
-
-//if(ismobile){
-	var newmail = '<a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"  class="btn btn-primary visible-sm visible-xs" onclick="getDataFromFolder(\'composeMail\')"><i class="fa fa-pencil-square-o"></i></a>';
-//}else
-	//var newmail ='';
-
-	$('#mailIcons').html(' <div class="inbox-checkbox-triggered col col-xs-12" style="padding-left:0px;"><div class="btn-group"> ' +newmail+ ' '+ move + ' '+spam+' ' + trash + '</div></div>');
-
-
-	$('#mail-table tbody').on('mouseover', 'td.inbox-data-from', function () {
-		$(this).css('cursor', 'pointer');
-
-		var mailId=$(this).children().eq(0).attr('id');
-		var mailD = mailId.split('_');
-		var mid=mailD[0];
-		var modK=mailD[1];
-
-		if(modK=='failed'){
-			$(this).attr('onclick', "deleteFailed('"+mid+"','"+modK+"')");
-		}else{
-			$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
-		}
-
-	});
-
-	$('#mail-table tbody').on('mouseover', 'td.inbox-data-message', function () {
-		$(this).css('cursor', 'pointer');
-		var mailId=$(this).children().eq(0).attr('id')
-		var mailD = mailId.split('_');
-		var mid=mailD[0];
-		var modK=mailD[1];
-
-		$(this).attr('onclick', "getMail('"+mid+"','"+modK+"')");
-
-	});
-
-
-	//$('.mail-table-icon input:checkbox').click(function () {
-	//	enableDeleteButton();
-	//})
-
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
 		$('td input:checkbox', table).prop('checked', this.checked);
 
+		$('#mail-table tr').each(function (i, row) {
+			//markMessage();
+			if($('td:eq(1) > div', row).attr('id')!==undefined){
+				markMessage($('td:eq(1) > div', row).attr('id'));
+			}
+			//console.log($('td:eq(1) > div', row).attr('id'));
+		});
 	});
-	//$("#selectAll").click(function() {
-	//   if($("#selectAll").is(':checked')) $('#trashMail').removeClass('hidden');
-	//     else
-	//       $('#trashMail').addClass('hidden');
-
-	//});
-	//
 
 	renderMoveFolder();
-
-	$(".deletebutton").click(function () {
-		//console.log(modkeyToMessag);
-		var selected = [];
-		$('#mail-table td input:checked').each(function () {
-			var elem = {};
-			var val = $(this).parent().parent().attr('id');
-			elem['id'] = val.substr(val.indexOf("_") + 1);
-			elem['modKey'] = modkeyToMessag[elem['id']];
-			selected.push(elem);
-		});
-		deleteMessage(selected,folder_navigate);
-
-	});
 
 	/* END BASIC */
 
 	finishRendering();
 
 }
-function deleteFailed(messageId,modK){
+
+function deleteEmail()
+{
+	//console.log('dd');
+	var selected = [];
+	if(activePage=='mail')
+	{
+		if (Object.keys(mailBox['Data']).length > 0) {
+			$.each(mailBox['Data'], function (index, value) {
+
+				if(value['checked']){
+					var elem = {};
+					var val = $(this).parent().parent().attr('id');
+					elem['id'] = index;
+					elem['modKey'] = value['modKey'];
+					selected.push(elem);
+				}
+			});
+
+			deleteMessage(selected,folder_navigate,function(){
+
+					$.each(mailBox['Data'], function (index, value) {
+
+						if(value['checked']){
+							delete mailBox['Data'][index];
+						}
+					});
+
+			});
+		}
+		//console.log(selected);
+	}else if(activePage=='readEmail' || activePage=="composeMail"){
+
+		if (emailObj['mailId'] != '') {
+			//console.log(emailObj);
+			var selected = {};
+			selected['0'] = {'id': emailObj['mailId'], 'modKey': emailObj['meta']['modKey']};
+			//console.log(selected);
+			deleteMessage(selected,folder_navigate,function(){
+				delete mailBox['Data'][emailObj['mailId']];
+				readMailclean();
+				getDataFromFolder(folder_navigate);
+				clearComposeMail();
+				setTimeout(function() {
+					getNewEmailsCount();
+				}, 1000);
+			});
+
+
+		} else {
+			getDataFromFolder(folder_navigate);
+			setTimeout(function() {
+				getNewEmailsCount();
+			}, 1000);
+		}
+
+	}
+
+}
+
+function deleteFailed(messageId){
 
 	$('#dialog_simple >p').html('We are sorry, but we unable to decrypt this email. Please report a bug if problem persists.');
 
@@ -2331,6 +2522,8 @@ function deleteFailed(messageId,modK){
 					}else{
 						delete folder[folder_navigate][messageId];
 					}
+					delete mailBox['Data'][messageId];
+
 					checkFolders();
 					$('#dialog_simple').dialog('close');
 					getDataFromFolder(folder_navigate);
@@ -2453,100 +2646,282 @@ function checkBlackList() {
 	});
 
 }
+function markAsRead()
+{
 
+	if(activePage=="mail"){
 
-function movetofolder(tofolder) {
-	var dfd = $.Deferred();
+		var dfd = $.Deferred();
+		var selected = [];
 
-	var selected = [];
+		//mailBox['Data'][parseInt(mailId)]
+		if (Object.keys(mailBox['Data']).length > 0) {
+			var count = Object.keys(mailBox['Data']).length;
 
-	$('#mail-table td input:checked').each(function () {
-		var elem = {};
-		var val = $(this).parent().parent().attr('id');
-		elem['id'] = val.substr(val.indexOf("_") + 1);
-		elem['modKey'] = modkeyToMessag[elem['id']];
-		selected.push(elem);
-	});
-	var select = 0;
-	if(selected.length>0){
-	if(tofolder=="Spam"){
-		messagesIds=[];
-		$.each(selected, function (index, value) {
-			var el=value['id'];
-			messagesIds.push(el);
-		});
+			$.each(mailBox['Data'], function (index, value) {
 
-		getEmailSender(messagesIds,function(emails){
-			//console.log(emails);
-			$.each(emails, function (index, value) {
+				if(value['checked']){
+					mailBox['Data'][index]['opened']=true;
 
-				blackList[index]={'email':value['email']};
-
-			});
-
-			//console.log(emails); //get emails id for abstract use in filter
-			checkBlackList();
-			dfd.resolve();
-		});
-
-	}else{
-		dfd.resolve();
-	}
-
-		dfd.done(function () {
-			$.each(selected, function (index, value) {
-
-				if(folder_navigate==tofolder){
-					noAnswer('Can not move to same folder');
-				}else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
-					folder['Custom'][tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
-					delete folder['Custom'][folder_navigate][parseInt(value['id'])];
-					select++;
-				}else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
-
-					folder[tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
-					delete folder['Custom'][folder_navigate][parseInt(value['id'])];
-					select++;
-				}else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
-					folder['Custom'][tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-					delete folder[folder_navigate][parseInt(value['id'])];
-					select++;
-				}else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
-					folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
-					delete folder[folder_navigate][parseInt(value['id'])];
-					select++;
-				}else{
-					noAnswer('Error occurred. Please report a bug');
+					if(folder_navigate in folder['Custom']){
+						folder['Custom'][folder_navigate][index]['opened']=true;
+					}else if(folder_navigate in folder){
+						folder[folder_navigate][index]['opened']=true;
+					}
 				}
 
-
+				if (!--count) dfd.resolve();
 			});
+
+			dfd.done(function () {
+				checkFolders();
+				setTimeout(function() {
+					getNewEmailsCount();
+				}, 1000);
+				getDataFromFolder(folder_navigate);
+			});
+		}
+
+	}
+
+}
+
+function markAsUnread()
+{
+
+	if(activePage=="mail"){
+
+		var dfd = $.Deferred();
+		var selected = [];
+
+		//mailBox['Data'][parseInt(mailId)]
+		if (Object.keys(mailBox['Data']).length > 0) {
+			var count = Object.keys(mailBox['Data']).length;
+
+			$.each(mailBox['Data'], function (index, value) {
+
+				if(value['checked']){
+					mailBox['Data'][index]['opened']=false;
+
+					if(folder_navigate in folder['Custom']){
+						folder['Custom'][folder_navigate][index]['opened']=false;
+					}else if(folder_navigate in folder){
+						folder[folder_navigate][index]['opened']=false;
+					}
+				}
+
+				if (!--count) dfd.resolve();
+			});
+
+		dfd.done(function () {
+			checkFolders();
+			setTimeout(function() {
+				getNewEmailsCount();
+			}, 1000);
+			getDataFromFolder(folder_navigate);
+
+		});
+		}
+
+
+	}
+}
+	function movetofolder(tofolder) {
+		messageFolder=tofolder;
+
+ if(activePage=='readEmail'){
+
+		if (emailObj['mailId'] != '') {
+			var dfd = $.Deferred();
+
+			var mailId=emailObj['mailId'];
+		//	console.log(emailObj['mailId']);
+		//	console.log(tofolder);
+
+			if(tofolder=="Spam"){
+				messagesIds=[];
+					var el=mailId;
+					messagesIds.push(el);
+
+				getEmailSender(messagesIds,function(emails){
+					//console.log(emails);
+					$.each(emails, function (index, value) {
+						blackList[index]={'email':value['email']};
+
+					});
+					dfd.resolve();
+					checkBlackList();
+				});
+
+			}else{
+				dfd.resolve();
+			}
+
+			dfd.done(function () {
+			if(folder_navigate==messageFolder){
+				noAnswer('Can not move to same folder');
+
+			}else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
+				folder['Custom'][tofolder][parseInt(mailId)] = folder['Custom'][folder_navigate][parseInt(mailId)];
+				delete folder['Custom'][folder_navigate][parseInt(mailId)];
+				systemMessage('messageMoved');
+				folder_navigate=messageFolder;
+				mailBox['boxName']='';
+
+			}else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
+
+				folder[tofolder][parseInt(mailId)] = folder['Custom'][folder_navigate][parseInt(mailId)];
+				delete folder['Custom'][folder_navigate][parseInt(mailId)];
+
+				if(tofolder=="Spam"){
+					systemMessage('MarkedAsSpam');
+				}else{
+					systemMessage('messageMoved');
+				}
+				folder_navigate=messageFolder;
+				mailBox['boxName']='';
+
+			}else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
+				folder['Custom'][tofolder][parseInt(mailId)] = folder[folder_navigate][parseInt(mailId)];
+				delete folder[folder_navigate][parseInt(mailId)];
+
+				systemMessage('messageMoved');
+				folder_navigate=messageFolder;
+				mailBox['boxName']='';
+
+			}else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
+				folder[tofolder][parseInt(mailId)] = folder[folder_navigate][parseInt(mailId)];
+				delete folder[folder_navigate][parseInt(mailId)];
+
+				if(tofolder=="Spam"){
+					systemMessage('MarkedAsSpam');
+				}else{
+					systemMessage('messageMoved');
+				}
+				folder_navigate=messageFolder;
+				mailBox['boxName']='';
+			}else{
+				noAnswer('Error occurred. Please report a bug');
+			}
+
+			delete mailBox['Data'][parseInt(mailId)];
 
 			checkFolders();
 			setTimeout(function() {
 				getNewEmailsCount();
 			}, 1000);
-
-			if (select > 0){
-				checkFolders();
-				$('#mail-table').DataTable()
-					.row($('#mail-table td input:checkbox:checked').parents('tr'))
-					.remove()
-					.draw();
-				$("#selectAll").prop('checked', '');
-				Answer('Moved');
-			}
-
-		});
+			});
+		}
 
 
+	}else if(activePage=="mail"){
 
-	}else{
-		noAnswer('Select at least one message');
-	}
+	 var dfd = $.Deferred();
+
+	 var selected = [];
+
+	 if (Object.keys(mailBox['Data']).length > 0) {
+		 var count = Object.keys(mailBox['Data']).length;
+
+		 $.each(mailBox['Data'], function (index, value) {
+
+			 if(value['checked']){
+				 var elem = {};
+				 elem['id'] = index;
+				 elem['modKey'] = value['modKey'];
+				 selected.push(elem);
+			 }
+		 });
+	 }
+
+	 var select = 0;
+
+	 if(selected.length>0){
+		// console.log(selected);
+		 if(tofolder=="Spam"){
+			 messagesIds=[];
+			 $.each(selected, function (index, value) {
+				 var el=value['id'];
+				 messagesIds.push(el);
+			 });
+
+			 getEmailSender(messagesIds,function(emails){
+				 //console.log(emails);
+				 $.each(emails, function (index, value) {
+
+					 blackList[index]={'email':value['email']};
+
+				 });
+
+				 //console.log(emails); //get emails id for abstract use in filter
+				 checkBlackList();
+				 dfd.resolve();
+			 });
+
+		 }else{
+			 dfd.resolve();
+		 }
+
+		 dfd.done(function () {
+			 $.each(selected, function (index, value) {
+
+				 if(folder_navigate==tofolder){
+					 noAnswer('Can not move to same folder');
+				 }else if(folder_navigate in folder['Custom'] && tofolder in folder['Custom']){
+					 folder['Custom'][tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+					 delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+					 select++;
+				 }else if(folder_navigate in folder['Custom'] && !(tofolder in folder['Custom'])){
+
+					 folder[tofolder][parseInt(value['id'])] = folder['Custom'][folder_navigate][parseInt(value['id'])];
+					 delete folder['Custom'][folder_navigate][parseInt(value['id'])];
+					 select++;
+				 }else if(!(folder_navigate in folder['Custom']) && (tofolder in folder['Custom'])){
+					 folder['Custom'][tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+					 delete folder[folder_navigate][parseInt(value['id'])];
+					 select++;
+				 }else if(!(folder_navigate in folder['Custom']) && !(tofolder in folder['Custom'])){
+					 folder[tofolder][parseInt(value['id'])] = folder[folder_navigate][parseInt(value['id'])];
+					 delete folder[folder_navigate][parseInt(value['id'])];
+					 select++;
+				 }else{
+					 noAnswer('Error occurred. Please report a bug');
+				 }
+
+				 delete mailBox['Data'][parseInt(value['id'])];
+
+			 });
+
+			 if (select > 0)
+			 {
+				 checkFolders();
+				 setTimeout(function() {
+					 getNewEmailsCount();
+				 }, 1000);
+				 getDataFromFolder(folder_navigate);
+
+				 if(tofolder=="Spam"){
+					 systemMessage('MarkedAsSpam');
+				 }else{
+					 systemMessage('messageMoved');
+				 }
+			 }
+
+		 });
+
+
+
+	 }else{
+		 noAnswer('Select at least one message');
+	 }
+
+ }
+
 	//console.log(from);
 	//console.log(selected);
+	/*
 
+	*/
 }
 
 function deleteMessage(selected,selectedFolder, callback) {
@@ -2562,14 +2937,18 @@ function deleteMessage(selected,selectedFolder, callback) {
 			});
 
 			if (select > 0){
-				checkFolders();
-				$('#mail-table').DataTable()
-					.row($('#mail-table td input:checkbox:checked').parents('tr'))
-					.remove()
-					.draw();
-				$("#selectAll").prop('checked', '');
+				checkFolders(function(){
+					$('#mail-table').DataTable()
+						.row($('#mail-table td input:checkbox:checked').parents('tr'))
+						.remove()
+						.draw();
+					$("#selectAll").prop('checked', '');
+					Answer('Moved to Trash');
+					if (callback) {
+						callback();
+					}
+				});
 
-				Answer('Moved to Trash');
 			}
 
 
@@ -2581,22 +2960,24 @@ function deleteMessage(selected,selectedFolder, callback) {
 				select++;
 
 			});
-			checkFolders();
-			$('#mail-table').DataTable()
-				.row($('#mail-table td input:checkbox:checked').parents('tr'))
-				.remove()
-				.draw();
-			$("#selectAll").prop('checked', '');
+			checkFolders(function(){
+				$('#mail-table').DataTable()
+					.row($('#mail-table td input:checkbox:checked').parents('tr'))
+					.remove()
+					.draw();
+				$("#selectAll").prop('checked', '');
 
-			if (select > 0)
-				Answer('Moved to Trash');
-			setTimeout(function() {
-				getNewEmailsCount();
-			}, 1000);
+				if (select > 0)
+					Answer('Moved to Trash');
+				setTimeout(function() {
+					getNewEmailsCount();
+				}, 1000);
 
-			if (callback) {
-				callback();
-			}
+				if (callback) {
+					callback();
+				}
+			});
+
 
 		} else if(selectedFolder == "Trash" || selectedFolder == "Draft" || selectedFolder == "Spam") {
 
@@ -2618,15 +2999,22 @@ function deleteMessage(selected,selectedFolder, callback) {
 
 						});
 
-						checkFolders();
+						checkFolders(function(){
+							$('#mail-table').DataTable()
+								.row($('#mail-table td input:checkbox:checked').parents('tr'))
+								.remove()
+								.draw();
+							$("#selectAll").prop('checked', '');
+							if (select > 0)
+								Answer('Deleted');
 
-						$('#mail-table').DataTable()
-							.row($('#mail-table td input:checkbox:checked').parents('tr'))
-							.remove()
-							.draw();
-						$("#selectAll").prop('checked', '');
-						if (select > 0)
-							Answer('Deleted');
+							if (callback) {
+								callback();
+							}
+						});
+
+
+
 					} else {
 						noAnswer('Error. Please try again.');
 					}
@@ -2987,7 +3375,7 @@ function addCustomFolder(){
 
 }
 
-function checkFolders() {
+function checkFolders(callback) {
 
 	checkState(function () {
 
@@ -3003,11 +3391,20 @@ function checkFolders() {
 					'modKey': userModKey
 				},
 				success: function (data, textStatus) {
-					folderHash = SHA512(JSON.stringify(folder));
-					checkProfile();
-					showLimits();
+					if(data.response=="success"){
+						folderHash = SHA512(JSON.stringify(folder));
+						checkProfile();
+						showLimits();
+						if (callback) {
+							callback();
+						}
+					}else{
+						systemMessage('tryAgain');
+					}
+
 				},
 				error: function (data, textStatus) {
+					systemMessage('tryAgain');
 				},
 				dataType: 'json'
 			});
@@ -3124,24 +3521,6 @@ function fromFish(keyT, text) {
 	return cipher.toString(CryptoJS.enc.Latin1);
 }
 
-function fromAes(key, text) {
-
-	var vector = forge.util.hexToBytes(text.substring(0, 32));
-	var encrypted = text.substring(32);
-
-	var cipher = forge.cipher.createDecipher('AES-CBC', key);
-	var new_buffer = forge.util.createBuffer(forge.util.hexToBytes(encrypted));
-
-	cipher.start({iv: vector});
-	cipher.update(new_buffer);
-	cipher.finish();
-	//return forge.util.decodeUtf8(cipher.output.toString());
-	return cipher.output.toString();
-}
-
-
-
-
 
 function dbToBlackList() {
 
@@ -3158,7 +3537,7 @@ function dbToBlackList() {
 }
 
 function BlackListToDb() {
-	var f = toAes(folderKey, makerandom() + JSON.stringify(blackList) + makerandom());
+	var f = toAes(folderKey, JSON.stringify(blackList));
 
 	return f;
 }
@@ -3409,16 +3788,9 @@ function retrieveSecret() {
 
 
 				//console.log(profileSettings);
-				profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
-				sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
 
-				if(profileSettings['disposableEmails'] == undefined){
-					profileSettings['disposableEmails']={};
-				}
+				setupProfile();
 
-
-				profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
-				profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
 				//console.log(user1);
 				var test=forge.util.bytesToHex(mailPublicKey.encrypt('ggg', 'RSA-OAEP'));
 				UserSalt=userObj['saltS'];
@@ -3444,7 +3816,34 @@ function retrieveSecret() {
 	});
 }
 
+function setupProfile(){
+	profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 
+	sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+
+	if(profileSettings['disposableEmails'] == undefined){
+		profileSettings['disposableEmails']={};
+	}
+
+	profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
+	profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;
+
+	if(profileSettings['fontType']==undefined){
+		profileSettings['fontType']="4";
+	}else{
+		changeSystemFont(parseInt(profileSettings['fontType']));
+	}
+
+	if(profileSettings['fontSize']==undefined){
+		profileSettings['fontSize']="13";
+	}else{
+			changeFontSize(profileSettings['fontSize']);
+	}
+
+	if(profileSettings['tags']==undefined){
+		profileSettings['tags']={};
+	}
+}
 
 /*
  function indomainNotice(email,emailparsed,locmails,dataBack,index){
