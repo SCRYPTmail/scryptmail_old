@@ -1491,6 +1491,7 @@ function displayFolderContent(folderName) {
 		var messagesId = [];
 		$("#selectAll").prop('checked', '');
 		//	console.log(folder);
+
 		if (folderName == 'Inbox' || folderName == 'Sent' || folderName == 'Draft' || folderName == 'Spam' || folderName == 'Trash') {
 			if (Object.keys(folder[folderName]).length == 0) {
 				messagesId = [];
@@ -2424,10 +2425,18 @@ function initializeMailList() {
 		var table = $('#mail-table');
 		$('td input:checkbox', table).prop('checked', this.checked);
 
+		//console.log($("#selectAll").prop('checked'));
+
 		$('#mail-table tr').each(function (i, row) {
 			//markMessage();
 			if($('td:eq(1) > div', row).attr('id')!==undefined){
-				markMessage($('td:eq(1) > div', row).attr('id'));
+
+				if($("#selectAll").prop('checked'))
+					mailBox['Data'][$('td:eq(1) > div', row).attr('id')]['checked']=true;
+				else
+					mailBox['Data'][$('td:eq(1) > div', row).attr('id')]['checked']=false;
+
+				//markMessage($('td:eq(1) > div', row).attr('id'));
 			}
 			//console.log($('td:eq(1) > div', row).attr('id'));
 		});
