@@ -177,6 +177,65 @@ function to64(data) {
 
 }
 
+function from64(data) {
+	if (data instanceof Array) {
+		$.each(data, function (index, value) {
+			data[index] = from64(value);
+		});
+		return data;
+	} else if (data instanceof Object) {
+		//console.log('object');
+		$.each(data, function (index, value) {
+			data[index] = from64(value);
+		});
+		return data;
+	} else
+		return forge.util.decodeUtf8(forge.util.decode64(data));
+}
+
+
+function to64bin(data) {
+
+	return forge.util.encode64(data);
+}
+
+function from64bin(data) {
+
+		return forge.util.decode64(data);
+}
+
+function toAes64(key, text) {
+
+	var vector = forge.random.getBytesSync(16);
+
+	var cipher = forge.cipher.createCipher('AES-CBC', key);
+	cipher.start({iv: vector});
+
+	var usUtf8 = forge.util.encodeUtf8(text);
+	cipher.update(forge.util.createBuffer(usUtf8));
+	cipher.finish();
+
+	return to64bin(vector)+';' + to64bin(cipher.output.data);
+
+}
+function fromAes64(key, text) {
+
+	var textData = text.split(';');
+
+	var vector = from64bin(textData[0]);
+	var encrypted = from64bin(textData[1]);
+
+	var cipher = forge.cipher.createDecipher('AES-CBC', key);
+	var new_buffer = forge.util.createBuffer(encrypted);
+
+	cipher.start({iv: vector});
+	cipher.update(new_buffer);
+	cipher.finish();
+	//return forge.util.decodeUtf8(cipher.output.toString());
+	return cipher.output.toString();
+}
+
+
 function toAes(key, text) {
 
 	var vector = forge.random.getBytesSync(16);
@@ -191,6 +250,22 @@ function toAes(key, text) {
 	return forge.util.bytesToHex(vector) + cipher.output.toHex();
 
 }
+
+function fromAes(key, text) {
+
+	var vector = forge.util.hexToBytes(text.substring(0, 32));
+	var encrypted = text.substring(32);
+
+	var cipher = forge.cipher.createDecipher('AES-CBC', key);
+	var new_buffer = forge.util.createBuffer(forge.util.hexToBytes(encrypted));
+
+	cipher.start({iv: vector});
+	cipher.update(new_buffer);
+	cipher.finish();
+	//return forge.util.decodeUtf8(cipher.output.toString());
+	return cipher.output.toString();
+}
+
 
 function toFish(keyT, text) {
 
@@ -453,6 +528,15 @@ function addPaddingToString(pass){
 	return pass+padstrHex.substr(0,1024-pass.length);
 
 }
+function enableEmailControl(){
+	//$('#readMaildiv').css('display','block');
+	$('#readEmailOpt').css('display','inline-block');
+	$('#boxEmailOption').css('display','none');
+
+	$('#mailIcons').addClass('col-xs-6');
+	$('#mailIcons').removeClass('col-xs-8');
+	$("[rel=tooltip]").tooltip();
+}
 
 function systemMessage(messageCode)
 {
@@ -466,5 +550,104 @@ function systemMessage(messageCode)
 		case 'Sent':
 			Answer('Sent');
 			break;
+		case 'messageMoved':
+			Answer('Moved');
+			break;
+		case 'MarkedAsSpam':
+			Answer('Marked as spam');
+			break;
+
 	}
+}
+
+
+function changeSystemFont(tim){
+
+	if (!isNaN(tim)) {
+		switch (tim) {
+			case "1":
+				$("body").css("font-family", "Georgia, serif");
+				break;
+			case "2":
+				$("body").css("font-family", '"Palatino Linotype", "Book Antiqua", Palatino, serif');
+				break;
+			case "3":
+				$("body").css("font-family", '"Times New Roman", Times, serif');
+				break;
+			case "4":
+				$("body").css("font-family", 'Arial, Helvetica, sans-serif');
+				break;
+
+
+			case "5":
+				$("body").css("font-family", '"Arial Black", Gadget, sans-serif');
+				break;
+			case "6":
+				$("body").css("font-family", '"Comic Sans MS", cursive, sans-serif');
+				break;
+			case "7":
+				$("body").css("font-family", '"Lucida Sans Unicode", "Lucida Grande", sans-serif');
+				break;
+			case "8":
+				$("body").css("font-family", 'Tahoma, Geneva, sans-serif');
+				break;
+			case "9":
+				$("body").css("font-family", '"Trebuchet MS", Helvetica, sans-serif');
+				break;
+			case "10":
+				$("body").css("font-family", 'Verdana, Geneva, sans-serif');
+				break;
+			case "11":
+				$("body").css("font-family", '"Courier New", Courier, monospace');
+				break;
+			case "12":
+				$("body").css("font-family", '"Lucida Console", Monaco, monospace');
+				break;
+
+		}
+		profileSettings['fontType']=tim;
+		checkProfile();
+	}
+
+}
+
+function changeFontSize(tim){
+
+	if (!isNaN(tim)) {
+
+		switch (tim) {
+			case "9":
+				$("body").css("font-size", "9px");
+				break;
+
+			case "10":
+				$("body").css("font-size", "10px");
+				break;
+			case "11":
+				$("body").css("font-size", "11px");
+				break;
+			case "12":
+				$("body").css("font-size", "12px");
+				break;
+			case "13":
+				$("body").css("font-size", "13px");
+				break;
+			case "14":
+				$("body").css("font-size", "14px");
+				break;
+			case "15":
+				$("body").css("font-size", "15px");
+				break;
+			case "16":
+				$("body").css("font-size", "16px");
+				break;
+			case "17":
+				$("body").css("font-size", "17px");
+				break;
+
+		}
+		profileSettings['fontSize']=tim;
+		checkProfile();
+	}
+
 }

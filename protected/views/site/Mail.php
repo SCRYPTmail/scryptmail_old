@@ -18,7 +18,7 @@
 <div class="inbox-nav-bar no-content-padding">
 	<h1 class="page-title txt-color-blueDark visible-lg visible-md pull-left"><i class="fa fa-fw fa-inbox"></i> Inbox &nbsp;</h1>
 
-	<div class="btn-group hidden-lg hidden-md col col-xs-6">
+	<div class="btn-group hidden-lg hidden-md col col-xs-3">
 		<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 			<span id="folderSelect"></span> <i class="fa fa-caret-down"></i>
 		</button>
@@ -35,6 +35,92 @@
 	<span class="pull-right" id="custPaginator" style="margin-top:5px;"></span>
 	</div>
 
+	<div id="mailIcons" class="col col-xs-6 text-align-left pull-left" style="margin-left: 10px;">
+
+		<button class="btn btn-default visible-sm visible-xs pull-left"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"
+				type="button" onclick="getDataFromFolder('composeMail');">
+			<i class="fa fa-pencil-square-o"></i>
+		</button>
+
+		<button class="btn btn-default hidden-xs pull-left"
+				rel="tooltip" title="" data-toggle="dropdown" data-placement="bottom" data-original-title="Move to Folder"
+				type="button" onclick="">
+			<i class="fa  fa-folder-open-o fa-lg"></i>
+		</button>
+
+
+		<ul id="mvtofolder" class="dropdown-menu"></ul>
+
+		<button class="btn btn-default deletebutton hidden-xs pull-left"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"
+				type="button" onclick="deleteEmail();">
+			<i class="fa fa-trash-o fa-lg"></i>
+		</button>
+
+		<button class="btn btn-default pull-left"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"
+				type="button" onclick="movetofolder('Spam');">
+			<i class="fa fa-ban fa-lg"></i>
+		</button>
+
+
+
+
+	<!--
+
+		<button class="btn btn-default"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Move to"
+				type="button" onclick="">
+			<i class="fa fa-folder-open-o fa-lg"></i>
+		</button>
+
+		<button class="btn btn-default"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"
+				type="button" onclick="">
+			<i class="fa fa-ban fa-lg"></i>
+		</button>
+		<button class="btn btn-default"
+				rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"
+				type="button" onclick="">
+			<i class="fa fa-trash-o fa-lg"></i>
+		</button>
+-->
+		<div class="btn-group text-left pull-left" id="readEmailOpt" style="display:none;">
+			<button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+				More <i class="fa fa-angle-down fa-lg"></i>
+			</button>
+			<ul class="dropdown-menu pull-right">
+				<li id='replythis'>
+					<a href="javascript:void(0);" onclick="replyToMail();"><i
+							class="fa fa-reply"></i> Reply</a>
+				</li>
+				<li id='forwardthis'>
+					<a href="javascript:void(0);" onclick="forwardMail();"><i
+							class="fa fa-mail-forward"></i> Forward</a>
+				</li>
+
+			</ul>
+		</div>
+
+		<div class="btn-group text-left hidden-xs" id="boxEmailOption" style="display:none;">
+			<button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+				More <i class="fa fa-angle-down fa-lg"></i>
+			</button>
+			<ul class="dropdown-menu pull-right">
+				<li id='replythis'>
+					<a href="javascript:void(0);" onclick="markAsRead();">Mark as read</a>
+				</li>
+				<li id='forwardthis'>
+					<a href="javascript:void(0);" onclick="markAsUnread();">Mark as unread</a>
+				</li>
+
+			</ul>
+		</div>
+
+	</div>
+
+
 	<div id="sendMaildiv" class="col col-xs-6 text-align-right pull-right" style="display:none;">
 		<button class="btn btn-primary sendMailButton"
 				type="button" onclick="sendMail()">
@@ -43,7 +129,7 @@
 
 
 		<button class="btn btn-danger" style="margin-left:10px;" type="button" rel="tooltip" data-placement="top"
-				data-original-title="Discard" onclick="deleteMail()"><i class="fa fa-trash-o"></i>
+				data-original-title="Discard" onclick="deleteEmail()"><i class="fa fa-trash-o"></i>
 		</button>
 
 	</div>

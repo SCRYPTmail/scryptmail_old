@@ -18,7 +18,13 @@ class SaveFolders extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('folderObj,modKey', 'required','on'=>'saveFolder'),
+
+			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveFolder'),
+
+			array('folderObj', 'match', 'pattern' => "/^[a-zA-Z0-9+;\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveFolder'),
+			array('folderObj','length', 'max'=>8000000,'min'=>4000,'on'=>'saveFolder'),
+
+
 			array('blackObj,modKey', 'required','on'=>'saveBlack'),
 			//	array('mailHash', 'numerical','integerOnly'=>true,'allowEmpty'=>true),
 		);

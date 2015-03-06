@@ -67,6 +67,12 @@ class RetrieveFoldersMeta extends CFormModel
 			$params = implode($f, ',');
 
 			if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,meta FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
+				foreach($result['results'] as $i=>$row){
+					$vect=hex2bin(substr($row['meta'],0,32));
+					$data=hex2bin(substr($row['meta'],32));
+					$result['results'][$i]['meta']=base64_encode($vect).';'.base64_encode($data);
+					//print_r($vect);
+				}
 				echo json_encode($result);
 			} else
 				echo '{"results":"empty"}';

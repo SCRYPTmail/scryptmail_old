@@ -151,6 +151,7 @@
 			</div>
 			<div id="collapse7" class="panel-collapse collapse">
 				<div class="panel-body">
+					<section>
 					<div class="row">
 						<div class="col-xs-3">
 							<div id="smart-form-session-time" class="smart-form"
@@ -218,6 +219,65 @@
 						</div>
 
 					</div>
+					</section>
+
+					<section>
+					<div class="row top15">
+						<div class="col-xs-3">
+							<div id="smart-form-changeFont" class="smart-form">
+								<label class="select">
+									<select onchange="changeSystemFont($(this).val());">
+										<option value="0" selected="" disabled="">Select Font</option>
+
+										<option value="1">Georgia</option>
+										<option value="2">Palatino</option>
+										<option value="3">Times New Roman</option>
+
+
+										<option value="4">Arial</option>
+										<option value="5">Arial Black</option>
+										<option value="6">Comic Sans MS</option>
+										<option value="7">Lucida Sans Unicode</option>
+										<option value="8">Tahoma</option>
+										<option value="9">Trebuchet MS</option>
+										<option value="10">Verdana</option>
+
+
+										<option value="11">Courier New</option>
+										<option value="12">Lucida Console</option>
+
+
+									</select><i></i> </label>
+
+
+							</div>
+						</div>
+
+						<div class="col-xs-3">
+							<div id="smart-form-changeFont" class="smart-form">
+								<label class="select">
+									<select onchange="changeFontSize($(this).val());" id="fontSize">
+										<option value="0" selected="" disabled="">Select Font Size</option>
+
+										<option value="9" style="font-size:9px;">9</option>
+										<option value="10" style="font-size:10px;">10</option>
+										<option value="11" style="font-size:11px;">11</option>
+										<option value="12" style="font-size:12px;">12</option>
+										<option value="13" style="font-size:13px;">13</option>
+										<option value="14" style="font-size:14px;">14</option>
+										<option value="15" style="font-size:15px;">15</option>
+										<option value="16" style="font-size:16px;">16</option>
+										<option value="17" style="font-size:17px;">17</option>
+
+
+									</select><i></i> </label>
+
+
+							</div>
+						</div>
+
+					</div>
+						</section>
 				</div>
 			</div>
 		</div>
@@ -520,6 +580,24 @@
 				</div>
 			</div>
 		</div>
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapse9" onclick="initTagList();"
+										   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+							class="fa fa-lg fa-angle-up pull-right"></i> Tags </a></h4>
+			</div>
+			<div id="collapse9" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-striped table-hover" id="tagListTable">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
 
 		</div>
 

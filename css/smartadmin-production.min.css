@@ -8,8 +8,17 @@
     display: block;
     border: 1px solid #ddd
 }
-
+.top5 { margin-top:5px; }
+.top7 { margin-top:7px; }
+.top10 { margin-top:10px; }
+.top15 { margin-top:15px; }
+.top17 { margin-top:17px; }
+.top30 { margin-top:30px; }
 .cke_show_borders {
+}
+
+.select2-hidden-accessible{
+    display:none;
 }
 #email-compose-form{
 overflow-x:hidden;
@@ -16866,10 +16875,10 @@ tr.fc-last td {
     color: #fff
 }
 
-.inbox-data-message>:first-child>:first-child:after {
+/*.inbox-data-message>:first-child>:first-child:after {
     content: " - "
 }
-
+*/
 .unread td {
     background: #fff
 }
@@ -16933,6 +16942,9 @@ tr.highlight td, tr.unread.highlight td {
 .inbox-side-bar>.btn {
     margin-bottom: 35px
 }
+.tags .select2-choices{
+border-color: #fff !important;
+}
 
 .inbox-side-bar .input-group {
     margin-bottom: 25px
@@ -16960,7 +16972,6 @@ tr.highlight td, tr.unread.highlight td {
 .inbox-menu-lg li a {
     display: block;
     padding: 6px 15px 7px;
-    font-size: 13px;
     color: #333
 }
 

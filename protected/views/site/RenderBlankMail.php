@@ -1,39 +1,21 @@
 <div class="well well-sm well-light">
+	<div class="row tags" id="emTags" style="display:none;">
+		<div class="form-group">
+			<div class="col col-xs-4 col-sm-1">
+			<label class="control-label"><strong><i class="fa fa-tags fa-lg"></i> Tags: </strong></label>
+			</div>
+			<div class="col col-xs-8 col-sm-11" style="margin-top: -4px;">
+				<input type="hidden" id="tags" style="width:100%;"/>
+			</div>
+		</div>
+	</div>
 	<h2 class="email-open-header">
 	</h2>
 	<div class="inbox-info-bar">
 		<div class="row">
 			<div class="col-sm-9" id="rcptHeader">
 			</div>
-			<div class="col-sm-3 text-right">
 
-				<div class="btn-group text-left" id="defMailOption">
-					<button class="btn btn-primary btn-sm replythis" onclick="replyToMail();">
-						<i class="fa fa-reply"></i> Reply
-					</button>
-					<button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
-						<i class="fa fa-angle-down"></i>
-					</button>
-					<ul class="dropdown-menu pull-right">
-						<li id='replyMail'>
-							<a href="javascript:void(0);" class="replythis" onclick="replyToMail();"><i
-									class="fa fa-reply"></i> Reply</a>
-						</li>
-						<li>
-							<a href="javascript:void(0);" class="replythis" onclick="forwardMail();"><i
-									class="fa fa-mail-forward"></i> Forward</a>
-						</li>
-						<li class="divider"></li>
-						<!--<li id='spamMail'>
-							<a href="javascript:void(0);" onclick="markSpam();"><i class="fa fa-ban"></i> Mark as spam!</a>
-						</li>-->
-						<li>
-							<a href="javascript:void(0);" id="trashList" onclick="deleteMail();"><i class="fa fa-trash-o"></i> Move to Trash</a>
-						</li>
-					</ul>
-				</div>
-
-			</div>
 		</div>
 	</div>
 

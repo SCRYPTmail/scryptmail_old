@@ -6,6 +6,111 @@
  */
 
 function renderMessage(body, meta, datas) {
+	messageFolder=folder_navigate;
+	enableEmailControl();
+
+	if(roleData['role']['tagsPerMail']>=1){
+
+		$('#emTags').css('display','block');
+
+		var con = [];
+
+		if (Object.keys(profileSettings['tags']).length > 0) {
+			$.each(profileSettings['tags'], function (index, value) {
+					var el = from64(value['name']);
+				con.push(el);
+			});
+		}
+
+		$("#tags").select2({
+			tags: con,
+			placeholder: "Custom tags.",
+			tokenSeparators: [";"],
+			minimumInputLength: 2,
+			maximumInputLength: 40,
+			maximumSelectionSize: roleData['role']['tagsPerMail'],
+			formatSelectionTooBig: 'Your plan is limited to ' + roleData['role']['emailTags']+' tags', // + ' recipients per email. Please upgrade plan to raise limit.',
+			formatSelection: tagSelection
+		});
+
+		$('#tags').on("select2-selecting", function (e) {
+			var tag=filterXSS(e.val);
+
+			if (Object.keys(profileSettings['tags']).length < roleData['role']['tagsPerProfile']) {
+				profileSettings['tags'][to64(tag)]={'name':to64(tag)};
+				con.push(tag);
+			}
+			checkProfile();
+
+			if (emailObj['mailId'] != '') {
+
+				if(messageFolder in folder['Custom']){
+					if(folder['Custom'][messageFolder][datas['messageHash']]['tags']==undefined){
+						folder['Custom'][messageFolder][datas['messageHash']]['tags']={};
+					}
+					folder['Custom'][messageFolder][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
+				}else{
+
+					if(folder[messageFolder][datas['messageHash']]['tags']==undefined){
+						folder[messageFolder][datas['messageHash']]['tags']={};
+						mailBox['Data'][datas['messageHash']]['tags']={};
+					}
+					folder[messageFolder][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
+				}
+
+				if(mailBox['boxName']!=''){
+				if(mailBox['Data'][datas['messageHash']]==undefined){
+					mailBox['Data'][datas['messageHash']]['tags']={};
+					mailBox['Data'][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
+				}else{
+					mailBox['Data'][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
+				}
+				}
+				checkFolders();
+			}
+
+		});
+
+		$('#tags').on('select2-removed', function (event) {
+
+			var tag=filterXSS(event.val);
+
+			if (emailObj['mailId'] != '') {
+
+				if(messageFolder in folder['Custom']){
+					delete folder['Custom'][messageFolder][datas['messageHash']]['tags'][[to64(tag)]];
+				}else{
+					delete folder[messageFolder][datas['messageHash']]['tags'][[to64(tag)]];
+				}
+				if(mailBox['Data'][datas['messageHash']]!=undefined){
+				delete mailBox['Data'][datas['messageHash']]['tags'][to64(tag)];
+				}
+				checkFolders();
+			}
+
+		});
+
+		if(messageFolder in folder['Custom']){
+			var tags= folder['Custom'][messageFolder][datas['messageHash']]['tags'];
+		}else{
+			var tags= folder[messageFolder][datas['messageHash']]['tags'];
+		}
+
+		if(tags!=undefined){
+			var tg=[];
+			$.each(tags, function (index, value) {
+				var t=from64(value['name']);
+				tg.push(t);
+			});
+			$('#tags').select2('val',tg);
+		}
+
+		//return result;
+
+
+
+	}
+
 
 	$('#pag').css('display','none');
 	activePage = 'readEmail';
@@ -17,20 +122,22 @@ function renderMessage(body, meta, datas) {
 
 	body['subj'] = from64(body['subj']);
 
-	if(folder_navigate in folder['Custom']){
-		var ifOpen=folder['Custom'][folder_navigate][datas['messageHash']]['opened'];
+	if(messageFolder in folder['Custom']){
+		var ifOpen=folder['Custom'][messageFolder][datas['messageHash']]['opened'];
 	}else{
-		var ifOpen=folder[folder_navigate][datas['messageHash']]['opened'];
+		var ifOpen=folder[messageFolder][datas['messageHash']]['opened'];
 	}
 
 	if (!ifOpen) {
 
 		opener = setTimeout(function () {
-			if(folder_navigate in folder['Custom']){
-				folder['Custom'][folder_navigate][datas['messageHash']]['opened'] = true;
+			if(messageFolder in folder['Custom']){
+				folder['Custom'][messageFolder][datas['messageHash']]['opened'] = true;
 			}else{
-				folder[folder_navigate][datas['messageHash']]['opened'] = true;
+				folder[messageFolder][datas['messageHash']]['opened'] = true;
 			}
+
+			mailBox['Data'][datas['messageHash']]['opened']=true;
 
 			checkFolders();
 			getNewEmailsCount();
@@ -73,7 +180,7 @@ function renderMessage(body, meta, datas) {
 		$('#defMailOption').children().eq(0).attr('onclick', 'forwardMail()');
 
 	}
-	if(folder_navigate=='Spam' || folder_navigate=='Trash'){
+	if(messageFolder=='Spam' || messageFolder=='Trash'){
 		$('#trashList').html('<i class="fa fa-trash-o"></i>&nbsp; Delete')
 	}
 
