@@ -73,6 +73,8 @@ function getFile(evt) {
 }
 
 function iniEmailBody(pin) {
+	$('#sendMaildiv').css('display','block');
+	$('#mailIcons').css('display','none');
 	//$('.inbox-message no-padding').css('height','100%');
 
 	var tableHeight = $(window).height() - 324;
@@ -197,7 +199,7 @@ function sendMail() {
 			chkpins.form();
 			var chkpins=chkpins.numberOfInvalids();
 		}else{
-			$('#pincheck').prop("checked",false)
+			//$('#pincheck').prop("checked",false)
 			var chkpins=0;
 		}
 
@@ -221,6 +223,7 @@ function sendMail() {
 				$('.sendMailButton').prop('disabled', false);
 
 				$('#toRcpt').select2('open');
+
 
 			} else {
 

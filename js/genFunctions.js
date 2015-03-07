@@ -1403,8 +1403,6 @@ function getDataFromFolder(thisObj) {
 					//$('#paginator').html('');
 					//$('#custPaginator').html('');
 					$('#pag').css('display','none');
-					$('#sendMaildiv').css('display','block');
-					$('#mailIcons').css('display','none');
 					iniEmailBody('');
 					emailTimer();
 				});
@@ -1704,7 +1702,7 @@ function renderMessages() {
 		$.each(mailBox['Data'], function (index, value) {
 
 //console.log(value['tags']);
-			if(Object.keys(value['tags']).length > 0){
+			if(value['tags']!=undefined && Object.keys(value['tags']).length > 0){
 
 						var tags='<i class="fa fa-tags fa-lg"></i>: ';
 						$.each(value['tags'], function (index, value) {
