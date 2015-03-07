@@ -22,7 +22,7 @@ class SaveFolders extends CFormModel
 			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveFolder'),
 
 			array('folderObj', 'match', 'pattern' => "/^[a-zA-Z0-9+;\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveFolder'),
-			array('folderObj','length', 'max'=>8000000,'min'=>4000,'on'=>'saveFolder'),
+			array('folderObj','length', 'max'=>8000000,'min'=>400,'on'=>'saveFolder'),
 
 
 			array('blackObj,modKey', 'required','on'=>'saveBlack'),
