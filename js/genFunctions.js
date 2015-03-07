@@ -1935,7 +1935,16 @@ function saveDraft() {
 					success: function (data, textStatus) {
 						if (!isNaN(data.messageId)) {
 							message['mailHash'] = data.messageId;
-							folder['Draft'][data.messageId] = {'p': forge.util.bytesToHex(key), 'opened': true};
+
+							if(folder_navigate in folder['Custom']){
+								folder['Custom'][folder_navigate][data.messageId] = {'p': forge.util.bytesToHex(key), 'opened': true};
+
+							}else{
+								folder['Draft'][data.messageId] = {'p': forge.util.bytesToHex(key), 'opened': true};
+
+							}
+
+
 							emailObj['mailId'] = data.messageId;
 
 							//folder['Draft'] = jQuery.unique(folder['Draft']);
@@ -1953,8 +1962,26 @@ function saveDraft() {
 									'pin':pin,
 									'signature':'',
 									'attachment':'',
-									'checked':false
+									'checked':false,
+									'tags':{}
 								};
+							}else{
+
+									mailBox['Data'][data.messageId]={
+										'modKey':modKey,
+										'to':from ='To: '+( (to !== undefined) ? sanitize(to.toString()) : ''),
+										'from':from,
+										'subject':subject,
+										'body':body,
+										'opened':true,
+										'timeSent':timeSent,
+										'pin':pin,
+										'signature':'',
+										'attachment':'',
+										'checked':false,
+										'tags':{}
+									};
+
 							}
 
 
