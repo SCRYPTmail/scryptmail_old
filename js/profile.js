@@ -935,7 +935,7 @@ function extractModKeys(data,messageKeys,callback)
 
 			var key = forge.util.hexToBytes(messageKeys[value['messageHash']]['p']);
 
-			var z = fromAes(key, value['meta']);
+			var z = fromAes64(key, value['meta']);
 			var meta = JSON.parse(z);
 			var fg={'id':value['messageHash'],'modKey':meta['modKey']}
 			modkeyToIndex.push(fg);
