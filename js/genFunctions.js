@@ -1459,6 +1459,12 @@ function getDataFromFolder(thisObj) {
 					$('.deletebutton').attr('data-original-title', 'Trash');
 					$('.deletebutton').css('color', '#333');
 				}
+				if (folder_navigate == 'Draft') {
+					$('#mvFolderButton').css('display','none');
+				}else{
+					$('#mvFolderButton').css('display','block');
+				}
+
 			//	console.log('jjjj');
 				displayFolderContent(folNav);
 
@@ -1936,13 +1942,7 @@ function saveDraft() {
 						if (!isNaN(data.messageId)) {
 							message['mailHash'] = data.messageId;
 
-							if(folder_navigate in folder['Custom']){
-								folder['Custom'][folder_navigate][data.messageId] = {'p': forge.util.bytesToHex(key), 'opened': true};
-
-							}else{
 								folder['Draft'][data.messageId] = {'p': forge.util.bytesToHex(key), 'opened': true};
-
-							}
 
 
 							emailObj['mailId'] = data.messageId;
@@ -1965,23 +1965,6 @@ function saveDraft() {
 									'checked':false,
 									'tags':{}
 								};
-							}else{
-
-									mailBox['Data'][data.messageId]={
-										'modKey':modKey,
-										'to':from ='To: '+( (to !== undefined) ? sanitize(to.toString()) : ''),
-										'from':from,
-										'subject':subject,
-										'body':body,
-										'opened':true,
-										'timeSent':timeSent,
-										'pin':pin,
-										'signature':'',
-										'attachment':'',
-										'checked':false,
-										'tags':{}
-									};
-
 							}
 
 

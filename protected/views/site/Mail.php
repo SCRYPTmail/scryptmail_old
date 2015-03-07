@@ -43,7 +43,7 @@
 			<i class="fa fa-pencil-square-o"></i>
 		</button>
 
-		<button class="btn btn-default hidden-xs pull-left"
+		<button class="btn btn-default hidden-xs pull-left" id="mvFolderButton"
 				rel="tooltip" title="" data-toggle="dropdown" data-placement="bottom" data-original-title="Move to Folder"
 				type="button" onclick="">
 			<i class="fa  fa-folder-open-o fa-lg"></i>
