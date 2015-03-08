@@ -2526,7 +2526,7 @@ table td[class*=col-], table th[class*=col-] {
         width: 100%;
         margin-bottom: 13.5px;
         overflow-y: hidden;
-        overflow-x: auto;
+        overflow-x: hidden;
         -ms-overflow-style: -ms-autohiding-scrollbar;
         border: 1px solid #ddd;
         -webkit-overflow-scrolling: touch

@@ -27,15 +27,7 @@
 	</div>
 
 
-	<div id='pag' class="pull-right">
-	<div class="btn-group pull-right inbox-paging" id='paginator'>
-
-	</div>
-
-	<span class="pull-right" id="custPaginator" style="margin-top:5px;"></span>
-	</div>
-
-	<div id="mailIcons" class="col col-xs-6 text-align-left pull-left" style="margin-left: 10px;">
+	<div id="mailIcons" class="col col-xs-8 text-align-left pull-left" style="margin-left: 10px;">
 
 		<button class="btn btn-default visible-sm visible-xs pull-left"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"
@@ -43,7 +35,7 @@
 			<i class="fa fa-pencil-square-o"></i>
 		</button>
 
-		<button class="btn btn-default hidden-xs pull-left" id="mvFolderButton"
+		<button class="btn btn-default pull-left" id="mvFolderButton"
 				rel="tooltip" title="" data-toggle="dropdown" data-placement="bottom" data-original-title="Move to Folder"
 				type="button" onclick="">
 			<i class="fa  fa-folder-open-o fa-lg"></i>
@@ -52,13 +44,13 @@
 
 		<ul id="mvtofolder" class="dropdown-menu"></ul>
 
-		<button class="btn btn-default deletebutton hidden-xs pull-left"
+		<button class="btn btn-default deletebutton pull-left"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"
 				type="button" onclick="deleteEmail();">
 			<i class="fa fa-trash-o fa-lg"></i>
 		</button>
 
-		<button class="btn btn-default pull-left"
+		<button class="btn btn-default pull-left hidden-xs"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"
 				type="button" onclick="movetofolder('Spam');">
 			<i class="fa fa-ban fa-lg"></i>
@@ -87,9 +79,13 @@
 		</button>
 -->
 		<div class="btn-group text-left pull-left" id="readEmailOpt" style="display:none;">
-			<button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown">
 				More <i class="fa fa-angle-down fa-lg"></i>
 			</button>
+			<button class="btn btn-default btn-sm dropdown-toggle visible-xs" data-toggle="dropdown">
+				... <i class="fa fa-angle-down fa-lg"></i>
+			</button>
+
 			<ul class="dropdown-menu pull-right">
 				<li id='replythis'>
 					<a href="javascript:void(0);" onclick="replyToMail();"><i
@@ -103,9 +99,13 @@
 			</ul>
 		</div>
 
-		<div class="btn-group text-left hidden-xs" id="boxEmailOption" style="display:none;">
-			<button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+		<div class="btn-group text-left" id="boxEmailOption" style="display:none;">
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown">
 				More <i class="fa fa-angle-down fa-lg"></i>
+			</button>
+
+			<button class="btn btn-default btn-sm dropdown-toggle visible-xs" data-toggle="dropdown">
+				... <i class="fa fa-angle-down fa-lg"></i>
 			</button>
 			<ul class="dropdown-menu pull-right">
 				<li id='replythis'>

@@ -3036,8 +3036,8 @@
 			);
 		}
 
-        $('#custPaginator').html( out );
-		//$(nodes).html( out );
+        //$('#custPaginator').html( out );
+		$(nodes).html( out );
 	}
 	
 	
@@ -13513,8 +13513,8 @@
 		/* Features */
 		"sWrapper": "dataTables_wrapper",
 		"sFilter": "dataTables_filter",
-		"sInfo": "dataTables_info",
-		"sPaging": "dataTables_paginate paging_", /* Note that the type is postfixed */
+		"sInfo": "dataTables_info pull-left",
+		"sPaging": "dataTables_paginate pull-left paging_", /* Note that the type is postfixed */
 		"sLength": "dataTables_length",
 		"sProcessing": "dataTables_processing",
 	

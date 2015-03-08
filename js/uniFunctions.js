@@ -533,8 +533,8 @@ function enableEmailControl(){
 	$('#readEmailOpt').css('display','inline-block');
 	$('#boxEmailOption').css('display','none');
 
-	$('#mailIcons').addClass('col-xs-6');
-	$('#mailIcons').removeClass('col-xs-8');
+	//$('#mailIcons').addClass('col-xs-6');
+	//$('#mailIcons').removeClass('col-xs-8');
 	$("[rel=tooltip]").tooltip();
 }
 

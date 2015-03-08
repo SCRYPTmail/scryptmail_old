@@ -116,8 +116,8 @@ if ( $.fn.dataTable.Api ) {
        // <a href="javascript:void(0);" class="btn btn-default btn-sm"><strong><i class="fa fa-chevron-right"></i></strong></a>
        // </div>
 		attach(
-            $('#paginator').empty().html('<ul class="pagination pagination-sm"/>').children('ul'),
-			//$(host).empty().html('<ul class="pagination pagination-sm"/>').children('ul'),
+            //$('#paginator').empty().html('<ul class="pagination pagination-sm"/>').children('ul'),
+			$(host).empty().html('<ul class="pagination pagination-sm"/>').children('ul'),
 			buttons
 		);
 	}

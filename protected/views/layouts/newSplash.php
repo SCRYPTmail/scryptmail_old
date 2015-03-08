@@ -125,7 +125,7 @@
 				<i class="fa-fw fa fa-warning"></i>
 				<strong>Warning: </strong><span></span>
 			</div>
-
+<!--
 			<div id="warnin" class="alert alert-warning fade in">
 				<button class="close" data-dismiss="alert">
 					×
@@ -133,7 +133,7 @@
 				<i class="fa-fw fa fa-warning"></i>
 				<strong>Warning: </strong><span>March 8, 2015 9:00 pm UTC: Our server will be offline for 2 hours due to undergo an update. Thank you for your patience. We still will be receiving new emails during this period.</span>
 			</div>
-
+-->
 
 			<div class="container">
 
@@ -266,24 +266,26 @@
 				<form class="report-form" id="report-form" action="/submitBug" method="POST">
 						<section class="text-align-left">
 
-						<label class="input col col-xs-12">
-							<input type="name" name="name" placeholder="name" id="hname">
-							<input type="email" name="email" class="form-control input-box" placeholder="Email to contact">
-						</label>
+							<label class="input col col-xs-12">
+								<input type="name" name="name" placeholder="name" id="hname">
+								<input type="email" name="email" class="form-control input-box" placeholder="Email to contact">
+							</label>
 
 						</section>
-							<section class="text-align-left">
-						<label class="select col col-xs-12">
-							<select name="os" class="form-control input-box">
-								<option value="0" selected="" disabled="">Operating System</option>
-								<option value="Windows">Windows</option>
-								<option value="Linux">Linux</option>
-								<option value="Mac OC">Mac OC</option>
-								<option value="Other">Other</option>
-							</select> <i></i>
-						</label>
-							</section>
-								<section class="text-align-left">
+
+						<section class="text-align-left">
+							<label class="select col col-xs-12">
+								<select name="os" class="form-control input-box">
+									<option value="0" selected="" disabled="">Operating System</option>
+									<option value="Windows">Windows</option>
+									<option value="Linux">Linux</option>
+									<option value="Mac OC">Mac OC</option>
+									<option value="Other">Other</option>
+								</select> <i></i>
+							</label>
+						</section>
+
+						<section class="text-align-left">
 							<label class="select col col-xs-12">
 									<select name="device" class="form-control input-box">
 										<option value="0" selected="" disabled="">Device</option>
@@ -293,14 +295,15 @@
 										<option value="Other">Other</option>
 									</select>
 							</label>
-								</section>
-									<section class="text-align-left">
+						</section>
+
+						<section class="text-align-left">
 									<label class="textarea col col-xs-12">
 							<textarea class="form-control textarea-box placeholder" rows="5" name="comment" placeholder="Please explain problem (1000 max)"></textarea>
 							</label>
 						</section>
 
-					</div>
+
 					<button class="btn btn-primary standard-button" type="button" onclick="submitBug();">Submit</button>
 				</form>
 			</div>
