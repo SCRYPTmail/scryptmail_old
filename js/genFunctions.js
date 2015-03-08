@@ -1374,7 +1374,7 @@ function getDataFromFolder(thisObj) {
 						$('#inbox-content > .table-wrap').html(data);
 						//$('#paginator').html('');
 						//$('#custPaginator').html('');
-						$('#pag').css('display','none');
+						//$('#pag').css('display','none');
 						$('#sendMaildiv').css('display','block');
 
 						var sub=(profileSettings['name']==''?profileSettings['email']:profileSettings['name']);
@@ -1402,7 +1402,7 @@ function getDataFromFolder(thisObj) {
 					$('#inbox-content > .table-wrap').html(data);
 					//$('#paginator').html('');
 					//$('#custPaginator').html('');
-					$('#pag').css('display','none');
+					//$('#pag').css('display','none');
 					iniEmailBody('');
 					emailTimer();
 				});
@@ -1689,7 +1689,7 @@ function markMessage(messageId)
 
 function renderMessages() {
 
-	$('#pag').css('display','block');
+	//$('#pag').css('display','block');
 
 	var d = new Date();
 	var t = $('#mail-table').DataTable();
@@ -2091,7 +2091,7 @@ function detectMessage(datas) {
 				$('#inbox-content > .table-wrap').html(data);
 				//$('#paginator').html('');
 				//$('#custPaginator').html('');
-				$('#pag').css('display','none');
+				//$('#pag').css('display','none');
 				activePage = 'composeMail';
 				showSavedDraft(body, meta, datas);
 				emailTimer();
@@ -2245,7 +2245,7 @@ function replyToMail() {
 			$('#sendMaildiv').css('display','block');
 
 			//$('#custPaginator').html('');
-			$('#pag').css('display','none');
+			//$('#pag').css('display','none');
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push(body['from']);
@@ -2288,7 +2288,7 @@ function forwardMail() {
 			$('#inbox-content > .table-wrap').html(data);
 			//$('#paginator').html('');
 			//$('#custPaginator').html('');
-			$('#pag').css('display','none');
+			//$('#pag').css('display','none');
 			$('#sendMaildiv').css('display','block');
 			delete body['to'];
 			body['to'] = [];
@@ -2330,8 +2330,8 @@ function readMailclean(){
 	$('#readEmailOpt').css('display','none');
 	$('#boxEmailOption').css('display','inline-block');
 
-	$('#mailIcons').addClass('col-xs-8');
-	$('#mailIcons').removeClass('col-xs-6');
+	//$('#mailIcons').addClass('col-xs-6');
+	//$('#mailIcons').removeClass('col-xs-6');
 
 
 }
@@ -2369,12 +2369,10 @@ function initializeMailList() {
 		"iDisplayLength": profileSettings['mailPerPage'],
 		"sDom": "R<'dt-toolbar'" +
 			"<'#mailSearch'f>" +
-			"<>" +
-			"<'#mailList'l>" +
+			"<'.hidden-xs pull-right'ip>" +
 			"r>t" +
 			"<'dt-toolbar-footer'" +
-			"<'col-sm-6 col-xs-2'i>" +
-			"<'col-sm-2 col-xs-6'p>" +
+			"<'.pull-right'ip>" +
 			">",
 		"deferRender": true,
 		"autoWidth": true,
@@ -2415,7 +2413,6 @@ function initializeMailList() {
 		"oLanguage": {
 			//"sEmptyTable": function(){ return '<div class="text-muted">There is no email</div>'; }
 			"sEmptyTable": "No Emails",
-			"sInfo": "<span class='txt-color-darken'><strong>_START_</span> - <span class='txt-color-darken'>_END_</strong></span> of <span class='text-primary'><strong>_TOTAL_</strong></span>",
 			"sInfoEmpty": "<span class='text-danger'><strong>Empty</strong></span>",
 			"sInfoFiltered": ""
 		}
@@ -2424,9 +2421,6 @@ function initializeMailList() {
 	//$('#mailIcons').css('position', 'absolute');
 	//$('#mailSearch').addClass('col col-3');
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
-
-	$('#mailList').addClass('col-sm-2 hidden-xs');
-	$('#mailList').css('float', 'right');
 
 
 	$("#selectAll").click(function () {
@@ -3107,7 +3101,7 @@ function loadInitialPage() {
 			var menuHeight = 68;
 			// nav height
 
-			var tableHeight = ($(window).height() - 190) - menuHeight;
+			var tableHeight = ($(window).height() - 220) - menuHeight;
 			if (tableHeight < (320 - menuHeight)) {
 				$('.table-wrap').css('height', (320 - menuHeight) + 'px');
 			} else {
@@ -3116,7 +3110,14 @@ function loadInitialPage() {
 
 		} else {
 			var tableHeight = $(window).height() - 190;
-			if (tableHeight < 320) {
+
+			if($('#mobFooter').is(":hidden")){
+				$('.table-wrap').css('margin-bottom',  20 + 'px');
+			}else{
+				$('.table-wrap').css('margin-bottom',  $('#mobFooter').height()+30 + 'px');
+			}
+
+			if (tableHeight <= 320) {
 				$('.table-wrap').css('height', 320 + 'px');
 			} else {
 				$('.table-wrap').css('height', tableHeight + 'px');

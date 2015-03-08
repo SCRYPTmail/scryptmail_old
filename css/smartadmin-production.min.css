@@ -26,6 +26,7 @@ overflow-x:hidden;
 .note-editable{
     overflow:hidden;
 }
+
 .pins
 {
     white-space: nowrap;
@@ -872,7 +873,7 @@ div.dataTables_filter input {
 
 div.dataTables_paginate {
     float: right;
-    margin: 0
+    margin-left: 10px;
 }
 
 div.dataTables_paginate ul.pagination {
