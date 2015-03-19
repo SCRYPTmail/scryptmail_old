@@ -97,7 +97,7 @@
 						<ul class="nav navbar-nav navbar-right login-register small-text">
 							<li class="login js-login"><a href="" data-toggle="modal" data-target="#login-modal">Login</a>
 							</li>
-							<li class="register-button js-register inpage-scroll"><a href="" class="navbar-register-button" data-toggle="modal" data-target="#createAccount-modal">Sign Up For Free</a>
+							<li class="register-button js-register inpage-scroll"><a href="" class="navbar-register-button" data-toggle="modal" data-target="#reqInvite">Request Invitation</a>
 							</li>
 						</ul>
 					<?php }else{ ?>
@@ -150,7 +150,7 @@
 
 							<!-- BUTTON -->
 							<div class="button">
-								<a  href="" data-toggle="modal" data-target="#createAccount-modal" class="btn btn-primary standard-button inpage-scroll">Sign Up For Free</a>
+								<a  href="" data-toggle="modal" data-target="#reqInvite" class="btn btn-primary standard-button inpage-scroll">Request Invitation</a>
 							</div>
 
 						</div>
@@ -179,6 +179,13 @@
 				<h4 class="dark-text form-heading">Create An Account</h4>
 				<form class="registration-form smart-form" id="createUser-form">
 					<div style='position:relative;'>
+
+						<div class="text-align-left">
+							<label class="input">
+								<input class="input-box" placeholder="invitation oken" maxlength="160"  style="padding-right:150px;"
+									   name="email" id="CreateUser_invitation" type="text">
+							</label>
+						</div>
 
 						<div class="text-align-left">
 						<label class="input">
@@ -213,6 +220,31 @@
 					</div>
 
 					<button  id='reguser' class="btn btn-primary standard-button" type="button" onclick="createAccount();">Create</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Invitation FORM FOR POPUP BOX -->
+<div class="modal fade bs-example-modal-sm" id="reqInvite" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="vertical-registration-form">
+				<h4 class="dark-text form-heading">Request Invitation</h4>
+				<form class="registration-form smart-form" id="request-invitiation">
+					<div style='position:relative;'>
+
+						<div class="text-align-left">
+							<label class="input">
+								<input class="input-box" placeholder="Enter contact email" maxlength="160"  style="padding-right:150px;"
+									   name="email" id="inviteemail" type="text">
+							</label>
+						</div>
+
+					</div>
+
+					<button  id='reguser' class="btn btn-primary standard-button" type="button" onclick="requestInvitiation();">Submit</button>
 				</form>
 			</div>
 		</div>
@@ -392,6 +424,8 @@
 			scrollTop: position.top
 		});
 	}
+
+
 
 
 </script>

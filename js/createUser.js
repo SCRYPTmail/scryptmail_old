@@ -30,7 +30,7 @@ function initCreateUser() {
 		return isSuccess;
 
 	}, "Email is Already Taken");
-/* invitation part
+//invitation part
 	$.validator.addMethod("uniqueInvitation", function (value, element) {
 		var isSuccess = false;
 		$.ajax({
@@ -48,17 +48,17 @@ function initCreateUser() {
 		return isSuccess;
 
 	}, "Token not found or already used");
-*/
+
 
 	newUserValidator = $("#createUser-form").validate();
-/*
+
 	$("#CreateUser_invitation").rules("add", {
 		required: true,
 		minlength: 3,
 		maxlength: 200,
 		uniqueInvitation: true
 	});
-*/
+
 	$("#CreateUser_email").rules("add", {
 		premail: true,
 		required: true,
@@ -120,8 +120,9 @@ function createAccount() {
 
 			var mailpair ='';
 
+			$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating RSA Keys..");
 
-			generatePairs(1024,function(keyPair){
+			generatePairs(2048,function(keyPair){
 				mailpair=keyPair;
 				$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating User Object..");
 				dfdmail.resolve();
@@ -137,9 +138,10 @@ function createAccount() {
 
 				generateUserObj(mailpair,secret,email,true,function(DATA){
 					var derivedPass = makeDerivedFancy(secret, 'scrypTmail');
-					MainObj=DATA['MainObj'];
+					//MainObj=DATA['MainObj'];
+					DATA['MainObj']['token']=$('#CreateUser_invitation').val().toLowerCase();
 					toFile=DATA['toFile'];
-					MainObj['password'] = SHA512singl(derivedPass);
+					DATA['MainObj']['password'] = SHA512singl(derivedPass);
 
 					$('#reguser').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Saving user..");
 

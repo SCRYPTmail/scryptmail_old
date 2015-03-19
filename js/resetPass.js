@@ -174,7 +174,7 @@ function resetOneStepPass(count) {
 
 		var mailpair = '';
 
-		generatePairs(1024, function (keyPair) {
+		generatePairs(2048, function (keyPair) {
 			mailpair = keyPair;
 			dfdmail.resolve();
 		});

@@ -5,11 +5,14 @@
  * Time: 5:36 PM
  */
 
+$(document).ready(function () {
+	requestInitInvitiation();
+});
 
 function requestInitInvitiation() {
 	$('#inviteemail').attr('name', makerandom());
 
-	$.validator.addMethod("uniqueUserName", function (value, element) {
+	$.validator.addMethod("uniqueEmail", function (value, element) {
 		var isSuccess = false;
 		$.ajax({
 			type: "POST",
@@ -32,7 +35,7 @@ function requestInitInvitiation() {
 		required: true,
 		minlength: 3,
 		maxlength: 200,
-		uniqueUserName: true
+		uniqueEmail: true
 	});
 
 }
