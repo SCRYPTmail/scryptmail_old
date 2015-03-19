@@ -15,7 +15,7 @@ class CreateUser extends CFormModel
 
 	public $oldAesTokenHash;
 
-	public $newPass;
+	public $newPass,$token;
 
 	public function rules()
 	{
@@ -49,6 +49,8 @@ class CreateUser extends CFormModel
 
 
 			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
+			array('token', 'match', 'pattern' => "/^[a-z0-9\d]{32}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
+
 			array('tokenHash,tokenAesHash,ModKey,mailHash,password', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{4000,20000}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
 			array('FolderObject,contacts,blackList', 'match', 'pattern' => "/^[a-z0-9\d]{20,1024}$/i", 'allowEmpty' => false, 'on' => 'createAccount'),
@@ -303,6 +305,9 @@ public function checkKeyLength(){
 				return true;
 			}
 
+		if($invite=Yii::app()->db->createCommand("SELECT id,user_group FROM invites WHERE invitationCode='$this->token'")->queryRow())
+		{
+
 			$param[':userObj'] = $this->UserObject;
 			$param[':folderObj'] = $this->FolderObject;
 			$param[':modKey'] = $this->ModKey;
@@ -316,14 +321,16 @@ public function checkKeyLength(){
 			$param[':profileSettings'] = $this->prof;
 
 			$param[':mailHash'] = $this->mailHash;
+			$param[':invitationId'] = $invite['id'];
 			$param[':password'] = crypt($this->password);
 
 
 			$trans = Yii::app()->db->beginTransaction();
 
+
 			if(
 				Yii::app()->db->createCommand(
-					"INSERT INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash)")->execute($param)
+					"INSERT INTO user (mailHash,password,userObj,folderObj,contacts,blackList,modKey,saltS,profileSettings,tokenHash,tokenAesHash,invitationId) VALUES(:mailHash,:password,:userObj,:folderObj,:contacts,:blackList,:modKey,:saltS,:profileSettings,:tokenHash,:tokenAesHash,:invitationId)")->execute($param)
 			) {
 				$usId=Yii::app()->db->getLastInsertID();
 
@@ -333,8 +340,8 @@ public function checkKeyLength(){
 
 				if(
 					Yii::app()->db->createCommand("INSERT INTO addresses (userId,addressHash,addr_type,mailKey) VALUES (:userId,:addressHash,'1',:mailKey)")->execute(array(':userId'=>$usId,':addressHash'=>$this->mailHash,':mailKey'=>$this->mailKey)) &&
-					UserGroupManager::savegroup($usId, '1', date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
-					//&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode=:invitationToken")->execute(array(':invitationToken'=>$this->invitationToken))
+					UserGroupManager::savegroup($usId, $invite['user_group'], date('Y-m-d H:i:s'), date('Y-m-d H:i:s', strtotime('+52 weeks')))
+					&&	Yii::app()->db->createCommand("UPDATE invites SET registered=NOW() WHERE invitationCode='$this->token'")->execute()
 				){
 					$trans->commit();
 					echo  '{"email":"success"}';
@@ -344,6 +351,13 @@ public function checkKeyLength(){
 				$trans->rollback();
 				$this->addError('email', 'error');
 			}
+
+
+		}else{
+			$this->addError('email', 'error');
+		}
+
+
 
 	}
 }

@@ -13,9 +13,7 @@ class CheckInvitation extends CFormModel
 	public function rules()
 	{
 		return array(
-			array('invitationToken', 'required'),
-			array('invitationToken', 'match', 'pattern'=>'/^([a-f0-9_])+$/', 'message'=>'please provide correct hash'),
-			array('invitationToken','length', 'min' => 64, 'max'=>64),
+			array('invitationToken', 'match', 'pattern'=>"/^[a-f0-9\d]{32}$/i", 'message'=>'please provide correct hash'),
 
 		);
 	}

@@ -79,9 +79,15 @@
 		</button>
 -->
 		<div class="btn-group text-left pull-left" id="readEmailOpt" style="display:none;">
-			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown">
-				More <i class="fa fa-angle-down fa-lg"></i>
+
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam" onclick="replyToMail();">
+				<i class="fa fa-reply"></i> Reply
 			</button>
+
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" onclick="forwardMail();">
+				<i class="fa fa-arrow-right"></i> Forward
+			</button>
+
 			<button class="btn btn-default btn-sm dropdown-toggle visible-xs" data-toggle="dropdown">
 				... <i class="fa fa-angle-down fa-lg"></i>
 			</button>

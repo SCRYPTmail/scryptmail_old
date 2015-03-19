@@ -386,7 +386,7 @@ function newMailSeedRoutine() {
 					url: '/getNewSeedsData',
 					data: {
 						'startSeed': lastParsedSeed,
-						'limit': seedLimit,
+						'limit': 20,
 						'hashes':hashes
 					},
 					success: function (data, textStatus) {
@@ -504,7 +504,8 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 				//console.log(sucessfull);
 
 				if (lastParsedSeed < lastAvailableSeed) {  //future newMaxSeed
-					newMailSeedRoutine(); //fetch more hashes to repeat
+					checkProfile();
+					newMailCheckRoutine(); //fetch more hashes to repeat
 				} else {
 					checkProfile();
 					newMailCheckRoutine(); //go to interval checking for new mails
@@ -903,6 +904,8 @@ function logOutTime() {
 }
 
 function myTimer() {
+	if(sessionTimeOut!=-1){
+		$('#sestime').css('display','block');
 	var sec = sessionTimeOut;
 	clearInterval(timer);
 
@@ -924,7 +927,10 @@ function myTimer() {
 			}
 		}, 1000);
 	}
-
+	}else{
+		clearInterval(timer);
+		$('#sestime').css('display','none');
+	}
 }
 
 function emailSelection(object, container) {
@@ -1327,26 +1333,7 @@ function emailTimer() {
 
 }
 
-function parseEmail(emailText,callback){
-/*
-parse text email w/o name and return object
- */
-		var email=getEmailsFromString(emailText);
-		var name=stripHTML(emailText.substring(0, emailText.indexOf('<')));
 
-		if(name!=''){
-			var display=name+'<'+email+'>';
-		}else{
-			var display=email;
-		}
-
-		var result={'name':name,'email':email,'display':display};
-
-		if(callback)
-			callback(result);
-		else
-			return result;
-}
 function getDataFromFolder(thisObj) {
 
 
@@ -3837,7 +3824,7 @@ function retrieveSecret() {
 function setupProfile(){
 	profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 
-	sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):900;
+	sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):-1;
 
 	if(profileSettings['disposableEmails'] == undefined){
 		profileSettings['disposableEmails']={};

@@ -250,6 +250,26 @@ function toAes(key, text) {
 	return forge.util.bytesToHex(vector) + cipher.output.toHex();
 
 }
+function parseEmail(emailText,callback){
+	/*
+	 parse text email w/o name and return object
+	 */
+	var email=getEmailsFromString(emailText);
+	var name=stripHTML(emailText.substring(0, emailText.indexOf('<')));
+
+	if(name!=''){
+		var display=name+'<'+email+'>';
+	}else{
+		var display=email;
+	}
+
+	var result={'name':name,'email':email,'display':display};
+
+	if(callback)
+		callback(result);
+	else
+		return result;
+}
 
 function fromAes(key, text) {
 

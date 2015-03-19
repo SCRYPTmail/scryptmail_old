@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0556';
+	public $fileVers='0557';
 
 	public function beforeAction($action)
 	{
@@ -1028,6 +1028,8 @@ class SiteController extends Controller
 		$cs->registerScriptFile("/js/sha512.js?r=$this->fileVers");
 		$cs->registerScriptFile("/js/plugin/jquery-validate/jquery.validate.min.js?r=$this->fileVers");
 
+		$cs->registerScriptFile("/js/createInvitation.js?r=$this->fileVers");
+
 		$cs->registerScriptFile("/js/jquery.nav.js?r=$this->fileVers");
 
 		$cs->registerScriptFile("/js/smoothscroll.js?r=$this->fileVers");
@@ -1087,6 +1089,7 @@ class SiteController extends Controller
 
 	public function actionCreateUserDb()
 	{
+
 		if(Yii::app()->request->isAjaxRequest){
 			$model = new CreateUser('createAccount');
 			$model->attributes = $_POST;

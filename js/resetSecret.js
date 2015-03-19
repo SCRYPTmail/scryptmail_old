@@ -151,7 +151,7 @@ function resetForgotSecret(count)
 
 			$('#resetSecButton').html("<i class='fa fa-refresh fa-spin'></i>&nbsp;Generating Keys..");
 
-			generatePairs(1024, function (keyPair) {
+			generatePairs(2048, function (keyPair) {
 				mailpair = keyPair;
 				dfdmail.resolve();
 			});
