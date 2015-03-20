@@ -386,7 +386,7 @@ function newMailSeedRoutine() {
 					url: '/getNewSeedsData',
 					data: {
 						'startSeed': lastParsedSeed,
-						'limit': 20,
+						'limit': 500,
 						'hashes':hashes
 					},
 					success: function (data, textStatus) {
