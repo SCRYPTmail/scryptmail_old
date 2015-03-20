@@ -155,9 +155,12 @@
 
 						</div>
 						<!-- /END HEADNING AND BUTTONS -->
-
 						<div class="browser-image">
+
+							<iframe width="640" height="480" src="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy/widget/video.html" frameborder="0" scrolling="no"> </iframe>
+							<!--
 							<img src="/img/screenshots/compose.png" class="wow fadeInUp" data-wow-duration="1s" alt="">
+							-->
 						</div>
 
 					</div>
