@@ -155,6 +155,8 @@
 
 						</div>
 						<!-- /END HEADNING AND BUTTONS -->
+						<h5 class="white-text">Help us to offer free registration again, by supporting our kickstarter campaign!
+								</h5>
 						<div class="browser-image">
 
 							<iframe width="640" height="480" src="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy/widget/video.html" frameborder="0" scrolling="no"> </iframe>
