@@ -88,6 +88,8 @@
 						<li><a href='http://blog.scryptmail.com'>blog</a></li>
 						<li><a href='http://blog.scryptmail.com/2015/02/q.html'>Q & A</a></li>
 						<li><a href='http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html'>how to use</a></li>
+						<li><a href='#donateUs' onclick='scrollToPosition($("#donateUs").offset())'>donate</a></li>
+
 
 						<!-- <li><a href="http://example.com" class="external">External Link Example</a></li> -->
 					</ul>
