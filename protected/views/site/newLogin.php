@@ -439,20 +439,77 @@
 <!-- =========================
  SECTION: CONTACT INFO
  ============================== -->
-<div class="contact-info white-bg">
+<div class="contact-info white-bg" id="donateUs">
 	<div class="container">
 
 		<!-- CONTACT INFO -->
 		<div class="row contact-links">
 
 			<div class="col-sm-12 text-center">
-				<div class="iconsplash-container">
+
+					<h2 class="dark-text">Support SCRYPTmail</h2>
+					<div class="row">
+
+						<div class="col-md-4 wow">
+							<div class="single-service marginBottom50 border-bottom-hover hasSMailOverlay">
+								<div class="service-icon">
+									<h3 class="txt-color-blueLight"><i class="fa fa-bitcoin fa-4x"></i></h3>
+								</div>
+
+
+								<div class="sMailOverlay" style="overflow:hidden;">
+
+									<p class='textMiddle'>
+										<img class="padding-10" src="/img/bitcoinQR.png"/>
+										<a class="white-text" href="bitcoin:1CkjAmdQQrj2a5dw7NxfXioJWmNxL9PyGN">1CkjAmdQQrj2a5dw7NxfXioJWmNxL9PyGN</a>
+
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4 wow">
+							<div class="single-service marginBottom50 border-bottom-hover hasSMailOverlay">
+								<div class="service-icon colored-text">
+									<img  class="padding-top-15" src="/img/LitecoinWithText.png" width="102"/>
+								</div>
+
+
+								<div class="sMailOverlay" style="overflow:hidden;">
+
+									<p class='textMiddle'>
+										<img class="padding-10" src="/img/ltQr.png" width="174"/>
+										<a class="white-text" href="litecoin:LNoJUcx1zUwFt4J26wuScDistvMdskwhwq">LNoJUcx1zUwFt4J26wuScDistvMdskwhwq</a>
+
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4 wow">
+							<div class="single-service marginBottom50 border-bottom-hover hasSMailOverlay">
+								<div class="service-icon colored-text">
+									<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+										<input type="hidden" name="cmd" value="_s-xclick">
+										<input type="hidden" name="hosted_button_id" value="G9Y8RGGX3FBUL">
+										<input type="image" src="/img/pp.jpg" width="200" style="margin:30px;" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+									</form>
+
+								</div>
+
+
+							</div>
+						</div>
+
+						</div>
+
 					<span class="iconsplash-basic-mail colored-text"></span>
 				</div>
 				<a href="mailto:support@scryptmail.com?Subject=from%20landing" class="strong">support@scryptmail.com</a>
-			</div>
+
 
 		</div>
 
 	</div>
 </div>
+
