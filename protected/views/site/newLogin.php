@@ -2,6 +2,252 @@
 <!-- =========================
  SECTION: SERVICES
  ============================== -->
+<section class="brief timeline white-bg" id="section8">
+	<div class="container">
+
+					<div class="small-text-medium uppercase colored-text">
+						Features
+					</div>
+					<h2 class="dark-text">Compare With Others</h2>
+					<div class="colored-line"></div>
+
+		<table style="margin-top:40px;" class="compareUs col col-xs-12">
+			<thead>
+			<tr>
+				<th class="col col-xs-3 col-sm-4 hidden-xs"></th>
+				<th class="col col-xs-3 col-sm-3"><b>SCRYPTmail</b></th>
+				<th class="col col-xs-3 col-sm-3"><b>Tutanota</b></th>
+				<th class="col col-xs-3 col-sm-2"><b>Protonmail</b></th>
+			</tr>
+			</thead>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">HTTPS Grade A+ by <a href="https://www.ssllabs.com/ssltest/index.html" target="_blank">SSL Labs</a></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="HTTPS Grade A+ by SSL Labs"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="HTTPS Grade A+ by SSL Labs"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="HTTPS Grade A+ by SSL Labs"></i></td>
+			</tr>
+
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Zero Data Knowledge*</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="True Zero Data Knowledge*"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="True Zero Data Knowledge*"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="True Zero Data Knowledge*"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Encrypted Email/Subject</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Email/Subject"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Email/Subject"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="Encrypted Email/Subject"></i></td>
+			</tr>
+			<tr>
+				<td class="text-left h5 hidden-xs">Encrypted Attachment</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Attachment"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Attachment"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Encrypted Attachment"></i></td>
+			</tr>
+			<tr>
+				<td class="text-left h5 hidden-xs">Encrypted Sender/Recipient</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Sender/Recipient"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Encrypted Sender/Recipient"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Encrypted Sender/Recipient"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Do Not Track</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Do Not Track"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Do Not Track"></i></td>
+				<td><i class="fa fa-minus fa-2x" style="color:#aaaa00" rel="popover-hover" data-placement="left" data-original-title="" data-content="Do Not Track"></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Disposable Email Address</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Disposable Email Address"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Disposable Email Address"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Disposable Email Address"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Custom Folders</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Custom Folders"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Custom Folders"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Custom Folders"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Draft Email</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Draft Email"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Draft Email"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="Draft Email"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Reply Securely Without Account</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Reply Securely Without Account"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Reply Securely Without Account"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Reply Securely Without Account"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Front-end Code Open For Public Audit</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Front-end Code Open For Public Audit"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Front-end Code Open For Public Audit"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Front-end Code Open For Public Audit"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Back-end Code Open For Public Audit</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Back-end Code  Open For Public Audit"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Back-end Code Open For Public Audit"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Back-end Code Open For Public Audit"></i></td>
+			</tr>
+
+			<tr>
+				<td class="text-left h5 hidden-xs">Compose HTML Email</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Compose HTML Email"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Compose HTML Email"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="Compose HTML Email"></i></td>
+			</tr>
+
+
+
+
+
+			<tr onclick="$('.hiddens').toggle()">
+				<td  class="hiddens" style="display:table-cell; border:0px solid;" colspan="4"><a href="javascript:void(0);">More</a></td>
+				<td  class="hiddens" style="border:0px solid;" colspan="4"><a href="javascript:void(0);">Less</a></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Email Search</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Email Search"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Email Search"></i></td>
+				<td><i class="fa fa-minus fa-2x" style="color:#aaaa00" rel="popover-hover" data-placement="left" data-original-title="" data-content="Email Search"></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Multi Password Auth</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Multi Password Auth"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Multi Password Auth"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="Multi Password Auth"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Single Password Auth</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Single Password Auth"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Single Password Auth"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Single Password Auth"></i></td>
+			</tr>
+
+
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Private Key Protected with 512 bit</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="512 bit Private Key Encrypted"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="512 bit Private Key Encrypted"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="512 bit Private Key Encrypted"></i></td>
+			</tr>
+
+
+
+
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Spam Filter</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="yes"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="no"></i></td>
+				<td><i class="fa fa-minus fa-2x" style="color:#aaaa00" rel="popover-hover" data-placement="left" data-original-title="" data-content="N/A"></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Session Expiration</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Session Expiration"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Session Expiration"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Session Expiration"></i></td>
+			</tr>
+
+
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Email Labels</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Email Labels"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Email Labels"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Email Labels"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Own RSA Key / Generate New</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Own RSA Key / Generate New"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Own RSA Key / Generate New"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Own RSA Key / Generate New"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Black List</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Black List"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Black List"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Black List"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Android App</td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Android App"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Android App"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Android App"></i></td>
+			</tr>
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">iOs App</td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="iOs App"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="iOs App"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="iOs App"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Emails Stored with AES-256</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Inbox Emails encrypted with AES-256"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Inbox Emails encrypted with AES-256"></i></td>
+				<td><i class="fa fa-minus fa-2x" style="color:#aaaa00" rel="popover-hover" data-placement="left" data-original-title="" data-content="Inbox Emails encrypted with AES-256"></td>
+			</tr>
+
+
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Import Contact List</td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Import Contact List"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Import Contact List"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="left" data-original-title="" data-content="Import Contact List"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Use RSA 4096 Key</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Use RSA 4096 Key"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Use RSA 4096 Key"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Use RSA 4096 Key"></i></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">PGP Standart</td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="PGP Standart"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="PGP Standart"></i></td>
+				<td><i class="fa fa-minus fa-2x" style="color:#aaaa00" rel="popover-hover" data-placement="left" data-original-title="" data-content="PGP Standart"></td>
+			</tr>
+
+			<tr class="hiddens">
+				<td class="text-left h5 hidden-xs">Multilingual Interface</td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Multilingual Interface"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Multilingual Interface"></i></td>
+				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-original-title="" data-content="Multilingual Interface"></td>
+			</tr>
+
+		</table>
+	</div>
+
+
+</section>
+
+
 <section class="services grey-bg" id="why">
 	<div class="container">
 

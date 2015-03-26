@@ -2051,6 +2051,8 @@ function detectMessage(datas) {
 	$('.emailMob1').css('display', 'none');
 	$('#mobFooter').css('height', '60px');
 
+	try{
+
 	if(folder_navigate in folder['Custom']){
 		var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][datas['messageHash']]['p']);
 	}else{
@@ -2105,6 +2107,9 @@ function detectMessage(datas) {
 		});
 
 
+	}
+	} catch (err) {
+		noAnswer('Something goes wrong. Please report a bug!');
 	}
 }
 
