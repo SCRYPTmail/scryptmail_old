@@ -157,7 +157,7 @@
 
 						</div>
 						<!-- /END HEADNING AND BUTTONS -->
-						<h5><a href="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy" target="_blank" class="white-text">Help us to offer free registration again, by supporting our kickstarter campaign!</a>
+						<h5><a href="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy" target="_blank" class="white-text">Help us to offer free registration again by supporting our kickstarter campaign!</a>
 								</h5>
 						<div class="browser-image">
 
@@ -408,6 +408,9 @@
 
 	$( document ).ready(function() {
 		isCompatible();
+		$("[rel=popover-hover]").popover({
+			trigger : "hover"
+		});
 	});
 	/* PRE LOADER */
 	jQuery(window).load(function() {

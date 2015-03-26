@@ -26,6 +26,39 @@ overflow-x:hidden;
 .note-editable{
     overflow:hidden;
 }
+.hiddens{
+    display:none;
+}
+.compareUs tr td, .compareUs tr th{
+    height:60px;
+    line-height:30px;
+    text-align: center;
+}
+
+.compareUs {
+    border-collapse: collapse;
+}
+.compareUs td, table th {
+    border:3px solid #dddddd;
+}
+.compareUs tr:first-child th {
+    border-top: 0;
+    border-top: 0;
+}
+.compareUs tr:last-child td {
+    border-bottom: 0;
+}
+.compareUs tr td:first-child,
+.compareUs tr th:first-child {
+    border-left: 0;
+
+}
+.compareUs tr td:last-child,
+.compareUs tr th:last-child {
+    border-right: 0;
+}
+
+
 
 .pins
 {
