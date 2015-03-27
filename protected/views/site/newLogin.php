@@ -356,7 +356,6 @@
 					</div>
 				</div>
 			</div>
-
 			<!-- SINGLE SERVICE -->
 			<div class="col-md-4 wow fadeInRight" data-wow-offset="10" data-wow-duration="1.75s">
 				<div class="single-service marginBottom50 border-bottom-hover hasSMailOverlay">
