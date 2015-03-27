@@ -38,7 +38,7 @@ overflow-x:hidden;
 .compareUs {
     border-collapse: collapse;
 }
-.compareUs td, table th {
+.compareUs td, compareUs th {
     border:3px solid #dddddd;
 }
 .compareUs tr:first-child th {

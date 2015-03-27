@@ -409,7 +409,9 @@
 	$( document ).ready(function() {
 		isCompatible();
 		$("[rel=popover-hover]").popover({
-			trigger : "hover"
+			trigger : "hover",
+			html:true
+
 		});
 	});
 	/* PRE LOADER */
