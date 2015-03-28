@@ -923,7 +923,10 @@ function myTimer() {
 			if (sec < 0) {
 				resetGlobal();
 				initialFunction();
-				logOutTime();
+				unbindElement();
+				window.location='/logout';
+
+				//logOutTime();
 			}
 		}, 1000);
 	}

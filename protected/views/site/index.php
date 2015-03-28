@@ -351,7 +351,7 @@ Use search to find needed section.
 	<div id="dialog-form-login" title="Login Form" style="display:none;">
 		<p class="validateTips" style="display:block;border:0px;">Your session has expired. Please log-in again.</p>
 
-		<form class="smart-form client-form" id="login-form-modal" action="/ModalLogin" method="post" onkeydown="if (event.keyCode == 13) $('#loginok').click();">
+		<div class="smart-form client-form" id="login-form-modal" action="/ModalLogin" method="post" onkeydown="if (event.keyCode == 13) $('#loginok').click();">
 			<section>
 				<label class="input ">
 
@@ -370,7 +370,7 @@ Use search to find needed section.
 
 			</section>
 
-		</form>
+		</div>
 	</div>
 
 </div>
