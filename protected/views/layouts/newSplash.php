@@ -189,7 +189,7 @@
 
 						<div class="text-align-left">
 							<label class="input">
-								<input class="input-box" placeholder="invitation oken" maxlength="160"  style="padding-right:150px;"
+								<input class="input-box" placeholder="invitation token" maxlength="160"  style="padding-right:150px;"
 									   name="email" id="CreateUser_invitation" type="text">
 							</label>
 						</div>
