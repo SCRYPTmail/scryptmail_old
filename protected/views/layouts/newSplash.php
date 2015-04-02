@@ -161,10 +161,9 @@
 								</h5>
 						<div class="browser-image">
 
-							<iframe frameborder="0" height="420" scrolling="no" src="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy/widget/card.html?v=2" width="220"></iframe>
-							<!--
-							<img src="/img/screenshots/compose.png" class="wow fadeInUp" data-wow-duration="1s" alt="">
-							-->
+
+							<a href="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy?ref=card"><img src="/img/kccamp.png" class="wow fadeInUp" data-wow-duration="1s" alt="" style="margin-bottom:20px;"></a>
+
 						</div>
 
 					</div>
