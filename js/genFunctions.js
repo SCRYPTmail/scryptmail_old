@@ -767,7 +767,7 @@ function showEmailFetch() {
 
 		var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
 		//var delspam='';
-		//var showprogress = '<div class="progress progress-micro"><div class="progress-bar progress-primary" style="width: ' + (totalcount * 100) / max + '%;"></div></div>';
+		var showprogress = '<div class="progress progress-micro"><div class="progress-bar progress-primary" style="width: ' + (totalcount * 100) / max + '%;"></div></div>';
 
 		if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
 
