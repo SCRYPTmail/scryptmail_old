@@ -178,7 +178,7 @@ Use search to find needed section.
 	  data-placement="bottom"
 	  data-original-title=""
 	  data-content="Report bugs, typos or recommendations.">
-		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i></span></a>
+		<a href="/submitBug" target="_blank"><span id="add" class="txt-color-lighten visible-lg visible-md visible-sm" data-title="add"><i class="fa fa-bug fa-lg"></i> Report Bug</span><span id="add" class="visible-xs" data-title="add"><i class="fa fa-bug fa-lg"></i></span></a>
 
 	</span>
 
@@ -373,7 +373,21 @@ Use search to find needed section.
 		</div>
 	</div>
 
+	<div id="reportBug-mo" title="Create new user" style="display:none;">
+		<p class="validateTips">All form fields are required.</p>
+
+		<section class="text-align-left">
+			<label class="textarea col col-xs-12">
+				This is what we will receive:
+				<textarea class="form-control textarea-box" rows="5" name="comment" id="errorMessage"></textarea>
+			</label>
+		</section>
+
+	</div>
+
+
 </div>
+
 
 <div id="dialog_simple" class="ui-dialog-content ui-widget-content"  style="display:none;">
 		<p class="padding-5">

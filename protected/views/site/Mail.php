@@ -80,7 +80,7 @@
 -->
 		<div class="btn-group text-left pull-left" id="readEmailOpt" style="display:none;">
 
-			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" rel="tooltip" title="" data-placement="bottom" data-original-title="Spam" onclick="replyToMail();">
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" onclick="replyToMail();">
 				<i class="fa fa-reply"></i> Reply
 			</button>
 
@@ -184,6 +184,9 @@
 		<li><a tabindex="-1" href="javascript:void(0);" onclick="$('#contextMenu').css('display','none')">Cancel</a></li>
 	</ul>
 </div>
+
+
+
 
 <script type="text/javascript">
 

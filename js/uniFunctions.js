@@ -576,6 +576,9 @@ function systemMessage(messageCode)
 		case 'MarkedAsSpam':
 			Answer('Marked as spam');
 			break;
+		case 'Thank you':
+			Answer('Thank you');
+			break;
 
 	}
 }

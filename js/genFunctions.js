@@ -12,9 +12,10 @@ $(document).ready(function () {
 	isCompatible();
 	secretStart='';
 
+
 	if (window.location.hostname != "encrypt-mail1.com") {
 		window.onerror = function(message, url, lineNumber) {
-			var errorObj={'url':url,'line':lineNumber,'message':message};
+			var errorObj={'url':url,'line':lineNumber,'message':message,'currentFunction':functionTracer};
 
 			$.ajax({
 				type: "POST",
@@ -25,6 +26,37 @@ $(document).ready(function () {
 				dataType: 'json'
 			});
 
+			dialog = $( "#reportBug-mo" ).dialog({
+				autoOpen: false,
+				height: 300,
+				width: 350,
+				modal: true,
+				buttons: {
+					"Submit Report":function() {
+						$.ajax({
+							type: "POST",
+							url: '/submitError',
+							data: {
+								'errorObj': $('#errorMessage').val()+'\n\n\n-------'+JSON.stringify(errorObj)
+							},
+							dataType: 'json'
+						});
+
+						dialog.dialog( "close" );
+						systemMessage('Thank you');
+					},
+					Cancel: function() {
+						dialog.dialog( "close" );
+					}
+				},
+				close: function() {
+					$('#errorMessage').val('');
+				}
+			});
+			dialog.dialog( "open" );
+			$('#errorMessage').val('Please describe your last action:\n\n\n----------------------------------\n'+JSON.stringify(errorObj));
+
+			//$('#reportBug-modal').modal('show');
 			return false;
 		};
 
@@ -58,7 +90,7 @@ $(document).ready(function () {
 	});
 
 });
-
+functionTracer='';
 recipient={};
 isOneStep=false;
 resetRawTokenHash='';
@@ -147,6 +179,7 @@ var opener;
 var mailt;
 
 function resetGlobal() {
+	functionTracer='resetGlobal';
 	folder = {};
 	fileObject = {};
 	fileSize = 0;
@@ -206,6 +239,7 @@ function resetGlobal() {
 
 }
 function initialFunction() {
+	functionTracer='initialFunction';
 	getLoginStatus()
 		.always(function (result) {
 			if (result == 1) {
@@ -245,6 +279,7 @@ function initialFunction() {
 
 function unbindElement()
 {
+	functionTracer='unbindElement';
 	$(window).unbind('beforeunload');
 }
 function getLoginStatus() {
@@ -275,7 +310,7 @@ function getDomain() {
 }
 
 function getMainData() {
-
+	functionTracer='getMainData';
 	getObjects()
 		.always(function (data) {
 			if (data.userData && data.userRole) {
@@ -299,6 +334,8 @@ function toggleMenu(){
 
 function checkState(success, cancel) {
 
+	functionTracer='checkState';
+
 	getLoginStatus()
 		.always(function (result) {
 			if (result == 1) {
@@ -310,6 +347,8 @@ function checkState(success, cancel) {
 
 }
 function newMailCheckRoutine() {
+
+	functionTracer='newMailCheckRoutine';
 
 	clearInterval(newMailer);
 	if (mailPrivateKey != '') {
@@ -375,6 +414,7 @@ function newMailCheckRoutine() {
 
 
 function newMailSeedRoutine() {
+	functionTracer='newMailSeedRoutine';
 
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
@@ -418,6 +458,8 @@ function newMailSeedRoutine() {
 }
 
 function tryDecryptSeed(data) { //TODO check internal and outside mail can be detected
+	functionTracer='tryDecryptSeed';
+
 	var pki = forge.pki;
 	var start = new Date().getTime();
 	var sucessfull = [];
@@ -530,7 +572,7 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 
 
 function moveMessagestoInbox(newMessages) {
-
+	functionTracer='moveMessagestoInbox';
 	var chunks = {};
 	var cont = 0;
 	var ct = Object.keys(newMessages).length;
@@ -734,7 +776,7 @@ function retrieveNewTable(chunks) { //todo change modkey when copy, to differ fr
 }
 
 function showFetcher() {
-
+	functionTracer='showFetcher';
 	$('.fetch-space').css('display', 'block');
 
 	var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
@@ -754,6 +796,7 @@ function showFetcher() {
 
 function showEmailFetch() {
 
+	functionTracer='showEmailFetch';
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
 		if ($('.fetch-space').is(":visible") === false && $('.emailMob1 div').attr('title') == undefined)
@@ -769,7 +812,10 @@ function showEmailFetch() {
 		//var delspam='';
 		var showprogress = '<div class="progress progress-micro"><div class="progress-bar progress-primary" style="width: ' + (totalcount * 100) / max + '%;"></div></div>';
 
+		console.log(roleData['role']['mailPerBox']);
+		console.log(checkEmailAmount());
 		if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
+			console.log('ddddd');
 
 			$('.fetch-space div').children().eq(0).text(totalcount);
 			$('.fetch-space div').children().eq(1).text(max);
@@ -796,7 +842,7 @@ function showEmailFetch() {
 
 
 function showLimits() {
-
+	functionTracer='showLimits';
 	var totalcount = 0;
 
 	totalcount = checkEmailAmount();
@@ -809,14 +855,19 @@ function showLimits() {
 	$('.inbox-space').html(totalcount + '/<strong>' + max + '</strong><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress);
 
 
-	if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
-		$('.emailMob1').html(totalcount + '/<strong>' + max + '</strong><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress);
-	} else
-		$('.emailMob1').html('<div rel="tooltip" title="Your Inbox is over limit, please delete emails, or upgrade plan" data-placement="top"><b style="color:red;">' + totalcount + '/<strong>' + max + '</strong><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress + '</b></div>');
+	if (roleData['role']['mailPerBox'] <= checkEmailAmount()) {
 
+		$('.inbox-space').html('<span  rel="tooltip" title="Your Inbox is over limit, please clean your mailbox, or upgrade plan" data-placement="right" style="color:#ff0000;">'+totalcount + '/<strong>' + max + '</strong></span><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress);
+
+
+		$('.emailMob1').html('<span  rel="tooltip" title="Your Inbox is over limit, please clean your mailbox, or upgrade plan" data-placement="right" style="color:#ff0000;">'+totalcount + '/<strong>' + max + '</strong></span><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress);
+	} else{
+		$('.emailMob1').html(totalcount + '/<strong>' + max + '</strong><img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;">' + delspam + '<br>' + showprogress);
+	}
 }
 
 function provideSecret(success, cancel) {
+	functionTracer='provideSecret';
 
 	if(profileSettings['oneStep']=='true' || profileSettings['oneStep']===true || isOneStep===true){
 		var title='Provide Password';
@@ -887,6 +938,7 @@ function logOut() {
 	window.location = '/logout';
 }
 function logOutTime() {
+	functionTracer='logOutTime';
 	var secs = 300;
 	clearInterval(logOuttimer);
 
@@ -904,6 +956,7 @@ function logOutTime() {
 }
 
 function myTimer() {
+	functionTracer='myTimer';
 	if(sessionTimeOut!=-1){
 		$('#sestime').css('display','block');
 	var sec = sessionTimeOut;
@@ -937,6 +990,7 @@ function myTimer() {
 }
 
 function emailSelection(object, container) {
+	functionTracer='emailSelection';
 	container.parent().addClass("label-primary");
 
 	container.parent().attr('title', object.text.replace('<', ' <'));
@@ -946,6 +1000,7 @@ function emailSelection(object, container) {
 }
 
 function tagSelection(object, container) {
+	functionTracer='tagSelection';
 	container.parent().addClass("label bg-color-teal");
 	container.parent().css('text-transform','uppercase');
 	//console.log(object.text);
@@ -954,12 +1009,14 @@ function tagSelection(object, container) {
 }
 
 function fileSelection(object, container) {
+	functionTracer='fileSelection';
 	container.parent().addClass("label-success");
 	return object.text;
 }
 
 
 function IsEmail(email) {
+	functionTracer='IsEmail';
 	var regex = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_<`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z >]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i;
 
 	return regex.test(email);
@@ -967,7 +1024,7 @@ function IsEmail(email) {
 
 function currentTab() {
 
-
+	functionTracer='currentTab';
 	checkState(function () {
 
 		if (activePage == 'mail' || activePage == 'readEmail') {
@@ -995,6 +1052,7 @@ function currentTab() {
 }
 
 function verifySecret(secret) {
+	functionTracer='verifySecret';
 	if (secret != '') {
 		var userObj={};
 		if (userObj = validateUserObject()) {
@@ -1022,12 +1080,13 @@ function verifySecret(secret) {
 // providePassword
 
 function makeModKey(salt) {
+	functionTracer='makeModKey';
 	return forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), salt, 16, 16));
 }
 
 
 function dbToProfile(obj, secret,salt) {
-
+	functionTracer='dbToProfile';
 	salt = forge.util.hexToBytes(salt);
 	var derivedKey = makeDerived(secret, salt)
 
@@ -1051,7 +1110,7 @@ function dbToProfile(obj, secret,salt) {
 }
 
 function dbToFolder(obj) {
-
+	functionTracer='dbToFolder';
 	var f = fromAes64(folderKey, obj['folderObj']);
 
 	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
@@ -1062,14 +1121,14 @@ function dbToFolder(obj) {
 
 
 function folderToDb(folderObj) {
-
+	functionTracer='folderToDb';
 	var f = toAes64(folderKey, JSON.stringify(folderObj));
 
 	return f;
 }
 
 function dbToProfileSetting() {
-
+	functionTracer='dbToProfileSetting';
 	var f = fromAes(folderKey, userData['profileSettings']);
 	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
 
@@ -1084,7 +1143,7 @@ function dbToProfileSetting() {
 
 function profileSettingToDb(prof) {
 
-
+	functionTracer='profileSettingToDb';
 	var t = jQuery.extend(true, {}, profileSettings);
 
 	//var iv = forge.util.hexToBytes(userData['vectorA']);
@@ -1095,7 +1154,7 @@ function profileSettingToDb(prof) {
 }
 
 function getEmailsFromString(input) {
-
+	functionTracer='getEmailsFromString';
 	var ret = [];
 	var email = /\<([^\>]+)\>/g;
 
@@ -1118,13 +1177,14 @@ function getEmailsFromString(input) {
 
 
 function contactsToDb(contObj) {
-
+	functionTracer='contactsToDb';
 	var f = toAes(folderKey, makerandom() + JSON.stringify(contObj) + makerandom());
 
 	return f;
 }
 
 function dbToContacts() {
+	functionTracer='dbToContacts';
 	var f = fromAes(folderKey, userData['contacts']);
 
 	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
@@ -1134,7 +1194,7 @@ function dbToContacts() {
 }
 
 function stripHTML(data) {
-
+	functionTracer='stripHTML';
 	var html = data;
 	var div = document.createElement("div");
 	div.innerHTML = html;
@@ -1142,6 +1202,7 @@ function stripHTML(data) {
 }
 
 function sanitize(input) { //todo remove if save
+	functionTracer='sanitize';
 	if(input!=''){
 		var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 			replace(/<[\/\!]*?[^<>]*?>/gi, '').
@@ -1155,6 +1216,7 @@ function sanitize(input) { //todo remove if save
 }
 
 function sanitizeEmail(input) { //todo remove if save
+	functionTracer='sanitizeEmail';
 	/*
 	 var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 	 replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
@@ -1169,7 +1231,7 @@ function sanitizeEmail(input) { //todo remove if save
 }
 
 function addContactIntoDb(name,email,pin,callback){
-
+	functionTracer='addContactIntoDb';
 	//addContactIntoDb(name,email,pin,function(emails){});
 	if(Object.keys(contacts).length <2000)
 	{
@@ -1185,6 +1247,7 @@ function addContactIntoDb(name,email,pin,callback){
 }
 
 function checkContacts(callback) {
+	functionTracer='checkContacts';
 	checkState(function () {
 
 		if (SHA512(JSON.stringify(contacts)) != contactHash) {
@@ -1214,6 +1277,7 @@ function checkContacts(callback) {
 
 }
 function populateProfile() {
+	functionTracer='populateProfile';
 	checkState(function () {
 		$('#userFLName > h1').text(profileSettings['name']);
 		$('#profEmail > a').text(profileSettings['email']);
@@ -1225,7 +1289,7 @@ function populateProfile() {
 
 
 function checkProfile() {
-
+	functionTracer='checkProfile';
 	checkState(function () {
 		var t = jQuery.extend(true, {}, profileSettings);
 		var curr = SHA512(JSON.stringify(to64(t)));
@@ -1270,7 +1334,7 @@ function checkProfile() {
 
 
 function validateUserRole() {
-
+	functionTracer='validateUserRole';
 	//console.log(roleData['role']);
 
 	if (roleData['role']) {
@@ -1283,7 +1347,7 @@ function validateUserRole() {
 
 
 function validateUserObject() {
-
+	functionTracer='validateUserObject';
 	if (userData['userObj']) {
 		return userData;
 	} else {
@@ -1293,6 +1357,7 @@ function validateUserObject() {
 
 }
 function clearComposeMail() {
+	functionTracer='clearComposeMail';
 	fileObject = {};
 	fileSize = 0;
 	emailObj['to'] = '';
@@ -1321,6 +1386,7 @@ function clearComposeMail() {
 
 
 function emailTimer() {
+	functionTracer='emailTimer';
 	clearInterval(mailt);
 
 	mailt = setInterval(function () {
@@ -1338,7 +1404,7 @@ function emailTimer() {
 
 
 function getDataFromFolder(thisObj) {
-
+	functionTracer='getDataFromFolder';
 
 	folderDecoded.done(function () {
 		//console.log(folder);
@@ -1469,6 +1535,7 @@ function getDataFromFolder(thisObj) {
 }
 
 function customMessageIds(folder){
+	functionTracer='customMessageIds';
 	var keys = [];
 
 	for(var k in folder){
@@ -1478,7 +1545,7 @@ function customMessageIds(folder){
 	return keys;
 }
 function displayFolderContent(folderName) {
-
+	functionTracer='displayFolderContent';
 	folderDecoded.done(function () {
 
 
@@ -1506,7 +1573,7 @@ function displayFolderContent(folderName) {
 }
 
 function parseMessagesObject(messagesId){
-
+	functionTracer='parseMessagesObject';
 	if(mailBox['boxName']==folder_navigate){
 
 		renderMessages();
@@ -1556,6 +1623,7 @@ function parseMessagesObject(messagesId){
 }
 
 function decryptMessages(data,callback){
+	functionTracer='decryptMessages';
 	var dfd = $.Deferred();
 
 	if(folder_navigate in folder['Custom']){
@@ -1670,6 +1738,7 @@ callback();
 
 function markMessage(messageId)
 {
+	functionTracer='markMessage';
 	if(mailBox['Data'][messageId]['checked']==true)
 		mailBox['Data'][messageId]['checked']=false;
 	else
@@ -1678,7 +1747,7 @@ function markMessage(messageId)
 }
 
 function renderMessages() {
-
+	functionTracer='renderMessages';
 	//$('#pag').css('display','block');
 
 	var d = new Date();
@@ -1741,6 +1810,7 @@ function renderMessages() {
 }
 
 function getNewEmailsCount() {
+	functionTracer='getNewEmailsCount';
 	var newMes = 0;
 	$.each(folder['Inbox'], function (index, value) {
 		if (!value['opened']) {
@@ -1760,7 +1830,7 @@ function getNewEmailsCount() {
 }
 
 function showSavedDraft(body, meta, datas) {
-
+	functionTracer='showSavedDraft';
 	var prehash = {};
 	prehash['to'] = body['to'];
 	prehash['subj'] = body['subj'];
@@ -1852,6 +1922,7 @@ function finishRendering() {
 }
 
 function saveDraft() {
+	functionTracer='saveDraft';
 //console.log('trying to save draft');
 	if (original) {
 		var prehash = {};
@@ -1982,7 +2053,7 @@ function saveDraft() {
 }
 
 function encryptMessage(emailObj, key) {
-
+	functionTracer='encryptMessage';
 	var d1 = new $.Deferred();
 
 	var body = JSON.stringify(emailObj);
@@ -2018,7 +2089,7 @@ function encryptMessage(emailObj, key) {
 }
 
 function getMail(messageId,modKey) {
-
+	functionTracer='getMail';
 
 	checkState(function () {
 
@@ -2050,11 +2121,12 @@ function getMail(messageId,modKey) {
 }
 
 function detectMessage(datas) {
+	functionTracer='detectMessage';
 	$('.emailMob').css('display', 'none');
 	$('.emailMob1').css('display', 'none');
 	$('#mobFooter').css('height', '60px');
 
-	try{
+	//try{
 
 	if(folder_navigate in folder['Custom']){
 		var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][datas['messageHash']]['p']);
@@ -2111,9 +2183,9 @@ function detectMessage(datas) {
 
 
 	}
-	} catch (err) {
-		noAnswer('Something goes wrong. Please report a bug!');
-	}
+	//} catch (err) {
+	//	noAnswer('Something goes wrong. Please report a bug!');
+	//}
 }
 
 
@@ -2135,7 +2207,7 @@ function to64binary(data) {
 }
 
 function fromAesBinary(key, text) {
-
+	functionTracer='fromAesBinary';
 	var vector = forge.util.hexToBytes(text.substring(0, 32));
 	var encrypted = from64binary(text.substring(32));
 
@@ -2149,7 +2221,7 @@ function fromAesBinary(key, text) {
 }
 
 function toAesBinary(key, text) {
-
+	functionTracer='toAesBinary';
 	//console.log(key);
 	var vector = forge.random.getBytesSync(16);
 
@@ -2165,6 +2237,7 @@ function toAesBinary(key, text) {
 
 
 function readFile(fileName) {
+	functionTracer='readFile';
 	var span = from64(emailObj['body']['attachment'][fileName]['filename']);
 	//console.log(span);
 	$('#' + span + ' i').removeClass('fa-file');
@@ -2223,7 +2296,7 @@ function readFile(fileName) {
 
 
 function replyToMail() {
-
+	functionTracer='replyToMail';
 	meta = emailObj['meta'];
 	body = emailObj['body'];
 
@@ -2268,7 +2341,7 @@ function replyToMail() {
 }
 
 function forwardMail() {
-
+	functionTracer='forwardMail';
 	meta = emailObj['meta'];
 	body = emailObj['body'];
 
@@ -2307,6 +2380,7 @@ function forwardMail() {
 
 
 function markSpam() {
+	functionTracer='markSpam';
 	//console.log(emailObj);
 	var em = emailObj['meta']['from'];
 
@@ -2320,6 +2394,7 @@ function markSpam() {
 	clearComposeMail();
 }
 function readMailclean(){
+	functionTracer='readMailclean';
 	$('#sendMaildiv').css('display','none');
 	//$('#readMaildiv').css('display','none');
 	$('#readEmailOpt').css('display','none');
@@ -2333,7 +2408,7 @@ function readMailclean(){
 
 
 function initializeMailList() {
-
+	functionTracer='initializeMailList';
 	// pageSetUp();
 
 	var responsiveHelper_inbox_table = undefined;
@@ -2449,6 +2524,7 @@ function initializeMailList() {
 
 function deleteEmail()
 {
+	functionTracer='deleteEmail';
 	//console.log('dd');
 	var selected = [];
 	if(activePage=='mail')
@@ -2507,7 +2583,7 @@ function deleteEmail()
 }
 
 function deleteFailed(messageId){
-
+	functionTracer='deleteFailed';
 	$('#dialog_simple >p').html('We are sorry, but we unable to decrypt this email. Please report a bug if problem persists.');
 
 	$('#dialog_simple').dialog({
@@ -2550,6 +2626,7 @@ function deleteFailed(messageId){
 }
 
 function getEmailSender(messagesId,callback){
+	functionTracer='getEmailSender';
 	var dfd = $.Deferred();
 	var metas='';
 	var emails={};
@@ -2617,7 +2694,7 @@ function getEmailSender(messagesId,callback){
 }
 
 function checkBlackList() {
-
+	functionTracer='checkBlackList';
 	delete blackList[SHA256(profileSettings['email'].toLowerCase())];
 
 	checkState(function () {
@@ -2654,6 +2731,7 @@ function checkBlackList() {
 }
 function markAsRead()
 {
+	functionTracer='markAsRead';
 
 	if(activePage=="mail"){
 
@@ -2694,7 +2772,7 @@ function markAsRead()
 
 function markAsUnread()
 {
-
+	functionTracer='markAsUnread';
 	if(activePage=="mail"){
 
 		var dfd = $.Deferred();
@@ -2733,6 +2811,7 @@ function markAsUnread()
 	}
 }
 	function movetofolder(tofolder) {
+		functionTracer='movetofolder';
 		messageFolder=tofolder;
 
  if(activePage=='readEmail'){
@@ -2931,7 +3010,7 @@ function markAsUnread()
 }
 
 function deleteMessage(selected,selectedFolder, callback) {
-
+	functionTracer='deleteMessage';
 	//console.log(selected);
 	checkState(function () {
 		if (selectedFolder != "Trash" && selectedFolder != "Draft" && selectedFolder != "Spam"  && activePage != 'composeMail' && !(selectedFolder in folder['Custom'])) {
@@ -3058,21 +3137,21 @@ function selectFolder(thisObj) {
 
 }
 function SHA512(data) {
-
+	functionTracer='SHA512';
 	var md = forge.md.sha512.create();
 	md.update(data, 'utf8');
 	return md.digest().toHex();
 }
 
 function SHA256(data) {
-
+	functionTracer='SHA256';
 	var md = forge.md.sha256.create();
 	md.update(data, 'utf8');
 	return md.digest().toHex();
 }
 
 function SHA512old(data) {
-
+	functionTracer='SHA512old';
 	var md = forge.md.sha512.create();
 	md.update(data);
 	return md.digest().toHex();
@@ -3082,7 +3161,7 @@ function getDomain() {
 	return $.get("getDomains");
 }
 function loadInitialPage() {
-
+	functionTracer='loadInitialPage';
 	pageSetUp();
 	// fix table height
 	tableHeightSize();
@@ -3124,7 +3203,7 @@ function loadInitialPage() {
 }
 
 function checkEmailAmount() {
-
+	functionTracer='checkEmailAmount';
 	var totalcount = 0;
 
 	$.each(folder, function (index, value) {
@@ -3140,6 +3219,7 @@ function checkEmailAmount() {
 }
 
 function displayFolder() {
+	functionTracer='displayFolder';
 	//console.log(profileSettings);
 
 	if (folder != {}) {
@@ -3200,6 +3280,7 @@ function displayFolder() {
 
 }
 function renderMoveFolder(){
+	functionTracer='renderMoveFolder';
 	var follist = $("#mvtofolder");
 	follist.html('');
 
@@ -3216,6 +3297,7 @@ function renderMoveFolder(){
 }
 
 function sortObject(data){
+	functionTracer='sortObject';
 	var newdata={};
 if(Object.keys(data).length>0){
 	$.each(data, function (key, value) {
@@ -3227,6 +3309,7 @@ return data;
 }
 
 function bySortedValue(obj, callback, context) {
+	functionTracer='bySortedValue';
 	var tuples = [];
 
 	for (var key in obj){
@@ -3240,6 +3323,7 @@ function bySortedValue(obj, callback, context) {
 }
 
 function renameCustomFolder(name,id){
+	functionTracer='renameCustomFolder';
 	$('#addFolder').dialog({
 		autoOpen: false,
 		height: 150,
@@ -3283,6 +3367,7 @@ function renameCustomFolder(name,id){
 
 function deleteCustomFolder(name,id)
 {
+	functionTracer='deleteCustomFolder';
 
 	//console.log(id);
 if(customMessageIds(folder['Custom'][id]).length>0){
@@ -3331,17 +3416,20 @@ if(customMessageIds(folder['Custom'][id]).length>0){
 }
 
 function SHA1(text){
+	functionTracer='SHA1';
 	var md = forge.md.sha1.create();
 	md.update(text,'utf8');
 	return md.digest().toHex()
 }
 function removeCustomFolder(name){
+	functionTracer='removeCustomFolder';
 	//console.log(name);
 	delete folder['Custom'][name];
 	checkFolders();
 	displayFolder();
 }
 function addCustomFolder(){
+	functionTracer='addCustomFolder';
 
 	$('#addFolder').dialog({
 		autoOpen: false,
@@ -3389,7 +3477,7 @@ function addCustomFolder(){
 }
 
 function checkFolders(callback) {
-
+	functionTracer='checkFolders';
 	checkState(function () {
 
 		if (SHA512(JSON.stringify(folder)) != folderHash) {
@@ -3428,7 +3516,7 @@ function checkFolders(callback) {
 }
 
 function showLog(success, cancel) {
-
+	functionTracer='showLog';
 	$('#dialog-form-login').dialog({
 		autoOpen: false,
 		height: 230,
@@ -3526,7 +3614,7 @@ function showLog(success, cancel) {
 }
 
 function fromFish(keyT, text) {
-
+	functionTracer='fromFish';
 	var vector = CryptoJS.enc.Hex.parse(text.substring(0, 32));
 	var encrypted = text.substring(32);
 
@@ -3536,7 +3624,7 @@ function fromFish(keyT, text) {
 
 
 function dbToBlackList() {
-
+	functionTracer='dbToBlackList';
 	var f = fromAes(folderKey, userData['blackList']);
 
 	if(f.indexOf('[')!=-1){
@@ -3550,13 +3638,14 @@ function dbToBlackList() {
 }
 
 function BlackListToDb() {
+	functionTracer='BlackListToDb';
 	var f = toAes(folderKey, JSON.stringify(blackList));
 
 	return f;
 }
 
 function upgradeAfterSeed(newMaxSeed){
-
+	functionTracer='upgradeAfterSeed';
 	var divObj = $('#dialog_update');
 
 	$('#dialog_update >p').html('Do not refresh your browser. We are updating your account. It may take few minutes..');
@@ -3705,7 +3794,7 @@ function upgradeAfterSeed(newMaxSeed){
 
 
 function retrieveSecret() {
-
+	functionTracer='retrieveSecret';
 
 	provideSecret(function (secret) {
 
@@ -3830,6 +3919,7 @@ function retrieveSecret() {
 }
 
 function setupProfile(){
+	functionTracer='setupProfile';
 	profileSettings['lastSeed'] = parseInt(profileSettings['lastSeed']);
 
 	sessionTimeOut=!isNaN(parseInt(profileSettings['sessionExpiration']))?parseInt(profileSettings['sessionExpiration']):-1;
