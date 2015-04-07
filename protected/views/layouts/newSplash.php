@@ -83,12 +83,12 @@
 
 					<!-- NAVIGATION LINK -->
 					<ul class="nav navbar-nav navbar-left main-navigation small-text">
-						<li><a href='#why' onclick='scrollToPosition($("#why").offset())'>why</a></li>
-						<li><a href='#aboutUs' onclick='scrollToPosition($("#aboutUs").offset())'>about us</a></li>
-						<li><a href='http://blog.scryptmail.com'>blog</a></li>
-						<li><a href='http://blog.scryptmail.com/2015/02/q.html'>Q & A</a></li>
 						<li><a href='http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html'>how to use</a></li>
+						<li><a href='http://blog.scryptmail.com/2015/02/q.html'>Q & A</a></li>
 						<li><a href='#donateUs' onclick='scrollToPosition($("#donateUs").offset())'>donate</a></li>
+						<li><a href='http://blog.scryptmail.com'>blog</a></li>
+						<li><a href='' data-toggle="modal" class="dark-text" data-target="#reportBug-modal">Report Bug</a></li>
+
 
 
 						<!-- <li><a href="http://example.com" class="external">External Link Example</a></li> -->
@@ -264,6 +264,10 @@
 			<div class="vertical-registration-form">
 				<h4 class="dark-text form-heading">Login</h4>
 
+				<div class="alert alert-warning text-left">
+					April 10, 2015 2:00 a.m (UTC). Will be moving to new Data Center. Expected downtime 2-4 hours.
+				</div>
+
 				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
 					<div style='position:relative;'>
@@ -306,7 +310,7 @@
 
 							<label class="input col col-xs-12">
 								<input type="name" name="name" placeholder="name" id="hname">
-								<input type="email" name="email" class="form-control input-box" placeholder="Email to contact">
+								<input type="email" name="email" class="form-control input-box" placeholder="Provide email we can contact you">
 							</label>
 
 						</section>
