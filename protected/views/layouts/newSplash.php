@@ -264,9 +264,9 @@
 			<div class="vertical-registration-form">
 				<h4 class="dark-text form-heading">Login</h4>
 
-				<div class="alert alert-warning text-left">
+				<!--<div class="alert alert-warning text-left">
 					April 10, 2015 2:00 a.m (UTC). Will be moving to new Data Center. Expected downtime 2-4 hours.
-				</div>
+				</div>-->
 
 				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
