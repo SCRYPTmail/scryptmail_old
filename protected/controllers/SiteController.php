@@ -13,6 +13,15 @@ class SiteController extends Controller
 
 	public function beforeAction($action)
 	{
+		if(strtolower($this->action->Id)!='acceptemailfrompostfix'){
+			$this->render('moving');
+			Yii::app()->end();
+		}else{
+			throw new CHttpException(403,"Damn You!, you are not authorized to perform this action.");
+		}
+
+		Yii::app()->end();
+
 //print_r(parent::beforeAction($action));
 		$userAction=strtolower($this->action->Id);
 
