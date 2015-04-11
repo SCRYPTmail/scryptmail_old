@@ -572,7 +572,7 @@
 		<!-- MEMBERS -->
 		<div class="row wow fadeIn" data-wow-offset="10" data-wow-duration="1.75s">
 
-			<!-- MEMBER -->
+			<!-- MEMBER
 			<div class='col-sm-4'>
 				<div class='row'>
 					<div class="col-md-8 col-md-offset-2">
@@ -604,9 +604,9 @@
 					</div>
 				</div>
 			</div>
-
+			-->
 			<!-- MEMBER -->
-			<div class='col-sm-4'>
+			<div class='col-sm-4 col-md-offset-4'>
 				<div class='row'>
 					<div class="col-md-8 col-md-offset-2">
 						<div class="team-member wow fadeInUp" data-wow-offset="10" data-wow-duration="1s">
@@ -642,7 +642,7 @@
 				</div>
 			</div>
 
-			<!-- MEMBER -->
+			<!-- MEMBER
 			<div class='col-sm-4'>
 				<div class='row'>
 					<div class="col-md-8 col-md-offset-2">
@@ -676,6 +676,7 @@
 					</div>
 				</div>
 			</div>
+			-->
 
 		</div>
 	</div>
