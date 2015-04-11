@@ -264,9 +264,9 @@
 			<div class="vertical-registration-form">
 				<h4 class="dark-text form-heading">Login</h4>
 
-				<div class="alert alert-warning text-left">
+				<!--<div class="alert alert-warning text-left">
 					April 10, 2015 2:00 a.m (UTC). Will be moving to new Data Center. Expected downtime 2-4 hours.
-				</div>
+				</div>-->
 
 				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
@@ -445,6 +445,22 @@
 
 </script>
 <script src="/js/custom.js"></script>
+
+<!-- Piwik -->
+<script type="text/javascript">
+	var _paq = _paq || [];
+	_paq.push(['trackPageView']);
+	_paq.push(['enableLinkTracking']);
+	(function() {
+		var u="//piwik.scryptmail.com/";
+		_paq.push(['setTrackerUrl', u+'piwik.php']);
+		_paq.push(['setSiteId', 1]);
+		var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+		g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+	})();
+</script>
+<noscript><p><img src="//piwik.scryptmail.com/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
 
 </body>
 

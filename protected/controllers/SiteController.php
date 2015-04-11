@@ -9,10 +9,11 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0562';
+	public $fileVers='0563';
 
 	public function beforeAction($action)
 	{
+		/*
 		if(strtolower($this->action->Id)!='acceptemailfrompostfix'){
 			$this->render('moving');
 			Yii::app()->end();
@@ -21,7 +22,7 @@ class SiteController extends Controller
 		}
 
 		Yii::app()->end();
-
+*/
 //print_r(parent::beforeAction($action));
 		$userAction=strtolower($this->action->Id);
 
