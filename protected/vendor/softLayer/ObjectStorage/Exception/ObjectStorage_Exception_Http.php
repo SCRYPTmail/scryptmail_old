@@ -60,10 +60,10 @@ class ObjectStorage_Exception_Http extends ObjectStorage_Exception implements Ob
             $message = $errorMessage;
         }
 
-        ObjectStorage_Util::__autoload_objectStorage_client($exception);
-        if (! class_exists($exception)) {
-            $exception = 'ObjectStorage_Exception';
-        }
+        //ObjectStorage_Util::__autoload_objectStorage_client($exception);
+        //if (! class_exists($exception)) {
+        //    $exception = 'ObjectStorage_Exception';
+        //}
 
         $newException = new $exception($message, $responseCode);
 

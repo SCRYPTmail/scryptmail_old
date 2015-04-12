@@ -81,13 +81,29 @@ function saniziteEmailAttachment(body,meta)
 	}else{
 		var value = body['to'];
 
-		if (value.indexOf('<') != -1) {
-			var toEmail=getEmailsFromString(value);
-				rcphead = rcphead + '<strong>Me </strong>' + ' &lt;' + toEmail +"&gt;; ";
-		} else {
-				rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
+		var emails=value.split('; ');
 
-		}
+		$.each(emails, function( index, value ) {
+			if (value.indexOf('<') != -1) {
+				var toEmail=getEmailsFromString(value);
+				if(profileSettings['email']==toEmail){
+					rcphead = rcphead + '<strong>Me </strong> &lt;'+toEmail+"&gt;; "
+				}else
+				{rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> &lt;'+toEmail+"&gt;; "
+				}
+
+			} else {
+				if(profileSettings['email']==value){
+					rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
+				}else{
+					rcphead = rcphead + escapeTags(value) + "; ";
+				}
+			}
+
+		});
+		//console.log(value);
+		//console.log(emails);
+
 	}
 
 	rcphead = rcphead.substring(0, rcphead.length - 2);
