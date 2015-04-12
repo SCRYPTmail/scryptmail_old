@@ -16,7 +16,7 @@ class Acceptemailfrompostfix extends CFormModel
 			$rr = json_decode($current['mandrill_events'], true);
 		} else {
 			set_time_limit(300);
-			$current = file_get_contents('newfile.txt');
+			$current = file_get_contents('new1.txt');
 			//$enc=urldecode($current)			;
 			$enc = base64_decode($current);
 			//$enc=json_encode($current);
@@ -63,6 +63,7 @@ class Acceptemailfrompostfix extends CFormModel
 		//echo $k.'
 		//';
 
+		//print_r($rr);
 
 		foreach ($rr as $index => $row) {
 			unset($row['msg']['raw_msg']);
@@ -71,9 +72,19 @@ class Acceptemailfrompostfix extends CFormModel
 			if(isset($row['msg']['to']) || isset($row['email'])){
 
 				$recipient=isset($row['msg']['to'])?$row['msg']['to']:array(0=>array(0=>$row['email']));
+
+				if(isset($row['msg']['cc'])){
+					$recipient=array_merge($recipient,isset($row['msg']['cc'])?$row['msg']['cc']:array(0=>array(0=>$row['email'])));
+
+				}
+
+				foreach ($recipient as $i => $rcpt) {
+					$fieldTo[]=($rcpt[0] != $rcpt[1]) ? strip_tags($rcpt[1]) . '<' . strip_tags($rcpt[0]) . '>' : strip_tags($rcpt[0]);
+				}
+
+
 				foreach ($recipient as $i => $rcpt) {
 
-					//print_r($rcpt);
 					if ($mailhash = Yii::app()->db->createCommand(
 						"SELECT addresses.mailKey, user.mailKey as userMailKey
 			FROM addresses
@@ -107,10 +118,12 @@ class Acceptemailfrompostfix extends CFormModel
 						$emailPreObj['meta']['type'] = 'received';
 						$emailPreObj['meta']['pin'] = '';
 
-						$emailPreObj['to'] = ($rcpt[0] != $rcpt[1]) ? $rcpt[1] . '<' . $rcpt[0] . '>' : $rcpt[0];
-						$emailPreObj['meta']['to'] = ($rcpt[0] != $rcpt[1]) ? $rcpt[1] . '<' . $rcpt[0] . '>' : $rcpt[0];
+						$emailPreObj['to'] = implode($fieldTo,'; ');
+						$emailPreObj['meta']['to'] = ($rcpt[0] != $rcpt[1]) ? strip_tags($rcpt[1]) . '<' . strip_tags($rcpt[0]) . '>' : strip_tags($rcpt[0]);
 						$emailPreObj['meta']['modKey'] = bin2hex(Acceptemailfrompostfix::makeModKey(16));
 						$emailPreObj['modKey'] = $emailPreObj['meta']['modKey'];
+
+						//print_r($emailPreObj);
 
 						$emailPreObj['from'] = base64_encode($emailPreObj['from']);
 						$emailPreObj['subj'] = base64_encode($emailPreObj['subj']);
@@ -130,7 +143,6 @@ class Acceptemailfrompostfix extends CFormModel
 						if (isset($row['msg']['attachments'])) {
 							foreach ($row['msg']['attachments'] as $k => $file) {
 								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
-								//file_put_contents(Yii::app()->basePath . '/attachments/test.jpg' , $file['content']);
 
 								$size=($file['base64'])?strlen(base64_decode($file['content'])):strlen($file['content']);
 								if (FileWorks::encryptFile($file['content'], $fname, $key, $file['base64'])) {
@@ -186,10 +198,12 @@ class Acceptemailfrompostfix extends CFormModel
 					}
 
 				}
+
 			}
 
 		}
 		echo 'success';
+
 		//}
 
 		//echo base64_decode($current);

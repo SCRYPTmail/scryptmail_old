@@ -33,10 +33,11 @@ class downloadFile extends CFormModel
 
 		$name=base64_decode($fileData[0]);
 		$type=base64_decode($fileData[1]);
-			if(@$file=file_get_contents(Yii::app()->basePath . '/attachments/' . $fileName)){
+
+
+			if($file=FileWorks::readFile($fileName)){
 				try{
 
-				//print_r($file);
 				$data = $file;
 				$iv = hex2bin(substr($data, 0, 32));
 				$encrypted = substr($data, 32);
@@ -52,11 +53,11 @@ class downloadFile extends CFormModel
 					echo base64_decode($g);
 
 				} catch (Exception $e) {
-					echo '{"file":"file not found"}';
+					echo '{"file":"file not found1"}';
 				}
 
 				}else
-			echo '{"file":"file not found"}';
+			echo 'File you requested is no longer available.';
 
 	}
 }

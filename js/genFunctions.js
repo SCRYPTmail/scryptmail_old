@@ -570,7 +570,6 @@ function tryDecryptSeed(data) { //TODO check internal and outside mail can be de
 
 }
 
-
 function moveMessagestoInbox(newMessages) {
 	functionTracer='moveMessagestoInbox';
 	var chunks = {};
@@ -614,14 +613,17 @@ function moveMessagestoInbox(newMessages) {
 									var toEmail=stripHTML(from);
 								}
 
+								var fMesage='';
 								if(SHA256(toEmail) in blackList){
 									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+									fMesage='Spam';
 								}else{
 									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+									fMesage='Inbox';
 								}
 
 								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
+								if((folder_navigate=="Inbox" || folder_navigate=="Spam") && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
 									var to= from64(meta['to']);
 									var from=from64(meta['from']);
 									var subject=stripHTML(from64(meta['subject']).toString());
@@ -651,8 +653,12 @@ function moveMessagestoInbox(newMessages) {
 										'checked':false,
 										'tags':tag
 									};
-									if(folder_navigate=="Inbox" && activePage=="mail"){
+
+									if(folder_navigate=="Inbox" && activePage=="mail" && fMesage=='Inbox'){
 										displayFolderContent('Inbox');
+									}
+									if(folder_navigate=="Spam" && activePage=="mail" && fMesage=='Spam'){
+										displayFolderContent('Spam');
 									}
 
 								}
@@ -694,14 +700,18 @@ function moveMessagestoInbox(newMessages) {
 									var toEmail=stripHTML(from);
 								}
 
+								var fMesage='';
 								if(SHA256(toEmail) in blackList){
 									folder['Spam'][value['id']] = {'p': decrypted, 'opened': false};
+									fMesage='Spam';
 								}else{
 									folder['Inbox'][value['id']] = {'p': decrypted, 'opened': false};
+									fMesage='Inbox';
 								}
 
 								getNewEmailsCount();
-								if(folder_navigate=="Inbox" && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
+
+								if((folder_navigate=="Inbox" || folder_navigate=="Spam") && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
 									var to= from64(meta['to']);
 									var from=from64(meta['from']);
 									var subject=stripHTML(from64(meta['subject']).toString());
@@ -733,8 +743,11 @@ function moveMessagestoInbox(newMessages) {
 										'tags':tag
 									};
 
-									if(folder_navigate=="Inbox" && activePage=="mail"){
+									if(folder_navigate=="Inbox" && activePage=="mail" && fMesage=='Inbox'){
 										displayFolderContent('Inbox');
+									}
+									if(folder_navigate=="Spam" && activePage=="mail" && fMesage=='Spam'){
+										displayFolderContent('Spam');
 									}
 								}
 							}
@@ -812,10 +825,10 @@ function showEmailFetch() {
 		//var delspam='';
 		var showprogress = '<div class="progress progress-micro"><div class="progress-bar progress-primary" style="width: ' + (totalcount * 100) / max + '%;"></div></div>';
 
-		console.log(roleData['role']['mailPerBox']);
-		console.log(checkEmailAmount());
+		//console.log(roleData['role']['mailPerBox']);
+		//console.log(checkEmailAmount());
 		if (roleData['role']['mailPerBox'] > checkEmailAmount()) {
-			console.log('ddddd');
+		//	console.log('ddddd');
 
 			$('.fetch-space div').children().eq(0).text(totalcount);
 			$('.fetch-space div').children().eq(1).text(max);
@@ -2288,7 +2301,7 @@ function readFile(fileName) {
 			}
 			}else{
 				$('#' + span).html('Error. File not found<i></i>');
-				$('#' + span).addClass('label-danger<i></i>');
+				$('#' + span).addClass('label-danger');
 			}
 		});
 
@@ -2297,8 +2310,8 @@ function readFile(fileName) {
 
 function replyToMail() {
 	functionTracer='replyToMail';
-	meta = emailObj['meta'];
-	body = emailObj['body'];
+	var meta = emailObj['meta'];
+	var body = emailObj['body'];
 
 	clearInterval(mailt);
 	clearComposeMail();
@@ -2314,6 +2327,19 @@ function replyToMail() {
 
 			//$('#custPaginator').html('');
 			//$('#pag').css('display','none');
+			var to=body['to'];
+			var emails=to.split('; ');
+			to='';
+			$.each(emails, function( index, value ) {
+
+					if (value.indexOf('<') != -1) {
+						var toEmail=getEmailsFromString(value);
+							to += '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> &lt;'+toEmail+"&gt;; "
+					}else{
+						to += escapeTags(value) + "; ";
+					}
+			});
+
 			delete body['to'];
 			body['to'] = [];
 			body['to'].push(body['from']);
@@ -2324,8 +2350,16 @@ function replyToMail() {
 
 			body['subj'] = to64('Re: '+body['subj']);
 
-			body['body']['html'] = '<br><br>---------------------------------<br>' +
-				'On ' + new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString() + ' <b>' + meta['from'].replace('>', "&gt;").replace('<', " &lt;") + '</b> wrote:' + '<br><br>'+messageDisplayedBody;
+			body['body']['html'] ='<br><br>' +
+				'<div class="replied">---------------------------------' +
+				'<br>' +
+				'From: '+meta['from'].replace('>', "&gt;").replace('<', " &lt;")+'<br>' +
+				'To: '+to+'<br>' +
+				'Sent: '+new Date(meta['timeSent'] * 1000).toLocaleTimeString() + ' ' + new Date(meta['timeSent'] * 1000).toLocaleDateString()+'<br>' +
+				'Subject: '+from64(body['subj'])+'<br><br>' +
+				messageDisplayedBody+'</div>';
+
+
 			body['body']['text'] = to64(body['body']['text']);
 			body['body']['html'] = to64(body['body']['html']);
 			activePage = 'composeMail';

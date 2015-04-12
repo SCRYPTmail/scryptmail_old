@@ -21,13 +21,11 @@ class GetFile extends CFormModel
 
 	public function readFile()
 	{
-		if($file=@file_get_contents(Yii::app()->basePath . '/attachments/' . $this->fileName)){
-			$result['response']='success';
-			$result['data']=$file;
+		if($file=FileWorks::readFile($this->fileName)){
 			echo $file;
-			//echo json_encode($result);
-		}//else
-			//echo '{"response":"fail"}';
+		}else{
+			echo '';
+		}
 
 	}
 }

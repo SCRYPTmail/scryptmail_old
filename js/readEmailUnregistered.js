@@ -104,6 +104,8 @@ function renderMessageUnreg(body, meta) {
 	});
 
 	if (meta['attachment'] != "") {
+		$('<div class="alert alert-warning text-left" style="margin-top:10px;">Please exercise caution when downloading files. We strongly recommend to scan them with antivirus after download.</div><div class="inbox-download"></div>').insertAfter(".inbox-message");
+
 		if (Object.keys(body['attachment']).length > 0) {
 			file = body['attachment'];
 			$('.inbox-download').html('<ul class="inbox-download-list"></ul>');
@@ -201,7 +203,7 @@ function readFileUnreg(fileName) {
 							}
 						}else{
 							$('#' + span).html('Error. File not found<i></i>');
-							$('#' + span).addClass('label-danger<i></i>');
+							$('#' + span).addClass('label-danger');
 						}
 
 					});

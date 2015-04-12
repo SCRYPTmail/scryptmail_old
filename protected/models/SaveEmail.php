@@ -116,12 +116,15 @@ class SaveEmail extends CFormModel
 		$params[':meta'] = $this->meta;
 
 		if(isset($this->files)){
+
 			foreach($this->files as $row){
 				$fileNames[]=$row['fname'];
-				if (file_put_contents(Yii::app()->basePath . '/attachments/' . $row['fname'], $row['data'])){
 
-				}else
+				if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+				{
 					echo '{"messageId":"fail1"}';
+				}
+
 			}
 			$params[':file'] = json_encode($fileNames);
 		}else
@@ -181,12 +184,15 @@ class SaveEmail extends CFormModel
 		$params[':rcpnt'] = $this->seedRcpnt;
 
 		if(isset($this->files)){
+
 		foreach($this->files as $row){
 		$fileNames[]=$row['fname'];
-			if (file_put_contents(Yii::app()->basePath . '/attachments/' . $row['fname'], $row['data'])){
 
-			}else
+			if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+			{
 				echo '{"messageId":"fail1"}';
+			}
+
 		}
 			$params[':file'] = json_encode($fileNames);
 		}else
@@ -221,12 +227,15 @@ class SaveEmail extends CFormModel
 
 
 		if(isset($this->files)){
+
 			foreach($this->files as $row){
 				$fileNames[]=$row['fname'];
-				if (file_put_contents(Yii::app()->basePath . '/attachments/' . $row['fname'], $row['data'])){
 
-				}else
+				if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+				{
 					echo '{"messageId":"fail1"}';
+				}
+
 			}
 			$params[':file'] = json_encode($fileNames);
 		}else
@@ -253,12 +262,17 @@ class SaveEmail extends CFormModel
 		$params[':pass'] = $this->key;
 
 		if(isset($this->files)){
+
+
 			foreach($this->files as $row){
 				$fileNames[]=$row['fname'];
-				if (file_put_contents(Yii::app()->basePath . '/attachments/' . $row['fname'], $row['data'])){
 
-				}else
+				if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+				{
 					echo '{"messageId":"fail1"}';
+				}
+
+
 			}
 			$params[':file'] = json_encode($fileNames);
 		}else

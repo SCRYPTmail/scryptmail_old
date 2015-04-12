@@ -3,7 +3,7 @@
 /**
  * Registering auto loader
  */
-spl_autoload_register('ObjectStorage_Util::__autoload_objectStorage_client');
+//spl_autoload_register('ObjectStorage_Util::__autoload_objectStorage_client');
 
 //spl_autoload_unregister(array('YiiBase', 'autoload')); // Disable Yii autoloader
 //Yii::import('application.vendor.softLayer.*'); // Add Zend library to include_path
@@ -103,8 +103,8 @@ class ObjectStorage_Util
             return 'application/directory';
         } else if (isset($mimeTypes[$extension])) {
             return $mimeTypes[$extension];
-        } else if (function_exists('mime_content_type')) {
-            return mime_content_type($fileName);
+        //} else if (function_exists('mime_content_type')) {
+           // return mime_content_type($fileName);
         } else {
             return 'application/octet-stream';
         }

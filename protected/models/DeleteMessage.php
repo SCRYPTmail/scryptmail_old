@@ -53,13 +53,12 @@ class DeleteMessage extends CFormModel
 				$param[":mod_$i"] = isset( $row['modKey'])?hash('sha512', $row['modKey']):'';
 			}
 			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM personalFolders WHERE (messageHash,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
+
 				foreach($fileRemove as $filejson){
 					if($files=json_decode($filejson['file'],true)){
 						foreach($files as $names){
-							try {
-							@unlink(Yii::app()->basePath . '/attachments/' . $names);
-							} catch (Exception $e) {
-							}
+							FileWorks::deleteFile($names);
+
 						}
 					}
 				}
@@ -88,13 +87,15 @@ class DeleteMessage extends CFormModel
 					$param[":mod_$i"] = hash('sha512', $row['modKey']);
 				}
 				if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
+
+
 					foreach($fileRemove as $filejson){
 						if($files=json_decode($filejson['file'],true)){
+
 							foreach($files as $names){
-								try {
-									@unlink(Yii::app()->basePath . '/attachments/' . $names);
-								} catch (Exception $e) {
-								}
+
+								FileWorks::deleteFile($names);
+
 							}
 						}
 					}

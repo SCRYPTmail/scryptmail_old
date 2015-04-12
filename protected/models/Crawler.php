@@ -22,12 +22,15 @@ class Crawler extends CFormModel
 
 			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()) {
 
+
 				foreach($emailsToClean as $i=>$row){
 					$emailToDeleteId[":mailId_$i"]=$row['id'];
 
 					if($files=json_decode($row['file'],true)){
 						foreach($files as $filename){
-							@unlink(Yii::app()->basePath . '/attachments/' . $filename);
+
+							FileWorks::deleteFile($filename);
+
 						}
 					}
 				}
@@ -67,7 +70,7 @@ class Crawler extends CFormModel
 								$par[':modKey'] = $row['modKey'];
 								$par[':file'] = $row['file'];
 								$par[':pinHash'] = $row['pinHash'];
-								$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
+								$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 4 weeks'));
 								$trans = Yii::app()->db->beginTransaction();
 								if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,modKey,file,expired,pinHash) VALUES (:id,:meta,:body,:modKey,:file,:expired,:pinHash)")->execute($par)) {
 									if (Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()) {
@@ -89,11 +92,11 @@ class Crawler extends CFormModel
 									$par[':id'] = $row['id'];
 									$par[':modKey'] = $row['modKey'];
 									$par[':file'] = $row['file'];
-									$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 2 weeks'));
+									$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 4 weeks'));
 									Yii::app()->db->createCommand("INSERT INTO mailTable (id,modKey,file,expired) VALUES (:id,:modKey,:file,:expired)")->execute($par);
 								}
 								//print_r($row);
-									Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
+								//	Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
 							}
 
 
@@ -174,8 +177,8 @@ class Crawler extends CFormModel
 			$attach[]="<br><br>Email Attachments:<br>";
 			$attachtxt[]='\n\r\n\rEmail Attachments:';
 			foreach ($body['attachment'] as $fileN => $frow) {
-				$attach[]=base64_decode($frow['name']).' <a href="https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].'"  target="_blank">Download</a> It will be stored on our server for 2 weeks.';
-				$attachtxt[]=base64_decode($frow['name']).'https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].' It will be stored on our server for 2 weeks.';
+				$attach[]=base64_decode($frow['name']).' <a href="https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].'"  target="_blank">Download</a> It will be stored on our server for 4 weeks.';
+				$attachtxt[]=base64_decode($frow['name']).'https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].' It will be stored on our server for 4 weeks.';
 
 				/*
 				$body['attachment'][($fileN)]['name'] = base64_decode($frow['name']);
@@ -215,12 +218,25 @@ class Crawler extends CFormModel
 			if (is_array($body['attachment']) && count($body['attachment'])>0) {
 
 
-				$message .= $body['body']['text'].implode($attachtxt,' ').$eol.$eol;
+				if($pos = strpos($body['body']['text'], '---------------------------------')){
+					$message.= substr_replace($body['body']['text'], implode($attachtxt,' '), $pos, 0).$eol.$eol;
+
+				}else{
+					$message .= $body['body']['text'].implode($attachtxt,' ').$eol.$eol;
+				}
+
 
 				$message .=$eol.$eol."--$boundary".$eol;
 				$message .= "Content-type: text/html;charset=utf-8".$eol.$eol;
 
-				$message .= $body['body']['html'].implode($attach,'<br>').$eol.$eol;
+				if($pos = strpos($body['body']['html'], '<div class="replied">')){
+					$message.= substr_replace($body['body']['html'], implode($attach,'<br>'), $pos, 0).$eol.$eol;
+
+				}else{
+					$message .= $body['body']['html'].implode($attach,'<br>').$eol.$eol;
+				}
+
+
 
 				$message .=$eol.$eol."--$boundary--";
 
