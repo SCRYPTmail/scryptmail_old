@@ -96,7 +96,7 @@ class Crawler extends CFormModel
 									Yii::app()->db->createCommand("INSERT INTO mailTable (id,modKey,file,expired) VALUES (:id,:modKey,:file,:expired)")->execute($par);
 								}
 								//print_r($row);
-								//	Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
+									Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
 							}
 
 
