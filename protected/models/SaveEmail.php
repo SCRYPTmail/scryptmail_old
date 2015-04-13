@@ -273,6 +273,7 @@ class SaveEmail extends CFormModel
 				}
 
 
+
 			}
 			$params[':file'] = json_encode($fileNames);
 		}else
