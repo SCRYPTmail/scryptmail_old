@@ -142,7 +142,7 @@ class Acceptemailfrompostfix extends CFormModel
 
 						if (isset($row['msg']['attachments'])) {
 							foreach ($row['msg']['attachments'] as $k => $file) {
-								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
+								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . microtime());
 								$fToSent[]=$fname;
 								$size=($file['base64'])?strlen(base64_decode($file['content'])):strlen($file['content']);
 								if (FileWorks::encryptFile($file['content'], $fname, $key, $file['base64'])) {
@@ -182,7 +182,7 @@ class Acceptemailfrompostfix extends CFormModel
 						$seedPass=bin2hex(Acceptemailfrompostfix::encrypt($mailKey, $seedKey));
 						$params[':seedPass'] = substr_replace($padstrHex, $seedPass, 0, strlen($seedPass));
 						$params[':modKeySeed'] = hash('sha512',$r['seedModKey']);
-						$params[':file']=json_encode($fToSent);
+						$params[':file']=isset($fToSent)?json_encode($fToSent):null;
 						unset($fToSent);
 
 						$trans = Yii::app()->db->beginTransaction();
