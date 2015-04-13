@@ -143,7 +143,7 @@ class Acceptemailfrompostfix extends CFormModel
 						if (isset($row['msg']['attachments'])) {
 							foreach ($row['msg']['attachments'] as $k => $file) {
 								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
-
+								$fToSent[]=$fname;
 								$size=($file['base64'])?strlen(base64_decode($file['content'])):strlen($file['content']);
 								if (FileWorks::encryptFile($file['content'], $fname, $key, $file['base64'])) {
 									$emailPreObj['attachment'][base64_encode($k)] =
@@ -182,11 +182,12 @@ class Acceptemailfrompostfix extends CFormModel
 						$seedPass=bin2hex(Acceptemailfrompostfix::encrypt($mailKey, $seedKey));
 						$params[':seedPass'] = substr_replace($padstrHex, $seedPass, 0, strlen($seedPass));
 						$params[':modKeySeed'] = hash('sha512',$r['seedModKey']);
-
+						$params[':file']=json_encode($fToSent);
+						unset($fToSent);
 
 						$trans = Yii::app()->db->beginTransaction();
 
-						if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,fromOut,messageId,rcpnt,seedMeta,modKeySeed,seedPass) VALUES(:meta,:body,:pass,:modKey,:whens,1,:messageId,:rcpnt,:seedMeta,:modKeySeed,:seedPass)")->execute($params)) {
+						if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,fromOut,messageId,rcpnt,seedMeta,modKeySeed,seedPass,file) VALUES(:meta,:body,:pass,:modKey,:whens,1,:messageId,:rcpnt,:seedMeta,:modKeySeed,:seedPass,:file)")->execute($params)) {
 								$trans->commit();
 						} else {
 							$trans->rollback();
