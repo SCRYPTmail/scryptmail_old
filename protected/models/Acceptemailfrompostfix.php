@@ -182,7 +182,7 @@ class Acceptemailfrompostfix extends CFormModel
 						$seedPass=bin2hex(Acceptemailfrompostfix::encrypt($mailKey, $seedKey));
 						$params[':seedPass'] = substr_replace($padstrHex, $seedPass, 0, strlen($seedPass));
 						$params[':modKeySeed'] = hash('sha512',$r['seedModKey']);
-						$params[':file']=json_encode($fToSent);
+						$params[':file']=isset($fToSent)?json_encode($fToSent):null;
 						unset($fToSent);
 
 						$trans = Yii::app()->db->beginTransaction();
