@@ -2327,8 +2327,14 @@ function replyToMail() {
 
 			//$('#custPaginator').html('');
 			//$('#pag').css('display','none');
+
 			var to=body['to'];
-			var emails=to.split('; ');
+			if($.isArray(to)){
+				var emails=to;
+			}else{
+				var emails=to.split('; ');
+			}
+
 			to='';
 			$.each(emails, function( index, value ) {
 
