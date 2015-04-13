@@ -142,7 +142,7 @@ class Acceptemailfrompostfix extends CFormModel
 
 						if (isset($row['msg']['attachments'])) {
 							foreach ($row['msg']['attachments'] as $k => $file) {
-								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
+								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . microtime());
 								$fToSent[]=$fname;
 								$size=($file['base64'])?strlen(base64_decode($file['content'])):strlen($file['content']);
 								if (FileWorks::encryptFile($file['content'], $fname, $key, $file['base64'])) {
