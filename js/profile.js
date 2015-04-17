@@ -2185,6 +2185,7 @@ function saveNewAliasEmail(email) {
 					'keyLength':user1['keys'][SHA512(profileSettings['email'])]['keyLength'],
 					'receiveHash':SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
 				};
+				
 				//console.log(user1);
 				var userObj = profileToDb(user1,secret,userData['saltS']);
 
@@ -2204,6 +2205,7 @@ function saveNewAliasEmail(email) {
 							t.clear();
 							profileSettings['aliasEmails'][SHA512(email)] = {'email':email,'name':''};
 							receivingKeys[SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)]={'privateKey':mailpair.keys.privateKey,'length':user1['keys'][SHA512(profileSettings['email'])]['keyLength']/4};
+							signingKey[SHA512('email')]={'privateKey':mailpair.keys.privateKey};
 							//	console.log(receivingKeys);
 							userData['userObj']=userObj;
 							checkProfile();
