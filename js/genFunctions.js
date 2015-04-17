@@ -3247,7 +3247,6 @@ function loadInitialPage() {
 }
 
 function checkEmailAmount() {
-	functionTracer='checkEmailAmount';
 	var totalcount = 0;
 
 	$.each(folder, function (index, value) {
