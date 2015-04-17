@@ -3391,7 +3391,7 @@ function renameCustomFolder(name,id){
 						
 						checkFolders();
 						displayFolder();
-					getDataFromFolder(id);
+					getDataFromFolder(SHA1(fname));
 						}
 						
 						$(this).dialog("close");
