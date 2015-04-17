@@ -3184,14 +3184,12 @@ function selectFolder(thisObj) {
 
 }
 function SHA512(data) {
-	functionTracer='SHA512';
 	var md = forge.md.sha512.create();
 	md.update(data, 'utf8');
 	return md.digest().toHex();
 }
 
 function SHA256(data) {
-	functionTracer='SHA256';
 	var md = forge.md.sha256.create();
 	md.update(data, 'utf8');
 	return md.digest().toHex();
