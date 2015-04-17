@@ -83,8 +83,8 @@
 
 					<!-- NAVIGATION LINK -->
 					<ul class="nav navbar-nav navbar-left main-navigation small-text">
-						<li><a href='http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html'>how to use</a></li>
-						<li><a href='http://blog.scryptmail.com/2015/02/q.html'>Q & A</a></li>
+						<li><a href='http://blog.scryptmail.com/how-to-use-scryptmail/'>how to use</a></li>
+						<li><a href='http://blog.scryptmail.com/q-a'>Q & A</a></li>
 						<li><a href='#donateUs' onclick='scrollToPosition($("#donateUs").offset())'>donate</a></li>
 						<li><a href='http://blog.scryptmail.com'>blog</a></li>
 						<li><a href='' data-toggle="modal" class="dark-text" data-target="#reportBug-modal">Report Bug</a></li>
@@ -290,7 +290,7 @@
 					<br>
 					<button class="btn btn-primary standard-button" type="button" onclick="submitLogin();" name="yt0">Login</button>
 					<div style="margin-top:20px;">
-					<a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank"> Supported Browsers</a>
+					<a href="http://blog.scryptmail.com/supported-browsers" target="_blank"> Supported Browsers</a>
 					</div>
 				</div>
 			</div>
@@ -363,7 +363,7 @@
 
 				<div id="left">
 					<!--Please login to your account.-->
-					Before logging in, please <b>download the secret token</b>. You will need this token to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">blog</a>.<br><br>
+					Before logging in, please <b>download the secret token</b>. You will need this token to reset your password or secret phrase. You can read more about it in our <a href="http://blog.scryptmail.com/reset-password" target="_blank">blog</a>.<br><br>
 					<span class="text-danger" style="display:none;" id="browsfailed"><i class="fa fa-warning"></i> Some browsers are not able to save the generated file, and this message will show. Please save this string into file:<br> <b class="text-default" style="word-break:break-all;"></b></span>
 				</div>
 

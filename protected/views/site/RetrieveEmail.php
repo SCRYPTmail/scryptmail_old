@@ -42,7 +42,7 @@
 
 
 					<header>
-						<h5>Retrieve Message<br><small><a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank"> Supported Browsers</a></small></h5>
+						<h5>Retrieve Message<br><small><a href="http://blog.scryptmail.com/supported-browsers" target="_blank"> Supported Browsers</a></small></h5>
 					</header>
 
 					<fieldset>

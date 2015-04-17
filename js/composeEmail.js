@@ -19,6 +19,32 @@ $(document).ready(function () {
 
 	$("#agrpins").validate();
 
+	if(Object.keys(profileSettings['aliasEmails']).length>0){
+		$('#displayFrom').css('display','block');
+		if(profileSettings['name']!=''){
+			var froms=profileSettings['name']+' <'+profileSettings['email']+'>';
+		}else{
+			var froms=profileSettings['email'];
+		}
+		$('#fromSender').append($("<option></option>")
+			.attr("value",froms)
+			.text(froms));
+		$.each(profileSettings['aliasEmails'], function (index, value) {
+
+			if(value['name']!=''){
+				var froms=value['name']+' <'+value['email']+'>';
+			}else{
+				var froms=value['email'];
+			}
+
+			$('#fromSender').append($("<option></option>")
+				.attr("value",froms)
+				.text(froms));
+
+		});
+
+
+	}
 });
 
 function attachFile() {
@@ -284,11 +310,17 @@ function sendMail() {
 //message created when recipient not found
 function createFrom(){
 	var fromSender='';
-	if(profileSettings['name']!=''){
-		fromSender=profileSettings['name']+'<'+profileSettings['email']+'>';
+
+	if($("#fromSender").is(":visible")){
+		fromSender=	$( "#fromSender" ).val();
 	}else{
-		fromSender=profileSettings['email'];
+		if(profileSettings['name']!=''){
+			fromSender=profileSettings['name']+'<'+profileSettings['email']+'>';
+		}else{
+			fromSender=profileSettings['email'];
+		}
 	}
+
 	return fromSender;
 }
 
@@ -548,18 +580,22 @@ function encryptMessageToRecipient(emailparsed) {
 
 			var pin=recipient[value['mail']]['pin'];
 			encryptWithPin(value,pin,function(sendMessage){
-				SendMailOut(sendMessage,0,function(mailId){
 
-					if (!isNaN(mailId)) {
+				SendMailOut(sendMessage).always(function (result) {
+
+					console.log(result);
+					if (!isNaN(result['messageId'])) {
 						//console.log(result);
-						var elem = {'mailId': mailId, 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['modKey']};
+						var elem = {'mailId': result['messageId'], 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['modKey']};
 						senderMod.push(elem);
 						dfd1.resolve();
 
 					} else {
 						var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Failed to send.','reason':result};
 						badRcpt.push(rcp);
+						noAnswer('Failed to send to one of recipients');
 						dfd1.resolve();
+
 					}
 
 				});
@@ -571,7 +607,7 @@ function encryptMessageToRecipient(emailparsed) {
 
 			encryptWithoutPin(value,function(sendMessage){
 
-				var mailId = SendMailOutNoPin(sendMessage).always(function (result) {
+				SendMailOutNoPin(sendMessage).always(function (result) {
 					if (!isNaN(result['messageId'])) {
 						var elem = {'mailId': result['messageId'], 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['ModKey']};
 						senderMod.push(elem);
@@ -579,7 +615,9 @@ function encryptMessageToRecipient(emailparsed) {
 					} else {
 						var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'message': 'Failed to send.','reason':result};
 						badRcpt.push(rcp);
+						noAnswer('Failed to send to one of recipients');
 						dfd1.resolve();
+
 					}
 				});
 			});
@@ -698,27 +736,6 @@ function SaveMailInSent(messaged) {
 
 }
 
-function SendMailOutNoPin(messaged) {
-	return $.ajax({
-		type: "POST",
-		url: '/sendOutMessageNoPin',
-		data: {
-			'message': messaged
-		},
-		success: function (data, textStatus) {
-			if(data.answer=="Limit is reached"){
-				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
-			}
-			return data;
-		},
-		error: function (data, textStatus) {
-		},
-		dataType: 'json'
-	});
-
-}
-
-
 function SendMailMail(messaged,mailPubKey,count,callback) {
 	var pki = forge.pki;
 	if(count<2){
@@ -781,47 +798,45 @@ function SendMailMail(messaged,mailPubKey,count,callback) {
 }
 
 
+function SendMailOutNoPin(messaged) {
+	return $.ajax({
+		type: "POST",
+		url: '/sendOutMessageNoPin',
+		data: {
+			'message': messaged
+		},
+		success: function (data, textStatus) {
+			if(data.answer=="Limit is reached"){
+				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+			}
+			return data;
+		},
+		error: function (data, textStatus) {
+		},
+		dataType: 'json'
+	});
+
+}
+
+
 function SendMailOut(messaged,count,callback) {
-	var pki = forge.pki;
-	if(count<2){
-	//console.log(messaged);
 
-		messaged['messaged']['messageId']=forge.util.bytesToHex(forge.random.getBytesSync(64));
-		//var prePub = messaged['modKey'];
+	messaged['messaged']['messageId']=forge.util.bytesToHex(forge.random.getBytesSync(64));
 
-		count++;
-
-		$.ajax({
-			type: "POST",
-			url: '/sendOutMessagePin',
-			data: messaged['messaged'],
-			success: function (data, textStatus) {
-
-				if(!isNaN(data['messageId']))
-				{
-					callback(data['messageId']);
-				}else if(data.answer=="Limit is reached"){
-					noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
-				}else if(data['messageId']=="duplicate"){
-					SendMailOut(messaged,count,callback);
-				}else{
-					callback(data);
-				}
-
-			},
-			error: function (data, textStatus) {
-				callback(data);
-			},
-			dataType: 'json'
-		});
-
-
-	}else{
-		systemMessage('tryAgain');
-		$('.sendMailButton').html('Send');
-		$('.sendMailButton').prop('disabled', false);
-	}
-
+	return $.ajax({
+		type: "POST",
+		url: '/sendOutMessagePin',
+		data: messaged['messaged'],
+		success: function (data, textStatus) {
+			if(data.answer=="Limit is reached"){
+				noAnswer('You\'ve reached the maximum of emails per hour of ('+roleData['role']['emailsPerHour']+'). Please try again later.');
+			}
+			return data;
+		},
+		error: function (data, textStatus) {
+		},
+		dataType: 'json'
+	});
 
 }
 
@@ -858,37 +873,6 @@ function indomainLoop(emailparsed, locmails, dataBack) {
 	//console.log(emailparsed);
 }
 
-function retrievePublicKeys(success, cancel, mails, emailparsed) {
-
-	$.ajax({
-		type: "POST",
-		url: '/retrievePublicKeys',
-		data: {'mails': JSON.stringify(mails)
-		},
-		success: function (data, textStatus) {
-			if (typeof data.mail == "undefined") {
-				//console.log(data);
-
-				//emailparsed['indomain']=indomainLoop(emailparsed,mails,data);
-
-				success(data);
-			} else {
-				$('.sendMailButton').html('Send');
-				$('.sendMailButton').prop('disabled', false);
-				noAnswer('Error. Please try again.');
-			}
-
-		},
-		error: function (data, textStatus) {
-			$('.sendMailButton').html('Send');
-			$('.sendMailButton').prop('disabled', false);
-			noAnswer('Error. Please try again.');
-			cancel();
-
-		},
-		dataType: 'json'
-	});
-}
 
 function composeMailRecptCheck() {
 //	console.log(contacts);

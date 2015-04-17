@@ -117,8 +117,9 @@
 		</div>
 		!-->
 		<div class="widget-body">
-		<div class="panel-group smart-accordion-default" id="accordion1" onclick="initdisposable();">
-			<div class="panel panel-default">
+		<div class="panel-group smart-accordion-default" id="accordion1">
+
+			<div class="panel panel-default" onclick="initdisposable();">
 				<div class="panel-heading">
 					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse1l"
 											   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
@@ -133,7 +134,23 @@
 					</div>
 				</div>
 			</div>
-		</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading" onclick="initAlias();">
+						<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse2l"
+												   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+									class="fa fa-lg fa-angle-up pull-right"></i> Email Alias</a></h4>
+					</div>
+					<div id="collapse2l" class="panel-collapse collapse">
+						<div class="panel-body">
+							<div class="table-responsive">
+								<table class="table table-striped table-hover" id="aliasList">
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</article>
 
@@ -463,7 +480,7 @@
 							<div class="col col-sm-6">
 								<button type="button" class="btn btn-primary btn-sm pull-left" id="OneStepToken" onclick="downloadTokenProfile();">
 									<i class="fa fa-save"></i> Download Token</button><br><br>
-								<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
+								<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/reset-password" target="_blank">What it is?</a>
 							</div>
 							<div class="col col-sm-6">
 								<button type="button" class="btn btn-primary btn-sm pull-right" onclick="saveOneStepSecret();"
@@ -510,7 +527,7 @@
 							<div class="col col-sm-6">
 						<a class="btn btn-primary btn-sm pull-left" href="javascript:void(0);" id="token" onclick="downloadTokenProfile();">
 							<i class="fa fa-save"></i> Download Token</a><br><br>
-						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/2014/11/guide-to-reset-secret-phrase-password.html" target="_blank">What it is?</a>
+						<a class="pull-left col col-sm 6"" href="http://blog.scryptmail.com/reset-password" target="_blank">What it is?</a>
 								</div>
 							<div class="col col-sm-6">
 						<button type="button" class="btn btn-primary btn-sm pull-right" onclick="saveSecret();"
@@ -555,7 +572,7 @@
 			<div id="collapseSix" class="panel-collapse collapse">
 				<div class="panel-body">
 					<div class="table-responsive">
-						URL to safe: https://scryptmail.com/safeBox/[MY FILE NAME].kdbx  <a class="pull-right" href="http://blog.scryptmail.com/2014/12/keepass-safebox.html" target="_blank">Help</a></li>
+						URL to safe: https://scryptmail.com/safeBox/[MY FILE NAME].kdbx  <a class="pull-right" href="http://blog.scryptmail.com/keepass-safebox" target="_blank">Help</a></li>
 						<table class="table table-striped table-hover" id="safeList">
 						</table>
 					</div>
@@ -609,6 +626,21 @@
 
 </div>
 
+
+<form class="smart-form client-form" id="dialog-AddAlias" title="New Alias" style="display:none;padding-top:20px;">
+
+	<section>
+		<label class="input"> <i class="icon-prepend fa fa-envelope-o"></i>
+			<input type="text" name="email" id="newAliasEmail" placeholder="email" style="padding-right:125px;">
+			<span style="position:absolute;top:0px;right:10px;padding:6px;">@scryptmail.com</span>
+		</label>
+
+
+
+
+	</section>
+
+</form>
 
 <form class="smart-form client-form" id="dialog-AddContact" title="New Contact" style="display:none;">
 

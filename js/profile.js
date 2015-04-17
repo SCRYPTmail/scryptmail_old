@@ -27,6 +27,7 @@ $(document).ready(function () {
 	safeBoxProfileInitialized = false;
 	blackListProfileInitialized = false;
 	disposableListProfileInitialized = false;
+	aliasListProfileInitialized = false;
 	tagListProfileInitialized=false;
 
 });
@@ -1466,6 +1467,65 @@ function initdisposable() {
 	}
 }
 
+function initAlias() {
+	//disposableListProfileInitialized
+	if (!aliasListProfileInitialized) {
+		var dataSet = [];
+		//console.log(contacts);
+		if (Object.keys(profileSettings['aliasEmails']).length > 0) {
+
+			$.each(profileSettings['aliasEmails'], function (index, value) {
+				var el = [value['email'], '<a class="delete" href="javascript:void(0);" onclick="delAliasEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+
+		contactTable = $('#aliasList').dataTable({
+			"sDom": "R<'dt-toolbar'" +
+				"<'#aliasSearch'f>" +
+				"<'#aliasIcons'>" +
+				"<'col-sm-3 pull-right'l>" +
+				"r>t" +
+				"<'dt-toolbar-footer'" +
+				"<'col-sm-6 col-xs-2'i>" +
+				"<'#paginator'p>" +
+				">",
+			"columnDefs": [
+				{ "sClass": 'col col-xs-10 disposemail', "targets": 0},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
+				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ "orderDataType": "data-sort", "targets": 0 }
+			],
+			"order": [
+				[ 0, "asc" ]
+			],
+			"iDisplayLength": 10,
+			"data": dataSet,
+			columns: [
+				{ "title": "email"},
+				{ "title": "delete"}
+
+			],
+			"language": {
+				"emptyTable": "No Emails"
+			}
+
+		});
+
+		aliasListProfileInitialized = true;
+		$('#aliasIcons').html('<button class="btn btn-primary" style="width:50px;" type="button" rel="tooltip" data-original-title="Add Email Alias" data-placement="bottom" onclick="addNewAliasEmail();"><i class="fa fa-plus"></i></button>');
+		$('#aliasIcons').css('float', 'left');
+
+		$("[rel=tooltip]").tooltip();
+
+	}
+}
+
+
+
 function makerandomEmail() {
 	var text = "";
 	var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -1476,46 +1536,6 @@ function makerandomEmail() {
 	return text;
 }
 
-function addNewDisposableEmail(count) {
-	if(profileSettings['version']==1){
-
-		count = typeof count !== 'undefined' ? count : 0;
-		if (count <= 2) {
-			if (Object.keys(profileSettings['disposableEmails']).length < roleData['role']['dispAddPerBox']) {
-				var email = makerandomEmail() + '@scryptmail.com';
-				$.ajax({
-					type: "POST",
-					url: '/verifyEmail',
-					data: {
-						'email': SHA512(email)
-					},
-					success: function (data, textStatus) {
-						if (data===true) {
-							saveNewDisposableEmail(email);
-						} else if (!data) {
-							count++;
-							addNewDisposableEmail(count);
-						}
-
-					},
-					error: function (data, textStatus) {
-						noAnswer('Error. Please try again.');
-					},
-					dataType: 'json'
-				});
-
-			} else {
-				noAnswer('Limit of disposable email addresses has been reached.');
-			}
-		} else {
-			noAnswer('Error. Please try again.');
-		}
-
-	}else{
-		noAnswer('Please update account.');
-	}
-
-}
 function delDisposedEmail(row, email)
 {
 	var dfd = $.Deferred();
@@ -1916,7 +1936,6 @@ function editContact(row, email) {
 
 }
 
-
 function addNewContact() {
 
 	$('#dialog-AddContact').dialog({
@@ -1970,7 +1989,10 @@ function addNewContact() {
 		}
 	});
 
-	$('#dialog-AddContact').dialog('open');
+
+		$('#dialog-AddContact').dialog('open');
+
+
 
 
 	$('#newClientName').attr('name', makerandom());
@@ -1997,4 +2019,324 @@ function addNewContact() {
 	});
 
 
+}
+function addNewDisposableEmail(count) {
+	if(profileSettings['version']==1){
+
+		count = typeof count !== 'undefined' ? count : 0;
+		if (count <= 2) {
+			if (Object.keys(profileSettings['disposableEmails']).length < roleData['role']['dispAddPerBox']) {
+				var email = makerandomEmail() + '@scryptmail.com';
+				$.ajax({
+					type: "POST",
+					url: '/verifyEmail',
+					data: {
+						'email': SHA512(email)
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							saveNewDisposableEmail(email);
+						} else if (!data) {
+							count++;
+							addNewDisposableEmail(count);
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+			} else {
+				noAnswer('Limit of disposable email addresses has been reached.');
+			}
+		} else {
+			noAnswer('Error. Please try again.');
+		}
+
+	}else{
+		noAnswer('Please update account.');
+	}
+
+}
+
+function addNewAliasEmail() {
+	$('#dialog-AddAlias').dialog({
+		autoOpen: false,
+		height: 160,
+		width: 300,
+		modal: true,
+		title:'New Alias',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Add",
+				"class": "btn btn-primary pull-right",
+				"id": 'nAliasOk',
+				click: function () {
+					validatorAliasClient.form();
+					if (validatorAliasClient.numberOfInvalids() == 0) {
+						var email =$('#newAliasEmail').val().toLowerCase();
+						email=email.split('@')[0]+ '@scryptmail.com';
+						saveNewAliasEmail(email);
+					}
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default pull-left",
+				"id": 'nAliasClose',
+				click: function () {
+					$('#dialog-AddAlias').dialog('close');
+				}
+			}
+		],
+		close: function () {
+		}
+	});
+	if(profileSettings['version']==1){
+		if (Object.keys(profileSettings['aliasEmails']).length < roleData['role']['aliasAddPerBox']) {
+			$('#dialog-AddAlias').dialog('open');
+		} else {
+		noAnswer('Limit of email aliases has been reached.');
+	}
+
+	}else{
+		noAnswer('Please update account.');
+	}
+
+	$('#newAliasEmail').attr('name', makerandom());
+
+
+
+	$.validator.addMethod("uniqueUserName", function (value, element) {
+		var isSuccess = false;
+		var email =$('#newAliasEmail').val().toLowerCase();
+		email=email.split('@')[0]+ '@scryptmail.com';
+
+		if(IsEmail(email)){
+			$.ajax({
+				type: "POST",
+				url: "/checkEmailExist",
+				data: {'CreateUser[email]': SHA512(email), 'ajax': 'smart-form-register'},
+				dataType: "json",
+				async: false,
+				success: function (msg) {
+					isSuccess = msg === true ? true : false
+				}
+			});
+		}
+		return isSuccess;
+
+
+	}, "Email is Already Taken / No Specail Characters");
+
+	validatorAliasClient = $("#dialog-AddAlias").validate();
+
+
+	$("#newAliasEmail").rules("add", {
+		required: true,
+		minlength: 6,
+		maxlength: 90,
+		uniqueUserName: true
+	});
+
+}
+
+function saveNewAliasEmail(email) {
+	var dfd = $.Deferred();
+	checkState(function () {
+		var user1={};
+		if(secretWord!='' && validateUserObject()){
+			var user = dbToProfile(userData['userObj'], secretWord,userData['saltS']);
+			user1 = JSON.parse(user, true);
+			dfd.resolve();
+		}else{
+			provideSecret(function (secret) {
+				if (userObj = validateUserObject()) {
+					var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
+					secretWord=secret;
+					user1 = JSON.parse(user, true);
+					secretTime();
+					dfd.resolve();
+				}
+			}, function () {
+			});
+		}
+
+		dfd.done(function () {
+			$('#nAliasOk').html('<i class="fa fa-refresh fa-spin"></i> Generating Keys..');
+			$('#nAliasOk').prop('disabled', true);
+
+			//console.log(user1);
+			//console.log(user1['keys'][SHA512(profileSettings['email'])]['keyLength']);
+			var secret=secretWord;
+			generatePairs(user1['keys'][SHA512(profileSettings['email'])]['keyLength'],function(mailpair){
+
+				//var rsa = forge.pki.rsa;
+				var pki = forge.pki;
+
+				user1['keys'][SHA512(email)]={
+					'email':email,
+					'privateKey':to64(pki.privateKeyToPem(mailpair.keys.privateKey)),
+					'publicKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey)),
+					'canSend':'2',
+					'keyLength':user1['keys'][SHA512(profileSettings['email'])]['keyLength'],
+					'receiveHash':SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)
+				};
+				//console.log(user1);
+				var userObj = profileToDb(user1,secret,userData['saltS']);
+
+				$.ajax({
+					type: "POST",
+					url: '/saveAliasEmail',
+					data: {
+						'email': SHA512(email),
+						'UserObject':userObj,
+						'modKey': userModKey,
+						'mailKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey))
+
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							var t = $('#aliasList').DataTable();
+							t.clear();
+							profileSettings['aliasEmails'][SHA512(email)] = {'email':email,'name':''};
+							receivingKeys[SHA512(pki.publicKeyToPem(mailpair.keys.publicKey)).substring(0,10)]={'privateKey':mailpair.keys.privateKey,'length':user1['keys'][SHA512(profileSettings['email'])]['keyLength']/4};
+							//	console.log(receivingKeys);
+							userData['userObj']=userObj;
+							checkProfile();
+							$('#nAliasOk').html("<i class='fa fa-check'></i>&nbsp; Add");
+							$('#nAliasOk').prop('disabled', false);
+							var dataSet = [];
+							$.each(profileSettings['aliasEmails'], function (index, value) {
+								var el = [value['email'], '<a class="delete" href="javascript:void(0);" onclick="delAliasEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+								dataSet.push(el);
+							});
+							var addId = t.rows.add(dataSet)
+							t.draw();
+							$('#dialog-AddAlias').dialog('close');
+						} else {
+							noAnswer('Error. Please try again.');
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+
+			});
+		});
+
+
+	}, function () {
+	});
+
+}
+
+function delAliasEmail(row, email)
+{
+	var dfd = $.Deferred();
+
+	$('#dialog_simple >p').html('<b>' + profileSettings['aliasEmails'][email]['email'] + '</b><br> will be deleted. Continue?');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		modal: true,
+		title: "Delete Email",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Delete",
+				"class": "btn btn-danger",
+				click: function () {
+					dfd.resolve();
+
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$('#dialog_simple').dialog('close');
+				}
+			}
+		]
+	});
+	dfd.done(function () {
+		checkState(function () {
+			var user1={};
+			var dfd1 = $.Deferred();
+			if(secretWord!='' && validateUserObject()){
+				var user = dbToProfile(userData['userObj'], secretWord,userData['saltS']);
+				user1 = JSON.parse(user, true);
+				dfd1.resolve();
+			}else{
+				provideSecret(function (secret) {
+					if (userObj = validateUserObject()) {
+						var user = dbToProfile(userObj['userObj'], secret,userObj['saltS']);
+						secretWord=secret;
+						user1 = JSON.parse(user, true);
+						secretTime();
+						dfd1.resolve();
+					}
+				}, function () {
+
+				});
+			}
+			dfd1.done(function () {
+				var secret=secretWord;
+
+				//console.log(user1);
+				//console.log(email);
+
+				//console.log(user1['keys'][email]);
+
+				var receiveHash=user1['keys'][email]['receiveHash'];
+
+				delete user1['keys'][email];
+
+				var userObj = profileToDb(user1,secret,userData['saltS']);
+
+				$.ajax({
+					type: "POST",
+					url: '/deleteAliasEmail',
+					data: {
+						'email': email,
+						'modKey': userModKey,
+						'UserObject':userObj
+					},
+					success: function (data, textStatus) {
+						if (data===true) {
+							$('#aliasList').DataTable().row($(row).parents('tr')).remove().draw(false);
+							delete profileSettings['aliasEmails'][email];
+							userData['userObj']=userObj;
+							delete receivingKeys[receiveHash];
+							checkProfile();
+							$('#dialog_simple').dialog('close');
+							Answer('Email Removed');
+
+						} else {
+							noAnswer('Error. Please try again.');
+						}
+
+					},
+					error: function (data, textStatus) {
+						noAnswer('Error. Please try again.');
+					},
+					dataType: 'json'
+				});
+
+			});
+
+		}, function () {
+		});
+	});
+
+	$('#dialog_simple').dialog('open');
 }

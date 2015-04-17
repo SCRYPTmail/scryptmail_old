@@ -23,13 +23,13 @@ class CreateUser extends CFormModel
 			//array('email', 'length', 'min' => 3, 'max' => 255, 'allowEmpty' => false, 'on' => 'validatemail'),
 			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'validatemail'),
 
-			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable'),
-			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable,updateKeys'),
-			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable,updateKeys'),
-			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'saveDisposable,deleteDisposable,updateKeys'),
-			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,updateKeys'),
+			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,deleteAlias'),
+			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
+			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
+			array('UserObject','length', 'max'=>2580000,'min'=>4000,'on'=>'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
+			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,updateKeys'),
 
-			array('mailKey', 'checkKeyLength', 'on' => 'updateKeys,saveDisposable'),
+			array('mailKey', 'checkKeyLength', 'on' => 'updateKeys,saveAlias,saveDisposable'),
 			//array('CreateUser', 'isJson', 'on' => 'createAccount'),
 			//array('CreateUser', 'isJsonResetUser', 'on' => 'resetUser'),
 
@@ -39,7 +39,7 @@ class CreateUser extends CFormModel
 			array('salt', 'match', 'pattern' => "/^[a-z0-9\d]{512}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
 			array('tokenHash,tokenAesHash,ModKey,mailHash,password,oldAesTokenHash', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
 			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
-			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'resetPassOneStep,resetUser'),
+			array('UserObject','length', 'max'=>2580000,'min'=>4000,'on'=>'resetPassOneStep,resetUser'),
 			array('FolderObject,contacts,blackList,prof', 'match', 'pattern' => "/^[a-z0-9\d]{20,1024}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
 			array('mailKey', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]{200,2000}$/i", 'allowEmpty' => false, 'on' => 'resetPassOneStep,resetUser'),
 
@@ -207,6 +207,33 @@ public function checkKeyLength(){
 			echo  'true';
 	}
 
+	public function deleteAlias($id)
+	{
+		$param[':email'] =$this->email;
+		$param[':userId'] =$id;
+		$param[':modKey'] =hash('sha512',$this->modKey);
+
+		$paramUser[':userObj'] =$this->UserObject;
+		$paramUser[':userId'] =$id;
+		$paramUser[':modKey'] =hash('sha512',$this->modKey);
+
+		$trans = Yii::app()->db->beginTransaction();
+		if (Yii::app()->db->createCommand("
+			DELETE addresses.*
+				FROM addresses
+				LEFT JOIN user ON user.id = addresses.userId
+			WHERE user.id=:userId AND modKey=:modKey AND addresses.addressHash=:email AND addresses.addr_type=3")->execute($param) &&
+			Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)
+		) {
+			$trans->commit();
+			echo  'true';
+		} else{
+			$trans->rollback();
+			echo  'false';
+		}
+
+
+	}
 	public function deleteDisposable($id){
 
 		$param[':email'] =$this->email;
@@ -259,6 +286,39 @@ public function checkKeyLength(){
 
 	}
 
+
+	public function saveAlias($id)
+	{
+		if(Yii::app()->db->createCommand("SELECT count(userId) FROM addresses WHERE userId=$id AND addr_type=3")->queryScalar()<Yii::app()->user->role['role']['aliasAddPerBox']){
+
+			$param[':email'] =$this->email;
+			$param[':userId'] =$id;
+			$param[':modKey'] =hash('sha512',$this->modKey);
+			$param[':mailKey'] =$this->mailKey;
+
+			$paramUser[':userObj'] =$this->UserObject;
+			$paramUser[':userId'] =$id;
+			$paramUser[':modKey'] =hash('sha512',$this->modKey);
+
+			$trans = Yii::app()->db->beginTransaction();
+
+			if (Yii::app()->db->createCommand(
+				"INSERT INTO addresses (userId,addressHash,addr_type,mailKey)
+					SELECT :userId, :email,'3',:mailKey
+						FROM user
+							WHERE id=:userId AND modkey=:modKey")->execute($param) &&
+				Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)) {
+				$trans->commit();
+				echo  'true';
+			} else{
+				$trans->rollback();
+				echo  'false';
+			}
+
+
+		}else
+			echo  'false';
+	}
 
 	public function saveDisposable($id)
 	{

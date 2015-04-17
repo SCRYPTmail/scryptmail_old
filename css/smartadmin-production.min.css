@@ -17,6 +17,9 @@
 .cke_show_borders {
 }
 
+.disposemail{
+    word-break: break-all;
+}
 .select2-hidden-accessible{
     display:none;
 }
