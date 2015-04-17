@@ -111,6 +111,7 @@ sigPrivateKey = '';
 folderKey = '';
 userModKey = '';
 receivingKeys={};
+signingKey={};
 contactTable = '';
 sessionTimeOut=40;
 toFile='';
@@ -198,6 +199,7 @@ function resetGlobal() {
 
 	contactTable = '';
 	receivingKeys={};
+	signingKey={};
 	folderKey = '';
 	userModKey = '';
 	contacts = {};
@@ -626,7 +628,8 @@ function moveMessagestoInbox(newMessages) {
 								if((folder_navigate=="Inbox" || folder_navigate=="Spam") && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
 									var to= from64(meta['to']);
 									var from=from64(meta['from']);
-									var subject=stripHTML(from64(meta['subject']).toString());
+									var temp=from64(meta['subject']).toString();
+									var subject=stripHTML(temp);
 									var attachment=meta['attachment'];
 									var modKey=meta['modKey'];
 									var status=meta['status'];
@@ -714,7 +717,8 @@ function moveMessagestoInbox(newMessages) {
 								if((folder_navigate=="Inbox" || folder_navigate=="Spam") && (activePage=="mail" || activePage=="readEmail" || activePage=="composeMail" )){
 									var to= from64(meta['to']);
 									var from=from64(meta['from']);
-									var subject=stripHTML(from64(meta['subject']).toString());
+									var temp=from64(meta['subject']).toString();
+									var subject=stripHTML(temp);
 									var attachment=meta['attachment'];
 									var modKey=meta['modKey'];
 									var status=meta['status'];
@@ -727,6 +731,7 @@ function moveMessagestoInbox(newMessages) {
 									if(meta['fromExtra']!=undefined){
 										from=from+sanitize(from64(meta['fromExtra']));
 									}
+
 
 									mailBox['Data'][value['id']]={
 										'modKey':modKey,
@@ -1207,7 +1212,7 @@ function dbToContacts() {
 }
 
 function stripHTML(data) {
-	functionTracer='stripHTML';
+
 	var html = data;
 	var div = document.createElement("div");
 	div.innerHTML = html;
@@ -1661,7 +1666,8 @@ function decryptMessages(data,callback){
 
 			var to= from64(meta['to']);
 			var from=from64(meta['from']);
-			var subject=stripHTML(from64(meta['subject']).toString());
+			var temp=from64(meta['subject']).toString();
+			var subject=stripHTML(temp);
 			var attachment=meta['attachment'];
 			var modKey=meta['modKey'];
 			var status=meta['status'];
@@ -1882,7 +1888,8 @@ function showSavedDraft(body, meta, datas) {
 	}
 
 	if (body['subj'] != '') {
-		$('#subj').val(stripHTML(from64(body['subj'])));
+		var temp=from64(body['subj']);
+		$('#subj').val(stripHTML(temp));
 	}
 
 	if (body['body']['text'] != '' && body['body']['html'] == '') {
@@ -2603,8 +2610,9 @@ function deleteEmail()
 			deleteMessage(selected,folder_navigate,function(){
 				delete mailBox['Data'][emailObj['mailId']];
 				readMailclean();
-				getDataFromFolder(folder_navigate);
 				clearComposeMail();
+				getDataFromFolder(folder_navigate);
+
 				setTimeout(function() {
 					getNewEmailsCount();
 				}, 1000);
@@ -3050,6 +3058,7 @@ function markAsUnread()
 }
 
 function deleteMessage(selected,selectedFolder, callback) {
+
 	functionTracer='deleteMessage';
 	//console.log(selected);
 	checkState(function () {
@@ -3104,7 +3113,7 @@ function deleteMessage(selected,selectedFolder, callback) {
 			});
 
 
-		} else if(selectedFolder == "Trash" || selectedFolder == "Draft" || selectedFolder == "Spam") {
+		} else if((selectedFolder == "Trash" || selectedFolder == "Draft" || selectedFolder == "Spam") || activePage == 'composeMail') {
 
 			var select = 0;
 			$.ajax({
@@ -3864,10 +3873,13 @@ function retrieveSecret() {
 
 					if(Object.keys(user1['keys']).length>0){
 
+						//console.log(user1);
 					$.each(user1['keys'], function (index, value) {
 
 						receivingKeys[value['receiveHash']]={'privateKey':pki.privateKeyFromPem(from64(value['privateKey'])),'length':value['keyLength']/4};
-
+						if(value['canSend']==1 || value['canSend']==2 ){
+						signingKey[SHA512(value['email'])]={'privateKey':pki.privateKeyFromPem(from64(value['privateKey']))};
+						}
 						if(value['canSend']==1){
 							try {
 								mailPrivateKey = pki.privateKeyFromPem(from64(value['privateKey']));
@@ -3967,6 +3979,11 @@ function setupProfile(){
 	if(profileSettings['disposableEmails'] == undefined){
 		profileSettings['disposableEmails']={};
 	}
+
+	if(profileSettings['aliasEmails'] == undefined){
+		profileSettings['aliasEmails']={};
+	}
+
 
 	profileSettings['mailPerPage']=parseInt(profileSettings['mailPerPage']);
 	profileSettings['mailPerPage']=!isNaN(parseInt(profileSettings['mailPerPage']))?parseInt(profileSettings['mailPerPage']):10;

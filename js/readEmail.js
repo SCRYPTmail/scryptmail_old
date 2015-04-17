@@ -6,8 +6,10 @@
  */
 
 function renderMessage(body, meta, datas) {
+	functionTracer='renderMessage';
 	messageFolder=folder_navigate;
 	enableEmailControl();
+	var signBody=JSON.stringify(body);
 
 	if(roleData['role']['tagsPerMail']>=1){
 
@@ -122,6 +124,7 @@ function renderMessage(body, meta, datas) {
 
 	body['subj'] = from64(body['subj']);
 
+
 	if(messageFolder in folder['Custom']){
 		var ifOpen=folder['Custom'][messageFolder][datas['messageHash']]['opened'];
 	}else{
@@ -170,7 +173,7 @@ function renderMessage(body, meta, datas) {
 		}
 	}
 
-	saniziteEmailAttachment(body,meta);
+	saniziteEmailAttachment(body,meta,signBody);
 
 
 	if (meta['type'] == 'sent') {

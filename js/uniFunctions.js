@@ -441,12 +441,12 @@ function isCompatible(){
 	checkCapability.done(function () {
 		if(bug){
 			$('#incomp').css('display','block');
-			$('#incomp span').html('Your browser/device not 100% compatible with this service. Please refer to our list of <a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank">compatible browsers</a>');
+			$('#incomp span').html('Your browser/device not 100% compatible with this service. Please refer to our list of <a href="http://blog.scryptmail.com/supported-browsers" target="_blank">compatible browsers</a>');
 			//alert('Your browser/device not 100% compatible with this website. Please read list of compatible devices and browser at our blog');
 		}
 		if(error){
 			$('#incomp').css('display','block');
-			$('#incomp span').html('Your browser/device may not be compatible with this service, and your connection may not be secure. Please refer to our list of <a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank">compatible browsers</a>');
+			$('#incomp span').html('Your browser/device may not be compatible with this service, and your connection may not be secure. Please refer to our list of <a href="http://blog.scryptmail.com/supported-browsers" target="_blank">compatible browsers</a>');
 			//alert('');
 		}
 
@@ -516,17 +516,19 @@ function createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMet
 	emailPreObj['badRcpt'] = bdRcpt;
 	emailPreObj['senderMod'] = sndrMod;
 
-
+var t=emailPreObj;
+	console.log(t);
 	var body = JSON.stringify(emailPreObj);
 
 	var md = forge.md.sha256.create();
 	md.update(body, 'utf8');
 
-	if(mailPrivateKey!=''){
-		emailPreObj['meta']['signature'] = forge.util.bytesToHex(mailPrivateKey.sign(md));
-	}else{
-		emailPreObj['meta']['signature'] = '';
-	}
+	//if(mailPrivateKey!=''){
+	var sign=signingKey[SHA512(getEmailsFromString(from64(sender)))]['privateKey'];
+		emailPreObj['meta']['signature'] = forge.util.bytesToHex(sign.sign(md));
+	//}else{
+	//	emailPreObj['meta']['signature'] = '';
+	//}
 
 
 	var meta = JSON.stringify(emailPreObj['meta']);
@@ -539,6 +541,38 @@ function createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMet
 	}
 
 	callback(messaged);
+}
+
+function retrievePublicKeys(success, cancel, mails, emailparsed) {
+
+	$.ajax({
+		type: "POST",
+		url: '/retrievePublicKeys',
+		data: {'mails': JSON.stringify(mails)
+		},
+		success: function (data, textStatus) {
+			if (typeof data.mail == "undefined") {
+				//console.log(data);
+
+				//emailparsed['indomain']=indomainLoop(emailparsed,mails,data);
+
+				success(data);
+			} else {
+				$('.sendMailButton').html('Send');
+				$('.sendMailButton').prop('disabled', false);
+				noAnswer('Error. Please try again.');
+			}
+
+		},
+		error: function (data, textStatus) {
+			$('.sendMailButton').html('Send');
+			$('.sendMailButton').prop('disabled', false);
+			noAnswer('Error. Please try again.');
+			cancel();
+
+		},
+		dataType: 'json'
+	});
 }
 
 function addPaddingToString(pass){

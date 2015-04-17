@@ -92,6 +92,7 @@ function replyUnreg(from,subj,to){
 }
 
 function renderMessageUnreg(body, meta) {
+	var signBody=JSON.stringify(body);
 
 	body['body']['text'] = from64(body['body']['text']);
 	body['body']['html'] = from64(body['body']['html']);
@@ -120,7 +121,7 @@ function renderMessageUnreg(body, meta) {
 			});
 		}
 	}
-	saniziteEmailAttachment(body,meta);
+	saniziteEmailAttachment(body,meta,signBody);
 
 
 }

@@ -43,9 +43,45 @@ function showPin(email){
 
 }
 
-function saniziteEmailAttachment(body,meta)
+function saniziteEmailAttachment(body,meta,signBody)
 {
 	var from = body['from'];
+
+	var sender=[SHA512(getEmailsFromString(from))];
+
+	var pki = forge.pki;
+	retrievePublicKeys(function (dataBack) {
+		if(dataBack.length!=1){
+			var senderPubKey=pki.publicKeyFromPem(from64(dataBack[sender[0]]['mailKey']));
+
+			var md = forge.md.sha256.create();
+			md.update(signBody, 'utf8');
+
+			var sign=forge.util.hexToBytes(meta['signature']);
+			try{
+				var verified = senderPubKey.verify(md.digest().bytes(),sign);
+			} catch (err) {
+				var info='<div class="alert alert-danger" style="margin:0;padding:5px;"><i class="fa-fw fa fa-times"></i>	<strong>Signature mismatch</strong> To learn more about <strong><a href="https://blog.scryptmail.com/signatures" target="_blank">signatures</a></strong>. Link will be open in new tab</div>';
+			}
+
+			if(verified){
+				var info='<div class="alert alert-success" style="margin:0;padding:5px;"><i class="fa-fw fa fa-check"></i>	<strong>Signature verified</strong> To learn more about <strong><a href="https://blog.scryptmail.com/signatures" target="_blank">signatures</a></strong>. Link will be open in new tab</div>';
+			}else{
+				var info='<div class="alert alert-danger" style="margin:0;padding:5px;"><i class="fa-fw fa fa-times"></i>	<strong>Signature mismatch</strong> To learn more about <strong><a href="https://blog.scryptmail.com/signatures" target="_blank">signatures</a></strong>. Link will be open in new tab</div>';
+			}
+
+		}else{
+			var info='<div class="alert alert-warning" style="margin:0;padding:5px;"><i class="fa-fw fa fa-warning"></i>	<strong>Signature can not be verified</strong> To learn more about <strong><a href="https://blog.scryptmail.com/signatures" target="_blank">signatures</a></strong>. Link will be open in new tab</div>';
+
+		}
+
+
+		$('#emTags').after(info);
+
+	}, function () {
+
+	}, sender);
+
 
 	$('.email-open-header').text(stripHTML((body['subj'])));
 
@@ -82,18 +118,17 @@ function saniziteEmailAttachment(body,meta)
 		var value = body['to'];
 
 		var emails=value.split('; ');
-
 		$.each(emails, function( index, value ) {
 			if (value.indexOf('<') != -1) {
 				var toEmail=getEmailsFromString(value);
-				if(profileSettings['email']==toEmail){
+				if(profileSettings['email']==toEmail || SHA512(toEmail) in profileSettings['aliasEmails'] || SHA512(toEmail) in profileSettings['disposableEmails']){
 					rcphead = rcphead + '<strong>Me </strong> &lt;'+toEmail+"&gt;; "
 				}else
 				{rcphead = rcphead + '<strong>' + escapeTags(value.substring(0, value.indexOf('<'))) + '</strong> &lt;'+toEmail+"&gt;; "
 				}
 
 			} else {
-				if(profileSettings['email']==value){
+				if(profileSettings['email']==value || SHA512(value) in profileSettings['aliasEmails'] || SHA512(value) in profileSettings['disposableEmails']){
 					rcphead = rcphead + '<strong>Me </strong>  &lt;'+escapeTags(value) + "&gt;; ";
 				}else{
 					rcphead = rcphead + escapeTags(value) + "; ";

@@ -19,7 +19,7 @@ Privacy is your right, not a privilege<br>
 						<div class="login-app-icons">
 							<a href="/about_us" class="btn btn-primary btn-sm">About Us</a>
 							<a href="http://blog.scryptmail.com" class="btn btn-primary btn-sm" style="margin-left:20px;">Blog</a>
-							<a href="http://blog.scryptmail.com/2015/01/how-to-use-scryptmail.html" class="btn btn-primary btn-sm" style="margin-left:20px;">How to use</a>
+							<a href="http://blog.scryptmail.com/how-to-use-scryptmail" class="btn btn-primary btn-sm" style="margin-left:20px;">How to use</a>
 						</div>
 					</div>
 
@@ -33,7 +33,7 @@ Privacy is your right, not a privilege<br>
 
 						<header>
 							Sign In
-							<h5 style="margin-top:10px;"><small><a href="http://blog.scryptmail.com/2014/11/scryptmail-browser-compatibility.html" target="_blank"> Supported Browsers</a></small></h5>
+							<h5 style="margin-top:10px;"><small><a href="http://blog.scryptmail.com/supported-browsers" target="_blank"> Supported Browsers</a></small></h5>
 						</header>
 
 						<fieldset>

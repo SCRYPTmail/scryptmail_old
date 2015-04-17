@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0565';
+	public $fileVers='0566';
 
 	public function beforeAction($action)
 	{
@@ -207,6 +207,7 @@ class SiteController extends Controller
 					'saveDisposableEmail',
 					'ResetPass',
 					'deleteDisposableEmail',
+					'deleteAliasEmail',
 					'about_us',
 					'checkDomain',
 					'checkEmailExist',
@@ -214,7 +215,8 @@ class SiteController extends Controller
 					'deleteMyAccount',
 					'saveSecretOneStep',
 					'resetPassOneStep',
-					'updateAccount'
+					'updateAccount',
+					'saveAliasEmail'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -1132,7 +1134,17 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 	}
 
-
+	public function actionDeleteAliasEmail()
+	{
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new CreateUser('deleteAlias');
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->deleteAlias(Yii::app()->user->getId());
+			else
+				echo json_encode($model->getErrors());
+		}
+	}
 	public function actionDeleteDisposableEmail()
 	{
 		if(Yii::app()->request->isAjaxRequest){
@@ -1143,6 +1155,16 @@ class SiteController extends Controller
 		else
 			echo json_encode($model->getErrors());
 		}
+	}
+
+	public function actionSaveAliasEmail()
+	{
+		$model = new CreateUser('saveAlias');
+		$model->attributes = $_POST;
+		if ($model->validate()) //validating json data according to action
+			$model->saveAlias(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
 	}
 
 	public function actionSaveDisposableEmail()

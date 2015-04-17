@@ -3,6 +3,18 @@
 		<h2  class="row email-open-header">
 		Compose Email
 	</h2>
+	<div class="inbox-info-bar no-padding" style="display:none;" id="displayFrom">
+		<div class="row">
+			<div class="form-group">
+				<label class="control-label col col-xs-1"><strong>From</strong></label>
+
+				<div class="col col-xs-11">
+					<select class="form-control" id="fromSender" style="width:100%;">
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div class="inbox-info-bar no-padding">
 		<div class="row">

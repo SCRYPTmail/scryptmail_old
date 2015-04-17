@@ -27,7 +27,7 @@ class UpdateKeys extends CFormModel
 
 			//saveSecretOneStep
 			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep,saveSecret'),
-			array('UserObject','length', 'max'=>80000,'min'=>4000,'on'=>'saveSecretOneStep,saveSecret'),
+			array('UserObject','length', 'max'=>2580000,'min'=>4000,'on'=>'saveSecretOneStep,saveSecret'),
 
 			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep,saveSecret,generateToken'),
 			array('tokenHash,tokenAesHash,oldPassword,newPassword', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveSecretOneStep'),

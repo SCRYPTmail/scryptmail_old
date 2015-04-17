@@ -63,18 +63,12 @@ class SaveEmail extends CFormModel
 	public function checkFrom()
 	{
 
-		$t=explode('<',$this->from);
-
-		if(count($t)>=2){
-			$email=hash('sha512',substr($t[1],0,-1));
-		}else{
-			$email=hash('sha512',$t[0]);
-		}
+		$email=hash('sha512',EmailparseCommand::getEmail($this->from));
 
 		$param[':id']=Yii::app()->user->getId();
 		$param[':mailHash']=$email;
 
-		if(!Yii::app()->db->createCommand("SELECT id FROM user WHERE id=:id AND mailHash=:mailHash")->execute($param)){
+		if(!Yii::app()->db->createCommand("SELECT addressHash FROM addresses WHERE userId=:id AND addressHash=:mailHash")->queryRow(true,$param)){
 			$this->addError('email', 'Email not correct');
 		}
 
@@ -214,7 +208,6 @@ class SaveEmail extends CFormModel
 
 	public function sendOutPin()
 	{
-
 		$params[':body'] = $this->mail;
 		$params[':messageId'] = $this->messageId;
 		$params[':modKey'] = $this->ModKey;
@@ -254,36 +247,58 @@ class SaveEmail extends CFormModel
 	public function sendOutNoPin()
 	{
 
-		$params[':body'] = $this->mail;
-		$params[':modKey'] = $this->ModKey;
-		$params[':meta'] = $this->meta;
-		$params[':outside'] = 1;
-		$params[':whens'] = Date("Y-m-d H:i:s");
-		$params[':pass'] = $this->key;
+		$key = hex2bin($this->key);
 
-		if(isset($this->files)){
+		$encryptionMethod = "aes-256-cbc";
 
 
-			foreach($this->files as $row){
-				$fileNames[]=$row['fname'];
+		$iv = hex2bin(substr($this->mail, 0, 32));
+		$encrypted = base64_encode(hex2bin(substr($this->mail, 32)));
+		$body = json_decode(openssl_decrypt($encrypted, $encryptionMethod, $key, 0, $iv), true);
+		$body['from'] = base64_decode($body['from']);
 
-				if(FileWorks::writeFile($row['fname'],$row['data'])===false)
-				{
-					echo '{"messageId":"fail1"}';
+		$email=hash('sha512',EmailparseCommand::getEmail($body['from']));
+
+
+		$id=Yii::app()->user->getId();
+
+		if (Yii::app()->db->createCommand("SELECT addressHash FROM addresses WHERE addressHash='$email' AND userId=$id")->queryRow())
+		{
+
+			$params[':body'] = $this->mail;
+			$params[':modKey'] = $this->ModKey;
+			$params[':meta'] = $this->meta;
+			$params[':outside'] = 1;
+			$params[':whens'] = Date("Y-m-d H:i:s");
+			$params[':pass'] = $this->key;
+
+			if(isset($this->files)){
+
+
+				foreach($this->files as $row){
+					$fileNames[]=$row['fname'];
+
+					if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+					{
+						echo '{"messageId":"fail1"}';
+					}
+
+
+
 				}
+				$params[':file'] = json_encode($fileNames);
+			}else
+				$params[':file'] = null;
 
 
+			if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,outside,file) VALUES(:meta,:body,:pass,:modKey,:whens,:outside,:file)")->execute($params))
+				echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
+			else
+				echo '{"messageId":"fail"}';
 
-			}
-			$params[':file'] = json_encode($fileNames);
 		}else
-			$params[':file'] = null;
-
-
-		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,outside,file) VALUES(:meta,:body,:pass,:modKey,:whens,:outside,:file)")->execute($params))
-			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
-		else
 			echo '{"messageId":"fail"}';
+
 	}
 
 
