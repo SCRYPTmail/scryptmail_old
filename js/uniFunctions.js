@@ -517,7 +517,7 @@ function createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMet
 	emailPreObj['senderMod'] = sndrMod;
 
 var t=emailPreObj;
-	console.log(t);
+	//console.log(t);
 	var body = JSON.stringify(emailPreObj);
 
 	var md = forge.md.sha256.create();
