@@ -1170,7 +1170,6 @@ function profileSettingToDb(prof) {
 }
 
 function getEmailsFromString(input) {
-	functionTracer='getEmailsFromString';
 	var ret = [];
 	var email = /\<([^\>]+)\>/g;
 
