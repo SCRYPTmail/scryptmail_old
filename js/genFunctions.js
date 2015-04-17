@@ -974,7 +974,6 @@ function logOutTime() {
 }
 
 function myTimer() {
-	functionTracer='myTimer';
 	if(sessionTimeOut!=-1){
 		$('#sestime').css('display','block');
 	var sec = sessionTimeOut;
