@@ -1829,7 +1829,6 @@ function renderMessages() {
 }
 
 function getNewEmailsCount() {
-	functionTracer='getNewEmailsCount';
 	var newMes = 0;
 	$.each(folder['Inbox'], function (index, value) {
 		if (!value['opened']) {
