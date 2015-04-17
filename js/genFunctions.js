@@ -1581,6 +1581,9 @@ function displayFolderContent(folderName) {
 				messagesId = customMessageIds(folder['Custom'][folderName]);
 			}
 		}
+		messagesId = jQuery.grep(messagesId, function(value) {
+		  return isNaN(value)!=true;
+		});
 		parseMessagesObject(messagesId);
 	});
 }
