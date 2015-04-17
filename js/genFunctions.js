@@ -1217,7 +1217,6 @@ function stripHTML(data) {
 }
 
 function sanitize(input) { //todo remove if save
-	functionTracer='sanitize';
 	if(input!=''){
 		var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 			replace(/<[\/\!]*?[^<>]*?>/gi, '').
@@ -1231,7 +1230,6 @@ function sanitize(input) { //todo remove if save
 }
 
 function sanitizeEmail(input) { //todo remove if save
-	functionTracer='sanitizeEmail';
 	/*
 	 var output = input.replace(/<script[^>]*?>.*?<\/script>/gi, '').
 	 replace(/<iframe[^>]*?>.*?<\/iframe>/gi, '').
