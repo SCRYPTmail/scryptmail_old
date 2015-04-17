@@ -2317,6 +2317,7 @@ function delAliasEmail(row, email)
 						if (data===true) {
 							$('#aliasList').DataTable().row($(row).parents('tr')).remove().draw(false);
 							delete profileSettings['aliasEmails'][email];
+							delete signingKey[email];
 							userData['userObj']=userObj;
 							delete receivingKeys[receiveHash];
 							checkProfile();
