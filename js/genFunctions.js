@@ -3391,7 +3391,11 @@ function renameCustomFolder(name,id){
 						
 						checkFolders();
 						displayFolder();
-					getDataFromFolder(SHA1(fname));
+						if(folder_navigate==SHA1(fname)){
+						getDataFromFolder(SHA1(fname));	
+						}
+						
+						
 						}
 						
 						$(this).dialog("close");
