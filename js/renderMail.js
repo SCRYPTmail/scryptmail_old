@@ -51,7 +51,7 @@ function saniziteEmailAttachment(body,meta,signBody)
 
 	var pki = forge.pki;
 	retrievePublicKeys(function (dataBack) {
-		if(dataBack.length!=1){
+		if(dataBack.length>0){
 			var senderPubKey=pki.publicKeyFromPem(from64(dataBack[sender[0]]['mailKey']));
 
 			var md = forge.md.sha256.create();
