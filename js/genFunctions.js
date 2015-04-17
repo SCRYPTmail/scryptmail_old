@@ -3982,6 +3982,11 @@ function setupProfile(){
 		profileSettings['disposableEmails']={};
 	}
 
+
+	if(typeof profileSettings['aliasEmails'] === 'undefined'){
+		profileSettings['aliasEmails']={};
+	}
+
 	if(profileSettings['aliasEmails'] == undefined){
 		profileSettings['aliasEmails']={};
 	}
