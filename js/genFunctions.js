@@ -3383,16 +3383,20 @@ function renameCustomFolder(name,id){
 				"id": 'folderok',
 				click: function () {
 					var fname = escapeTags($('#newFolder').val().trim());
-					if(fname.length>=1 && fname.length<=25){
-
+					if(fname.length>=1 && fname.length<=30){
+						if(id!=SHA1(fname)){
+							
 						folder['Custom'][id]['name'] =fname;
 						folder['Custom'][SHA1(fname)] = folder['Custom'][id];
 						delete folder['Custom'][id];
-
+						
 						checkFolders();
 						displayFolder();
 						$(this).dialog("close");
 						$('#newFolder').val('');
+						}
+						
+						
 
 
 					}else{
