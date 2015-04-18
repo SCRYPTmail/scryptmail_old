@@ -794,7 +794,6 @@ function retrieveNewTable(chunks) { //todo change modkey when copy, to differ fr
 }
 
 function showFetcher() {
-	functionTracer='showFetcher';
 	$('.fetch-space').css('display', 'block');
 
 	var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
@@ -956,7 +955,6 @@ function logOut() {
 	window.location = '/logout';
 }
 function logOutTime() {
-	functionTracer='logOutTime';
 	var secs = 300;
 	clearInterval(logOuttimer);
 
@@ -1399,7 +1397,6 @@ function clearComposeMail() {
 
 
 function emailTimer() {
-	functionTracer='emailTimer';
 	clearInterval(mailt);
 
 	mailt = setInterval(function () {
