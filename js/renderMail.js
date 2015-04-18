@@ -118,6 +118,15 @@ function saniziteEmailAttachment(body,meta,signBody)
 		var value = body['to'];
 
 		var emails=value.split('; ');
+		if(profileSettings['disposableEmails'] == undefined){
+			profileSettings['disposableEmails']={};
+		}
+
+
+		if(typeof profileSettings['aliasEmails'] === 'undefined'){
+			profileSettings['aliasEmails']={};
+		}
+
 		$.each(emails, function( index, value ) {
 			if (value.indexOf('<') != -1) {
 				var toEmail=getEmailsFromString(value);

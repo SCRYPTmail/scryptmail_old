@@ -140,6 +140,11 @@ function generateUserObj(mailpair,secret,email,oneStep,callback)
 	callback(ret);
 }
 
+function makeModKey(salt) {
+
+	return forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), salt, 16, 16));
+}
+
 function profileToDb(obj,secret,salt) {
 
 
@@ -524,11 +529,12 @@ var t=emailPreObj;
 	md.update(body, 'utf8');
 
 	//if(mailPrivateKey!=''){
-	var sign=signingKey[SHA512(getEmailsFromString(from64(sender)))]['privateKey'];
+	if(Object.keys(signingKey).length==0 ){
+		emailPreObj['meta']['signature'] = '';
+	}else{
+		var sign=signingKey[SHA512(getEmailsFromString(from64(sender)))]['privateKey'];
 		emailPreObj['meta']['signature'] = forge.util.bytesToHex(sign.sign(md));
-	//}else{
-	//	emailPreObj['meta']['signature'] = '';
-	//}
+	}
 
 
 	var meta = JSON.stringify(emailPreObj['meta']);

@@ -1093,10 +1093,6 @@ function verifySecret(secret) {
 
 // providePassword
 
-function makeModKey(salt) {
-	functionTracer='makeModKey';
-	return forge.util.bytesToHex(forge.pkcs5.pbkdf2(makerandom(), salt, 16, 16));
-}
 
 
 function dbToProfile(obj, secret,salt) {
