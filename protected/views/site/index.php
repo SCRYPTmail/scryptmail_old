@@ -402,6 +402,7 @@ Use search to find needed section.
 </div>
 <!-- Piwik -->
 <script type="text/javascript">
+	if (window.location.hostname != "encrypt-mail1.com") {
 	var _paq = _paq || [];
 	_paq.push(['trackPageView']);
 	_paq.push(['enableLinkTracking']);
@@ -412,6 +413,7 @@ Use search to find needed section.
 		var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
 		g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
 	})();
+	}
 </script>
 <noscript><p><img src="//piwik.scryptmail.com/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Code -->
