@@ -1752,7 +1752,6 @@ function markMessage(messageId)
 }
 
 function renderMessages() {
-	functionTracer='renderMessages';
 	//$('#pag').css('display','block');
 
 	var d = new Date();
