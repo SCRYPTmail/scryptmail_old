@@ -335,9 +335,6 @@ function toggleMenu(){
 }
 
 function checkState(success, cancel) {
-
-	functionTracer='checkState';
-
 	getLoginStatus()
 		.always(function (result) {
 			if (result == 1) {
@@ -813,7 +810,6 @@ function showFetcher() {
 
 function showEmailFetch() {
 
-	functionTracer='showEmailFetch';
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
 		if ($('.fetch-space').is(":visible") === false && $('.emailMob1 div').attr('title') == undefined)
@@ -859,7 +855,6 @@ function showEmailFetch() {
 
 
 function showLimits() {
-	functionTracer='showLimits';
 	var totalcount = 0;
 
 	totalcount = checkEmailAmount();
