@@ -2524,6 +2524,7 @@ function initializeMailList() {
 	//$('#mailSearch').addClass('col col-3');
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
 
+	$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
 
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
