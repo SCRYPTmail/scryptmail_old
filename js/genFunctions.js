@@ -2744,7 +2744,7 @@ function getEmailSender(messagesId,callback){
 			//return emails;
 
 		}else{
-			$('.dataTables_empty').html('Empty');
+			$('.dataTables_empty').html('No Emails');
 		}
 
 	});
