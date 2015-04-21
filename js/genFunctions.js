@@ -335,9 +335,6 @@ function toggleMenu(){
 }
 
 function checkState(success, cancel) {
-
-	functionTracer='checkState';
-
 	getLoginStatus()
 		.always(function (result) {
 			if (result == 1) {
@@ -1409,15 +1406,6 @@ function emailTimer() {
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
 
-
-	$('.table-wrap').html('<i class="fa fa-refresh fa-spin"></i>Loading..');
-	//try {
-	//	var t = $('#mail-table').DataTable();
-	//	t.clear();
-	//	t.draw();
-	//} catch (err) {
-	//}
-
 	folderDecoded.done(function () {
 		//console.log(folder);
 		try{
@@ -1482,6 +1470,12 @@ function getDataFromFolder(thisObj) {
 
 		} else {
 			activePage = 'mail'
+
+			var t = $('#mail-table').DataTable();
+			t.clear();
+			t.draw();
+
+		$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
 
 			var folNav = thisObj;//thisObj.text().trim();
 
@@ -1763,7 +1757,6 @@ function markMessage(messageId)
 }
 
 function renderMessages() {
-	functionTracer='renderMessages';
 	//$('#pag').css('display','block');
 
 	var d = new Date();
@@ -2144,7 +2137,6 @@ function detectMessage(datas) {
 
 	//try{
 
-
 	if(folder_navigate in folder['Custom']){
 		var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][datas['messageHash']]['p']);
 	}else{
@@ -2464,7 +2456,6 @@ function initializeMailList() {
 		phone: 480
 	};
 	var d = new Date();
-
 	$('#mail-table').dataTable({
 		"columnDefs": [
 			{ "sClass": 'inbox-table-icon', "targets": 0},
@@ -2537,15 +2528,6 @@ function initializeMailList() {
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
 
 	$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
-
-
-	//var dataSet = [];
-
-	//var el = '<i class="fa fa-refresh fa-spin"></i>Loading..';
-	//dataSet.push(el);
-
-//var addId = t.rows.add(dataSet)
-//t.draw();
 
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
