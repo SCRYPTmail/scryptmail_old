@@ -812,8 +812,6 @@ function showFetcher() {
 
 
 function showEmailFetch() {
-
-	functionTracer='showEmailFetch';
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
 		if ($('.fetch-space').is(":visible") === false && $('.emailMob1 div').attr('title') == undefined)
@@ -859,7 +857,6 @@ function showEmailFetch() {
 
 
 function showLimits() {
-	functionTracer='showLimits';
 	var totalcount = 0;
 
 	totalcount = checkEmailAmount();
@@ -1412,6 +1409,15 @@ function emailTimer() {
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
 
+
+	$('.table-wrap').html('<i class="fa fa-refresh fa-spin"></i>Loading..');
+	//try {
+	//	var t = $('#mail-table').DataTable();
+	//	t.clear();
+	//	t.draw();
+	//} catch (err) {
+	//}
+
 	folderDecoded.done(function () {
 		//console.log(folder);
 		try{
@@ -1504,7 +1510,7 @@ function getDataFromFolder(thisObj) {
 				//  console.log($('#mail-table').parents('#mail-table_wrapper').length);
 
 				if ($('#mail-table').parents('#mail-table_wrapper').length == 0) {
-					$.get('getFolder/' + folNav, function (data) {
+					$.get('getFolder/folder', function (data) {
 						$('#inbox-content > .table-wrap').html(data);
 
 
@@ -2138,6 +2144,7 @@ function detectMessage(datas) {
 
 	//try{
 
+
 	if(folder_navigate in folder['Custom']){
 		var key = forge.util.hexToBytes(folder['Custom'][folder_navigate][datas['messageHash']]['p']);
 	}else{
@@ -2146,13 +2153,12 @@ function detectMessage(datas) {
 
 
 
-
-	var z = fromAes(key, datas['meta']);
+	var z = fromAes64(key, datas['meta']);
 	z = z.substring(0, z.lastIndexOf('}') + 1);
 
 	var meta = JSON.parse(z);
 
-	var body = fromAes(key, datas['body']);
+	var body = fromAes64(key, datas['body']);
 
 	body = JSON.parse(body.substring(0, body.lastIndexOf('}') + 1));
 
@@ -2458,6 +2464,7 @@ function initializeMailList() {
 		phone: 480
 	};
 	var d = new Date();
+
 	$('#mail-table').dataTable({
 		"columnDefs": [
 			{ "sClass": 'inbox-table-icon', "targets": 0},
@@ -2529,6 +2536,16 @@ function initializeMailList() {
 	//$('#mailSearch').addClass('col col-3');
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
 
+	$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
+
+
+	//var dataSet = [];
+
+	//var el = '<i class="fa fa-refresh fa-spin"></i>Loading..';
+	//dataSet.push(el);
+
+//var addId = t.rows.add(dataSet)
+//t.draw();
 
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
@@ -2726,6 +2743,8 @@ function getEmailSender(messagesId,callback){
 				callback(emails);
 			//return emails;
 
+		}else{
+			$('.dataTables_empty').html('Empty');
 		}
 
 	});

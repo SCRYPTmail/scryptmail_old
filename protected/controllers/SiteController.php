@@ -144,6 +144,7 @@ class SiteController extends Controller
 			array('allow', // allow all users to perform 'index' and 'view' actions
 				'actions' => array(
 					'createUser',
+					'checkMongo',
 					'login',
 					'updateKeys',
 					'ModalLogin',
@@ -236,6 +237,13 @@ class SiteController extends Controller
 	 * This is the default 'index' action that is invoked
 	 * when an action is not explicitly requested by users.
 	 */
+
+	public function actionCheckMongo()
+	{
+		$model = new CheckMongo();
+		$model->runTest();
+
+	}
 
 	public function actionInviteFriend()
 	{

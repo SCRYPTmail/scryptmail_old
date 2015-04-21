@@ -62,21 +62,68 @@ class RetrieveFoldersMeta extends CFormModel
 		if(count($this->messageIds)>0){
 			foreach ($this->messageIds as $i => $row) {
 				if (is_numeric($row))
-					$f[$i] = $row;
-			}
-			$params = implode($f, ',');
+					$f[$row] = $row;
+					$mongof[]=new MongoId(substr(hash('sha1',$row),0,24));
+					$refMong[substr(hash('sha1',$row),0,24)]=$row;
 
+			}
+
+			if(isset($f))
+			{
+				//if(MongoMigrate::movePersonalFolders($f))
+				//{
+					if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'meta'=>1,''))){
+						foreach($ref as $doc){
+
+							$vect=substr($doc['meta']->bin,0,16);
+							$data=substr($doc['meta']->bin,16);
+							$row=base64_encode($vect).';'.base64_encode($data);
+							//$row=$doc['meta']->bin;
+							$result['results'][]=array('messageHash'=>$refMong[$doc['_id']],'meta'=>$row);
+						}
+						//print_r($result);
+						echo json_encode($result);
+						//$ref[0]['meta']=$ref[0]['meta']->bin;
+
+
+					}
+				//}
+
+			}
+
+
+
+			//if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'meta'=>1,''))){
+			//	$ref[0]['meta']=$ref[0]['meta']->bin;
+
+
+			//}
+
+
+			//print_r($ref);
+/*
 			if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,meta FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
 				foreach($result['results'] as $i=>$row){
 					$vect=hex2bin(substr($row['meta'],0,32));
 					$data=hex2bin(substr($row['meta'],32));
-					$result['results'][$i]['meta']=base64_encode($vect).';'.base64_encode($data);
+					$resul['results'][$row['messageHash']]['meta']=base64_encode($vect).';'.base64_encode($data);
+					$resul['results'][$row['messageHash']]['messageHash']=(int)$row['messageHash'];
 					//print_r($vect);
 				}
-				echo json_encode($result);
+
+				if(isset($ref)){
+					$resul['results'][$refMong[$ref[0]['_id']]]['messageHash']=$refMong[$ref[0]['_id']];
+					$resul['results'][$refMong[$ref[0]['_id']]]['meta']=$ref[0]['meta'];
+				}
+
+
+				$resul['results']=array_values($resul['results']);
+				//print_r($resul);
+				echo json_encode($resul);
 			} else
 				echo '{"results":"empty"}';
 
+			*/
 		}else{
 			echo '{"results":"empty"}';
 		}
