@@ -1472,6 +1472,12 @@ function getDataFromFolder(thisObj) {
 		} else {
 			activePage = 'mail'
 
+			var t = $('#mail-table').DataTable();
+			t.clear();
+			t.draw();
+
+		$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
+
 			var folNav = thisObj;//thisObj.text().trim();
 
 			$('#folderul').children().removeClass("active");
