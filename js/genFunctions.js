@@ -2722,6 +2722,8 @@ function getEmailSender(messagesId,callback){
 				callback(emails);
 			//return emails;
 
+		}else{
+			$('.dataTables_empty').html('No Emails');
 		}
 
 	});
