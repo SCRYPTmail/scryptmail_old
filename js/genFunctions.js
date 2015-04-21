@@ -1406,6 +1406,7 @@ function emailTimer() {
 
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
+	$('.table-wrap').html('<i class="fa fa-refresh fa-spin"></i>Loading..');
 
 	folderDecoded.done(function () {
 		//console.log(folder);
@@ -2523,6 +2524,7 @@ function initializeMailList() {
 	//$('#mailSearch').addClass('col col-3');
 	//$('#mailIcons').addClass('col-sm-2 col-xs-2');
 
+	$('.dataTables_empty').html('<i class="fa fa-refresh fa-spin"></i> Loading..');
 
 	$("#selectAll").click(function () {
 		var table = $('#mail-table');
@@ -2720,6 +2722,8 @@ function getEmailSender(messagesId,callback){
 				callback(emails);
 			//return emails;
 
+		}else{
+			$('.dataTables_empty').html('No Emails');
 		}
 
 	});
