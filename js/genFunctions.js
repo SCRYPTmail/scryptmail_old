@@ -1406,7 +1406,6 @@ function emailTimer() {
 
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
-	$('.table-wrap').html('<i class="fa fa-refresh fa-spin"></i>Loading..');
 
 	folderDecoded.done(function () {
 		//console.log(folder);
