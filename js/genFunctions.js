@@ -1622,7 +1622,10 @@ function parseMessagesObject(messagesId){
 
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error. Please try again.');
+					if (textStatus != "abort") {
+						noAnswer('Error. Please try again.');
+					}
+
 				},
 				dataType: 'json'
 			});
