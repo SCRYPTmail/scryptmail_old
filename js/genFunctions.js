@@ -100,6 +100,7 @@ keysObject={};
 resSalt='';
 UserSalt='';
 folderDecoded = $.Deferred();
+folderDataLoaded = $.Deferred();
 sessionKey = '';
 key = makeModKey('f');
 mailPrivateKey = '';
@@ -353,6 +354,8 @@ function newMailCheckRoutine() {
 	if (mailPrivateKey != '') {
 		newMailer = setInterval(function () {
 
+			folderDataLoaded.done(function () {
+
 			$.get("getNewSeeds")
 				.done(function (newMaxSeed) {
 					if(newMaxSeed=='Login Required'){
@@ -406,6 +409,7 @@ function newMailCheckRoutine() {
 			clearInterval(newMailer);
 			checkMailTime=30000;
 			newMailCheckRoutine();
+		});
 		}, checkMailTime);
 	}
 
@@ -1584,7 +1588,6 @@ function displayFolderContent(folderName) {
 function parseMessagesObject(messagesId){
 	functionTracer='parseMessagesObject';
 	if(mailBox['boxName']==folder_navigate){
-
 		renderMessages();
 	}else{
 		//var dfd = $.Deferred();
@@ -1593,6 +1596,7 @@ function parseMessagesObject(messagesId){
 		mailBox['Data']={};
 
 		if (messagesId.length != 0) {
+			folderDataLoaded=$.Deferred();
 			$.ajax({
 				type: "POST",
 				url: '/RetrieveFoldersMeta',
@@ -1800,6 +1804,7 @@ function renderMessages() {
 		});
 
 		dfd.done(function () {
+			folderDataLoaded.resolve();
 			t.rows.add(dataSet);
 			t.draw(false);
 
@@ -1815,6 +1820,7 @@ function renderMessages() {
 		var t = $('#mail-table').DataTable();
 		t.clear();
 		t.draw();
+		folderDataLoaded.resolve();
 	}
 }
 
