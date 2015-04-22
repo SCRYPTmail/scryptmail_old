@@ -89,7 +89,8 @@ class RetrieveFoldersMeta extends CFormModel
 					}
 				//}
 
-			}
+			}else
+				echo '{"results":"empty"}';
 
 
 
