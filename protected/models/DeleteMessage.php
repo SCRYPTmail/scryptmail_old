@@ -16,7 +16,7 @@ class DeleteMessage extends CFormModel
 	{
 		return array(
 			// username and password are required
-			//array('messageIds', 'checkArray'),
+			array('messageIds', 'checkArray'),
 			array('messageIds', 'safe'),
 			//	array('mailHash', 'numerical','integerOnly'=>true,'allowEmpty'=>true),
 		);
@@ -27,59 +27,105 @@ class DeleteMessage extends CFormModel
 		try {
 			$this->messageIds = json_decode($this->messageIds, true);
 		} catch (Exception $e) {
-			$this->addError('message', 'Messages should be in an array');
+			$this->addError('results', 'Messages should be in an array');
 		}
 		;
 		if (is_array($this->messageIds)) {
-			foreach ($this->messageIds as $row) {
-				if (!is_numeric($row['id']))
-					$this->addError('message', 'Message ids should be an integers');
-				return false;
-			}
 			return true;
 		} else {
-			$this->addError('message', 'Messages should be in an array');
+			$this->addError('results', 'Messages should be in an array');
 		}
+	}
+
+	public function deleteAll()
+	{
+		if (count($this->messageIds) > 0) {
+			foreach ($this->messageIds as $i => $row) {
+				if(is_numeric($row['id'])){
+					$par[] = "(:id_$i,:mod_$i)";
+					$param[":id_$i"] = $row['id'];
+					$param[":mod_$i"] = hash('sha512', $row['modKey']);
+					$mngData[]=array('_id'=>new MongoId(substr(hash('sha1',$row['id']),0,24)),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
+				}else if(ctype_xdigit($row['id'])){
+					$mngData[]=array('_id'=>new MongoId($row['id']),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
+				}
+
+			}
+			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
+
+				foreach($fileRemove as $filejson){
+					if($files=json_decode($filejson['file'],true)){
+						foreach($files as $names)
+							FileWorks::deleteFile($names);
+
+					}
+				}
+			}
+
+			$mngDataAgregate=array('$or'=>$mngData);
+
+			if($ref=Yii::app()->mongo->findAll('personalFolders',$mngDataAgregate,array('_id'=>1,'file'=>1))){
+				foreach($ref as $doc){
+					if($files=json_decode($doc['file'],true)){
+						foreach($files as $names)
+							FileWorks::deleteFile($names);
+
+					}
+				}
+			}
+
+			if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)
+			||
+				Yii::app()->mongo->removeAll('personalFolders',$mngDataAgregate)
+			)
+				echo '{"results":"success"}';
+			else
+				echo '{"results":"fail"}';
+
+		} else
+			echo '{"results":"success"}';
+
+
 	}
 
 	public function delete()
 	{
-		try {
-			$this->messageIds = json_decode($this->messageIds, true);
+
 		if (count($this->messageIds) > 0) {
 			foreach ($this->messageIds as $i => $row) {
-				$par[] = "(:id_$i,:mod_$i)";
-				$param[":id_$i"] = $row['id'];
-				$param[":mod_$i"] = isset( $row['modKey'])?hash('sha512', $row['modKey']):'';
-			}
-			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM personalFolders WHERE (messageHash,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
 
-				foreach($fileRemove as $filejson){
-					if($files=json_decode($filejson['file'],true)){
-						foreach($files as $names){
-							FileWorks::deleteFile($names);
+				if(is_numeric($row['id']))
+					$mngData[]=array('_id'=>new MongoId(substr(hash('sha1',$row['id']),0,24)),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
+				else if(ctype_xdigit($row['id']))
+					$mngData[]=array('_id'=>new MongoId($row['id']),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
+
+
+			}
+				$mngDataAgregate=array('$or'=>$mngData);
+
+				if($ref=Yii::app()->mongo->findAll('personalFolders',$mngDataAgregate,array('_id'=>1,'file'=>1))){
+					foreach($ref as $doc){
+						if($files=json_decode($doc['file'],true)){
+							foreach($files as $names)
+								FileWorks::deleteFile($names);
 
 						}
 					}
 				}
-			}
-			if (Yii::app()->db->createCommand("DELETE FROM personalFolders WHERE (messageHash,modKey) IN (" . implode($par, ',') . ")")->execute($param)) {
+
+
+			if(Yii::app()->mongo->removeAll('personalFolders',$mngDataAgregate))
 				echo '{"results":"success"}';
-			} else
+			else
 				echo '{"results":"fail"}';
 
-		} else {
-			echo '{"results":"success"}';
 		}
-		} catch (Exception $e) {
-			echo '{"results":"Messages should be in an array"}';
-		}
+
+
 	}
 
 	public function deleteUnreg()
 	{
-		try {
-			$this->messageIds = json_decode($this->messageIds, true);
 			if (count($this->messageIds) > 0) {
 				foreach ($this->messageIds as $i => $row) {
 					$par[] = "(:id_$i,:mod_$i)";
@@ -91,28 +137,21 @@ class DeleteMessage extends CFormModel
 
 					foreach($fileRemove as $filejson){
 						if($files=json_decode($filejson['file'],true)){
-
-							foreach($files as $names){
-
+							foreach($files as $names)
 								FileWorks::deleteFile($names);
 
-							}
 						}
 					}
 				}
 
-				if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)) {
+				if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param))
 					echo '{"results":"success"}';
-				} else
+				else
 					echo '{"results":"fail"}';
 
-			} else {
+			} else
 				echo '{"results":"success"}';
-			}
 
-		} catch (Exception $e) {
-			echo '{"results":"Messages should be in an array"}';
-		}
 
 	}
 }

@@ -162,6 +162,7 @@ class SiteController extends Controller
 					'retrieveFoldersMeta',
 					'deleteMessage',
 					'deleteMessageUnreg',
+					'deleteMessageAll',
 					'showMessage',
 					'sendLocalMessage',
 					'sendLocalMessageFail',
@@ -814,6 +815,17 @@ class SiteController extends Controller
 			$model->deleteUnreg();
 		else
 			echo json_encode($model->getErrors());
+		}
+	}
+	public function actionDeleteMessageAll()
+	{
+		if(Yii::app()->request->isAjaxRequest){
+			$model = new DeleteMessage();
+			$model->attributes = $_POST;
+			if ($model->validate()) //validating json data according to action
+				$model->deleteAll();
+			else
+				echo json_encode($model->getErrors());
 		}
 	}
 	public function actionDeleteMessage()

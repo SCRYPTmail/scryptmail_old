@@ -255,6 +255,13 @@ function toAes(key, text) {
 	return forge.util.bytesToHex(vector) + cipher.output.toHex();
 
 }
+function isValidHex(hex) {
+	var regex =/[0-9A-F]{1,3}/gi
+
+	return regex.test(hex);
+
+}
+
 function parseEmail(emailText,callback){
 	/*
 	 parse text email w/o name and return object

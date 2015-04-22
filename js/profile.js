@@ -951,7 +951,7 @@ function extractModKeys(data,messageKeys,callback)
 function deleteMailsfromDB(selected,callback){
 	$.ajax({
 		type: "POST",
-		url: '/deleteMessage',
+		url: '/deleteMessageAll',
 		data: {
 			'messageIds': JSON.stringify(selected)
 		},

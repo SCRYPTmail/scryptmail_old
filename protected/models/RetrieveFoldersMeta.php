@@ -70,8 +70,8 @@ class RetrieveFoldersMeta extends CFormModel
 
 			if(isset($f))
 			{
-				//if(MongoMigrate::movePersonalFolders($f))
-				//{
+				if(MongoMigrate::movePersonalFolders($f))
+				{
 					if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'meta'=>1,''))){
 						foreach($ref as $doc){
 
@@ -86,8 +86,9 @@ class RetrieveFoldersMeta extends CFormModel
 						//$ref[0]['meta']=$ref[0]['meta']->bin;
 
 
-					}
-				//}
+					}else
+						echo '{"results":"empty"}';
+				}
 
 			}
 

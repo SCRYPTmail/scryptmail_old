@@ -1636,6 +1636,7 @@ function parseMessagesObject(messagesId){
 }
 
 function decryptMessages(data,callback){
+
 	functionTracer='decryptMessages';
 	var dfd = $.Deferred();
 

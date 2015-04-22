@@ -64,13 +64,21 @@ class MongoDBConnection extends CApplicationComponent {
 				)
 			);
 		}
-
+try {
 		$this->_mongo = new MongoClient($this->connectionString, $this->connectOptions);
 		$dbname=$this->db;
 		$this->_db = $this->_mongo->$dbname;
 
 		$this->_db->setWriteConcern($this->options['writeConcerns'], $this->options['wTimeoutMS']);
+} catch (Exception $e) {
 
+	throw new EMongoException(
+		yii::t(
+			'yii',
+			'We could not find the MongoDB extension ( http://php.net/manual/en/mongo.installation.php ), please install it'
+		)
+	);
+}
 
 	}
 
@@ -106,10 +114,10 @@ class MongoDBConnection extends CApplicationComponent {
 	}
 
 
-	public function findAll($collectionName,$data)
+	public function findAll($collectionName,$data,$selectFields=null)
 	{
 
-		$reference = $this->setCollection($collectionName)->find($data);
+		$reference = $this->setCollection($collectionName)->find($data,$selectFields);
 
 		foreach ($reference as $i=>$doc)
 		{
@@ -189,6 +197,13 @@ class MongoDBConnection extends CApplicationComponent {
 
 		return isset($result)?$result:null;
 
+	}
+
+	public function removeAll($collectionName,$data)
+	{
+		$reference = $this->setCollection($collectionName)->remove($data);
+
+		return isset($reference['err'])?false:true;
 	}
 
 	public function removeById($collectionName,$id)
