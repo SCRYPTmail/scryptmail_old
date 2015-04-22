@@ -100,6 +100,7 @@ keysObject={};
 resSalt='';
 UserSalt='';
 folderDecoded = $.Deferred();
+receiveAjaxFolder=$.ajax({});
 folderDataLoaded = $.Deferred();
 sessionKey = '';
 key = makeModKey('f');
@@ -207,6 +208,8 @@ function resetGlobal() {
 	blackList = {};
 	profileSettings = {};
 	folderDecoded = $.Deferred();
+	receiveAjaxFolder=$.ajax({});
+	folderDataLoaded = $.Deferred();
 	mailhash = '';
 	fileSelector='';
 	contactHash = '';
@@ -1410,6 +1413,7 @@ function emailTimer() {
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
 
+
 	folderDecoded.done(function () {
 		//console.log(folder);
 		try{
@@ -1597,7 +1601,10 @@ function parseMessagesObject(messagesId){
 
 		if (messagesId.length != 0) {
 			folderDataLoaded=$.Deferred();
-			$.ajax({
+
+			receiveAjaxFolder.abort();
+
+			receiveAjaxFolder=$.ajax({
 				type: "POST",
 				url: '/RetrieveFoldersMeta',
 				data: {
