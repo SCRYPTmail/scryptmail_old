@@ -1119,7 +1119,6 @@ function dbToProfile(obj, secret,salt) {
 }
 
 function dbToFolder(obj) {
-	functionTracer='dbToFolder';
 	var f = fromAes64(folderKey, obj['folderObj']);
 
 	var s = f.substring(f.indexOf('{'), f.lastIndexOf('}') + 1);
@@ -1130,7 +1129,6 @@ function dbToFolder(obj) {
 
 
 function folderToDb(folderObj) {
-	functionTracer='folderToDb';
 	var f = toAes64(folderKey, JSON.stringify(folderObj));
 
 	return f;
