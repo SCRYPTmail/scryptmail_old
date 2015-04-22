@@ -351,8 +351,6 @@ function checkState(success, cancel) {
 }
 function newMailCheckRoutine() {
 
-	functionTracer='newMailCheckRoutine';
-
 	clearInterval(newMailer);
 	if (mailPrivateKey != '') {
 		newMailer = setInterval(function () {
