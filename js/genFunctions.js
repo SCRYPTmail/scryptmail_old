@@ -1632,6 +1632,7 @@ function parseMessagesObject(messagesId){
 
 
 		} else {
+			receiveAjaxFolder.abort();
 			var t = $('#mail-table').DataTable();
 			t.clear();
 			t.draw();
