@@ -100,6 +100,8 @@ keysObject={};
 resSalt='';
 UserSalt='';
 folderDecoded = $.Deferred();
+receiveAjaxFolder=$.ajax({});
+folderDataLoaded = $.Deferred();
 sessionKey = '';
 key = makeModKey('f');
 mailPrivateKey = '';
@@ -206,6 +208,8 @@ function resetGlobal() {
 	blackList = {};
 	profileSettings = {};
 	folderDecoded = $.Deferred();
+	receiveAjaxFolder=$.ajax({});
+	folderDataLoaded = $.Deferred();
 	mailhash = '';
 	fileSelector='';
 	contactHash = '';
@@ -353,6 +357,8 @@ function newMailCheckRoutine() {
 	if (mailPrivateKey != '') {
 		newMailer = setInterval(function () {
 
+			folderDataLoaded.done(function () {
+
 			$.get("getNewSeeds")
 				.done(function (newMaxSeed) {
 					if(newMaxSeed=='Login Required'){
@@ -406,6 +412,7 @@ function newMailCheckRoutine() {
 			clearInterval(newMailer);
 			checkMailTime=30000;
 			newMailCheckRoutine();
+		});
 		}, checkMailTime);
 	}
 
@@ -809,7 +816,6 @@ function showFetcher() {
 
 
 function showEmailFetch() {
-
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
 		if ($('.fetch-space').is(":visible") === false && $('.emailMob1 div').attr('title') == undefined)
@@ -1407,6 +1413,7 @@ function emailTimer() {
 function getDataFromFolder(thisObj) {
 	functionTracer='getDataFromFolder';
 
+
 	folderDecoded.done(function () {
 		//console.log(folder);
 		try{
@@ -1585,7 +1592,6 @@ function displayFolderContent(folderName) {
 function parseMessagesObject(messagesId){
 	functionTracer='parseMessagesObject';
 	if(mailBox['boxName']==folder_navigate){
-
 		renderMessages();
 	}else{
 		//var dfd = $.Deferred();
@@ -1594,7 +1600,11 @@ function parseMessagesObject(messagesId){
 		mailBox['Data']={};
 
 		if (messagesId.length != 0) {
-			$.ajax({
+			folderDataLoaded=$.Deferred();
+
+			receiveAjaxFolder.abort();
+
+			receiveAjaxFolder=$.ajax({
 				type: "POST",
 				url: '/RetrieveFoldersMeta',
 				data: {
@@ -1612,7 +1622,10 @@ function parseMessagesObject(messagesId){
 
 				},
 				error: function (data, textStatus) {
-					noAnswer('Error. Please try again.');
+					if (textStatus != "abort") {
+						noAnswer('Error. Please try again.');
+					}
+
 				},
 				dataType: 'json'
 			});
@@ -1633,6 +1646,7 @@ function parseMessagesObject(messagesId){
 }
 
 function decryptMessages(data,callback){
+
 	functionTracer='decryptMessages';
 	var dfd = $.Deferred();
 
@@ -1801,6 +1815,7 @@ function renderMessages() {
 		});
 
 		dfd.done(function () {
+			folderDataLoaded.resolve();
 			t.rows.add(dataSet);
 			t.draw(false);
 
@@ -1816,6 +1831,7 @@ function renderMessages() {
 		var t = $('#mail-table').DataTable();
 		t.clear();
 		t.draw();
+		folderDataLoaded.resolve();
 	}
 }
 
