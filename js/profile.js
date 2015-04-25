@@ -30,6 +30,10 @@ $(document).ready(function () {
 	aliasListProfileInitialized = false;
 	tagListProfileInitialized=false;
 
+	if(receiveAjaxFolder['readyState']!==undefined && receiveAjaxFolder['readyState']!=4){
+		mailBox={};
+		receiveAjaxFolder.abort();
+	}
 });
 
 function narrowSelections(mailKey) {

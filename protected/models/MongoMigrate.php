@@ -22,12 +22,12 @@ class MongoMigrate extends CFormModel
 
 				$vect=substr(hex2bin($row['meta']),0,16);
 				$data=substr(hex2bin($row['meta']),16);
-				$row['met']=base64_encode($vect).';'.base64_encode($data);
+				//$row['met']=base64_encode($vect).';'.base64_encode($data);
 				$row['meta']=$vect.$data;
 
 				$vect=substr(hex2bin($row['body']),0,16);
 				$data=substr(hex2bin($row['body']),16);
-				$row['bod']=base64_encode($vect).';'.base64_encode($data);
+				//$row['bod']=base64_encode($vect).';'.base64_encode($data);
 				$row['body']=$vect.$data;
 
 				$person[]=array(
@@ -78,9 +78,9 @@ class MongoMigrate extends CFormModel
 
 		//print_r($c_users);
 
-		$user = array(
-			'first_name' => 'Jd'
-		);
+		//$user = array(
+		//	'first_name' => 'Jd'
+		//);
 		//print_r(Yii::app()->mongo->findAll('personalFolders',$user));
 
 
@@ -106,22 +106,22 @@ class MongoMigrate extends CFormModel
 		//print_r(Yii::app()->mongo->findByManyIds('personalFolders',$f));
 
 
-		$res=Yii::app()->db->createCommand("SELECT * FROM personalFolders WHERE messageHash =12359")->queryRow();
+		//$res=Yii::app()->db->createCommand("SELECT * FROM personalFolders WHERE messageHash =12359")->queryRow();
 
-		$res['meta']=hex2bin($res['meta']);
-		$res['body']=hex2bin($res['body']);
+		//$res['meta']=hex2bin($res['meta']);
+		//$res['body']=hex2bin($res['body']);
 
-		$person[]=array(
-			'_id'=>new MongoId(substr(hash('sha1',$res['messageHash']),0,24)),
-			"meta" => new MongoBinData($res['meta'], MongoBinData::GENERIC),
-			"body" => new MongoBinData($res['body'], MongoBinData::GENERIC),
-			"modKey"=>$res['modKey'],
-			"file"=>$res['file']
-		);
+		//$person[]=array(
+		//	'_id'=>new MongoId(substr(hash('sha1',$res['messageHash']),0,24)),
+		//	"meta" => new MongoBinData($res['meta'], MongoBinData::GENERIC),
+		////	"body" => new MongoBinData($res['body'], MongoBinData::GENERIC),
+		//	"modKey"=>$res['modKey'],
+		//	"file"=>$res['file']
+		//);
 
-		print_r(Yii::app()->mongo->insert('personalFolders',$person));
+		//print_r(Yii::app()->mongo->insert('personalFolders',$person));
 
-		print_r($res);
+		//print_r($res);
 
 
 

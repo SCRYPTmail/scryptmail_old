@@ -2,7 +2,9 @@
 
 		<h2  class="row email-open-header">
 		Compose Email
+			<span id="draftStat" class="label bg-color-blue" rel="tooltip" data-placement="bottom" data-original-title="Message Saved"></span>
 	</h2>
+
 	<div class="inbox-info-bar no-padding" style="display:none;" id="displayFrom">
 		<div class="row">
 			<div class="form-group">

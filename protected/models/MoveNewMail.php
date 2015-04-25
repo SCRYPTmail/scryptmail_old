@@ -43,7 +43,8 @@ class MoveNewMail extends CFormModel
 
 	public function moveMail()
 	{
-		if (count($this->chunks) > 0) {
+		if (count($this->chunks) > 0)
+		{
 			foreach ($this->chunks as $i => $row) {
 				$par[] = "(:id_$i,:mod_$i)";
 				$param[":id_$i"] = $row['mailId'];
@@ -62,62 +63,52 @@ class MoveNewMail extends CFormModel
 
 			$trans = Yii::app()->db->beginTransaction();
 
-			if ($mails = Yii::app()->db->createCommand("SELECT id as messageHash,meta,body,pass,modKey,file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true, $param)) {
-				//unset($par, $param);
-				//print_r($mails);
+			if ($mails = Yii::app()->db->createCommand("SELECT id as messageHash,meta,body,pass,modKey,file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true, $param))
+			{
+
 				foreach ($mails as $i => $row) {
-					//$result[]=array('id'=>$row['messageHash'],'pass'=>$row['pass']);
 
-					$par1[] = "(:meta_$i,:body_$i,:modKey_$i,:file_$i)";
+					$meta=substr(hex2bin($row['meta']),0,16).substr(hex2bin($row['meta']),16);
+					$body=substr(hex2bin($row['body']),0,16).substr(hex2bin($row['body']),16);
+					$pass[$row['modKey']]=$row['pass'];
 
-					$params[":meta_$i"] = $row['meta'];
-					$params[":body_$i"] = $row['body'];
-					$params[":modKey_$i"] = $row['modKey'];
-					$params[":file_$i"] = $row['file'];
-					$mods[":modKey_$i"] = $row['modKey'];
-					$gets[] = ":modKey_$i";
-					$pass[$row['modKey']] = $row['pass'];
+					$person[]=array(
+						"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+						"body" => new MongoBinData($body, MongoBinData::GENERIC),
+						"modKey"=>$row['modKey'],
+						"file"=>$row['file'],
+						"userId"=>Yii::app()->user->getId()
+					);
 
 				}
-
-				if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey,file) VALUES " . implode($par1, ','))->execute($params)) {
-					if ($newMessages = Yii::app()->db->createCommand("
-						SELECT messageHash,meta,modKey FROM personalFolders WHERE modKey IN (" . implode($gets, ',') . ")")->queryAll(true, $mods)
-					) {
-
-						foreach ($newMessages as $index => $row) {
-							$results['data'][$index]['id'] = $row['messageHash'];
-							$results['data'][$index]['pass'] = $pass[$row['modKey']];
-							$results['data'][$index]['meta'] = $row['meta'];
-							$results['data'][$index]['rcpnt']=$rcpnt[$row['modKey']];
+				if(Yii::app()->mongo->insert('personalFolders',$person))
+				{
+					foreach ($person as $index=>$doc) {
+						if(isset($doc['_id'])){
+							$results['data'][$index]['id'] = (string)$doc['_id'];
+							$results['data'][$index]['pass'] = $pass[$doc['modKey']];
+							$results['data'][$index]['meta'] = base64_encode(substr($doc['meta']->bin,0,16)).';'.base64_encode(substr($doc['meta']->bin,16));
+							$results['data'][$index]['rcpnt']=$rcpnt[$doc['modKey']];
 						}
 
 					}
-					if (Yii::app()->db->createCommand("DELETE FROM mailTable
-							 WHERE (id,modKey) IN (" . implode($parMail, ',') . ")")->execute($paramMailDelete)
-					) {
-						if (Yii::app()->db->createCommand("DELETE FROM seedTable
-				 				WHERE (seedTable.id,seedTable.modKey) IN (" . implode($parSeed, ',') . ")")->execute($paramSeedDelete)
-						) {
-							$trans->commit();
-							$results['response'] = 'success';
-							//print_r($results);
-							echo json_encode($results);
-						} else {
-							$trans->rollback();
-							echo '{"response":"fail"}';
-						}
+					$results['response'] = 'success';
 
-					} else {
+					if (Yii::app()->db->createCommand("DELETE FROM mailTable
+					WHERE (id,modKey) IN (" . implode($parMail, ',') . ")")->execute($paramMailDelete)
+					&&
+					Yii::app()->db->createCommand("DELETE FROM seedTable
+				 				WHERE (seedTable.id,seedTable.modKey) IN (" . implode($parSeed, ',') . ")")->execute($paramSeedDelete))
+					{
+						$trans->commit();
+						echo json_encode($results);
+					}else {
 						$trans->rollback();
 						echo '{"response":"fail"}';
 					}
 
-					//print_r($results);
-				} else {
-					$trans->rollback();
+				}else
 					echo '{"response":"fail"}';
-				}
 
 			} else
 				echo '{"response":"fail"}';
@@ -125,10 +116,6 @@ class MoveNewMail extends CFormModel
 			//print_r($mails);
 		} else
 			echo '{"response":"fail"}';
-		//if($seedDat['data']=Yii::app()->db->createCommand('SELECT * FROM seedTable WHERE id>'.$this->startSeed.' LIMIT '.$this->limit)->queryAll()){
-		//	$seedDat['response']='success';
-		//	echo json_encode($seedDat);
-		//}
 
 	}
 }

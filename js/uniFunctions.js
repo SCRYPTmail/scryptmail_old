@@ -256,7 +256,7 @@ function toAes(key, text) {
 
 }
 function isValidHex(hex) {
-	var regex =/[0-9A-F]{1,3}/gi
+	var regex =/\b[0-9A-F]{24}\b/gi
 
 	return regex.test(hex);
 

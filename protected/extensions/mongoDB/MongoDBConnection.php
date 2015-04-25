@@ -103,11 +103,11 @@ try {
 	public function findOne($collectionName,$data,$selectFields=null)
 	{
 
-		$reference = $this->setCollection($collectionName)->findOne($data,$selectFields);
-
+		if($reference = $this->setCollection($collectionName)->findOne($data,$selectFields))
+		{
 			$result=$reference;
 			$result['_id']=(string)$reference['_id'];
-
+		}
 
 		return isset($result)?$result:null;
 
@@ -234,8 +234,20 @@ try {
 
 	}
 
-	public function updateById($collectionName,$dataArray)
+	public function update($collectionName,$dataArray,$criteria)
 	{
+
+		if(is_array($dataArray)){
+
+			$reference=$this->setCollection($collectionName)->update($criteria,$dataArray);
+		}
+
+		if(isset($reference) && $reference['nModified']>=1)
+		{
+			return true;
+		}else
+			return false;
+
 
 	}
 

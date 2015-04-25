@@ -16,7 +16,15 @@
 
 
 <div class="inbox-nav-bar no-content-padding">
-	<h1 class="page-title txt-color-blueDark visible-lg visible-md pull-left"><i class="fa fa-fw fa-inbox"></i> Inbox &nbsp;</h1>
+
+	<div class="air air-bottom inbox-space visible-lg visible-md pull-left" style="bottom:0px;position:initial;"><span class="mailboxsize"><strong></strong></span>
+		<img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;"><a href="javascript:void(0);" onclick="checkNewEmail();" style="margin-top: 3px;" class="pull-right checknewmail"><i class="fa fa-refresh fa-lg"></i></a><br>
+		<div class="progress progress-micro">
+			<div class="progress-bar progress-primary"></div>
+		</div>
+	</div>
+
+	<!--<h1 class="page-title txt-color-blueDark visible-lg visible-md pull-left"><i class="fa fa-fw fa-inbox"></i> Inbox &nbsp;</h1>-->
 
 	<div class="btn-group hidden-lg hidden-md col col-xs-3">
 		<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -27,7 +35,7 @@
 	</div>
 
 
-	<div id="mailIcons" class="col col-xs-8 text-align-left pull-left" style="margin-left: 10px;">
+	<div id="mailIcons" class="col col-xs-9 text-align-left pull-left">
 
 		<button class="btn btn-default visible-sm visible-xs pull-left"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"
@@ -105,7 +113,7 @@
 			</ul>
 		</div>
 
-		<div class="btn-group text-left" id="boxEmailOption" style="display:none;">
+		<div class="btn-group pull-left" id="boxEmailOption" style="display:none;">
 			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown">
 				More <i class="fa fa-angle-down fa-lg"></i>
 			</button>
@@ -123,8 +131,9 @@
 
 			</ul>
 		</div>
-
+		<a href="javascript:void(0);" onclick="checkNewEmail();" style="margin-top: 5px; margin-left:10px;" class="pull-left visible-sm visible-xs checknewmail"><i class="fa fa-refresh fa-lg"></i></a>
 	</div>
+
 
 
 	<div id="sendMaildiv" class="col col-xs-6 text-align-right pull-right" style="display:none;">
@@ -161,10 +170,6 @@
 			</ul>
 		</div>
 		<div class="air air-bottom fetch-space" style="bottom:40px;width: 185px;display:none;position:initial;">
-		</div>
-
-		<div class="air air-bottom inbox-space" style="bottom:0px;position:initial;">
-
 		</div>
 
 	</div>

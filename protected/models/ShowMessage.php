@@ -29,6 +29,7 @@ class ShowMessage extends CFormModel
 
 	public function show()
 	{
+		//move new email to mongo
 		if(is_numeric($this->messageId)){
 			$query=	array(
 				'_id' => new MongoId(substr(hash('sha1',$this->messageId),0,24)),
@@ -46,21 +47,25 @@ class ShowMessage extends CFormModel
 				echo '{"results":"empty"}';
 
 
-		}else if(ctype_xdigit($this->messageId)){
+		}else if(ctype_xdigit($this->messageId) && strlen($this->messageId)==24){
 			$query=	array(
-				'_id' => new MongoId(substr(hash('sha1',$this->messageId),0,24)),
+				'_id' => new MongoId($this->messageId),
 				'modKey'=>hash('sha512',$this->modKey)
 			);
 
+
 			if($ref=Yii::app()->mongo->findOne('personalFolders',$query,array('_id'=>1,'meta'=>1,'body'=>1))){
+
 				$result['results']['messageHash']=$this->messageId;
 
 				$result['results']['meta']=base64_encode(substr($ref['meta']->bin,0,16)).';'.base64_encode(substr($ref['meta']->bin,16));
 				$result['results']['body']=base64_encode(substr($ref['body']->bin,0,16)).';'.base64_encode(substr($ref['body']->bin,16));
 
 				echo json_encode($result);
+
 			}else
 				echo '{"results":"empty"}';
+
 		}else
 			echo '{"results":"empty"}';
 
