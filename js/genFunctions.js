@@ -227,6 +227,7 @@ function resetGlobal() {
 	$("#mobfolder").empty();
 	$(".table-wrap").empty();
 	//$("#content").html('');
+	$("#mailIcons").css('display','none');
 
 	if (activePage == 'profile') {
 		window.location.href = '#mail';
@@ -246,7 +247,6 @@ function resetGlobal() {
 
 }
 function initialFunction() {
-	functionTracer='initialFunction';
 	getLoginStatus()
 		.always(function (result) {
 			if (result == 1) {
@@ -1070,7 +1070,6 @@ function IsEmail(email) {
 }
 
 function currentTab() {
-
 	functionTracer='currentTab';
 	checkState(function () {
 
@@ -1604,7 +1603,6 @@ function customMessageIds(folder){
 	for(var k in folder){
 		if(k!='name')keys.push(k);
 	}
-
 	return keys;
 }
 function displayFolderContent(folderName) {
@@ -2687,7 +2685,6 @@ function deleteEmail()
 }
 
 function deleteFailed(messageId){
-	console.log('');
 	functionTracer='deleteFailed';
 	$('#dialog_simple >p').html('We are sorry, but we unable to decrypt this email. Please report a bug if problem persists.');
 
@@ -3266,7 +3263,6 @@ function getDomain() {
 	return $.get("getDomains");
 }
 function loadInitialPage() {
-	functionTracer='loadInitialPage';
 	pageSetUp();
 	// fix table height
 	tableHeightSize();
@@ -3323,7 +3319,6 @@ function checkEmailAmount() {
 }
 
 function displayFolder() {
-	functionTracer='displayFolder';
 	//console.log(profileSettings);
 
 	if (folder != {}) {
@@ -3384,7 +3379,6 @@ function displayFolder() {
 
 }
 function renderMoveFolder(){
-	functionTracer='renderMoveFolder';
 	var follist = $("#mvtofolder");
 	follist.html('');
 
@@ -3628,7 +3622,6 @@ function checkFolders(callback) {
 }
 
 function showLog(success, cancel) {
-	functionTracer='showLog';
 	$('#dialog-form-login').dialog({
 		autoOpen: false,
 		height: 230,

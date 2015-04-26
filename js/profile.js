@@ -938,18 +938,20 @@ function extractModKeys(data,messageKeys,callback)
 	if (data['results'].length > 0 && $.isArray(data['results'])) {
 		$.each(data['results'], function (index, value) { //go through all ids
 
-			var key = forge.util.hexToBytes(messageKeys[value['messageHash']]['p']);
-
+			var f=messageKeys[value['messageHash']]['p'];
+			var key = forge.util.hexToBytes(f);
+			console.log(value);
 			var z = fromAes64(key, value['meta']);
+			console.log(z);
 			var meta = JSON.parse(z);
 			var fg={'id':value['messageHash'],'modKey':meta['modKey']}
 			modkeyToIndex.push(fg);
 
 		});
-		callback(modkeyToIndex);
+		//callback(modkeyToIndex);
 
 	}else{
-		callback(modkeyToIndex);
+		//callback(modkeyToIndex);
 	}
 }
 function deleteMailsfromDB(selected,callback){
@@ -1004,7 +1006,9 @@ function deleteAllEmails(callback)
 	messagesId.push.apply(messagesId,Object.keys(folder['Trash']));
 	messagesId.push.apply(messagesId,Object.keys(folder['Sent']));
 
-	var messageKeys=folder['Inbox'];
+	var messageKeys={};
+
+	jQuery.extend(messageKeys, folder['Inbox']);
 	jQuery.extend(messageKeys, folder['Draft']);
 	jQuery.extend(messageKeys, folder['Trash']);
 	jQuery.extend(messageKeys, folder['Sent']);
@@ -1068,8 +1072,8 @@ function deleteAccount()
 									if (data.results == 'success') {
 										Answer('Deleted. Good Bye..');
 										setTimeout(function () {
-											$(window).unbind('beforeunload');
-											window.location='/logout';
+											//$(window).unbind('beforeunload');
+											//window.location='/logout';
 										}, 5000);
 									}
 								});
