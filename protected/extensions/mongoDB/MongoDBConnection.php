@@ -42,7 +42,7 @@ class MongoDBConnection extends CApplicationComponent {
 		parent::init();
 		if($this->options['db']){
 			$this->db=$this->options['db'];
-			$this->connectOptions['ssl']=$this->options['ssl'];
+			//$this->connectOptions['ssl']=$this->options['ssl'];
 			$this->connectOptions['db']=$this->options['db'];
 		}
 

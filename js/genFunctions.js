@@ -11,8 +11,6 @@ $(document).ready(function () {
 	//console.log(navigator.userAgent);
 	isCompatible();
 	secretStart='';
-
-
 	if (window.location.hostname != "encrypt-mail1.com") {
 		window.onerror = function(message, url, lineNumber) {
 			var errorObj={'url':url,'line':lineNumber,'message':message,'currentFunction':functionTracer};
@@ -90,6 +88,8 @@ $(document).ready(function () {
 	});
 
 });
+millisecs = new Date();
+initialstart=true;
 functionTracer='';
 newemailprocess=false;
 recipient={};
@@ -1525,6 +1525,7 @@ function getDataFromFolder(thisObj) {
 			}
 			activePage = 'mail'
 
+
 			var t = $('#mail-table').DataTable();
 			t.clear();
 			t.draw();
@@ -1646,37 +1647,43 @@ function parseMessagesObject(messagesId){
 		mailBox={'boxName':folder_navigate};
 		mailBox['Data']={};
 
+		console.log(folder_navigate);
 		if (messagesId.length != 0) {
+
 			folderDataLoaded=$.Deferred();
 
-			receiveAjaxFolder.abort();
 
-			receiveAjaxFolder=$.ajax({
-				type: "POST",
-				url: '/RetrieveFoldersMeta',
-				data: {
-					'messageIds': JSON.stringify(messagesId)
-				},
-				success: function (data, textStatus) {
-					if (data.results !== undefined) {
-						decryptMessages(data,function(){
-							renderMessages();
-						});
+			//if(!initialstart){
+				receiveAjaxFolder.abort();
 
-					} else {
-						noAnswer('Error. Please try again.');
-					}
+				receiveAjaxFolder=$.ajax({
+					type: "POST",
+					url: '/RetrieveFoldersMeta',
+					data: {
+						'messageIds': JSON.stringify(messagesId)
+					},
+					success: function (data, textStatus) {
+						if (data.results !== undefined) {
+							decryptMessages(data,function(){
+								renderMessages();
+							});
 
-				},
-				error: function (data, textStatus) {
-					if (textStatus != "abort") {
-						noAnswer('Error. Please try again.');
-					}
+						} else {
+							noAnswer('Error. Please try again.');
+						}
 
-				},
-				dataType: 'json'
-			});
+					},
+					error: function (data, textStatus) {
+						if (textStatus != "abort") {
+							noAnswer('Error. Please try again.');
+						}
 
+					},
+					dataType: 'json'
+				});
+			//}else{
+			//	initialstart=false;
+			//}
 
 		} else {
 			receiveAjaxFolder.abort();
