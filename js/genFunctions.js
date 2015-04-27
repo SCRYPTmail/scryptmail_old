@@ -637,7 +637,7 @@ function moveMessagestoInbox(newMessages) {
 
 							if (decrypted != '') {
 								var key = forge.util.hexToBytes(decrypted);
-								var z = fromAes(key, value['meta']);
+								var z = fromAes64(key, value['meta']);
 								var meta=JSON.parse(z)
 								var from=from64(meta['from']);
 
