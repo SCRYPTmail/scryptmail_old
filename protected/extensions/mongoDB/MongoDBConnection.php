@@ -56,7 +56,7 @@ class MongoDBConnection extends CApplicationComponent {
 	 */
 	public function connect()
 	{
-		if(!extension_loaded('mongo')){
+		/*if(!extension_loaded('mongo')){
 			throw new EMongoException(
 				yii::t(
 					'yii',
@@ -64,6 +64,7 @@ class MongoDBConnection extends CApplicationComponent {
 				)
 			);
 		}
+		*/
 try {
 		$this->_mongo = new MongoClient($this->connectionString, $this->connectOptions);
 		$dbname=$this->db;
