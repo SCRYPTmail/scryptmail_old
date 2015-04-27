@@ -1327,7 +1327,7 @@ function populateProfile() {
 
 
 function checkProfile() {
-	functionTracer='checkProfile';
+	//functionTracer='checkProfile';
 	checkState(function () {
 		var t = jQuery.extend(true, {}, profileSettings);
 		var curr = SHA512(JSON.stringify(to64(t)));
