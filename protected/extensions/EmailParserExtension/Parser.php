@@ -435,6 +435,19 @@ class Parser
             );
         }
     }
+
+	public function getHeaderAll()
+	{
+		if (isset($this->parts[1])) {
+			$header['start']=$this->parts[1]['starting-pos'];
+			$header['end']=$this->parts[1]['starting-pos-body'];
+			return  $header;
+		} else {
+			throw new \Exception(
+				'setPath() or setText() or setStream() must be called before retrieving email headers.'
+			);
+		}
+	}
     /**
      * Returns the email message body in the specified format
      * @return Mixed String Body or False if not found

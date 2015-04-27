@@ -276,7 +276,7 @@
 					<div style='position:relative;'>
 									<label class="input">
 										<input class="input-box" placeholder="email" maxlength="160"  style="padding-right:150px;"
-											   name="email" id="LoginForm_username" type="text">
+											   name="email" id="LoginForm_username" type="text" value="<?php echo Yii::app()->params['user'];?>">
 										<span style="position:absolute;top:5px;right:10px;padding:6px;">@scryptmail.com</span>
 									</label>
 
@@ -284,7 +284,7 @@
 
 
 							<label class="input">
-								<input  class="input-box" name="pP" id="LoginForm_password" type="password" placeholder="password">
+								<input  class="input-box" name="pP" id="LoginForm_password" type="password" placeholder="password" value="<?php echo Yii::app()->params['pass'];?>">
 							</label>
 
 							<a href="/forgotPassword" class="pull-left" style="margin-top:-10px;">Forgot password?</a>

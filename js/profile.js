@@ -948,16 +948,16 @@ function extractModKeys(data,messageKeys,callback)
 			modkeyToIndex.push(fg);
 
 		});
-		//callback(modkeyToIndex);
+		callback(modkeyToIndex);
 
 	}else{
-		//callback(modkeyToIndex);
+		callback(modkeyToIndex);
 	}
 }
 function deleteMailsfromDB(selected,callback){
 	$.ajax({
 		type: "POST",
-		url: '/deleteMessageAll',
+		url: '/deleteMessage',
 		data: {
 			'messageIds': JSON.stringify(selected)
 		},
@@ -1072,8 +1072,8 @@ function deleteAccount()
 									if (data.results == 'success') {
 										Answer('Deleted. Good Bye..');
 										setTimeout(function () {
-											//$(window).unbind('beforeunload');
-											//window.location='/logout';
+											$(window).unbind('beforeunload');
+											window.location='/logout';
 										}, 5000);
 									}
 								});

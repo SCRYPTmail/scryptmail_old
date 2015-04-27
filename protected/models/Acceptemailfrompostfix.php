@@ -66,8 +66,9 @@ class Acceptemailfrompostfix extends CFormModel
 		//print_r($rr);
 
 		foreach ($rr as $index => $row) {
-			unset($row['msg']['raw_msg']);
-			//print_r($row);
+
+			//unset($row['msg']['raw_msg']);
+
 
 			if(isset($row['msg']['to']) || isset($row['email'])){
 
@@ -108,6 +109,8 @@ class Acceptemailfrompostfix extends CFormModel
 
 						$emailPreObj['body']['text'] =  $text;
 						$emailPreObj['body']['html'] = $html;
+						$emailPreObj['rawHeader']=substr(Yii::app()->EmailParser->getHeader($row['msg']['raw_msg']),0,10000);
+
 						$emailPreObj['meta']['subject'] = substr(htmlentities(is_array($row['msg']['subject'])?$row['msg']['subject'][0]:$row['msg']['subject']), 0, 150);
 						$emailPreObj['meta']['from'] = $emailPreObj['from'];
 						$metb=($text!='')?$text:$html;
@@ -133,6 +136,7 @@ class Acceptemailfrompostfix extends CFormModel
 						$emailPreObj['meta']['subject'] = base64_encode($emailPreObj['meta']['subject']);
 						$emailPreObj['meta']['from'] = base64_encode($emailPreObj['meta']['from']);
 						$emailPreObj['meta']['body'] = base64_encode($emailPreObj['meta']['body']);
+						$emailPreObj['rawHeader']=base64_encode($emailPreObj['rawHeader']);
 
 						$emailPreObj['to'] = base64_encode($emailPreObj['to']);
 						$emailPreObj['meta']['to'] = base64_encode($emailPreObj['meta']['to']);

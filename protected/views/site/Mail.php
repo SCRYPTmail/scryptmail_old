@@ -15,9 +15,9 @@
 ?>
 
 
-<div class="inbox-nav-bar no-content-padding">
+<div class="inbox-nav-bar no-content-padding text-left">
 
-	<div class="air air-bottom inbox-space visible-lg visible-md pull-left" style="bottom:0px;position:initial;"><span class="mailboxsize"><strong></strong></span>
+	<div class="air air-bottom inbox-space visible-lg visible-md pull-left" style="bottom:0px;position:initial;margin-right:10px;"><span class="mailboxsize"><strong></strong></span>
 		<img src="img/logo.svg" alt="emails per account" style="height:25px;margin-left:4px;margin-bottom:2px;"><a href="javascript:void(0);" onclick="checkNewEmail();" style="margin-top: 3px;" class="pull-right checknewmail"><i class="fa fa-refresh fa-lg"></i></a><br>
 		<div class="progress progress-micro">
 			<div class="progress-bar progress-primary"></div>
@@ -26,7 +26,7 @@
 
 	<!--<h1 class="page-title txt-color-blueDark visible-lg visible-md pull-left"><i class="fa fa-fw fa-inbox"></i> Inbox &nbsp;</h1>-->
 
-	<div class="btn-group hidden-lg hidden-md col col-xs-3">
+	<div class="btn-group hidden-lg hidden-md pull-left" style="margin-right:4px;">
 		<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 			<span id="folderSelect"></span> <i class="fa fa-caret-down"></i>
 		</button>
@@ -35,58 +35,43 @@
 	</div>
 
 
-	<div id="mailIcons" class="col col-xs-9 text-align-left pull-left">
+	<div id="mailIcons" class="" style="display:flex;">
 
-		<button class="btn btn-default visible-sm visible-xs pull-left"
+		<button class="btn btn-default" onclick="checkNewEmail();" style="margin-right:2px;">
+			<i class="fa fa-refresh"></i>
+		</button>
+
+		<button class="btn btn-default visible-sm visible-xs pull-left" style="margin-right:2px;"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Compose New Email"
 				type="button" onclick="getDataFromFolder('composeMail');">
 			<i class="fa fa-pencil-square-o"></i>
 		</button>
 
-		<button class="btn btn-default pull-left" id="mvFolderButton"
-				rel="tooltip" title="" data-toggle="dropdown" data-placement="bottom" data-original-title="Move to Folder"
+		<div class="btn-group pull-left" style="margin-right:2px;">
+		<button class="btn btn-default" id="mvFolderButton"
+				rel="tooltip" title="" data-toggle="dropdown" data-placement="top" data-original-title="Move to Folder"
 				type="button" onclick="">
-			<i class="fa  fa-folder-open-o fa-lg"></i>
+			<i class="fa fa-folder-open-o fa-lg"></i>
 		</button>
 
 
 		<ul id="mvtofolder" class="dropdown-menu"></ul>
+		</div>
 
-		<button class="btn btn-default deletebutton pull-left"
+		<button class="btn btn-default deletebutton" style="margin-right:2px;"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"
 				type="button" onclick="deleteEmail();">
 			<i class="fa fa-trash-o fa-lg"></i>
 		</button>
 
-		<button class="btn btn-default pull-left hidden-xs"
+		<button class="btn btn-default hidden-xs" style="margin-right:2px;"
 				rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"
 				type="button" onclick="movetofolder('Spam');">
 			<i class="fa fa-ban fa-lg"></i>
 		</button>
 
 
-
-
-	<!--
-
-		<button class="btn btn-default"
-				rel="tooltip" title="" data-placement="bottom" data-original-title="Move to"
-				type="button" onclick="">
-			<i class="fa fa-folder-open-o fa-lg"></i>
-		</button>
-
-		<button class="btn btn-default"
-				rel="tooltip" title="" data-placement="bottom" data-original-title="Spam"
-				type="button" onclick="">
-			<i class="fa fa-ban fa-lg"></i>
-		</button>
-		<button class="btn btn-default"
-				rel="tooltip" title="" data-placement="bottom" data-original-title="Trash"
-				type="button" onclick="">
-			<i class="fa fa-trash-o fa-lg"></i>
-		</button>
--->
-		<div class="btn-group text-left pull-left" id="readEmailOpt" style="display:none;">
+		<div class="" id="readEmailOpt" style="display:none;">
 
 			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" onclick="replyToMail();">
 				<i class="fa fa-reply"></i> Reply
@@ -95,6 +80,23 @@
 			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" onclick="forwardMail();">
 				<i class="fa fa-arrow-right"></i> Forward
 			</button>
+
+
+			<div class="btn-group">
+
+			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown"  style="display:none;" id='rawHead'>
+				More <i class="fa fa-angle-down fa-lg"></i>
+			</button>
+
+			<ul class="dropdown-menu pull-right">
+				<li>
+					<a href="javascript:void(0);" onclick="showRawHeader();"><i
+							class="fa fa-file-code-o"></i> View Header</a>
+				</li>
+			</ul>
+			</div>
+
+			<div class="btn-group">
 
 			<button class="btn btn-default btn-sm dropdown-toggle visible-xs" data-toggle="dropdown">
 				... <i class="fa fa-angle-down fa-lg"></i>
@@ -109,11 +111,17 @@
 					<a href="javascript:void(0);" onclick="forwardMail();"><i
 							class="fa fa-mail-forward"></i> Forward</a>
 				</li>
+				<li id='rawHead'>
+					<a href="javascript:void(0);" onclick="showRawHeader();"><i
+							class="fa fa-file-code-o"></i> View Header</a>
+				</li>
 
 			</ul>
+			</div>
+
 		</div>
 
-		<div class="btn-group pull-left" id="boxEmailOption" style="display:none;">
+		<div class="btn-group" id="boxEmailOption" style="display:none;">
 			<button class="btn btn-default btn-sm dropdown-toggle hidden-xs" data-toggle="dropdown">
 				More <i class="fa fa-angle-down fa-lg"></i>
 			</button>
@@ -131,7 +139,7 @@
 
 			</ul>
 		</div>
-		<a href="javascript:void(0);" onclick="checkNewEmail();" style="margin-top: 5px; margin-left:10px;" class="pull-left visible-sm visible-xs checknewmail"><i class="fa fa-refresh fa-lg"></i></a>
+
 	</div>
 
 
@@ -150,6 +158,7 @@
 	</div>
 
 </div>
+<div class="clearfix"></div>
 <div id="inbox-content" class="inbox-body no-content-padding">
 
 	<div class="inbox-side-bar visible-lg  visible-md">
@@ -174,7 +183,7 @@
 
 	</div>
 
-	<div class="table-wrap fadeInRight">
+	<div class="table-wrap fadeInRight no-content-padding" style="padding: 0px;">
 		<!-- ajax will fill this area -->
 		LOADING...
 	</div>
@@ -189,7 +198,6 @@
 		<li><a tabindex="-1" href="javascript:void(0);" onclick="$('#contextMenu').css('display','none')">Cancel</a></li>
 	</ul>
 </div>
-
 
 
 
@@ -222,6 +230,7 @@
 			$("#contextMenu").css('display','none');
 		});
 
+		functionTracer='huina';
 
 		loadInitialPage();
 		displayFolder();

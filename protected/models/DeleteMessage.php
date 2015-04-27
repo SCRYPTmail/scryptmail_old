@@ -37,56 +37,6 @@ class DeleteMessage extends CFormModel
 		}
 	}
 
-	public function deleteAll()
-	{
-		if (count($this->messageIds) > 0) {
-			foreach ($this->messageIds as $i => $row) {
-				if(is_numeric($row['id'])){
-					$par[] = "(:id_$i,:mod_$i)";
-					$param[":id_$i"] = $row['id'];
-					$param[":mod_$i"] = hash('sha512', $row['modKey']);
-					$mngData[]=array('_id'=>new MongoId(substr(hash('sha1',$row['id']),0,24)),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
-				}else if(ctype_xdigit($row['id'])){
-					$mngData[]=array('_id'=>new MongoId($row['id']),'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
-				}
-
-			}
-			if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
-
-				foreach($fileRemove as $filejson){
-					if($files=json_decode($filejson['file'],true)){
-						foreach($files as $names)
-							FileWorks::deleteFile($names);
-
-					}
-				}
-			}
-
-			$mngDataAgregate=array('$or'=>$mngData);
-
-			if($ref=Yii::app()->mongo->findAll('personalFolders',$mngDataAgregate,array('_id'=>1,'file'=>1))){
-				foreach($ref as $doc){
-					if($files=json_decode($doc['file'],true)){
-						foreach($files as $names)
-							FileWorks::deleteFile($names);
-
-					}
-				}
-			}
-
-			if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)
-			||
-				Yii::app()->mongo->removeAll('personalFolders',$mngDataAgregate)
-			)
-				echo '{"results":"success"}';
-			else
-				echo '{"results":"fail"}';
-
-		} else
-			echo '{"results":"success"}';
-
-
-	}
 
 	public function delete()
 	{
