@@ -37,7 +37,7 @@
 
 	<div id="mailIcons" class="" style="display:flex;">
 
-		<button class="btn btn-default" onclick="checkNewEmail();" style="margin-right:2px;">
+		<button class="btn btn-default visible-sm visible-xs checknewmail" onclick="checkNewEmail();" style="margin-right:2px;">
 			<i class="fa fa-refresh"></i>
 		</button>
 

@@ -431,8 +431,6 @@ function checkNewEmail()
 }
 function newMailCheckRoutine() {
 
-	functionTracer='newMailCheckRoutine';
-
 	clearInterval(newMailer);
 		newMailer = setInterval(function () {
 			checkNewEmail();
@@ -443,7 +441,6 @@ function newMailCheckRoutine() {
 
 
 function newMailSeedRoutine() {
-	functionTracer='newMailSeedRoutine';
 
 	if (profileSettings['lastSeed'] < lastAvailableSeed) {
 
