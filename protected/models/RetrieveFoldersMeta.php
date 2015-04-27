@@ -48,8 +48,10 @@ class RetrieveFoldersMeta extends CFormModel
 			if (is_numeric($row)){
 				$f[$i] = $row;
 				$mongof[]=new MongoId(substr(hash('sha1',$row),0,24));
+				$refMong[substr(hash('sha1',$row),0,24)]=$row;
 			}else if(ctype_xdigit($row) && strlen($row)==24){
-				$mongof[]=new MongoId($row);	
+				$mongof[]=new MongoId($row);
+				$refMong[$row]=$row;
 			}
 		}
 			if(isset($f))
