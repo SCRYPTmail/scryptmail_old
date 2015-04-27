@@ -264,13 +264,13 @@
 			<div class="vertical-registration-form">
 				<h4 class="dark-text form-heading">Login</h4>
 
-				<!--<div class="alert alert-info text-left">
+				<div class="alert alert-info text-left">
 					Choose the next feature for SCRYPTmail <a href="http://blog.scryptmail.com/" target="_blank">http://blog.scryptmail.com</a>
-				</div>-->
-
-				<div class="alert alert-warning text-left">
-					Service will be down for maintenance between <s>00:00-00:30</s> 03:00 - 03:30 April 27, 2015. Please be logged out at this time, and refresh browser next time you visit us. Thank you
 				</div>
+
+				<!--<div class="alert alert-warning text-left">
+					Service will be down for maintenance between <s>00:00-00:30</s> 03:00 - 03:30 April 27, 2015. Please be logged out at this time, and refresh browser next time you visit us. Thank you
+				</div>-->
 				<div class="registration-form smart-form" id="contact-form" id="login-form" onkeydown="if (event.keyCode == 13) submitLogin();"  autocomplete="off">
 
 					<div style='position:relative;'>
