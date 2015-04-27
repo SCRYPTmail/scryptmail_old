@@ -2785,7 +2785,7 @@ function getEmailSender(messagesId,callback){
 						var key = forge.util.hexToBytes(folder[folder_navigate][value['messageHash']]['p']);
 					}
 
-					var z = fromAes(key, value['body']);
+					var z = fromAes64(key, value['body']);
 					var body = JSON.parse(z);
 					var fr=from64(body['from']);
 					if (fr.indexOf('<') != -1) {
