@@ -115,12 +115,18 @@ function renderMessage(body, meta, datas) {
 
 
 	$('#pag').css('display','none');
+	if(body['rawHeader']!=undefined){
+		body['rawHeader']=from64(body['rawHeader']);
+		$('#rawHead').css('display','block');
+	}else
+	{
+		$('#rawHead').css('display','none');
+	}
 	activePage = 'readEmail';
 	body['body']['text'] = from64(body['body']['text']);
 	body['body']['html'] = from64(body['body']['html']);
 	body['to'] = from64(body['to']);
 	body['from'] = from64(body['from']);
-
 
 	body['subj'] = from64(body['subj']);
 

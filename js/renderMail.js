@@ -84,7 +84,6 @@ function saniziteEmailAttachment(body,meta,signBody)
 
 
 	$('.email-open-header').text(stripHTML((body['subj'])));
-
 	var rcphead = '';
 	if (from.indexOf('<') != -1) {
 

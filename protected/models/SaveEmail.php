@@ -16,6 +16,7 @@ class SaveEmail extends CFormModel
 	public $from;
 	public $pinHash;
 
+	public $modKey;
 	public $modKeySeed;
 	public $modKeyMail, $to,$files;
 
@@ -26,18 +27,18 @@ class SaveEmail extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('mail,newModKey,oldModKey,meta', 'required', 'on' => 'save,saveMailInSent'),
-			array('mail,newModKey,meta', 'required', 'on' => 'sendLocalFail'),
+			array('mail,modKey,meta', 'required', 'on' => 'save,saveMailInSent,sendLocalFail'),
 
 
 			array('files', 'safe', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 			array('files', 'checkFile', 'on' => 'sendLocal,saveMailInSent,sendOutNoPin,sendOutPin'),
 
-			array('mailHash', 'numerical', 'integerOnly' => true, 'allowEmpty' => true, 'on' => 'save,saveMailInSent'),
+			array('mailHash', 'match', 'pattern' => "/^[a-z0-9\d]{1,24}$/i", 'allowEmpty' => true, 'on' => 'save,saveMailInSent'),
 
 
 			array('from', 'checkFrom', 'on' => 'sendOutPin'),
 			array('to', 'safe', 'on' => 'sendOutPin'),
+
 			array('messageId,pinHash,ModKey', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'sendOutPin'),
 			array('mail,meta', 'match', 'pattern' => "/^[a-z0-9\d]+$/i", 'allowEmpty' => false, 'on' => 'sendOutPin'),
 			array('mail,meta', 'checkEmail', 'on' => 'sendOutPin'),
@@ -104,25 +105,137 @@ class SaveEmail extends CFormModel
 	}
 	public function save()
 	{
-		$params[':body'] = $this->mail;
-		$params[':modKey'] = $this->newModKey;
-		$params[':oldModKey'] = hash('sha512', $this->oldModKey);
-		$params[':meta'] = $this->meta;
 
-		if(isset($this->files)){
+		if(empty($this->mailHash))
+		{
+			//if new draft email no emailId, create new message and return message id
 
-			foreach($this->files as $row){
-				$fileNames[]=$row['fname'];
+			$fileSize=0;
+			if(isset($this->files)){
 
-				if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+				foreach($this->files as $row){
+					$fileNames[]=$row['fname'];
+
+					if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+					{
+						echo '{"messageId":"fail1"}';
+					}
+					$fileSize+=strlen($row['data']);
+				}
+				$files = json_encode($fileNames);
+			}else
+				$files  = null;
+
+			$body=substr(hex2bin($this->mail),0,16).substr(hex2bin($this->mail),16);
+			$meta=substr(hex2bin($this->meta),0,16).substr(hex2bin($this->meta),16);
+
+			$person[]=array(
+				"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+				"body" => new MongoBinData($body, MongoBinData::GENERIC),
+				"modKey"=>hash('sha512',$this->modKey),
+				"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+				"userId"=>Yii::app()->user->getId(),
+				"file"=>$files
+			);
+
+			if($message=Yii::app()->mongo->insert('personalFolders',$person))
+			{
+				$result['messageId']=$message[0];
+
+				echo json_encode($result);
+			}
+
+
+
+		}else{
+			if(is_numeric($this->mailHash)) //old messages still have digital emailId
+			{
+				$fileSize=0;
+				if(isset($this->files)){
+
+					foreach($this->files as $row){
+						$fileNames[]=$row['fname'];
+
+						if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+						{
+							echo '{"messageId":"fail1"}';
+						}
+						$fileSize+=strlen($row['data']);
+					}
+					$files = json_encode($fileNames);
+				}else
+					$files  = null;
+
+
+				$body=substr(hex2bin($this->mail),0,16).substr(hex2bin($this->mail),16);
+				$meta=substr(hex2bin($this->meta),0,16).substr(hex2bin($this->meta),16);
+
+				$person=array(
+					"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+					"body" => new MongoBinData($body, MongoBinData::GENERIC),
+					"modKey"=>hash('sha512',$this->modKey),
+					"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+					"userId"=>Yii::app()->user->getId(),
+					"file"=>$files
+				);
+
+				$criteria=array("_id" => new MongoId(substr(hash('sha1',$this->mailHash),0,24)),'modKey'=>hash('sha512',$this->modKey));
+
+
+				if($message=Yii::app()->mongo->update('personalFolders',$person,$criteria))
 				{
-					echo '{"messageId":"fail1"}';
+					$result['messageId']=$message[0];
+
+					echo json_encode($result);
 				}
 
+			}else if(ctype_xdigit($this->mailHash) && strlen($this->mailHash)==24)
+			{
+				$fileSize=0;
+					if(isset($this->files)){
+
+						foreach($this->files as $row){
+							$fileNames[]=$row['fname'];
+
+							if(FileWorks::writeFile($row['fname'],$row['data'])===false)
+							{
+								echo '{"messageId":"fail1"}';
+							}
+							$fileSize+=strlen($row['data']);
+						}
+						$files = json_encode($fileNames);
+					}else
+						$files  = null;
+
+
+					$body=substr(hex2bin($this->mail),0,16).substr(hex2bin($this->mail),16);
+					$meta=substr(hex2bin($this->meta),0,16).substr(hex2bin($this->meta),16);
+
+					$person=array(
+						"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+						"body" => new MongoBinData($body, MongoBinData::GENERIC),
+						"modKey"=>hash('sha512',$this->modKey),
+						"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+						"userId"=>Yii::app()->user->getId(),
+						"file"=>$files
+					);
+
+					$criteria=array("_id" => new MongoId($this->mailHash),'modKey'=>hash('sha512',$this->modKey));
+
+
+					if($message=Yii::app()->mongo->update('personalFolders',$person,$criteria))
+					{
+						$result['messageId']=$this->mailHash;
+
+						echo json_encode($result);
+					}
+
 			}
-			$params[':file'] = json_encode($fileNames);
-		}else
-			$params[':file'] = null;
+
+
+		}
+/*
+
 
 		unset($fileNames);
 
@@ -146,17 +259,20 @@ class SaveEmail extends CFormModel
 				echo '{"email":"Keys are not saved, please try again or report a bug"}';
 
 		}
+		*/
 	}
+
 
 	public function sendLocalFail()
 	{
 		$params[':body'] = $this->mail;
-		$params[':modKey'] = $this->newModKey;
+		$params[':modKey'] = $this->modKey;
 		$params[':meta'] = $this->meta;
 
 		if (Yii::app()->db->createCommand("INSERT INTO personalFolders (meta,body,modKey) VALUES(:meta,:body,:modKey)")->execute($params))
+		{	$ff=Yii::app()->db->getLastInsertID();
 			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
-		else
+		}else
 			echo '{"email":"Keys are not saved, please try again or report a bug"}';
 
 	}

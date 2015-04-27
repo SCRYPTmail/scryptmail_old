@@ -31,13 +31,13 @@ class RetrieveFoldersMeta extends CFormModel
 
 		if (is_array($this->messageIds)) {
 			foreach ($this->messageIds as $row) {
-				if (!is_numeric($row))
-					$this->addError('message', 'Message ids should be an integers');
-				return false;
+				if (!is_numeric($row) && (!ctype_xdigit($row) || strlen($row)!=24)){
+					$this->addError('message', 'Message ids incorrect');
+					return false;
+				}
 			}
 			return true;
 		} else {
-			//echo '{"message":"Messages should be in an array"}';
 			$this->addError('message', 'Messages should be in an array');
 		}
 	}
@@ -60,21 +60,59 @@ class RetrieveFoldersMeta extends CFormModel
 	public function getMeta()
 	{
 		if(count($this->messageIds)>0){
-			foreach ($this->messageIds as $i => $row) {
-				if (is_numeric($row))
-					$f[$i] = $row;
-			}
-			$params = implode($f, ',');
 
-			if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,meta FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
-				foreach($result['results'] as $i=>$row){
-					$vect=hex2bin(substr($row['meta'],0,32));
-					$data=hex2bin(substr($row['meta'],32));
-					$result['results'][$i]['meta']=base64_encode($vect).';'.base64_encode($data);
-					//print_r($vect);
+			foreach ($this->messageIds as $i => $row) {
+				if (is_numeric($row)){ //compatibility with old messageids=numeric
+					$f[$row] = $row;
+					$mongof[]=new MongoId(substr(hash('sha1',$row),0,24));
+					$refMong[substr(hash('sha1',$row),0,24)]=$row;
+				}else if(ctype_xdigit($row) && strlen($row)==24) //if new messageid=hex
+				{
+					$mongof[]=new MongoId($row);
+					$refMong[$row]=$row;
 				}
-				echo json_encode($result);
-			} else
+			}
+
+			if(isset($f))
+			{
+				//if old messages will try to move into mongo before fetching
+				if(MongoMigrate::movePersonalFolders($f))
+				{
+					if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'meta'=>1,'')))
+					{
+						foreach($ref as $doc){
+
+							$vect=substr($doc['meta']->bin,0,16);
+							$data=substr($doc['meta']->bin,16);
+							$row=base64_encode($vect).';'.base64_encode($data);
+							$result['results'][]=array('messageHash'=>$refMong[$doc['_id']],'meta'=>$row);
+						}
+						echo json_encode($result);
+
+
+					}else
+						echo '{"results":"empty"}';
+				}
+
+			}else if(isset($mongof))
+			{
+				//if new ids just fetch
+				if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'meta'=>1,'')))
+				{
+					foreach($ref as $doc){
+
+						$vect=substr($doc['meta']->bin,0,16);
+						$data=substr($doc['meta']->bin,16);
+						$row=base64_encode($vect).';'.base64_encode($data);
+						$result['results'][]=array('messageHash'=>$refMong[$doc['_id']],'meta'=>$row);
+					}
+					echo json_encode($result);
+
+
+				}else
+					echo '{"results":"empty"}';
+
+			}else
 				echo '{"results":"empty"}';
 
 		}else{

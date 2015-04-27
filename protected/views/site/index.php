@@ -123,7 +123,7 @@ Use search to find needed section.
 				</span>
 		<span id="miniset"> <!-- User image size is adjusted inside CSS, it should stay as is -->
 
-					<a href="#profile" id="show-shortcut"  rel="tooltip" title="Settings" data-placement="right">
+					<a href="#profile">
 						<i class="fa fa-cog"></i>
 					</a>
 
@@ -147,7 +147,9 @@ Use search to find needed section.
 
 		<ul>
 			<li>
-				<a href="mail"><i class="fa fa-lg fa-fw fa-inbox" style=""></i> <span class="menu-item-parent"style="">Mail</span><span
+				<a href="mail">
+					<i class="fa fa-lg fa-fw fa-inbox"></i>
+					<span class="menu-item-parent">Mail</span><span
 						class="badge pull-right inbox-badge"></span></a>
 			</li>
 		</ul>
@@ -269,7 +271,7 @@ Use search to find needed section.
 		<ul>
 			<li>
 				<a href="#mail" class="jarvismetro-tile big-cubes bg-color-blue"> <span class="iconbox"> <i
-							class="fa fa-envelope fa-4x"></i> <span id="topBadge">Mail</span> </span>
+							class="fa fa-envelope fa-4x"></i></span>
 				</a>
 			</li>
 			 	<li>

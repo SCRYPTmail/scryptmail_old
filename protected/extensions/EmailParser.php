@@ -8,39 +8,61 @@
 class EmailParser extends CApplicationComponent
 {
 
+public $Parser;
 
 	public function init()
 	{
+		include 'EmailParserExtension/Parser.php';
+		include 'EmailParserExtension/Attachment.php';
+		include 'EmailParserExtension/Exception.php';
+
+		$this->Parser = new Parser();
 		//require("libs/nusoap-0.9.5/lib/nusoap.php");
 		return parent::init();
+
+
 	}
 
-	public function getResults()
+	public function getHeader($email)
 	{
 
-
-		include Yii::app()->basePath.'/vendor/softLayer/ObjectStorage/Util.php';
-
-
-		// If no adapter option is provided, CURL will be used.
-		$options = array('adapter' => ObjectStorage_Http_Client::SOCKET, 'timeout' => 10);
-		$host = Yii::app()->params['host'];
-		$username = Yii::app()->params['username'];
-		$password = Yii::app()->params['password'];
-		$objectStorage = new ObjectStorage($host, $username, $password, $options);
+			$pars=$this->Parser;
 
 
-		$newObject = $objectStorage->with('attachments/object.txt')
-			->setBody('test object')
-			->setMeta('user_id', '555')
-			->create();
-/*
-		$newObject = $objectStorage->with('attachments/object.txt')
-			//->setBody('test object')
-			//->setMeta('description', 'first test file')
-			->delete();
+			$pars->setText($email);
 
-*/
+			$headerPos=$pars->getHeaderAll();
+
+
+			return substr($email,$headerPos['start'],$headerPos['end']);
+		}
+
+		public function getResults()
+		{
+
+
+			include Yii::app()->basePath.'/vendor/softLayer/ObjectStorage/Util.php';
+
+
+			// If no adapter option is provided, CURL will be used.
+			$options = array('adapter' => ObjectStorage_Http_Client::SOCKET, 'timeout' => 10);
+			$host = Yii::app()->params['host'];
+			$username = Yii::app()->params['username'];
+			$password = Yii::app()->params['password'];
+			$objectStorage = new ObjectStorage($host, $username, $password, $options);
+
+
+			$newObject = $objectStorage->with('attachments/object.txt')
+				->setBody('test object')
+				->setMeta('user_id', '555')
+				->create();
+	/*
+			$newObject = $objectStorage->with('attachments/object.txt')
+				//->setBody('test object')
+				//->setMeta('description', 'first test file')
+				->delete();
+
+	*/
 		/*
 $file = fopen("/srv/www/mailparser/postfixtest", "w");
 fwrite($file, "Script successfully ran at ".date("Y-m-d H:i:s")."\n");

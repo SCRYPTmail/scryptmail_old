@@ -354,7 +354,7 @@ function encryptMessageForSent(badRcpt, senderMod, key,callback) {
 	}
 
 	var metaType='sent';
-	var modKey=makeModKey(UserSalt);
+	var modKey=(emailObj['meta']['modKey']===undefined)?makeModKey(UserSalt):emailObj['meta']['modKey'];
 	var bodyText=to64(stripHTML($('#emailbody').code()));
 	var bodyHTML=to64(filterXSS($('#emailbody').code()));
 	var fromExtra = '';
@@ -364,15 +364,8 @@ function encryptMessageForSent(badRcpt, senderMod, key,callback) {
 	var files=fileObject;
 
 	createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,function(messaged){
-		messaged['newModKey'] = SHA512(modKey);
 		messaged['mailHash'] = message['mailHash'];
-		modKeys.push(messaged['newModKey']);
-
-		if (modKeys.length > 1) {
-			messaged['oldModKey'] = modKeys[modKeys.length - 2];
-		} else {
-			messaged['oldModKey'] = 'empty';
-		}
+		messaged['modKey']=modKey;
 		callback(messaged);
 	});
 }
@@ -403,7 +396,7 @@ function indoCryptFail(value, key,callback) {
 	var files={};
 
 	createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,function(messaged){
-		messaged['newModKey']=SHA512(modKey);
+		messaged['modKey']=modKey;
 		callback(messaged);
 	});
 
@@ -553,7 +546,7 @@ function encryptMessageToRecipient(emailparsed) {
 			indoCryptFail(value, key,function(sendMessage){
 
 				var mailId = SendMailFail(sendMessage).always(function (result) {
-					if (!isNaN(result['messageId'])) {
+					if (!isNaN(result['messageId']) || isValidHex(result['messageId'])) {
 						folder['Inbox'][result['messageId']] = {'p': forge.util.bytesToHex(key), 'opened': false};
 						checkFolders();
 						var rcp = {'mail': recipientHandler('getTextEmail',value['mail']), 'answer': 'Recipient not found.','reason':{'answer':'recipient not found'}};
@@ -641,7 +634,7 @@ function encryptMessageToRecipient(emailparsed) {
 
 			encryptMessageForSent(badRcpt, senderMod, key,function(sendMessage){
 				var mailId = SaveMailInSent(sendMessage).always(function (result) {
-					if (!isNaN(result['messageId'])) {
+					if (!isNaN(result['messageId']) || isValidHex(result['messageId'])) {
 
 						folder['Sent'][result['messageId']] = {'p': forge.util.bytesToHex(key), 'opened': false};
 
@@ -667,7 +660,7 @@ function encryptMessageToRecipient(emailparsed) {
 				var mailId = SaveMailInSent(sendMessage).always(function (result) {
 
 
-					if (!isNaN(result['messageId'])) {
+					if (!isNaN(result['messageId']) || isValidHex(result['messageId'])) {
 
 						folder['Sent'][result['messageId']] = {'p': forge.util.bytesToHex(key), 'opened': true};
 						delete folder['Draft'][message['mailHash']];

@@ -276,7 +276,7 @@
 					<div style='position:relative;'>
 									<label class="input">
 										<input class="input-box" placeholder="email" maxlength="160"  style="padding-right:150px;"
-											   name="email" id="LoginForm_username" type="text">
+											   name="email" id="LoginForm_username" type="text" value="<?php echo Yii::app()->params['user'];?>">
 										<span style="position:absolute;top:5px;right:10px;padding:6px;">@scryptmail.com</span>
 									</label>
 
@@ -284,7 +284,7 @@
 
 
 							<label class="input">
-								<input  class="input-box" name="pP" id="LoginForm_password" type="password" placeholder="password">
+								<input  class="input-box" name="pP" id="LoginForm_password" type="password" placeholder="password" value="<?php echo Yii::app()->params['pass'];?>">
 							</label>
 
 							<a href="/forgotPassword" class="pull-left" style="margin-top:-10px;">Forgot password?</a>
@@ -451,16 +451,19 @@
 
 <!-- Piwik -->
 <script type="text/javascript">
-	var _paq = _paq || [];
-	_paq.push(['trackPageView']);
-	_paq.push(['enableLinkTracking']);
-	(function() {
-		var u="//piwik.scryptmail.com/";
-		_paq.push(['setTrackerUrl', u+'piwik.php']);
-		_paq.push(['setSiteId', 1]);
-		var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-		g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-	})();
+	if (window.location.hostname != "encrypt-mail1.com") {
+		var _paq = _paq || [];
+		_paq.push(['trackPageView']);
+		_paq.push(['enableLinkTracking']);
+		(function() {
+			var u="//piwik.scryptmail.com/";
+			_paq.push(['setTrackerUrl', u+'piwik.php']);
+			_paq.push(['setSiteId', 1]);
+			var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+			g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+		})();
+	}
+
 </script>
 <noscript><p><img src="//piwik.scryptmail.com/piwik.php?idsite=1" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Code -->

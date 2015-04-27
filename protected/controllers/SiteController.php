@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0572';
+	public $fileVers='0573';
 
 	public function beforeAction($action)
 	{
@@ -144,6 +144,7 @@ class SiteController extends Controller
 			array('allow', // allow all users to perform 'index' and 'view' actions
 				'actions' => array(
 					'createUser',
+					'checkMongo',
 					'login',
 					'updateKeys',
 					'ModalLogin',
@@ -236,6 +237,13 @@ class SiteController extends Controller
 	 * This is the default 'index' action that is invoked
 	 * when an action is not explicitly requested by users.
 	 */
+
+	public function actionCheckMongo()
+	{
+		$model = new CheckMongo();
+		$model->runTest();
+
+	}
 
 	public function actionInviteFriend()
 	{
@@ -808,6 +816,7 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 		}
 	}
+
 	public function actionDeleteMessage()
 	{
 		if(Yii::app()->request->isAjaxRequest){
@@ -1080,7 +1089,9 @@ class SiteController extends Controller
 		$this->layout='newSplash';
 
 
-		$this->render('newLogin', array('version'=>$this->fileVers));
+		$this->render('newLogin', array('version'=>$this->fileVers
+
+		));
 	}
 	public function actionCheckEmailExist()
 	{
