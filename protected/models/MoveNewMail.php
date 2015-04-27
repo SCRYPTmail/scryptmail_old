@@ -77,6 +77,7 @@ class MoveNewMail extends CFormModel
 						"body" => new MongoBinData($body, MongoBinData::GENERIC),
 						"modKey"=>$row['modKey'],
 						"file"=>$row['file'],
+						"emailSize"=>strlen($row['meta'])+strlen($row['body']),
 						"userId"=>Yii::app()->user->getId()
 					);
 

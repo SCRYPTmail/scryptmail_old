@@ -34,10 +34,10 @@ class MongoMigrate extends CFormModel
 					'_id'=>new MongoId(substr(hash('sha1',$row['messageHash']),0,24)),
 					'oldId'=>$row['messageHash'],
 					"meta" => new MongoBinData($row['meta'], MongoBinData::GENERIC),
-					//"metaOld"=>new MongoBinData($row['met'], MongoBinData::GENERIC),
 					"body" => new MongoBinData($row['body'], MongoBinData::GENERIC),
-					//"bodyOld"=>new MongoBinData($row['bod'], MongoBinData::GENERIC),
+					"emailSize"=>strlen($row['meta'])+strlen($row['body']),
 					"modKey"=>$row['modKey'],
+					"userId"=>Yii::app()->user->getId(),
 					"file"=>$row['file']
 				);
 			}

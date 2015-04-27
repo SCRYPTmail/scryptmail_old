@@ -110,6 +110,7 @@ class SaveEmail extends CFormModel
 		{
 			//if new draft email no emailId, create new message and return message id
 
+			$fileSize=0;
 			if(isset($this->files)){
 
 				foreach($this->files as $row){
@@ -119,7 +120,7 @@ class SaveEmail extends CFormModel
 					{
 						echo '{"messageId":"fail1"}';
 					}
-
+					$fileSize+=strlen($row['data']);
 				}
 				$files = json_encode($fileNames);
 			}else
@@ -132,6 +133,8 @@ class SaveEmail extends CFormModel
 				"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
 				"body" => new MongoBinData($body, MongoBinData::GENERIC),
 				"modKey"=>hash('sha512',$this->modKey),
+				"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+				"userId"=>Yii::app()->user->getId(),
 				"file"=>$files
 			);
 
@@ -147,6 +150,7 @@ class SaveEmail extends CFormModel
 		}else{
 			if(is_numeric($this->mailHash)) //old messages still have digital emailId
 			{
+				$fileSize=0;
 				if(isset($this->files)){
 
 					foreach($this->files as $row){
@@ -156,7 +160,7 @@ class SaveEmail extends CFormModel
 						{
 							echo '{"messageId":"fail1"}';
 						}
-
+						$fileSize+=strlen($row['data']);
 					}
 					$files = json_encode($fileNames);
 				}else
@@ -170,6 +174,8 @@ class SaveEmail extends CFormModel
 					"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
 					"body" => new MongoBinData($body, MongoBinData::GENERIC),
 					"modKey"=>hash('sha512',$this->modKey),
+					"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+					"userId"=>Yii::app()->user->getId(),
 					"file"=>$files
 				);
 
@@ -185,7 +191,7 @@ class SaveEmail extends CFormModel
 
 			}else if(ctype_xdigit($this->mailHash) && strlen($this->mailHash)==24)
 			{
-
+				$fileSize=0;
 					if(isset($this->files)){
 
 						foreach($this->files as $row){
@@ -195,7 +201,7 @@ class SaveEmail extends CFormModel
 							{
 								echo '{"messageId":"fail1"}';
 							}
-
+							$fileSize+=strlen($row['data']);
 						}
 						$files = json_encode($fileNames);
 					}else
@@ -209,6 +215,8 @@ class SaveEmail extends CFormModel
 						"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
 						"body" => new MongoBinData($body, MongoBinData::GENERIC),
 						"modKey"=>hash('sha512',$this->modKey),
+						"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+						"userId"=>Yii::app()->user->getId(),
 						"file"=>$files
 					);
 
