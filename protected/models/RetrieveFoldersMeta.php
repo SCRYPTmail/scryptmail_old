@@ -45,15 +45,57 @@ class RetrieveFoldersMeta extends CFormModel
 	public function getData()
 	{
 		foreach ($this->messageIds as $i => $row) {
-			if (is_numeric($row))
+			if (is_numeric($row)){
 				$f[$i] = $row;
+				$mongof[]=new MongoId(substr(hash('sha1',$row),0,24));
+			}else if(ctype_xdigit($row) && strlen($row)==24){
+				$mongof[]=new MongoId($row);	
+			}
 		}
-		$params = implode($f, ',');
+			if(isset($f))
+			{
+			if(MongoMigrate::movePersonalFolders($f))
+				{
+					if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'body'=>1,'')))
+					{
+							foreach($ref as $doc)
+							{
+								$vect=substr($doc['body']->bin,0,16);
+								$data=substr($doc['body']->bin,16);
+								$row=base64_encode($vect).';'.base64_encode($data);
+								$result['results'][]=array('messageHash'=>$refMong[$doc['_id']],'body'=>$row);
+							}
+						echo json_encode($result);
+						
+					}else{
+					echo '{"results":"empty"}';	
+					}
+					
+				}
+			}else if(isset($mongof)){
+				if($ref=Yii::app()->mongo->findByManyIds('personalFolders',$mongof,array('_id'=>1,'body'=>1,'')))
+					{
+							foreach($ref as $doc)
+							{
+								$vect=substr($doc['body']->bin,0,16);
+								$data=substr($doc['body']->bin,16);
+								$row=base64_encode($vect).';'.base64_encode($data);
+								$result['results'][]=array('messageHash'=>$refMong[$doc['_id']],'body'=>$row);
+							}
+						echo json_encode($result);
+						
+					}else{
+					echo '{"results":"empty"}';	
+					}
+			}else{
+				echo '{"results":"empty"}';	
+			}
 
-		if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,body FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
-			echo json_encode($result);
-		} else
-			echo '{"results":"empty"}';
+
+	//	if ($result['results'] = Yii::app()->db->createCommand("SELECT messageHash,body FROM personalFolders WHERE messageHash IN ($params)")->queryAll()) {
+		//	echo json_encode($result);
+	//	} else
+	//		echo '{"results":"empty"}';
 
 	}
 
