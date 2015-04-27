@@ -42,7 +42,7 @@ class MongoDBConnection extends CApplicationComponent {
 		parent::init();
 		if($this->options['db']){
 			$this->db=$this->options['db'];
-			//$this->connectOptions['ssl']=$this->options['ssl'];
+			$this->connectOptions['ssl']=$this->options['ssl'];
 			$this->connectOptions['db']=$this->options['db'];
 		}
 
@@ -56,7 +56,7 @@ class MongoDBConnection extends CApplicationComponent {
 	 */
 	public function connect()
 	{
-		/*if(!extension_loaded('mongo')){
+		if(!extension_loaded('mongo')){
 			throw new EMongoException(
 				yii::t(
 					'yii',
@@ -64,7 +64,6 @@ class MongoDBConnection extends CApplicationComponent {
 				)
 			);
 		}
-		*/
 try {
 		$this->_mongo = new MongoClient($this->connectionString, $this->connectOptions);
 		$dbname=$this->db;
