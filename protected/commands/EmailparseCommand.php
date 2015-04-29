@@ -40,13 +40,13 @@ class EmailparseCommand extends CFormModel
 			fclose($fd);
 
 		} else {
-			$path = Yii::app()->basePath . '/extensions/m0001';
+			$path = Yii::app()->basePath . '/extensions/m0002';
 			$rawEmail = file_get_contents($path); //test
 			}
 
-		//$myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
-	//	fwrite($myfile, $rawEmail);
-	//	fclose($myfile);
+		//$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
+		//fwrite($myfile, $rawEmail);
+		//fclose($myfile);
 
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
 
@@ -162,7 +162,7 @@ class EmailparseCommand extends CFormModel
 						$key = EmailparseCommand::makeModKey(32);
 
 
-						if (isset($emailParsed['attachmentObj'])) {
+						if (isset($emailParsed['attachmentObj']) && is_array($emailParsed['attachmentObj']) && count($emailParsed['attachmentObj'])>0) {
 							foreach ($emailParsed['attachmentObj'] as $k => $file) {
 								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
 
@@ -179,6 +179,7 @@ class EmailparseCommand extends CFormModel
 						} else {
 							$emailPreObj['meta']['attachment'] = '';
 						}
+
 
 						$body = EmailparseCommand::toAes($key, json_encode($emailPreObj));
 						$meta = EmailparseCommand::toAes($key, json_encode($emailPreObj['meta']));
