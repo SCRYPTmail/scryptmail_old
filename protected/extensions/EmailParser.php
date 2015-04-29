@@ -43,7 +43,9 @@ public $Parser;
 
 
 		$Parser = new Parser();
-		$Parser->setText($rawEmail);
+
+		$Parser->setStream($rawEmail);
+		//$Parser->setText($rawEmail);
 
 // We can get all the necessary data
 		$email['to']=$Parser->getHeader('to');
