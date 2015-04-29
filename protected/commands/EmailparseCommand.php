@@ -30,11 +30,15 @@ class EmailparseCommand extends CFormModel
 
 
 		if (Yii::app()->params['production']) {
+			$rawEmail = fopen("php://stdin", "r"); //production
+		} else {
 			$path = Yii::app()->basePath . '/extensions/m0001';
 			$rawEmail = file_get_contents($path); //test
-		} else {
-			$rawEmail = fopen("php://stdin", "r"); //production
-		}
+			}
+
+		$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
+		fwrite($myfile, $rawEmail);
+		fclose($myfile);
 
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
 
