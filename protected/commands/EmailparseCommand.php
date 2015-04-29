@@ -36,9 +36,9 @@ class EmailparseCommand extends CFormModel
 			$rawEmail = file_get_contents($path); //test
 			}
 
-		$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-		fwrite($myfile, $rawEmail);
-		fclose($myfile);
+		//$myfile = fopen("newfile.txt", "a") or die("Unable to open file!");
+	//	fwrite($myfile, $rawEmail);
+	//	fclose($myfile);
 
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
 
