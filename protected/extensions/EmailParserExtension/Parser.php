@@ -552,7 +552,7 @@ class Parser
      * @return array Saved attachments paths
      * @param $attach_dir String of the directory
      */
-    public function saveAttachments($attach_dir)
+    public function saveAttachments($attach_dir=null)
     {
         $attachments = $this->getAttachments();
         if (empty($attachments)) {

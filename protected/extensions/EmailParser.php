@@ -37,25 +37,35 @@ public $Parser;
 			return substr($email,$headerPos['start'],$headerPos['end']);
 		}
 
-		public function getResults()
+
+	public function getResults($rawEmail)
 		{
 
 
-			include Yii::app()->basePath.'/vendor/softLayer/ObjectStorage/Util.php';
+		$Parser = new Parser();
+		$Parser->setText($rawEmail);
+
+// We can get all the necessary data
+		$email['to']=$Parser->getHeader('to');
+		$email['cc']=$Parser->getHeader('cc');
+		$email['from']=$Parser->getHeader('from');
+		$email['subject']=$Parser->getHeader('subject');
+		$email['received']=date('Y-m-d H:i:s');
+		$email['sent']=date('Y-m-d H:i:s',strtotime($Parser->getHeader('date')));
+		$email['text']=$Parser->getMessageBody('text');
+		$email['html']=$Parser->getMessageBody('html');
+		$email['htmlEmbedded']=$Parser->getMessageBody('htmlEmbedded');//HTML Body included data
 
 
-			// If no adapter option is provided, CURL will be used.
-			$options = array('adapter' => ObjectStorage_Http_Client::SOCKET, 'timeout' => 10);
-			$host = Yii::app()->params['host'];
-			$username = Yii::app()->params['username'];
-			$password = Yii::app()->params['password'];
-			$objectStorage = new ObjectStorage($host, $username, $password, $options);
+
+// and the attachments also
+		//$attach_dir = Yii::app()->basePath.'/extensions/';
+		$email['attachmentObj']=$Parser->saveAttachments();
+		//$Parser->saveAttachments($attach_dir);
+
+		return $email;
 
 
-			$newObject = $objectStorage->with('attachments/object.txt')
-				->setBody('test object')
-				->setMeta('user_id', '555')
-				->create();
 	/*
 			$newObject = $objectStorage->with('attachments/object.txt')
 				//->setBody('test object')

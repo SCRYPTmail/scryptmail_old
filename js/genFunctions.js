@@ -826,6 +826,7 @@ function retrieveNewTable(chunks) { //todo change modkey when copy, to differ fr
 }
 
 function showFetcher() {
+	/*
 	$('.fetch-space').css('display', 'block');
 
 	var delspam = '<i class="fa fa-envelope-o fa-lg pull-right"></i>';
@@ -835,7 +836,7 @@ function showFetcher() {
 	$('.fetch-space').html('<div rel="tooltip" title="Looking for new email" data-placement="top"><span></span>/<span><strong></strong></span>' + delspam + '<br>' + showprogress + '</div>');
 
 	$('.emailMob1').html('<div rel="tooltip" title="Looking for new email" data-placement="top"><span></span>/<span><strong></strong></span>' + delspam + '<br>' + showprogress + '</div>');
-
+*/
 	//console.log($('.emailMob1 div').attr('title')); //200
 	//console.log($('.fetch-space div').children().eq(1).text()); //600
 	//console.log($('.fetch-space div div div').css('width','33%'));
@@ -2270,10 +2271,9 @@ function detectMessage(datas) {
 
 function showRawHeader()
 {
-
 	var w = window.open();
 	var html ='<pre ' +
-		'style="white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word;">'+emailObj['body']['rawHeader']+'<pre>';
+		'style="white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word;">'+stripHTML(emailObj['body']['rawHeader'])+'<pre>';
 
 	$(w.document.body).html(html);
 }
