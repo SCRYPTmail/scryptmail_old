@@ -81,7 +81,7 @@ class EmailparseCommand extends CFormModel
 			unset($email, $name);
 			$paramDomain = implode(array_keys($verifyDomain), ',');
 
-			if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain)")->queryAll(true, $verifyDomain)) {
+			if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND acceptingInbounds=1")->queryAll(true, $verifyDomain)) {
 				foreach ($verifiedDomains as $row) {
 					$verifiedEmailsArray[] = $emailObject[hash('sha512', $row['domain'])];
 				}
@@ -104,6 +104,8 @@ class EmailparseCommand extends CFormModel
 
 
 			if (isset($verifiedEmailList) && count($verifiedEmailList) > 0) {
+				print_r($verifiedEmailList);
+
 				$paramEmailHashes = implode(array_keys($verifiedEmailList), ',');
 
 				if ($mailhash = Yii::app()->db->createCommand(
@@ -161,12 +163,9 @@ class EmailparseCommand extends CFormModel
 
 						$key = EmailparseCommand::makeModKey(32);
 
-
 						if (isset($emailParsed['attachmentObj']) && is_array($emailParsed['attachmentObj']) && count($emailParsed['attachmentObj'])>0) {
 							foreach ($emailParsed['attachmentObj'] as $k => $file) {
-								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . time());
-
-
+								$fname = hash('sha512', $file['name'] . $emailPreObj['to'] . $emailPreObj['meta']['timeRcvd'] . microtime());
 								$size = strlen($file['content']);
 								if (FileWorks::encryptFile($file['content'], $fname, $key, null)) {
 									$fToSent[] = $fname;

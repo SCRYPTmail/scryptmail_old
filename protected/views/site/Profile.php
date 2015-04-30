@@ -628,18 +628,20 @@
 
 
 <form class="smart-form client-form" id="dialog-AddAlias" title="New Alias" style="display:none;padding-top:20px;">
-
-	<section>
-		<label class="input"> <i class="icon-prepend fa fa-envelope-o"></i>
-			<input type="text" name="email" id="newAliasEmail" placeholder="email" style="padding-right:125px;">
-			<span style="position:absolute;top:0px;right:10px;padding:6px;">@scryptmail.com</span>
-		</label>
-
-
-
-
+<div class="row">
+	<section class="col col-xs-12">
+	<label class="input">
+		<i class="icon-prepend fa fa-envelope-o"></i>
+		<input type="text" name="email" id="newAliasEmail" placeholder="email">
+	</label>
 	</section>
-
+	<section class="col col-xs-12">
+		<label class="select">
+			<select name="domain" id="aliasDomain" onchange='$("#newAliasEmail").valid();'>
+			</select> <i></i> </label>
+	</section>
+</div>
+<a href="https://blog.scryptmail.com/testing-multiple-domain-aliases" target="_blank">* Domain Test. Please Read</a>
 </form>
 
 <form class="smart-form client-form" id="dialog-AddContact" title="New Contact" style="display:none;">
