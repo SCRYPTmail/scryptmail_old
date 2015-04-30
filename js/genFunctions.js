@@ -314,11 +314,6 @@ function getObjects() {
 
 }
 
-function getDomain() {
-	return $.get("getDomains");
-
-}
-
 function getMainData() {
 	functionTracer='getMainData';
 	getObjects()
@@ -3284,6 +3279,7 @@ function SHA512old(data) {
 function getDomain() {
 	return $.get("getDomains");
 }
+
 function loadInitialPage() {
 	pageSetUp();
 	// fix table height

@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0575';
+	public $fileVers='0576';
 
 	public function beforeAction($action)
 	{
@@ -154,6 +154,7 @@ class SiteController extends Controller
 					'getObjects',
 					'mail',
 					'getDomains',
+					'getDomainsForAlias',
 					'retrievePublicKeys',
 					'loginStatus',
 					'saveEmail',
@@ -713,6 +714,12 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 
 	}
+	public function actionGetDomainsForAlias()
+	{
+		getDomains::domainAvalailableForAlias();
+	}
+
+
 
 	public function actionGetDomains()
 	{

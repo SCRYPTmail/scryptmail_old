@@ -41,4 +41,18 @@ class getDomains extends CFormModel
 		}
 
 	}
+
+	public function domainAvalailableForAlias()
+	{
+		if($domains=Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE availableForAliasReg=1")->queryAll()){
+			foreach($domains as $row){
+				$result['domains'][]=$row['domain'];
+			}
+			$result['response'] = 'success';
+			echo json_encode($result);
+		}else{
+			$result['response'] = 'fail';
+			echo json_encode($result);
+		}
+	}
 }

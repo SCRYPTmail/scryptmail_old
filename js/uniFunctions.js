@@ -262,6 +262,24 @@ function isValidHex(hex) {
 
 }
 
+function getLocalDomains(callback){
+	$.ajax({
+		type: "POST",
+		url: '/getDomainsForAlias',
+		success: function (data, textStatus) {
+			if (data['response'] == 'success') {
+				callback(data['domains']);
+			}else{
+				noAnswer('Error. Please try again.');
+			}
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+}
+
 function parseEmail(emailText,callback){
 	/*
 	 parse text email w/o name and return object

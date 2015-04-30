@@ -1476,6 +1476,7 @@ function initdisposable() {
 }
 
 function initAlias() {
+
 	//disposableListProfileInitialized
 	if (!aliasListProfileInitialized) {
 		var dataSet = [];
@@ -1530,6 +1531,29 @@ function initAlias() {
 		$("[rel=tooltip]").tooltip();
 
 	}
+
+	$.ajax({
+		type: "POST",
+		url: '/getDomainsForAlias',
+		success: function (data, textStatus) {
+				if (data['response'] == 'success') {
+					$.each(data['domains'], function (index, value) {
+							$('#aliasDomain').append(
+								$('<option></option>').val(value).html('@'+value)
+							);
+
+					});
+				}else{
+					noAnswer('Error. Please try again.');
+				}
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+
+
 }
 
 
@@ -2072,7 +2096,7 @@ function addNewDisposableEmail(count) {
 function addNewAliasEmail() {
 	$('#dialog-AddAlias').dialog({
 		autoOpen: false,
-		height: 160,
+		height: 300,
 		width: 300,
 		modal: true,
 		title:'New Alias',
@@ -2086,7 +2110,7 @@ function addNewAliasEmail() {
 					validatorAliasClient.form();
 					if (validatorAliasClient.numberOfInvalids() == 0) {
 						var email =$('#newAliasEmail').val().toLowerCase();
-						email=email.split('@')[0]+ '@scryptmail.com';
+						email=email.split('@')[0]+ '@'+$('#aliasDomain').val();
 						saveNewAliasEmail(email);
 					}
 				}
@@ -2121,8 +2145,7 @@ function addNewAliasEmail() {
 	$.validator.addMethod("uniqueUserName", function (value, element) {
 		var isSuccess = false;
 		var email =$('#newAliasEmail').val().toLowerCase();
-		email=email.split('@')[0]+ '@scryptmail.com';
-
+		email=email.split('@')[0]+ '@'+$('#aliasDomain').val();
 		if(IsEmail(email)){
 			$.ajax({
 				type: "POST",
@@ -2140,12 +2163,35 @@ function addNewAliasEmail() {
 
 	}, "Email is Already Taken / No Specail Characters");
 
+	$.validator.addMethod("uniqueDomain", function (value, element) {
+		var isSuccess = false;
+		var email =$('#newAliasEmail').val().toLowerCase();
+		email=email.split('@')[0]+ '@'+$('#aliasDomain').val();
+
+		if(IsEmail(email)){
+			$.ajax({
+				type: "POST",
+				url: "/checkEmailExist",
+				data: {'CreateUser[email]': SHA512(email), 'ajax': 'smart-form-register'},
+				dataType: "json",
+				async: false,
+				success: function (msg) {
+					isSuccess = msg === true ? true : false
+				}
+			});
+		}
+
+		return isSuccess;
+
+
+	}, "Email is Already Taken / No Specail Characters");
+
 	validatorAliasClient = $("#dialog-AddAlias").validate();
 
 
 	$("#newAliasEmail").rules("add", {
 		required: true,
-		minlength: 6,
+		minlength: 3,
 		maxlength: 90,
 		uniqueUserName: true
 	});

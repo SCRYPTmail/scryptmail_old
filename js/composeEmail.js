@@ -173,7 +173,9 @@ function generatePin(pin) {
 
 }
 
-function emailParser(emails) {
+function emailParser(emails,callback) {
+	getLocalDomains(function(localDomains){
+
 	var emailObj = [];
 	emailObj['indomain'] = {};
 	emailObj['outdomain'] = {};
@@ -187,19 +189,19 @@ function emailParser(emails) {
 			var email = result['email'];
 
 			mailD = email.split('@');
+				if (jQuery.inArray(mailD[1], localDomains) != -1) {
+					//console.log(mail);
+					ind.mail = email;
+					//ind.seedK = '';
+					ind.mailK = '';
+					indomain.push(ind);
+					ind = {};
+				} else {
+					out.mail = email;
+					outdomain.push(out);
+					out = {};
+				}
 
-			if (jQuery.inArray(mailD[1], domains) != -1) {
-				//console.log(mail);
-				ind.mail = email;
-				//ind.seedK = '';
-				ind.mailK = '';
-				indomain.push(ind);
-				ind = {};
-			} else {
-				out.mail = email;
-				outdomain.push(out);
-				out = {};
-			}
 
 		});
 	});
@@ -207,7 +209,8 @@ function emailParser(emails) {
 	emailObj['indomain'] = indomain;
 	emailObj['outdomain'] = outdomain;
 	//console.log(emailObj);
-	return emailObj
+		callback(emailObj);
+	});
 }
 
 function sendMail() {
@@ -254,45 +257,47 @@ function sendMail() {
 			} else {
 
 				recipientHandler('getPinsFromCards', '');
-
-				var emailparsed = emailParser(emails);
-
 				var dfd = $.Deferred();
 				var dfd1 = $.Deferred();
 
-				if (emailparsed['indomain'].length > 0) {
-					var locmails = [];
-					$.each(emailparsed['indomain'], function (index, value) {
-						locmails[index] = SHA512(value.mail);
+				emailParser(emails,function(emailparsed){
 
-					});
-					retrievePublicKeys(function (dataBack) {
+					if (emailparsed['indomain'].length > 0) {
+						var locmails = [];
+						$.each(emailparsed['indomain'], function (index, value) {
+							locmails[index] = SHA512(value.mail);
 
-						emailparsed['indomain'] = indomainLoop(emailparsed, locmails, dataBack);
+						});
+						retrievePublicKeys(function (dataBack) {
+
+							emailparsed['indomain'] = indomainLoop(emailparsed, locmails, dataBack);
+							dfd.resolve();
+						}, function () {
+
+						}, locmails);
+					} else {
 						dfd.resolve();
-					}, function () {
+					}
 
-					}, locmails);
-				} else {
-					dfd.resolve();
-				}
+					if (emailparsed['outdomain'].length > 0) {
 
-				if (emailparsed['outdomain'].length > 0) {
+						$.each(emailparsed['outdomain'], function (index, value) {
+							//emailparsed['outdomain'][index].pin = $('#emailPin b').text();
+							dfd1.resolve();
+						});
 
-					$.each(emailparsed['outdomain'], function (index, value) {
-						//emailparsed['outdomain'][index].pin = $('#emailPin b').text();
+					} else {
 						dfd1.resolve();
+					}
+
+					dfd.done(function () {
+						dfd1.done(function () {
+							encryptMessageToRecipient(emailparsed);
+						});
 					});
 
-				} else {
-					dfd1.resolve();
-				}
-
-				dfd.done(function () {
-					dfd1.done(function () {
-						encryptMessageToRecipient(emailparsed);
-					});
 				});
+
 
 			}
 
@@ -961,23 +966,26 @@ function addPinCard(name, email, pin) {
 
 	var mailD = email.split('@');
 
-	if (jQuery.inArray(mailD[1], domains) == -1) {
+	getLocalDomains(function(localDomains){
+		if (jQuery.inArray(mailD[1], localDomains) == -1) {
 
-		var dataContent = '<p class=\'brekwords\'><b>' + name + '</b><br>' + email + '</p>';
-		var inpField = '<label class="input"><input class="col col-xs-12 agred-pin" name="pinm" id="pin_' + SHA256(email) + '" type="text" placeholder="Agreed PIN"></label>';
+			var dataContent = '<p class=\'brekwords\'><b>' + name + '</b><br>' + email + '</p>';
+			var inpField = '<label class="input"><input class="col col-xs-12 agred-pin" name="pinm" id="pin_' + SHA256(email) + '" type="text" placeholder="Agreed PIN"></label>';
 
-		var card = '<div class="well well-sm" id="' + SHA256(email) + '" rel="popover-hover" data-placement="top" data-original-title="" data-content="' + dataContent + '"><p class="pins">' + comaddr + '</p>' + inpField + '<br></div>';
+			var card = '<div class="well well-sm" id="' + SHA256(email) + '" rel="popover-hover" data-placement="top" data-original-title="" data-content="' + dataContent + '"><p class="pins">' + comaddr + '</p>' + inpField + '<br></div>';
 
-		$('#email-pin-form').append(card);
+			$('#email-pin-form').append(card);
 
-		$('#pin_' + SHA256(email)).val(pin);
+			$('#pin_' + SHA256(email)).val(pin);
 
-		$("[rel=popover-hover]").popover({
-			trigger: "hover",
-			html: true
-		});
+			$("[rel=popover-hover]").popover({
+				trigger: "hover",
+				html: true
+			});
 
-	}
+		}
+	});
+
 }
 
 function recipientHandler(action, email) {
@@ -1017,15 +1025,19 @@ function recipientHandler(action, email) {
 	}
 
 	if (action == 'getListForPin') {
-
+		getLocalDomains(function(localDomains){
 		var result = {};
 		$.each(recipient, function (index, value) {
 			var mailD = index.split('@');
-			if (jQuery.inArray(mailD[1], domains) == -1) {
-				result[index] = {'name': value['name'] != '' ? to64(value['name']) : '', 'pin': to64(value['pin'])};
-			}
+
+				if (jQuery.inArray(mailD[1], localDomains) == -1) {
+					result[index] = {'name': value['name'] != '' ? to64(value['name']) : '', 'pin': to64(value['pin'])};
+				}
+
+
 		});
 		return result;
+		});
 	}
 	if (action == 'getPinsFromCards') {
 		$.each(recipient, function (index, value) {
