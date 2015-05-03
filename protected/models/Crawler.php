@@ -20,21 +20,43 @@ class Crawler extends CFormModel
 		if (!Yii::app()->db->createCommand("SELECT * FROM crawler WHERE action='cleaningHouse'")->queryRow()) {
 			Yii::app()->db->createCommand("INSERT INTO crawler (action,active) VALUES('cleaningHouse',1)")->execute();
 
-			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()) {
+			//$newMail2field[]=array('oldId'=>$row['mailId'],'modKey'=>hash('sha512', $row['mailModKey']));
 
+			$user = array('removeIn' => array('$lte'=>new MongoDate(strtotime('-1 minute'))));
 
-				foreach($emailsToClean as $i=>$row){
-					$emailToDeleteId[":mailId_$i"]=$row['id'];
+			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()
+				||
+				$newEmailsToClean=Yii::app()->mongo->findAll('mailQueue',$user)
+			) {
 
-					if($files=json_decode($row['file'],true)){
-						foreach($files as $filename){
-
-							FileWorks::deleteFile($filename);
-
+				if(is_array($emailsToClean)){
+					foreach($emailsToClean as $i=>$row){
+						$emailToDeleteId[":mailId_$i"]=$row['id'];
+						if($files=json_decode($row['file'],true)){
+							foreach($files as $filename){
+								FileWorks::deleteFile($filename);
+							}
 						}
 					}
+					Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode(array_keys($emailToDeleteId),',').")")->execute($emailToDeleteId);
+					unset($emailToDeleteId);
 				}
-				Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode(array_keys($emailToDeleteId),',').")")->execute($emailToDeleteId);
+
+				if(isset($newEmailsToClean))
+				{
+					foreach($newEmailsToClean as $i=>$doc){
+						$emailToDeleteId[]=array('_id'=>new MongoId($doc['_id']));
+						if($files=json_decode($doc['file'],true)){
+							foreach($files as $filename){
+								FileWorks::deleteFile($filename);
+							}
+						}
+					}
+					$mngDataAgregate=array('$or'=>$emailToDeleteId);
+					Yii::app()->mongo->removeAll('mailQueue',$mngDataAgregate);
+				}
+
+
 
 			}
 
@@ -55,60 +77,66 @@ class Crawler extends CFormModel
 			//read emails to send
 			if ($emails = Yii::app()->db->createCommand("SELECT * FROM mailToSent WHERE indexmail IS NULL LIMIT 4000")->queryAll()) {
 				Yii::app()->db->createCommand("INSERT INTO mailToSent (indexmail) VALUES(1)")->execute();
+
 				//print_r($emails);
 				foreach ($emails as $row) {
 
-					if ($row['outside'] == 1) {
+					if ($row['outside'] == 1)
+					{ //send email third server
 
 						if ($row['pass'] == '') {
-
 							if (Crawler::sendMailOutWithPin($row)) {
 
-								$par[':id'] = $row['messageId'];
-								$par[':meta'] = $row['meta'];
-								$par[':body'] = $row['body'];
-								$par[':modKey'] = $row['modKey'];
-								$par[':file'] = $row['file'];
-								$par[':pinHash'] = $row['pinHash'];
-								$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 4 weeks'));
-								$trans = Yii::app()->db->beginTransaction();
-								if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,modKey,file,expired,pinHash) VALUES (:id,:meta,:body,:modKey,:file,:expired,:pinHash)")->execute($par)) {
-									if (Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()) {
-										$trans->commit();
-									} else
-										$trans->rollback();
-								} else
-									$trans->rollback();
+								$meta=substr(hex2bin($row['meta']),0,16).substr(hex2bin($row['meta']),16);
+								$body=substr(hex2bin($row['body']),0,16).substr(hex2bin($row['body']),16);
 
-								unset($par);
-
+								$person[]=array(
+									"oldId"=>$row['messageId'],
+									"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+									"body" => new MongoBinData($body, MongoBinData::GENERIC),
+									"modKey"=>$row['modKey'],
+									"file"=>$row['file'],
+									"pinHash" => $row['pinHash'],
+									"removeIn"=>new MongoDate(strtotime('now'))
+								);
+								if(Yii::app()->mongo->insert('mailQueue',$person))
+								{
+									Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
+								}
+								unset($person);
 							}
-
 
 						} else {
-
 							if (Crawler::sendMailOutWithoutPin($row)) {
 								if(isset($row['file']) &&$row['file']!=''){
-									$par[':id'] = $row['id'];
-									$par[':modKey'] = $row['modKey'];
-									$par[':file'] = $row['file'];
-									$par[':expired'] = Date('Y-m-d H:i:s',strtotime('now + 4 weeks'));
-									Yii::app()->db->createCommand("INSERT INTO mailTable (id,modKey,file,expired) VALUES (:id,:modKey,:file,:expired)")->execute($par);
-									unset($par);
+									$person[]=array(
+										"oldId"=>$row['messageId'],
+										"modKey"=>$row['modKey'],
+										"file"=>$row['file'],
+										"removeIn"=>new MongoDate(strtotime('now'))
+									);
+									Yii::app()->mongo->insert('mailQueue',$person);
+									unset($person);
 								}
-								//print_r($row);
 									Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute();
+
 							}
 
-
 						}
+
 					}
+					//end send email third server
+					if ($row['fromOut'] == 1 || ($row['outside'] == 0 && $row['fromOut'] == 0))
+					{
+						$fileSize=0;
+						if(isset($row['file'])){ //calculate space occupied by files
+							$files=json_decode($row['file']);
+							foreach($files as $file){
+								$fileSize+=FileWorks::getFileSize($file);
+							}
+						}
 
-					if (($row['outside'] == 0 && $row['fromOut'] == 0) ||
-						$row['fromOut'] == 1
-					) {
 						$trans = Yii::app()->db->beginTransaction();
-
 						$par[':id'] = $row['id'];
 						$par[':meta'] = $row['seedMeta'];
 						$par[':modKey'] = $row['modKeySeed'];
@@ -118,26 +146,37 @@ class Crawler extends CFormModel
 
 						if (Yii::app()->db->createCommand("INSERT INTO seedTable (id,meta,modKey,password,rcpnt,v1) VALUES (:id,:meta,:modKey,:password,:rcpnt,:v1)")->execute($par)) {
 							unset($par);
-							$par1[':id'] = $row['messageId'];
-							$par1[':meta'] = $row['meta'];
-							$par1[':body'] = $row['body'];
-							$par1[':pass'] = $row['pass'];
-							$par1[':modKey'] = $row['modKey'];
-							$par1[':file'] = $row['file'];
-							if (Yii::app()->db->createCommand("INSERT INTO mailTable (id,meta,body,pass,modKey,file) VALUES (:id,:meta,:body,:pass,:modKey,:file)")->execute($par1)) {
-								unset($par1);
-								if (Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()) {
-									$trans->commit();
-								} else
-									$trans->rollback();
-							} else
-								$trans->rollback();
-						} else
-							$trans->rollback();
+							$meta=substr(hex2bin($row['meta']),0,16).substr(hex2bin($row['meta']),16);
+							$body=substr(hex2bin($row['body']),0,16).substr(hex2bin($row['body']),16);
 
-						unset($par, $par);
+							$person[]=array(
+								"oldId"=>$row['messageId'],
+								"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+								"body" => new MongoBinData($body, MongoBinData::GENERIC),
+								"pass" => $row['pass'],
+								"modKey"=>$row['modKey'],
+								"file"=>$row['file'],
+								"emailSize"=>strlen($meta)+strlen($body)+$fileSize,
+							);
+							if(Yii::app()->mongo->insert('mailQueue',$person))
+							{
+								unset($fileSize,$person);
+								if(Yii::app()->db->createCommand("DELETE FROM mailToSent WHERE id=" . $row['id'])->execute()){
+									$trans->commit();
+								}else{
+									$trans->rollback();
+								}
+							}else{
+								$trans->rollback();
+							}
+
+						}
+
 					}
+
+
 				}
+
 			}
 
 			Yii::app()->db->createCommand("DELETE FROM crawler WHERE action ='takingMail'")->execute();
