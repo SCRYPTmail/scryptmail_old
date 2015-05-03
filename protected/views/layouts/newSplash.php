@@ -157,13 +157,8 @@
 
 						</div>
 						<!-- /END HEADNING AND BUTTONS -->
-						<h5><a href="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy" target="_blank" class="white-text">Help us to offer public registration again by supporting our kickstarter campaign!</a>
-								</h5>
 						<div class="browser-image">
-
-
-							<a href="https://www.kickstarter.com/projects/scryptmail/scryptmail-kickstart-your-privacy?ref=card"><img src="/img/kccamp.png" class="wow fadeInUp" data-wow-duration="1s" alt="" style="margin-bottom:20px;"></a>
-
+							<img src="/img/screenshots/compose.png" class="wow fadeInUp" data-wow-duration="1s" alt="">
 						</div>
 
 					</div>
