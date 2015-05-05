@@ -102,7 +102,7 @@ try {
 		return  $this->_db->$name;
 	}
 
-	public function findOne($collectionName,$data,$selectFields=null)
+	public function findOne($collectionName,$data,$selectFields=array())
 	{
 
 		if($reference = $this->setCollection($collectionName)->findOne($data,$selectFields))

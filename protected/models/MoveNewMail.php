@@ -67,50 +67,49 @@ class MoveNewMail extends CFormModel
 			);
 			$trans = Yii::app()->db->beginTransaction();
 
-			if ($mails = Yii::app()->db->createCommand("SELECT id as messageHash,meta,body,pass,modKey,file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true, $param)
-			||
-				$newMails=Yii::app()->mongo->findAll('mailQueue',$user)
-			)
+			if ($mails = Yii::app()->db->createCommand("SELECT id as messageHash,meta,body,pass,modKey,file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true, $param))
 			{
-				if(is_array($mails)){
-					foreach ($mails as $i => $row) {
 
-						$meta=substr(hex2bin($row['meta']),0,16).substr(hex2bin($row['meta']),16);
-						$body=substr(hex2bin($row['body']),0,16).substr(hex2bin($row['body']),16);
-						$pass[$row['modKey']]=$row['pass'];
+				foreach ($mails as $i => $row) {
 
-						$person[]=array(
-							"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
-							"body" => new MongoBinData($body, MongoBinData::GENERIC),
-							"modKey"=>$row['modKey'],
-							"file"=>$row['file'],
-							"emailSize"=>strlen($row['meta'])+strlen($row['body']),
-							"userId"=>Yii::app()->user->getId()
-						);
-					}
+					$meta=substr(hex2bin($row['meta']),0,16).substr(hex2bin($row['meta']),16);
+					$body=substr(hex2bin($row['body']),0,16).substr(hex2bin($row['body']),16);
+					$pass[$row['modKey']]=$row['pass'];
+
+					$person[]=array(
+						"meta" => new MongoBinData($meta, MongoBinData::GENERIC),
+						"body" => new MongoBinData($body, MongoBinData::GENERIC),
+						"modKey"=>$row['modKey'],
+						"file"=>$row['file'],
+						"emailSize"=>strlen($row['meta'])+strlen($row['body']),
+						"userId"=>Yii::app()->user->getId()
+					);
 				}
 
-				if(isset($newMails)){
-					foreach ($newMails as $i => $row) {
-						$pass[$row['modKey']]=$row['pass'];
+			}else if($newMails=Yii::app()->mongo->findAll('mailQueue',$user))
+			{
 
-						$person[]=array(
-							"meta" => $row['meta'],
-							"body" => $row['body'],
-							"modKey"=>$row['modKey'],
-							"file"=>$row['file'],
-							"emailSize"=>$row['emailSize'],
-							"userId"=>Yii::app()->user->getId()
-						);
+				foreach ($newMails as $i => $row) {
+					$pass[$row['modKey']]=$row['pass'];
 
-					}
+					$person[]=array(
+						"meta" => $row['meta'],
+						"body" => $row['body'],
+						"modKey"=>$row['modKey'],
+						"file"=>$row['file'],
+						"emailSize"=>$row['emailSize'],
+						"userId"=>Yii::app()->user->getId()
+					);
 
 				}
+
+
+			} else
+				echo '{"response":"fail"}';
+
 
 				if(isset($person) && Yii::app()->mongo->insert('personalFolders',$person))
 				{
-					//print_r($person);
-
 					foreach ($person as $index=>$doc) {
 						if(isset($doc['_id'])){
 							$results['data'][$index]['id'] = (string)$doc['_id'];
@@ -150,8 +149,6 @@ class MoveNewMail extends CFormModel
 				echo '{"response":"fail"}';
 
 			//print_r($mails);
-		} else
-			echo '{"response":"fail"}';
 
 	}
 }

@@ -22,14 +22,10 @@ class Crawler extends CFormModel
 
 			//$newMail2field[]=array('oldId'=>$row['mailId'],'modKey'=>hash('sha512', $row['mailModKey']));
 
-			$user = array('removeIn' => array('$lte'=>new MongoDate(strtotime('-1 minute'))));
+			$user = array('expireAfter' => array('$lte'=>new MongoDate(strtotime('now'))));
 
-			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll()
-				||
-				$newEmailsToClean=Yii::app()->mongo->findAll('mailQueue',$user)
-			) {
-
-				if(is_array($emailsToClean)){
+			if ($emailsToClean = Yii::app()->db->createCommand("SELECT file,id,expired FROM mailTable WHERE expired <NOW()")->queryAll())
+			{
 					foreach($emailsToClean as $i=>$row){
 						$emailToDeleteId[":mailId_$i"]=$row['id'];
 						if($files=json_decode($row['file'],true)){
@@ -40,23 +36,20 @@ class Crawler extends CFormModel
 					}
 					Yii::app()->db->createCommand("DELETE FROM mailTable WHERE id IN (".implode(array_keys($emailToDeleteId),',').")")->execute($emailToDeleteId);
 					unset($emailToDeleteId);
-				}
 
-				if(isset($newEmailsToClean))
-				{
-					foreach($newEmailsToClean as $i=>$doc){
-						$emailToDeleteId[]=array('_id'=>new MongoId($doc['_id']));
-						if($files=json_decode($doc['file'],true)){
-							foreach($files as $filename){
-								FileWorks::deleteFile($filename);
-							}
+			}else if($newEmailsToClean=Yii::app()->mongo->findAll('mailQueue',$user))
+			{
+
+				foreach($newEmailsToClean as $i=>$doc){
+					$emailToDeleteId[]=array('_id'=>new MongoId($doc['_id']));
+					if($files=json_decode($doc['file'],true)){
+						foreach($files as $filename){
+							FileWorks::deleteFile($filename);
 						}
 					}
-					$mngDataAgregate=array('$or'=>$emailToDeleteId);
-					Yii::app()->mongo->removeAll('mailQueue',$mngDataAgregate);
 				}
-
-
+				$mngDataAgregate=array('$or'=>$emailToDeleteId);
+				Yii::app()->mongo->removeAll('mailQueue',$mngDataAgregate);
 
 			}
 
@@ -97,7 +90,8 @@ class Crawler extends CFormModel
 									"modKey"=>$row['modKey'],
 									"file"=>$row['file'],
 									"pinHash" => $row['pinHash'],
-									"removeIn"=>new MongoDate(strtotime('now'))
+									"tryCounter"=>0,
+									"expireAfter"=>new MongoDate(strtotime('now'.'+ 4 weeks'))
 								);
 								if(Yii::app()->mongo->insert('mailQueue',$person))
 								{
@@ -113,7 +107,7 @@ class Crawler extends CFormModel
 										"oldId"=>$row['messageId'],
 										"modKey"=>$row['modKey'],
 										"file"=>$row['file'],
-										"removeIn"=>new MongoDate(strtotime('now'))
+										"expireAfter"=>new MongoDate(strtotime('now'.'+ 4 weeks'))
 									);
 									Yii::app()->mongo->insert('mailQueue',$person);
 									unset($person);
