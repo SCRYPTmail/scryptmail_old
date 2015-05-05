@@ -94,6 +94,32 @@ class FileWorks extends CFormModel
 		}
 		return false;
 	}
+	public function getFileSize($fname)
+	{
+
+		$options = array('adapter' => ObjectStorage_Http_Client::SOCKET, 'timeout' => 10);
+		$host = Yii::app()->params['host'];
+		$folder=Yii::app()->params['folder'];
+		$username = Yii::app()->params['username'];
+		$password = Yii::app()->params['password'];
+
+		try{
+			$fOname=hash('sha512',$fname);
+			$objectStorage = new ObjectStorage($host, $username, $password, $options);
+			$result = $objectStorage->with($folder.'/'.$fOname)->getInfo()->getHeader('Content-length');
+
+			return $result;
+
+		} catch (Exception $e) {
+
+			if($file=@file_get_contents(Yii::app()->basePath . '/attachments/' .$fname)){
+				return strlen($file);
+
+			}
+		}
+		return false;
+	}
+
 	public function deleteFile($fname)
 	{
 		$options = array('adapter' => ObjectStorage_Http_Client::SOCKET, 'timeout' => 10);

@@ -581,7 +581,7 @@ function encryptMessageToRecipient(emailparsed) {
 
 				SendMailOut(sendMessage).always(function (result) {
 
-					console.log(result);
+					//console.log(result);
 					if (!isNaN(result['messageId'])) {
 						//console.log(result);
 						var elem = {'mailId': result['messageId'], 'rcpt': recipientHandler('getTextEmail',value['mail']),'email':value['mail'], 'mailModKey': sendMessage['modKey']};
