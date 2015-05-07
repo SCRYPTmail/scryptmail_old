@@ -218,7 +218,9 @@ class SiteController extends Controller
 					'saveSecretOneStep',
 					'resetPassOneStep',
 					'updateAccount',
-					'saveAliasEmail'
+					'saveAliasEmail',
+					'checkMXrecord',
+					'GetCustomRegisteredDomains'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -252,6 +254,21 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate())
 			$model->invite();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionGetCustomRegisteredDomains()
+	{
+		$model = new CheckMXrecord();
+		$model->registeredList(Yii::app()->user->getId());
+	}
+
+	public function actionCheckMXrecord()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->checkMX();
 		else
 			echo json_encode($model->getErrors());
 	}

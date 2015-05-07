@@ -150,6 +150,24 @@
 						</div>
 					</div>
 				</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading" onclick="initCustomDomain();">
+					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse3l"
+											   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+								class="fa fa-lg fa-angle-up pull-right"></i> Custom Domain Setup</a></h4>
+				</div>
+				<div id="collapse3l" class="panel-collapse collapse">
+					<div class="panel-body">
+						<div class="table-responsive">
+							<table class="table table-striped table-hover" id="customDomainList">
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
 			</div>
 		</div>
 	</article>

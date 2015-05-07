@@ -28,6 +28,7 @@ $(document).ready(function () {
 	blackListProfileInitialized = false;
 	disposableListProfileInitialized = false;
 	aliasListProfileInitialized = false;
+	domainListProfileInitialized = false;
 	tagListProfileInitialized=false;
 
 	if(receiveAjaxFolder['readyState']!==undefined && receiveAjaxFolder['readyState']!=4){
@@ -1473,6 +1474,92 @@ function initdisposable() {
 		$("[rel=tooltip]").tooltip();
 
 	}
+}
+function initCustomDomain(){
+
+	//disposableListProfileInitialized
+	if (!domainListProfileInitialized) {
+		/*
+		var dataSet = [];
+		//console.log(contacts);
+		if (Object.keys(profileSettings['aliasEmails']).length > 0) {
+
+			$.each(profileSettings['aliasEmails'], function (index, value) {
+				var el = [value['email'], '<a class="delete" href="javascript:void(0);" onclick="delAliasEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+
+		contactTable = $('#aliasList').dataTable({
+			"sDom": "R<'dt-toolbar'" +
+				"<'#aliasSearch'f>" +
+				"<'#aliasIcons'>" +
+				"<'col-sm-3 pull-right'l>" +
+				"r>t" +
+				"<'dt-toolbar-footer'" +
+				"<'col-sm-6 col-xs-2'i>" +
+				"<'#paginator'p>" +
+				">",
+			"columnDefs": [
+				{ "sClass": 'col col-xs-10 disposemail', "targets": 0},
+				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
+				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ "orderDataType": "data-sort", "targets": 0 }
+			],
+			"order": [
+				[ 0, "asc" ]
+			],
+			"iDisplayLength": 10,
+			"data": dataSet,
+			columns: [
+				{ "title": "email"},
+				{ "title": "delete"}
+
+			],
+			"language": {
+				"emptyTable": "No Emails"
+			}
+
+		});
+
+		domainListProfileInitialized = true;
+		$('#aliasIcons').html('<button class="btn btn-primary" style="width:50px;" type="button" rel="tooltip" data-original-title="Add Email Alias" data-placement="bottom" onclick="addNewAliasEmail();"><i class="fa fa-plus"></i></button>');
+		$('#aliasIcons').css('float', 'left');
+
+		$("[rel=tooltip]").tooltip();
+		*/
+
+	}
+
+
+	$.ajax({
+		type: "POST",
+		url: '/getCustomRegisteredDomains',
+		success: function (data, textStatus) {
+			if (data['response'] == 'success') {
+				/*
+				$.each(data['domains'], function (index, value) {
+					$('#aliasDomain').append(
+						$('<option></option>').val(value).html('@'+value)
+					);
+
+				});
+				*/
+			}else{
+				noAnswer('Error. Please try again.');
+			}
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+
+
+
 }
 
 function initAlias() {
