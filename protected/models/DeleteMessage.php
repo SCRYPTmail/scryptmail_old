@@ -81,9 +81,11 @@ class DeleteMessage extends CFormModel
 					$par[] = "(:id_$i,:mod_$i)";
 					$param[":id_$i"] = $row['id'];
 					$param[":mod_$i"] = hash('sha512', $row['modKey']);
-				}
-				if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
 
+					$mngData=array('oldId'=>$row['id'],'modKey'=>isset( $row['modKey'])?hash('sha512', $row['modKey']):'');
+				}
+
+				if($fileRemove=Yii::app()->db->createCommand("SELECT file FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->queryAll(true,$param)){
 
 					foreach($fileRemove as $filejson){
 						if($files=json_decode($filejson['file'],true)){
@@ -93,8 +95,21 @@ class DeleteMessage extends CFormModel
 						}
 					}
 				}
+				if($newEmailsToClean=Yii::app()->mongo->findOne('mailQueue',$mngData)){
+						$emailToDeleteId=array('_id'=>new MongoId($newEmailsToClean['_id']),'modKey'=>$newEmailsToClean['modKey']);
 
-				if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param))
+						if($files=json_decode($newEmailsToClean['file'],true)){
+							foreach($files as $filename){
+								FileWorks::deleteFile($filename);
+							}
+						}
+
+				}
+
+				if (Yii::app()->db->createCommand("DELETE FROM mailTable WHERE (id,modKey) IN (" . implode($par, ',') . ")")->execute($param)
+				||
+					Yii::app()->mongo->removeAll('mailQueue',$emailToDeleteId)
+				)
 					echo '{"results":"success"}';
 				else
 					echo '{"results":"fail"}';

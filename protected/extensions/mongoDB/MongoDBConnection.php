@@ -102,7 +102,7 @@ try {
 		return  $this->_db->$name;
 	}
 
-	public function findOne($collectionName,$data,$selectFields=null)
+	public function findOne($collectionName,$data,$selectFields=array())
 	{
 
 		if($reference = $this->setCollection($collectionName)->findOne($data,$selectFields))
@@ -116,7 +116,7 @@ try {
 	}
 
 
-	public function findAll($collectionName,$data,$selectFields=null)
+	public function findAll($collectionName,$data,$selectFields=array())
 	{
 
 		$reference = $this->setCollection($collectionName)->find($data,$selectFields);
@@ -205,6 +205,7 @@ try {
 	{
 		$reference = $this->setCollection($collectionName)->remove($data);
 
+		return $reference;
 		return isset($reference['err'])?false:true;
 	}
 
@@ -213,9 +214,7 @@ try {
 
 		$reference = $this->setCollection($collectionName)->remove(array('_id' => new MongoId($id)));
 
-
-		print_r($reference);
-		//return isset($result)?$result:null;
+		return isset($result)?$result:null;
 
 	}
 

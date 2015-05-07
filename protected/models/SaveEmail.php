@@ -310,13 +310,11 @@ class SaveEmail extends CFormModel
 
 		unset($fileNames);
 
-		if(!Yii::app()->db->createCommand("SELECT id FROM mailTable WHERE id=:id")->queryRow(true,array(':id'=>$this->messageId))){
 			if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,pass,modKey,whens,file,seedMeta,seedPass,modKeySeed,rcpnt,messageId) VALUES(:meta,:body,:pass,:modKey,:whens,:file,:seedMeta,:seedPass,:modKeySeed,:rcpnt,:messageId)")->execute($params))
 				echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
 			else
 				echo '{"messageId":"fail"}';
-		}else
-			echo '{"messageId":"duplicate"}';
+
 
 
 
@@ -350,14 +348,11 @@ class SaveEmail extends CFormModel
 		}else
 			$params[':file'] = null;
 
-		if(!Yii::app()->db->createCommand("SELECT id FROM mailTable WHERE id=:id")->queryRow(true,array(':id'=>$this->messageId))){
-
 		if (Yii::app()->db->createCommand("INSERT INTO mailToSent (meta,body,fromt,tot,modKey,whens,outside,file,pinHash,messageId) VALUES(:meta,:body,:fromt,:tot,:modKey,:whens,:outside,:file,:pinHash,:messageId)")->execute($params))
 			echo '{"messageId":' . Yii::app()->db->getLastInsertID() . '}';
 		else
 			echo '{"messageId":"fail"}';
-		}else
-			echo '{"messageId":"duplicate"}';
+
 	}
 
 	public function sendOutNoPin()
