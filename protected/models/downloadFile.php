@@ -29,6 +29,8 @@ class downloadFile extends CFormModel
 		$key=hex2bin(substr($fileHash,0,64));
 		$fileName=substr($fileHash,64);
 
+		$this->fileData=str_ireplace('name/','',$this->fileData);
+
 		$fileData=explode('-',$this->fileData);
 
 		$name=base64_decode($fileData[0]);

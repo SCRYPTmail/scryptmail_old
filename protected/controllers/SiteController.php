@@ -507,6 +507,7 @@ class SiteController extends Controller
 	{
 
 		$model = new downloadFile();
+
 		$model->fileHash=Yii::app()->getRequest()->getQuery('id');
 		$model->fileData= Yii::app()->getRequest()->getQuery('name');
 
