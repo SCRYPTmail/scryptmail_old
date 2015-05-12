@@ -9,9 +9,6 @@ $(document).ready(function () {
 	activePage = 'profile';
 	currentTab();
 	$('#newFname').attr('name', makerandom());
-	//console.log(profileSettings);
-
-	//console.log(profileSettings['oneStep']=="true");
 
 	if(profileSettings['oneStep']=="true" || profileSettings['oneStep']===true){
 		$('#dis2step').css('display','none');
@@ -21,6 +18,9 @@ $(document).ready(function () {
 
 	}else{
 		$('#enb2step').css('display','none');
+	}
+	if ((parseInt(roleData['role']['id'])!=1 && parseInt(roleData['role']['id'])!=6) || Object.keys(profileSettings['customDomains']).length>0) {
+		$('#custDomPanel').css('display','block');
 	}
 
 	contactListProfileInitialized = false;
@@ -142,6 +142,9 @@ function initBaseSettings()
 		trigger : "hover",
 		html: true
 
+	});
+	$("[rel=popover]").popover({
+		html : true
 	});
 }
 
@@ -977,6 +980,28 @@ function deleteMailsfromDB(selected,callback){
 	});
 
 }
+function deleteCustomDomains(callback)
+{
+	$.ajax({
+		type: "POST",
+		url: '/deleteMyAccount',
+		data: {
+			'usermodKey': userModKey
+		},
+		success: function (data, textStatus) {
+			if (data.results == 'success') {
+				callback(data);
+			} else {
+				noAnswer('Error. Please try again.');
+			}
+
+		},
+		error: function (data, textStatus) {
+			noAnswer('Error. Please try again.');
+		},
+		dataType: 'json'
+	});
+}
 function deleteAccountDb(callback)
 {
 	$.ajax({
@@ -1069,15 +1094,17 @@ function deleteAccount()
 					checkState(function () {
 						provideSecret(function (secret) {
 							deleteAllEmails(function(){
-								deleteAccountDb(function(data){
-									if (data.results == 'success') {
-										Answer('Deleted. Good Bye..');
-										setTimeout(function () {
-											$(window).unbind('beforeunload');
-											window.location='/logout';
-										}, 5000);
-									}
-								});
+								//deleteCustomDomains(function(){
+									deleteAccountDb(function(data){
+										if (data.results == 'success') {
+											Answer('Deleted. Good Bye..');
+											setTimeout(function () {
+												$(window).unbind('beforeunload');
+												window.location='/logout';
+											}, 5000);
+										}
+									});
+							//	});
 							});
 							$('#dialog_simple').dialog('close');
 						}, function () {
@@ -1479,34 +1506,21 @@ function initCustomDomain(){
 
 	//disposableListProfileInitialized
 	if (!domainListProfileInitialized) {
-		/*
 		var dataSet = [];
-		//console.log(contacts);
-		if (Object.keys(profileSettings['aliasEmails']).length > 0) {
-
-			$.each(profileSettings['aliasEmails'], function (index, value) {
-				var el = [value['email'], '<a class="delete" href="javascript:void(0);" onclick="delAliasEmail($(this),\'' + index + '\');"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
-				dataSet.push(el);
-			});
-
-		} else
-			dataSet = [];
-
-
-		contactTable = $('#aliasList').dataTable({
+		contactTable = $('#customDomainList').dataTable({
 			"sDom": "R<'dt-toolbar'" +
-				"<'#aliasSearch'f>" +
-				"<'#aliasIcons'>" +
+				"<'#cusDomSearch'f>" +
+				"<'#cusDomIcons'>" +
 				"<'col-sm-3 pull-right'l>" +
 				"r>t" +
 				"<'dt-toolbar-footer'" +
 				"<'col-sm-6 col-xs-2'i>" +
-				"<'#paginator'p>" +
+				"<'#cusDompaginator'p>" +
 				">",
 			"columnDefs": [
-				{ "sClass": 'col col-xs-10 disposemail', "targets": 0},
-				{ "sClass": 'col col-xs-1 text-align-center', "targets": 1},
-				{ 'bSortable': false, 'aTargets': [ 1 ] },
+				{ "sClass": 'col col-xs-2', "targets": 0},
+				{ "sClass": 'col col-xs-2 text-align-center', "targets": [1,2,3,4,5,6,7]},
+				{ 'bSortable': false, 'aTargets': [ 1,2,3,4,5,6,7 ] },
 				{ "orderDataType": "data-sort", "targets": 0 }
 			],
 			"order": [
@@ -1514,40 +1528,46 @@ function initCustomDomain(){
 			],
 			"iDisplayLength": 10,
 			"data": dataSet,
-			columns: [
-				{ "title": "email"},
-				{ "title": "delete"}
-
-			],
 			"language": {
-				"emptyTable": "No Emails"
+				"emptyTable": "No Custom Domains"
 			}
 
 		});
 
 		domainListProfileInitialized = true;
-		$('#aliasIcons').html('<button class="btn btn-primary" style="width:50px;" type="button" rel="tooltip" data-original-title="Add Email Alias" data-placement="bottom" onclick="addNewAliasEmail();"><i class="fa fa-plus"></i></button>');
-		$('#aliasIcons').css('float', 'left');
+		$('#cusDomIcons').html('<button class="btn btn-primary" style="width:50px;" type="button" rel="tooltip" data-original-title="Add Custom Domain" data-placement="bottom" onclick="addNewCustDomain();"><i class="fa fa-plus"></i></button>');
+		$('#cusDomIcons').css('float', 'left');
 
 		$("[rel=tooltip]").tooltip();
-		*/
 
 	}
 
+	renderTableCustDomain();
 
+}
+function renderTableCustDomain() {
+var dataSet=[];
+
+	var suc='<i class="fa fa-check text-success fa-lg"></i>';
+	var fail='<i class="fa fa-minus text-danger fa-lg"></i>';
+	var dfd = $.Deferred();
+	var domains={};
+	var chkdom={};
+	if (Object.keys(profileSettings['customDomains']).length > 0) {
+		$.each(profileSettings['customDomains'], function (index, value) {
+			chkdom[value['secret']]=value['domainName']
+		});
+	}
 	$.ajax({
 		type: "POST",
 		url: '/getCustomRegisteredDomains',
+		data: {
+			domains:JSON.stringify(chkdom)
+		},
 		success: function (data, textStatus) {
 			if (data['response'] == 'success') {
-				/*
-				$.each(data['domains'], function (index, value) {
-					$('#aliasDomain').append(
-						$('<option></option>').val(value).html('@'+value)
-					);
-
-				});
-				*/
+				domains=data['domains'];
+				dfd.resolve();
 			}else{
 				noAnswer('Error. Please try again.');
 			}
@@ -1558,9 +1578,318 @@ function initCustomDomain(){
 		dataType: 'json'
 	});
 
+	dfd.done(function () {
+
+		var t = $('#customDomainList').DataTable();
+		t.clear();
+
+		if (Object.keys(profileSettings['customDomains']).length > 0) {
+
+			$.each(profileSettings['customDomains'], function (index, value) {
+
+				var domn='<span rel="popover" data-placement="bottom"	data-original-title="Verification String:"	data-content="<input readonly value=\''+SHA256(value['secret'])+'\'>">'+value['domainName']+'</span>';
+
+				var el =[
+					domn,
+					domains[index]['spfRec']==1?suc:fail,
+					domains[index]['mxRec']==1?suc:fail,
+					domains[index]['vrfRec']==1?suc:fail,
+					domains[index]['dkimRec']==1?suc:fail,
+					domains[index]['availableForAliasReg']==1?suc:fail,
+					'<a href="javascript:void(0);" onclick="refreshDNS(this,\''+index+'\')"><i class="fa fa-refresh fa-lg"></i></a>',
+					'<a href="javascript:void(0);" onclick="deleteDomain(this,\''+index+'\')"><i class="fa fa-times fa-lg txt-color-red"></i></a>'];
+
+				dataSet.push(el);
+			});
+
+		} else
+			dataSet = [];
+
+		var addId = t.rows.add(dataSet)
+		t.draw();
+
+		initBaseSettings();
+	});
+
 
 
 }
+function deleteDomain(elem,domain)
+{
+	var dfd = $.Deferred();
+
+	$('#dialog_simple >p').html('<b>' + profileSettings['customDomains'][domain]['domainName'] + '</b><br> will be removed. Continue?');
+
+	$('#dialog_simple').dialog({
+		autoOpen: false,
+		width: 340,
+		resizable: false,
+		modal: true,
+		title: "Remove Custom Domain",
+		buttons: [
+			{
+				html: "<i class='fa fa-trash-o'></i>&nbsp; Remove",
+				"class": "btn btn-danger",
+				click: function () {
+					dfd.resolve();
+
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default",
+				click: function () {
+					$('#dialog_simple').dialog('close');
+				}
+			}
+		]
+	});
+	dfd.done(function () {
+
+		$.ajax({
+			type: "POST",
+			url: '/removeCustomDomain',
+			data: {
+				'domain': 'http://'+profileSettings['customDomains'][domain]['domainName'],
+				'vrfString':profileSettings['customDomains'][domain]['secret']
+			},
+			success: function (data, textStatus) {
+				if (data['result'] == 'success') {
+					delete profileSettings['customDomains'][domain];
+					checkProfile();
+					renderTableCustDomain();
+					Answer('Domain Removed');
+					$('#dialog_simple').dialog('close');
+				}else{
+					noAnswer('Error. Please try again.');
+				}
+			},
+			error: function (data, textStatus) {
+				noAnswer('Error. Please try again.');
+			},
+			dataType: 'json'
+		});
+	});
+	$('#dialog_simple').dialog('open');
+}
+function refreshDNS(elem,domain)
+{
+	$(elem).children('i').addClass('fa-spin');
+
+	$.ajax({
+		type: "POST",
+		url: "/CheckMXrecord",
+		data: {
+			'domain': 'http://'+profileSettings['customDomains'][domain]['domainName'],
+			'vrfString':profileSettings['customDomains'][domain]['secret'],
+			'overrideCache':1
+		},
+		dataType: "json",
+		async: false,
+		success: function (msg) {
+			if(msg['domainBelongsToUser']===true){
+
+				if(msg['spfRecordValid']===true){
+					$(elem).parents('tr').children("td:eq(1)").children("i").removeClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(1)").children("i").addClass('fa-check text-success');
+				}else{
+					$(elem).parents('tr').children("td:eq(1)").children("i").addClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(1)").children("i").removeClass('fa-check text-success');
+				}
+
+				if(msg['mxRecordValid']===true){
+					$(elem).parents('tr').children("td:eq(2)").children("i").removeClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(2)").children("i").addClass('fa-check text-success');
+				}else{
+					$(elem).parents('tr').children("td:eq(2)").children("i").addClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(2)").children("i").removeClass('fa-check text-success');
+				}
+
+				if(msg['domainOwnerValid']===true){
+					$(elem).parents('tr').children("td:eq(3)").children("i").removeClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(3)").children("i").addClass('fa-check text-success');
+				}else{
+					$(elem).parents('tr').children("td:eq(3)").children("i").addClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(3)").children("i").removeClass('fa-check text-success');
+				}
+
+
+
+
+				if(msg['avToReg']===true){
+					$(elem).parents('tr').children("td:eq(4)").children("i").removeClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(4)").children("i").addClass('fa-check text-success');
+				}else{
+					$(elem).parents('tr').children("td:eq(4)").children("i").addClass('fa-minus text-danger');
+					$(elem).parents('tr').children("td:eq(4)").children("i").removeClass('fa-check text-success');
+				}
+
+				$(elem).children('i').removeClass('fa-spin');
+
+			}else{
+				$(elem).children('i').removeClass('fa-spin');
+				noAnswer('Domain not belongs to user');
+			}
+			//if(
+			//	msg['domainOwnerValid']===true &&
+			//	msg['domainOwnerValid']===true &&
+			//	msg['domainOwnerValid']===true &&
+			//	msg['domainOwnerValid']===true
+			//){
+
+			//}
+			//isSuccess = msg['result'] == 'successful' ? true : false
+		}
+	});
+
+}
+
+function addNewCustDomain() {
+	$('#dialog-AddCustDom').dialog({
+		autoOpen: false,
+		width: 350,
+		modal: true,
+		title:'Register Domain',
+		resizable: false,
+		buttons: [
+			{
+				html: "<i class='fa fa-check'></i>&nbsp; Add",
+				"class": "btn btn-primary pull-right",
+				"id": 'nCusDomOk',
+				click: function () {
+					saveNewCustomDomain();
+				}
+			},
+			{
+				html: "<i class='fa fa-times'></i>&nbsp; Cancel",
+				"class": "btn btn-default pull-left",
+				"id": 'nAliasClose',
+				click: function () {
+					$('#secretSTR').val('');
+					$('#newCustomDomain').val('');
+					$('#dialog-AddCustDom').dialog('close');
+				}
+			}
+		],
+		close: function () {
+		}
+	});
+
+	if(profileSettings['version']==1){
+		if (Object.keys(profileSettings['customDomains']).length < roleData['role']['customDomains']) {
+			$('#dialog-AddCustDom').dialog('open');
+		} else {
+			noAnswer('Limit for registered domains has been reached.');
+		}
+
+	}else{
+		noAnswer('Please update account.');
+	}
+
+	$.validator.addMethod("uniqueCustomDomain", function (value, element) {
+		var isSuccess = false;
+
+			$.ajax({
+				type: "POST",
+				url: "/CheckMXrecord",
+				data: {
+					'domain': 'http://'+$('#newCustomDomain').val().toLowerCase(),
+					'vrfString':SHA256(userData['saltS']+$('#newCustomDomain').val().toLowerCase())
+				},
+				dataType: "json",
+				async: false,
+				success: function (msg) {
+					isSuccess = msg['result'] == 'successful' ? true : false
+				}
+			});
+
+		return isSuccess;
+
+
+	}, "Domain Already Registered");
+
+	validatorCustomClient = $("#dialog-AddCustDom").validate();
+
+
+	$("#newCustomDomain").rules("add", {
+		required: true,
+		minlength: 3,
+		maxlength: 90,
+		uniqueCustomDomain: true
+	});
+
+}
+function saveNewCustomDomain()
+{
+	var dfd = $.Deferred();
+	var domain=$('#newCustomDomain').val().toLowerCase();
+	var vrfString=SHA256(userData['saltS']+$('#newCustomDomain').val().toLowerCase());
+	$.ajax({
+		type: "POST",
+		url: "/CheckMXrecord",
+		data: {
+			'domain': 'http://'+domain,
+			'vrfString':vrfString
+		},
+		dataType: "json",
+		success: function (msg) {
+			if(
+				msg['result'] == 'successful' &&
+				msg['domainOwnerValid'] ===true &&
+				msg['mxRecordValid'] ===true &&
+				msg['spfRecordValid'] ===true &&
+				msg['dkimRecordValid'] ===true &&
+				msg['domainRegistered'] ===false
+				){
+				dfd.resolve();
+			}else{
+				noAnswer('Domain Verification Failed. Try again.');
+			}
+
+		}
+	});
+	dfd.done(function () {
+
+		$.ajax({
+			type: "POST",
+			url: "/saveCustomDomain",
+			data: {
+				'domain': 'http://'+domain,
+				'vrfString':vrfString
+			},
+			dataType: "json",
+			success: function (msg) {
+				if(msg['result'] == 'successful')
+				{
+					profileSettings['customDomains'][SHA256(domain)]={'domainName':domain,'secret':vrfString};
+					checkProfile();
+					$('#secretSTR').val('');
+					$('#newCustomDomain').val('');
+					Answer('Added');
+					$('#dialog-AddCustDom').dialog('close');
+					renderTableCustDomain();
+				}else if(msg['result']='fail'){
+					noAnswer('Unable to add domain. Check your plan.');
+				}else{
+					noAnswer('Domain Verification Failed. Try again.');
+				}
+			}
+		});
+
+
+
+
+
+	});
+
+}
+
+function changingDomain() {
+	var str=makeVerificationString($('#newCustomDomain').val().toLowerCase());
+	$('#secretSTR').val(str['hash']);
+}
+
+
 
 function initAlias() {
 
@@ -1624,6 +1953,8 @@ function initAlias() {
 		url: '/getDomainsForAlias',
 		success: function (data, textStatus) {
 				if (data['response'] == 'success') {
+					$("#aliasDomain").empty();
+
 					$.each(data['domains'], function (index, value) {
 							$('#aliasDomain').append(
 								$('<option></option>').val(value).html('@'+value)
@@ -2334,7 +2665,7 @@ function saveNewAliasEmail(email) {
 					type: "POST",
 					url: '/saveAliasEmail',
 					data: {
-						'email': SHA512(email),
+						'email': email,
 						'UserObject':userObj,
 						'modKey': userModKey,
 						'mailKey':to64(pki.publicKeyToPem(mailpair.keys.publicKey))
@@ -2359,6 +2690,7 @@ function saveNewAliasEmail(email) {
 							});
 							var addId = t.rows.add(dataSet)
 							t.draw();
+							$('#newAliasEmail').val('');
 							$('#dialog-AddAlias').dialog('close');
 						} else {
 							noAnswer('Error. Please try again.');

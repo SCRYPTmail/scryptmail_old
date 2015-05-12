@@ -174,8 +174,16 @@ function generatePin(pin) {
 }
 
 function emailParser(emails,callback) {
-	getLocalDomains(function(localDomains){
+var dom=[];
+	$.each(emails, function (index, value) {
+		parseEmail(value, function (result) {
+			var email = result['email'];
+			var mailD = email.split('@');
+			dom.push(SHA512(mailD[1]));
+		});
+	});
 
+	getLocalDomains(dom,function(localDomains){
 	var emailObj = [];
 	emailObj['indomain'] = {};
 	emailObj['outdomain'] = {};
@@ -188,7 +196,7 @@ function emailParser(emails,callback) {
 			var name = result['name'];
 			var email = result['email'];
 
-			mailD = email.split('@');
+			var mailD = email.split('@');
 				if (jQuery.inArray(mailD[1], localDomains) != -1) {
 					//console.log(mail);
 					ind.mail = email;
@@ -334,6 +342,7 @@ function createFrom(){
 //save message in sent folder
 function encryptMessageForSent(badRcpt, senderMod, key,callback) {
 	var d = new Date();
+	var dfd = $.Deferred();
 
 	var publicKey=false;
 	var encryptionKey=key;
@@ -345,11 +354,15 @@ function encryptMessageForSent(badRcpt, senderMod, key,callback) {
 	var bodyMeta=to64(stripHTML($('#emailbody').code()).substring(0, 100));
 	var sentMeta=Math.round(d.getTime() / 1000);
 	var opened=false;
-
+	var metaPin='';
 	if ($('#pincheck').prop("checked")) {
-		var metaPin = JSON.stringify(recipientHandler('getListForPin', ''));
+		recipientHandler('getListForPin', '',function(metaP){
+			metaPin = JSON.stringify(metaP);
+			dfd.resolve();
+		});
 	} else {
-		var metaPin='';
+		metaPin='';
+		dfd.resolve();
 	}
 
 	if (Object.keys(badRcpt).length > 0) {
@@ -367,12 +380,14 @@ function encryptMessageForSent(badRcpt, senderMod, key,callback) {
 	var sndrMod=senderMod;
 
 	var files=fileObject;
-
-	createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,function(messaged){
-		messaged['mailHash'] = message['mailHash'];
-		messaged['modKey']=modKey;
-		callback(messaged);
+	dfd.done(function () {
+		createMessage(publicKey,recipient,files,sender,subject,bodyMeta,sentMeta,opened,metaPin,modKey,bodyText,bodyHTML,metaType,metaStatus,encryptionKey,bdRcpt,sndrMod,fromExtra,function(messaged){
+			messaged['mailHash'] = message['mailHash'];
+			messaged['modKey']=modKey;
+			callback(messaged);
+		});
 	});
+
 }
 
 
@@ -965,8 +980,10 @@ function addPinCard(name, email, pin) {
 		var comaddr = email;
 
 	var mailD = email.split('@');
+	var dom=[];
+	dom.push(SHA512(mailD[1]));
 
-	getLocalDomains(function(localDomains){
+	getLocalDomains(dom,function(localDomains){
 		if (jQuery.inArray(mailD[1], localDomains) == -1) {
 
 			var dataContent = '<p class=\'brekwords\'><b>' + name + '</b><br>' + email + '</p>';
@@ -988,7 +1005,7 @@ function addPinCard(name, email, pin) {
 
 }
 
-function recipientHandler(action, email) {
+function recipientHandler(action, email,callback) {
 
 	if (action == 'getTextEmail') {
 		if(recipient[email]['name']!=''){
@@ -1025,18 +1042,23 @@ function recipientHandler(action, email) {
 	}
 
 	if (action == 'getListForPin') {
-		getLocalDomains(function(localDomains){
+		var dom=[];
+		$.each(recipient, function (index, value) {
+			var mailD = index.split('@');
+			dom.push(SHA512(mailD[1]));
+		});
+		getLocalDomains(dom,function(localDomains){
 		var result = {};
 		$.each(recipient, function (index, value) {
 			var mailD = index.split('@');
-
 				if (jQuery.inArray(mailD[1], localDomains) == -1) {
 					result[index] = {'name': value['name'] != '' ? to64(value['name']) : '', 'pin': to64(value['pin'])};
+
 				}
 
 
 		});
-		return result;
+			callback(result);
 		});
 	}
 	if (action == 'getPinsFromCards') {

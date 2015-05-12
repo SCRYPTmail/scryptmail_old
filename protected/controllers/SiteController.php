@@ -220,7 +220,10 @@ class SiteController extends Controller
 					'updateAccount',
 					'saveAliasEmail',
 					'checkMXrecord',
-					'GetCustomRegisteredDomains'
+					'removeCustomDomain',
+					'saveCustomDomain',
+					'GetCustomRegisteredDomains',
+					'checkInternalDomains'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -257,10 +260,33 @@ class SiteController extends Controller
 		else
 			echo json_encode($model->getErrors());
 	}
+	public function actionRemoveCustomDomain()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->removeDomain();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionSaveCustomDomain()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->saveMX();
+		else
+			echo json_encode($model->getErrors());
+	}
 	public function actionGetCustomRegisteredDomains()
 	{
-		$model = new CheckMXrecord();
-		$model->registeredList(Yii::app()->user->getId());
+		$model = new CheckMXrecord('checkRegList');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->registeredList(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+
 	}
 
 	public function actionCheckMXrecord()
@@ -732,6 +758,17 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 
 	}
+
+	public function actionCheckInternalDomains()
+	{
+		$model = new getDomains('checkDomain');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->domainExist();
+		else
+			echo json_encode($model->getErrors());
+	}
+
 	public function actionGetDomainsForAlias()
 	{
 		getDomains::domainAvalailableForAlias();

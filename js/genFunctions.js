@@ -4055,6 +4055,9 @@ function setupProfile(){
 	if(profileSettings['disposableEmails'] == undefined){
 		profileSettings['disposableEmails']={};
 	}
+	if(profileSettings['customDomains'] == undefined){
+		profileSettings['customDomains']={};
+	}
 
 
 	if(typeof profileSettings['aliasEmails'] === 'undefined'){

@@ -31,6 +31,7 @@ class DeleteAccount extends CFormModel
 				if(Yii::app()->db->createCommand("DELETE FROM user_groups WHERE userId=:id")->execute($param)){
 					if(Yii::app()->db->createCommand("DELETE FROM user_group_history WHERE userId=:id")->execute($param)){
 						Yii::app()->db->createCommand("DELETE FROM safeBoxStorage WHERE userId=:id")->execute($param);
+						Yii::app()->db->createCommand("DELETE FROM virtual_domains WHERE userId=:id")->execute($param);
 						$trans->commit();
 						echo  '{"results":"success"}';
 

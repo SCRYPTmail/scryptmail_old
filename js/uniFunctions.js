@@ -26,6 +26,13 @@ function makeDerived(secret, salt) {
 function makeDerivedFancy(secret, salt) {
 	return forge.pkcs5.pbkdf2(secret, salt, secret.charCodeAt(0), 64);
 }
+function makeVerificationString(str) {
+	var secrt={};
+	//secrt['base']=userData['saltS']+str;
+	var str=SHA256(userData['saltS']+str);
+	secrt['hash']=SHA256(str);
+	return secrt;
+}
 
 function makerandom() {
 	var text = "";
@@ -262,10 +269,14 @@ function isValidHex(hex) {
 
 }
 
-function getLocalDomains(callback){
+function getLocalDomains(emails,callback){
+	//console.log(emails);
 	$.ajax({
 		type: "POST",
-		url: '/getDomainsForAlias',
+		url: '/checkInternalDomains',
+		data: {
+			domains:JSON.stringify(emails)
+		},
 		success: function (data, textStatus) {
 			if (data['response'] == 'success') {
 				callback(data['domains']);
