@@ -23,7 +23,9 @@ class CreateUser extends CFormModel
 			//array('email', 'length', 'min' => 3, 'max' => 255, 'allowEmpty' => false, 'on' => 'validatemail'),
 			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'validatemail'),
 
-			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,deleteAlias'),
+			array('email', 'email', 'allowEmpty' => false, 'on' => 'saveAlias'),
+
+			array('email', 'match', 'pattern' => "/^[a-z0-9\d]{128}$/i", 'allowEmpty' => false, 'on' => 'saveDisposable,deleteDisposable,deleteAlias'),
 			array('modKey', 'match', 'pattern' => "/^[a-z0-9\d]{32,64}$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
 			array('UserObject', 'match', 'pattern' => "/^[a-zA-Z0-9+\/=\d]+$/i", 'allowEmpty' => false, 'on' => 'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
 			array('UserObject','length', 'max'=>2580000,'min'=>4000,'on'=>'saveAlias,saveDisposable,deleteDisposable,updateKeys,deleteAlias'),
@@ -289,35 +291,44 @@ public function checkKeyLength(){
 
 	public function saveAlias($id)
 	{
-		if(Yii::app()->db->createCommand("SELECT count(userId) FROM addresses WHERE userId=$id AND addr_type=3")->queryScalar()<Yii::app()->user->role['role']['aliasAddPerBox']){
+		$dom=explode('@',$this->email);
+		$pr[':shaDomain']=hash('sha512',$dom[1]);
+		$pr[':userId']=Yii::app()->user->getId();
 
-			$param[':email'] =$this->email;
-			$param[':userId'] =$id;
-			$param[':modKey'] =hash('sha512',$this->modKey);
-			$param[':mailKey'] =$this->mailKey;
+		if(Yii::app()->db->createCommand("SELECT id FROM virtual_domains WHERE shaDomain=:shaDomain AND (globalDomain=1 OR userId=:userId)")->queryRow(true,$pr)){
+			if(Yii::app()->db->createCommand("SELECT count(userId) FROM addresses WHERE userId=$id AND addr_type=3")->queryScalar()<Yii::app()->user->role['role']['aliasAddPerBox']){
 
-			$paramUser[':userObj'] =$this->UserObject;
-			$paramUser[':userId'] =$id;
-			$paramUser[':modKey'] =hash('sha512',$this->modKey);
+				$param[':email'] =hash('sha512',$this->email);
+				$param[':userId'] =$id;
+				$param[':modKey'] =hash('sha512',$this->modKey);
+				$param[':mailKey'] =$this->mailKey;
 
-			$trans = Yii::app()->db->beginTransaction();
+				$paramUser[':userObj'] =$this->UserObject;
+				$paramUser[':userId'] =$id;
+				$paramUser[':modKey'] =hash('sha512',$this->modKey);
 
-			if (Yii::app()->db->createCommand(
-				"INSERT INTO addresses (userId,addressHash,addr_type,mailKey)
-					SELECT :userId, :email,'3',:mailKey
-						FROM user
-							WHERE id=:userId AND modkey=:modKey")->execute($param) &&
-				Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)) {
-				$trans->commit();
-				echo  'true';
-			} else{
-				$trans->rollback();
+				$trans = Yii::app()->db->beginTransaction();
+
+				if (Yii::app()->db->createCommand(
+					"INSERT INTO addresses (userId,addressHash,addr_type,mailKey)
+						SELECT :userId, :email,'3',:mailKey
+							FROM user
+								WHERE id=:userId AND modkey=:modKey")->execute($param) &&
+					Yii::app()->db->createCommand("UPDATE user SET userObj=:userObj WHERE id=:userId AND modkey=:modKey")->execute($paramUser)) {
+					$trans->commit();
+					echo  'true';
+				} else{
+					$trans->rollback();
+					echo  'false';
+				}
+
+			}else
 				echo  'false';
-			}
 
-
-		}else
+		}else{
 			echo  'false';
+		}
+
 	}
 
 	public function saveDisposable($id)

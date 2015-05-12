@@ -8,7 +8,7 @@
 class getDomains extends CFormModel
 {
 
-	public $domain;
+	public $domain,$domains;
 	public function rules()
 	{
 		return array(
@@ -16,6 +16,7 @@ class getDomains extends CFormModel
 			array('domain', 'required','on'=>'validateDomain'),
 			array('domain', 'match', 'pattern'=>'/^([a-z0-9_])+$/', 'message'=>'please provide correct domain','on'=>'validateDomain'),
 			array('domain','length', 'min' => 128, 'max'=>128, 'tooShort'=>'domain not found','tooLong'=>'domain not found','on'=>'validateDomain'),
+			array('domains', 'required','on'=>'checkDomain'),
 		);
 	}
 
@@ -41,18 +42,41 @@ class getDomains extends CFormModel
 		}
 
 	}
+	public function domainExist()
+	{
+		$domains=json_decode($this->domains,true);
+		foreach($domains as $i=>$domain){
+			$param[":shaDomain_$i"]=$domain;
+		}
+		$paramDomain[':shaDomain']=$domain;
+		CheckMXrecord::checkMXdomains(':shaDomain',$paramDomain);
+
+		if($domains=Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN (".implode(array_keys($param),',').") AND mxRec=1")->queryAll(true,$param)){
+			foreach($domains as $rr)
+			{
+				$result['domains'][]=$rr['domain'];
+			}
+			$result['response'] = 'success';
+		}else{
+			$result['response'] = 'success';
+			$result['domains']=array();
+		}
+
+		echo json_encode($result);
+
+	}
 
 	public function domainAvalailableForAlias()
 	{
-		if($domains=Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE availableForAliasReg=1")->queryAll()){
+		$id=Yii::app()->user->getId();
+		if($domains=Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE availableForAliasReg=1 AND (globalDomain=1 OR userId=$id)")->queryAll()){
 			foreach($domains as $row){
 				$result['domains'][]=$row['domain'];
 			}
 			$result['response'] = 'success';
-			echo json_encode($result);
 		}else{
 			$result['response'] = 'fail';
-			echo json_encode($result);
 		}
+		echo json_encode($result);
 	}
 }

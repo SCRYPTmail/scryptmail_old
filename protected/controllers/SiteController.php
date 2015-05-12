@@ -9,7 +9,7 @@
 class SiteController extends Controller
 {
 	public $data, $baseUrl;
-	public $fileVers='0577';
+	public $fileVers='0578';
 
 	public function beforeAction($action)
 	{
@@ -218,7 +218,12 @@ class SiteController extends Controller
 					'saveSecretOneStep',
 					'resetPassOneStep',
 					'updateAccount',
-					'saveAliasEmail'
+					'saveAliasEmail',
+					'checkMXrecord',
+					'removeCustomDomain',
+					'saveCustomDomain',
+					'GetCustomRegisteredDomains',
+					'checkInternalDomains'
 
 				),
 				'expression' => 'Yii::app()->user->role["role"]!=0'
@@ -252,6 +257,44 @@ class SiteController extends Controller
 		$model->attributes = isset($_POST) ? $_POST : '';
 		if ($model->validate())
 			$model->invite();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionRemoveCustomDomain()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->removeDomain();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionSaveCustomDomain()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->saveMX();
+		else
+			echo json_encode($model->getErrors());
+	}
+	public function actionGetCustomRegisteredDomains()
+	{
+		$model = new CheckMXrecord('checkRegList');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->registeredList(Yii::app()->user->getId());
+		else
+			echo json_encode($model->getErrors());
+
+	}
+
+	public function actionCheckMXrecord()
+	{
+		$model = new CheckMXrecord('checkMX');
+		$model->attributes = $_POST;
+		if ($model->validate())
+			$model->checkMX();
 		else
 			echo json_encode($model->getErrors());
 	}
@@ -715,6 +758,17 @@ class SiteController extends Controller
 			echo json_encode($model->getErrors());
 
 	}
+
+	public function actionCheckInternalDomains()
+	{
+		$model = new getDomains('checkDomain');
+		$model->attributes = isset($_POST) ? $_POST : '';
+		if ($model->validate()) //validating json data according to action
+			$model->domainExist();
+		else
+			echo json_encode($model->getErrors());
+	}
+
 	public function actionGetDomainsForAlias()
 	{
 		getDomains::domainAvalailableForAlias();

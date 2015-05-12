@@ -150,6 +150,37 @@
 						</div>
 					</div>
 				</div>
+
+			<div class="panel panel-default" id="custDomPanel" style="display:none;">
+				<div class="panel-heading" onclick="initCustomDomain();">
+					<h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion1" href="#collapse3l"
+											   class="collapsed"> <i class="fa fa-lg fa-angle-down pull-right"></i> <i
+								class="fa fa-lg fa-angle-up pull-right"></i> Custom Domain Setup</a></h4>
+				</div>
+				<div id="collapse3l" class="panel-collapse collapse">
+					<div class="panel-body">
+						<div class="table-responsive">
+							<table class="table table-striped table-hover" id="customDomainList">
+								<thead>
+								<tr role="row">
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Registered Domain">domain</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Email will pass SPF test">SPF</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="We can accept incoming emails">Inbound</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Domain owner verified">Owner</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="DKIM signature">DKIM</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="New address can be registered">Registration</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Refresh DNS record">DNS</span></th>
+									<th><span rel="popover-hover" data-placement="bottom" data-original-title="" data-content="Remove domain from system">Delete</span></th>
+								</tr>
+								</thead>
+
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
 			</div>
 		</div>
 	</article>
@@ -626,6 +657,26 @@
 
 </div>
 
+<form class="smart-form client-form" id="dialog-AddCustDom" style="display:none;padding-top:20px;">
+	<div class="row">
+		<section class="col col-xs-12">
+			<label class="input">
+				<i class="icon-prepend">@</i>
+				<input type="text" name="email" id="newCustomDomain" placeholder="domain" onkeyup="changingDomain()">
+			</label>
+		</section>
+
+		<section class="col col-xs-12">
+			<label class="input">
+				Verification String
+				<input type="text" name="secretSTR" id="secretSTR" readonly>
+			</label>
+		</section>
+	</div>
+	<a href="https://blog.scryptmail.com/adding-custom-domain/" target="_blank">* How to Add</a>
+	<div class="clearfix"></div>
+</form>
+
 
 <form class="smart-form client-form" id="dialog-AddAlias" title="New Alias" style="display:none;padding-top:20px;">
 <div class="row">
@@ -641,7 +692,6 @@
 			</select> <i></i> </label>
 	</section>
 </div>
-<a href="https://blog.scryptmail.com/testing-multiple-domain-aliases" target="_blank">* Domain Test. Please Read</a>
 </form>
 
 <form class="smart-form client-form" id="dialog-AddContact" title="New Contact" style="display:none;">

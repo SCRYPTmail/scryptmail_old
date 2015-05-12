@@ -81,7 +81,9 @@ class EmailparseCommand extends CFormModel
 			unset($email, $name);
 			$paramDomain = implode(array_keys($verifyDomain), ',');
 
-			if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND acceptingInbounds=1")->queryAll(true, $verifyDomain)) {
+			CheckMXrecord::checkMXdomains($paramDomain,$verifyDomain);
+
+			if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND mxRec=1")->queryAll(true, $verifyDomain)) {
 				foreach ($verifiedDomains as $row) {
 					$verifiedEmailsArray[] = $emailObject[hash('sha512', $row['domain'])];
 				}
