@@ -44,13 +44,27 @@ class EmailparseCommand extends CFormModel
 			$rawEmail = file_get_contents($path); //test
 			}
 
+		//$msg = $rawEmail;
+
+		//$msg = wordwrap($msg,70);
+
+		// send email
+		//mail('sergei@minapsys.com',"Bug Report",$msg);
+
 		//$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
 		//fwrite($myfile, $rawEmail);
 		//fclose($myfile);
 
+
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
 
-		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') . ((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : '').((isset($emailParsed['fwd']) && $emailParsed['fwd'] != '') ? ', ' . $emailParsed['fwd'] : '');
+		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') .  //normal recipient
+			((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : ''). //accepting cc fields as rcpt
+			((isset($emailParsed['fwd']) && $emailParsed['fwd'] != '') ? ', ' . $emailParsed['fwd'] : ''). //accpt rcp as forward for x-forwarded-to
+			((isset($emailParsed['res_to']) && $emailParsed['res_to'] != '') ? ', ' . $emailParsed['res_to'] : ''); //accpt forward from outlook
+
+		//print_r($recipients);
+		//Yii::app()->end();
 
 		if ($recipients != '') {
 			$to = explode(',', $recipients);

@@ -51,6 +51,7 @@ public $Parser;
 		$email['to']=$Parser->getHeader('to');
 		$email['cc']=$Parser->getHeader('cc');
 		$email['fwd']=$Parser->getHeader('x-forwarded-to');
+		$email['res_to']=$Parser->getHeader('resent-to');
 		$email['from']=$Parser->getHeader('from');
 		$email['subject']=$Parser->getHeader('subject');
 		$email['received']=date('Y-m-d H:i:s');
