@@ -40,7 +40,7 @@ class EmailparseCommand extends CFormModel
 			fclose($fd);
 
 		} else {
-			$path = Yii::app()->basePath . '/extensions/m0002';
+			$path = Yii::app()->basePath . '/extensions/m0001';
 			$rawEmail = file_get_contents($path); //test
 			}
 
@@ -50,8 +50,7 @@ class EmailparseCommand extends CFormModel
 
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
 
-
-		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') . ((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : '');
+		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') . ((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : '').((isset($emailParsed['fwd']) && $emailParsed['fwd'] != '') ? ', ' . $emailParsed['fwd'] : '');
 
 		if ($recipients != '') {
 			$to = explode(',', $recipients);
