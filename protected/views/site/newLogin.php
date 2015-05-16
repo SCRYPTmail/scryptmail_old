@@ -47,7 +47,7 @@
 				<td class="text-left h5 hidden-xs">Encrypted Attachment</td>
 				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-content="Encrypted Attachment"></i></td>
 				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-content="Encrypted Attachment"></i></td>
-				<td><i class="fa fa-times fa-2x txt-color-red" rel="popover-hover" data-placement="left" data-content="Encrypted Attachment"></i></td>
+				<td><i class="fa fa-check fa-2x" style="color:#006600" rel="popover-hover" data-placement="bottom" data-content="Encrypted Attachment"></i></td>
 			</tr>
 			<tr>
 				<td class="text-left h5 hidden-xs" rel="popover-hover" data-placement="bottom" data-container="body" data-content="Encrypted email metadata" data-content">Encrypted Sender/Recipient *</td>
