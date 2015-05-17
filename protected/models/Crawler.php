@@ -349,7 +349,7 @@ class Crawler extends CFormModel
 
 //print_r($message);
 
-			if (mail($body['to'], $body['subj'], $message, $headers, "-f" . $body['from']))
+			if (mail($body['to'], $body['subj'], $message, $headers, "-f" . EmailparseCommand::getEmail($body['from'])))
 				return true;
 			else
 				return false;
@@ -389,7 +389,7 @@ class Crawler extends CFormModel
 			$headers .= 'From: ' . $data['fromt'] . "\r\n";
 //print_r($message);
 // Mail it
-			if (mail($to, $subject, $message, $headers, "-f" . $data['fromt']))
+			if (mail($to, $subject, $message, $headers, "-f" . EmailparseCommand::getEmail($data['fromt'])))
 				return true;
 			else
 				return false;
