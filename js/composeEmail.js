@@ -898,7 +898,7 @@ function composeMailRecptCheck() {
 	$("#atachFiles").select2({
 		tags: [],
 		placeholder: "5 files max, <=15Mb",
-		tokenSeparators: [""],
+		tokenSeparators: ["|^"],
 		maximumSelectionSize: 5,
 		formatSelectionTooBig: 'Max of 5 files allowed.',
 		formatSelection: fileSelection
