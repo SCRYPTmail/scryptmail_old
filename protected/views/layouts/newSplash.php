@@ -150,10 +150,14 @@
 							<h5 class="white-text">end-to-end encrypted email with no stored meta data
 								</h5>
 
-							<!-- BUTTON -->
+							<div class="button">
+								<a  href="" data-toggle="modal" data-target="#createAccount-modal" class="btn btn-primary standard-button inpage-scroll">Sign Up For Free</a>
+							</div>
+
+							<!-- BUTTON
 							<div class="button">
 								<a  href="" data-toggle="modal" data-target="#reqInvite" class="btn btn-primary standard-button inpage-scroll">Request Invitation</a>
-							</div>
+							</div>-->
 
 						</div>
 						<!-- /END HEADNING AND BUTTONS -->
@@ -181,12 +185,12 @@
 				<form class="registration-form smart-form" id="createUser-form">
 					<div style='position:relative;'>
 
-						<div class="text-align-left">
+					<!--	<div class="text-align-left">
 							<label class="input">
 								<input class="input-box" placeholder="invitation token" maxlength="160"  style="padding-right:150px;"
 									   name="email" id="CreateUser_invitation" type="text">
 							</label>
-						</div>
+						</div>-->
 
 						<div class="text-align-left">
 						<label class="input">

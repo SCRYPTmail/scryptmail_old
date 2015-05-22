@@ -52,12 +52,12 @@ function initCreateUser() {
 
 	newUserValidator = $("#createUser-form").validate();
 
-	$("#CreateUser_invitation").rules("add", {
-		required: true,
-		minlength: 3,
-		maxlength: 200,
-		uniqueInvitation: true
-	});
+	//$("#CreateUser_invitation").rules("add", {
+	//	required: true,
+	//	minlength: 3,
+	//	maxlength: 200,
+	//	uniqueInvitation: true
+	//});
 
 	$("#CreateUser_email").rules("add", {
 		premail: true,
@@ -139,7 +139,7 @@ function createAccount() {
 				generateUserObj(mailpair,secret,email,true,function(DATA){
 					var derivedPass = makeDerivedFancy(secret, 'scrypTmail');
 					//MainObj=DATA['MainObj'];
-					DATA['MainObj']['token']=$('#CreateUser_invitation').val().toLowerCase();
+					//DATA['MainObj']['token']=$('#CreateUser_invitation').val().toLowerCase();
 					toFile=DATA['toFile'];
 					DATA['MainObj']['password'] = SHA512singl(derivedPass);
 
