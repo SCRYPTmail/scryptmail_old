@@ -62,7 +62,9 @@ class EmailparseCommand extends CFormModel
 		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') .  //normal recipient
 			((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : ''). //accepting cc fields as rcpt
 			((isset($emailParsed['fwd']) && $emailParsed['fwd'] != '') ? ', ' . $emailParsed['fwd'] : ''). //accpt rcp as forward for x-forwarded-to //google
+			((isset($emailParsed['bcc']) && $emailParsed['bcc'] != '') ? ', ' . $emailParsed['bcc'] : ''). //accepting cc fields as rcpt
 			((isset($emailParsed['res_to']) && $emailParsed['res_to'] != '') ? ', ' . $emailParsed['res_to'] : ''); //accpt forward from outlook
+
 
 		//print_r($recipients);
 		//Yii::app()->end();
@@ -87,10 +89,10 @@ class EmailparseCommand extends CFormModel
 					$emailObject[$dom][] = $email;
 					$emailNames[hash('sha512', $email)] = ($name != '') ? $name . "<$email>" : $email;
 					$verifyDomain[":domains_$i"] = $dom;
-				}else{
-				echo "Failed to Deliver. Recipient not found: $email";
+				}//else{
+				//echo "Failed to Deliver. Recipient not found: $email";
 
-			}
+			//}
 
 			}
 

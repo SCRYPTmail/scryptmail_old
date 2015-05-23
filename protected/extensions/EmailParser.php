@@ -50,6 +50,7 @@ public $Parser;
 // We can get all the necessary data
 		$email['to']=$Parser->getHeader('to');
 		$email['cc']=$Parser->getHeader('cc');
+		$email['bcc']=$Parser->getHeader('bcc');
 		$email['fwd']=$Parser->getHeader('x-forwarded-to');
 		$email['res_to']=$Parser->getHeader('resent-to');
 		$email['from']=$Parser->getHeader('from');
