@@ -7,7 +7,7 @@ class EmailparseCommand extends CFormModel
 	public function rules()
 	{
 		return array(
-			array('mails', 'email'),
+			array('mails', 'email','allowEmpty'=>false),
 		);
 	}
 
@@ -40,7 +40,7 @@ class EmailparseCommand extends CFormModel
 			fclose($fd);
 
 		} else {
-			$path = Yii::app()->basePath . '/extensions/m0001';
+			$path = Yii::app()->basePath . '/extensions/m0002';
 			$rawEmail = file_get_contents($path); //test
 			}
 
@@ -57,6 +57,7 @@ class EmailparseCommand extends CFormModel
 
 
 		$emailParsed = Yii::app()->EmailParser->getResults($rawEmail);
+
 
 		$recipients = ((isset($emailParsed['to']) && $emailParsed['to'] != '') ? $emailParsed['to'] : '') .  //normal recipient
 			((isset($emailParsed['cc']) && $emailParsed['cc'] != '') ? ', ' . $emailParsed['cc'] : ''). //accepting cc fields as rcpt
@@ -82,26 +83,34 @@ class EmailparseCommand extends CFormModel
 				$this->mails = $email;
 
 				if ($this->validate()) {
-
 					$dom = hash('sha512', explode('@', $email)[1]);
 					$emailObject[$dom][] = $email;
 					$emailNames[hash('sha512', $email)] = ($name != '') ? $name . "<$email>" : $email;
 					$verifyDomain[":domains_$i"] = $dom;
-				}
+				}else{
+				echo "Failed to Deliver. Recipient not found: $email";
 
 			}
+
+			}
+
 
 			unset($email, $name);
-			$paramDomain = implode(array_keys($verifyDomain), ',');
+			if(isset($verifyDomain)){
+				$paramDomain = implode(array_keys($verifyDomain), ',');
 
-			CheckMXrecord::checkMXdomains($paramDomain,$verifyDomain);
+				CheckMXrecord::checkMXdomains($paramDomain,$verifyDomain);
 
-			if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND mxRec=1")->queryAll(true, $verifyDomain)) {
-				foreach ($verifiedDomains as $row) {
-					$verifiedEmailsArray[] = $emailObject[hash('sha512', $row['domain'])];
+				if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND mxRec=1")->queryAll(true, $verifyDomain)) {
+					foreach ($verifiedDomains as $row) {
+						$verifiedEmailsArray[] = $emailObject[hash('sha512', $row['domain'])];
+					}
+
 				}
-
+			}else{
+				Yii::app()->end();
 			}
+
 
 			unset($verifyDomain, $verifiedDomains);
 
@@ -119,7 +128,6 @@ class EmailparseCommand extends CFormModel
 
 
 			if (isset($verifiedEmailList) && count($verifiedEmailList) > 0) {
-				print_r($verifiedEmailList);
 
 				$paramEmailHashes = implode(array_keys($verifiedEmailList), ',');
 
@@ -238,7 +246,6 @@ class EmailparseCommand extends CFormModel
 				}
 
 			}
-
 		}
 
 	}
