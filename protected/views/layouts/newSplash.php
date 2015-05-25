@@ -99,7 +99,7 @@
 						<ul class="nav navbar-nav navbar-right login-register small-text">
 							<li class="login js-login"><a href="" data-toggle="modal" data-target="#login-modal">Login</a>
 							</li>
-							<li class="register-button js-register inpage-scroll"><a href="" class="navbar-register-button" data-toggle="modal" data-target="#reqInvite">Request Invitation</a>
+							<li class="register-button js-register inpage-scroll"><a href="" class="navbar-register-button" data-toggle="modal" data-target="#createAccount-modal">Sign Up For Free</a>
 							</li>
 						</ul>
 					<?php }else{ ?>
