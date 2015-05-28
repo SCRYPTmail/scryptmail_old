@@ -1833,21 +1833,34 @@ function saveNewCustomDomain()
 		},
 		dataType: "json",
 		success: function (msg) {
-			if(
-				msg['result'] == 'successful' &&
-				msg['domainOwnerValid'] ===true &&
-				msg['mxRecordValid'] ===true &&
-				msg['spfRecordValid'] ===true &&
-				msg['dkimRecordValid'] ===true &&
-				msg['domainRegistered'] ===false
-				){
-				dfd.resolve();
+			if(msg['result'] == 'successful' &&msg['domainOwnerValid'] ===true)
+			{
+					if(msg['mxRecordValid'] ===true)
+					{
+						if(msg['spfRecordValid'] ===true)
+						{
+							if(msg['dkimRecordValid'] ===true){
+								if(msg['domainRegistered'] ===false){
+									dfd.resolve();	
+								}else{
+								noAnswer('Domain already Registered. Try again.');	
+								}
+							}else{
+								noAnswer('Domain dkimRecordValid Verification Failed. Try again.');	
+							}
+						}else{
+							noAnswer('Domain spfRecordValid Verification Failed. Try again.');
+						}	
+					}else{
+						noAnswer('Domain mxRecord Verification Failed. Try again.');	
+					}
+					
 			}else{
-				noAnswer('Domain Verification Failed. Try again.');
+				noAnswer('Domain Owner Verification Failed. Try again.');	
 			}
-
 		}
 	});
+	
 	dfd.done(function () {
 
 		$.ajax({
