@@ -102,7 +102,7 @@ class CheckMXrecord extends CFormModel
 			$valid['mxRecordValid']===true &&
 			$valid['spfRecordValid']===true &&
 			$valid['domainOwnerValid']===true &&
-			$valid['dkimRecordValid']===true &&
+		//	$valid['dkimRecordValid']===true &&
 			$valid['domainRegistered']===false
 		){
 			$param[':domain']=$domain;
@@ -112,7 +112,7 @@ class CheckMXrecord extends CFormModel
 			$param[':spfRec']=1;
 			$param[':mxRec']=1;
 			$param[':vrfRec']=1;
-			$param[':dkimRec']=1;
+			$param[':dkimRec']=$valid['dkimRecordValid'];
 			$param[':availableForAliasReg']=1;
 			$param[':vrfString']=hash('sha256',$this->vrfString);
 			$param[':userId']=Yii::app()->user->getId();
