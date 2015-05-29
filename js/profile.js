@@ -1839,15 +1839,15 @@ function saveNewCustomDomain()
 					{
 						if(msg['spfRecordValid'] ===true)
 						{
-							if(msg['dkimRecordValid'] ===true){
+						//	if(msg['dkimRecordValid'] ===true){
 								if(msg['domainRegistered'] ===false){
 									dfd.resolve();	
 								}else{
 								noAnswer('Domain already Registered. Try again.');	
 								}
-							}else{
-								noAnswer('Domain dkimRecordValid Verification Failed. Try again.');	
-							}
+						//	}else{
+						//		noAnswer('Domain dkimRecordValid Verification Failed. Try again.');	
+						//	}
 						}else{
 							noAnswer('Domain spfRecordValid Verification Failed. Try again.');
 						}	
