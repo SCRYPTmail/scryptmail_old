@@ -205,7 +205,7 @@ class Crawler extends CFormModel
 		$body['subj'] = base64_decode($body['subj']);
 		
 		$preferences = ["input-charset" => "UTF-8", "output-charset" => "UTF-8"];
-		$body['subj'] =  iconv_mime_encode("", $body['subj'], $preferences);
+		$body['subj'] =  iconv_mime_encode("Subject", $body['subj'], $preferences);
 
 		$body['body']['html'] = base64_decode($body['body']['html']);
 		$body['body']['text'] = base64_decode($body['body']['text']);
@@ -246,6 +246,7 @@ class Crawler extends CFormModel
 			$headers = "MIME-Version: 1.0".$eol;
 			$headers .= "From: " . $body['from'] . $eol."Reply-To: " . $body['from']. $eol;
 			//$headers .= "To: ".$body['to'].$eol;
+			$headers .=$body['subj']. $eol;
 			$headers .= "Content-Type: multipart/alternative; boundary=$boundary".$eol.$eol;
 
 			$message = "This is a MIME encoded message.";
@@ -352,7 +353,7 @@ class Crawler extends CFormModel
 
 //print_r($message);
 
-			if (mail($body['to'], $body['subj'], $message, $headers, "-f" . EmailparseCommand::getEmail($body['from'])))
+			if (mail($body['to'], '', $message, $headers, "-f" . EmailparseCommand::getEmail($body['from'])))
 				return true;
 			else
 				return false;
