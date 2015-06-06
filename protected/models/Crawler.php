@@ -203,6 +203,10 @@ class Crawler extends CFormModel
 		$body['from'] = base64_decode($body['from']);
 
 		$body['subj'] = base64_decode($body['subj']);
+		
+		$preferences = ["input-charset" => "UTF-8", "output-charset" => "UTF-8"];
+		$body['subj'] =  iconv_mime_encode("Subject", $body['subj'], $preferences);
+		$body['subj'] = str_replace("Subject:", "", $body['subj']);
 
 		$body['body']['html'] = base64_decode($body['body']['html']);
 		$body['body']['text'] = base64_decode($body['body']['text']);
