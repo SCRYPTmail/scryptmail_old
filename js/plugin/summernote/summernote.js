@@ -1001,8 +1001,6 @@
         editor.tab(oLayoutInfo.editable());
       } else if (bCmd && ((bShift && keyCode === key.Z) || keyCode === key.Y)) {
         editor.redo(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.Z) {
-        editor.undo(oLayoutInfo.editable());
       } else if (bCmd && keyCode === key.B) {
         editor.bold(oLayoutInfo.editable());
       } else if (bCmd && keyCode === key.I) {
