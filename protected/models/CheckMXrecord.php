@@ -135,7 +135,7 @@ class CheckMXrecord extends CFormModel
 
 	public function checkMXdomains($paramDomain,$domains)
 	{
-		if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain,shaDomain FROM virtual_domains WHERE shaDomain IN ($paramDomain)")->queryAll(true, $domains)) {
+		if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain,shaDomain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND globalDomain=0")->queryAll(true, $domains)) {
 			foreach ($verifiedDomains as $row) {
 
 
