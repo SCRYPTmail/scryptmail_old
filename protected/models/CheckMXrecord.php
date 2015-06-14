@@ -195,7 +195,7 @@ class CheckMXrecord extends CFormModel
 							$parameter[':lastModified']=date('Y-m-d H:i:s',strtotime('now'));
 							$parameter[':lastTimeChecked']=date('Y-m-d H:i:s',strtotime('now'));
 
-							Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha")->execute($parameter);
+							Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha AND globalDomain=0")->execute($parameter);
 						}
 
 
@@ -319,7 +319,7 @@ class CheckMXrecord extends CFormModel
 					$parameter[':lastModified']=date('Y-m-d H:i:s',strtotime('now'));
 					$parameter[':lastTimeChecked']=date('Y-m-d H:i:s',strtotime('now'));
 
-					Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,vrfRec=:vrfRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha")->execute($parameter);
+					Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,vrfRec=:vrfRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha AND globalDomain=0")->execute($parameter);
 				}
 
 
