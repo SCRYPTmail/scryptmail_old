@@ -19,6 +19,7 @@ function renderMessage(body, meta, datas) {
 
 		if (Object.keys(profileSettings['tags']).length > 0) {
 			$.each(profileSettings['tags'], function (index, value) {
+				functionTracer='renderMessage 9';
 					var el = from64(value['name']);
 				con.push(el);
 			});
@@ -36,9 +37,11 @@ function renderMessage(body, meta, datas) {
 		});
 
 		$('#tags').on("select2-selecting", function (e) {
+			functionTracer='renderMessage 20';
 			var tag=filterXSS(e.val);
 
 			if (Object.keys(profileSettings['tags']).length < roleData['role']['tagsPerProfile']) {
+				functionTracer='renderMessage 1';
 				profileSettings['tags'][to64(tag)]={'name':to64(tag)};
 				con.push(tag);
 			}
@@ -50,6 +53,7 @@ function renderMessage(body, meta, datas) {
 					if(folder['Custom'][messageFolder][datas['messageHash']]['tags']==undefined){
 						folder['Custom'][messageFolder][datas['messageHash']]['tags']={};
 					}
+					functionTracer='renderMessage 2';
 					folder['Custom'][messageFolder][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
 				}else{
 
@@ -57,14 +61,17 @@ function renderMessage(body, meta, datas) {
 						folder[messageFolder][datas['messageHash']]['tags']={};
 						mailBox['Data'][datas['messageHash']]['tags']={};
 					}
+					functionTracer='renderMessage 3';
 					folder[messageFolder][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
 				}
 
 				if(mailBox['boxName']!=''){
 				if(mailBox['Data'][datas['messageHash']]==undefined){
 					mailBox['Data'][datas['messageHash']]['tags']={};
+					functionTracer='renderMessage 4';
 					mailBox['Data'][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
 				}else{
+					functionTracer='renderMessage 5';
 					mailBox['Data'][datas['messageHash']]['tags'][to64(tag)]={'name':to64(tag)};
 				}
 				}
@@ -75,16 +82,20 @@ function renderMessage(body, meta, datas) {
 
 		$('#tags').on('select2-removed', function (event) {
 
+			functionTracer='renderMessage 21';
 			var tag=filterXSS(event.val);
 
 			if (emailObj['mailId'] != '') {
 
 				if(messageFolder in folder['Custom']){
+					functionTracer='renderMessage 6';
 					delete folder['Custom'][messageFolder][datas['messageHash']]['tags'][[to64(tag)]];
 				}else{
+					functionTracer='renderMessage 7';
 					delete folder[messageFolder][datas['messageHash']]['tags'][[to64(tag)]];
 				}
 				if(mailBox['Data'][datas['messageHash']]!=undefined){
+					functionTracer='renderMessage 8';
 				delete mailBox['Data'][datas['messageHash']]['tags'][to64(tag)];
 				}
 				checkFolders();
@@ -101,6 +112,7 @@ function renderMessage(body, meta, datas) {
 		if(tags!=undefined){
 			var tg=[];
 			$.each(tags, function (index, value) {
+				functionTracer='renderMessage 10';
 				var t=from64(value['name']);
 				tg.push(t);
 			});
@@ -116,6 +128,7 @@ function renderMessage(body, meta, datas) {
 
 	$('#pag').css('display','none');
 	if(body['rawHeader']!=undefined){
+		functionTracer='renderMessage 11';
 		body['rawHeader']=from64(body['rawHeader']);
 		$('#rawHead').css('display','block');
 	}else
@@ -123,11 +136,16 @@ function renderMessage(body, meta, datas) {
 		$('#rawHead').css('display','none');
 	}
 	activePage = 'readEmail';
+	functionTracer='renderMessage 12';
 	body['body']['text'] = from64(body['body']['text']);
+	functionTracer='renderMessage 13';
 	body['body']['html'] = from64(body['body']['html']);
+	functionTracer='renderMessage 14';
 	body['to'] = from64(body['to']);
+	functionTracer='renderMessage 15';
 	body['from'] = from64(body['from']);
 
+	functionTracer='renderMessage 16';
 	body['subj'] = from64(body['subj']);
 
 
@@ -170,9 +188,13 @@ function renderMessage(body, meta, datas) {
 
 			$.each(body['attachment'], function (fname, fdata) {
 
+				functionTracer='renderMessage 17';
 				var size = from64(fdata['size']);
+
+				functionTracer='renderMessage 18';
 				var fname=escapeTags(from64(fdata['name']));
 				size = (size > 1000000) ? Math.round(size / 10000) / 100 + ' Mb' : Math.round(size / 10) / 100 + ' Kb';
+				functionTracer='renderMessage 19';
 				$(".inbox-download-list").append('<li><div class="well well-sm"><span id="' + from64(fdata['filename']) + '"><i class="fa fa-file"></i></span><br><strong>' + fname + '</strong><br>' + size + '<br><a href="javascript:void(0);" onclick="readFile(\''+ fdata['name'] + '\')"> Download</a></div></li>');
 
 			});
