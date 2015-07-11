@@ -999,43 +999,15 @@
 
       if (keyCode === key.TAB && oLayoutInfo.editable().data('tabsize')) {
         editor.tab(oLayoutInfo.editable());
-      } else if (bCmd && ((bShift && keyCode === key.Z) || keyCode === key.Y)) {
-        editor.redo(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.Z) {
-        editor.undo(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.B) {
-        editor.bold(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.I) {
-        editor.italic(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.U) {
-        editor.underline(oLayoutInfo.editable());
-      } else if (bCmd && bShift && keyCode === key.S) {
-        editor.strikethrough(oLayoutInfo.editable());
       } else if (bCmd && keyCode === key.BACKSLACH) {
         editor.removeFormat(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.K) {
-        editor.setLinkDialog(oLayoutInfo.editable(), function(linkInfo, cb) {
-          dialog.showLinkDialog(oLayoutInfo.dialog(), linkInfo, cb);
-        });
-      } else if (bCmd && keyCode === key.SLASH) {
+      }  else if (bCmd && keyCode === key.SLASH) {
         dialog.showHelpDialog(oLayoutInfo.dialog());
-      } else if (bCmd && bShift && keyCode === key.L) {
-        editor.justifyLeft(oLayoutInfo.editable());
-      } else if (bCmd && bShift && keyCode === key.E) {
-        editor.justifyCenter(oLayoutInfo.editable());
-      } else if (bCmd && bShift && keyCode === key.R) {
-        editor.justifyRight(oLayoutInfo.editable());
-      } else if (bCmd && bShift && keyCode === key.J) {
-        editor.justifyFull(oLayoutInfo.editable());
       } else if (bCmd && bShift && keyCode === key.NUM7) {
         editor.insertUnorderedList(oLayoutInfo.editable());
       } else if (bCmd && bShift && keyCode === key.NUM8) {
         editor.insertOrderedList(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.LEFTBRACKET) {
-        editor.outdent(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.RIGHTBRACKET) {
-        editor.indent(oLayoutInfo.editable());
-      } else if (bCmd && keyCode === key.NUM0) { // formatBlock Paragraph
+      }  else if (bCmd && keyCode === key.NUM0) { // formatBlock Paragraph
         editor.formatBlock(oLayoutInfo.editable(), 'P');
       } else if (bCmd && (key.NUM1 <= keyCode && keyCode <= key.NUM6)) {
         var sHeading = 'H' + String.fromCharCode(keyCode); // H1~H6

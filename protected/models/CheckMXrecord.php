@@ -102,7 +102,7 @@ class CheckMXrecord extends CFormModel
 			$valid['mxRecordValid']===true &&
 			$valid['spfRecordValid']===true &&
 			$valid['domainOwnerValid']===true &&
-			$valid['dkimRecordValid']===true &&
+		//	$valid['dkimRecordValid']===true &&
 			$valid['domainRegistered']===false
 		){
 			$param[':domain']=$domain;
@@ -112,7 +112,7 @@ class CheckMXrecord extends CFormModel
 			$param[':spfRec']=1;
 			$param[':mxRec']=1;
 			$param[':vrfRec']=1;
-			$param[':dkimRec']=1;
+			$param[':dkimRec']=$valid['dkimRecordValid'];
 			$param[':availableForAliasReg']=1;
 			$param[':vrfString']=hash('sha256',$this->vrfString);
 			$param[':userId']=Yii::app()->user->getId();
@@ -135,7 +135,7 @@ class CheckMXrecord extends CFormModel
 
 	public function checkMXdomains($paramDomain,$domains)
 	{
-		if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain,shaDomain FROM virtual_domains WHERE shaDomain IN ($paramDomain)")->queryAll(true, $domains)) {
+		if ($verifiedDomains = Yii::app()->db->createCommand("SELECT domain,shaDomain FROM virtual_domains WHERE shaDomain IN ($paramDomain) AND globalDomain=0")->queryAll(true, $domains)) {
 			foreach ($verifiedDomains as $row) {
 
 
@@ -195,7 +195,7 @@ class CheckMXrecord extends CFormModel
 							$parameter[':lastModified']=date('Y-m-d H:i:s',strtotime('now'));
 							$parameter[':lastTimeChecked']=date('Y-m-d H:i:s',strtotime('now'));
 
-							Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha")->execute($parameter);
+							Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha AND globalDomain=0")->execute($parameter);
 						}
 
 
@@ -319,7 +319,7 @@ class CheckMXrecord extends CFormModel
 					$parameter[':lastModified']=date('Y-m-d H:i:s',strtotime('now'));
 					$parameter[':lastTimeChecked']=date('Y-m-d H:i:s',strtotime('now'));
 
-					Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,vrfRec=:vrfRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha")->execute($parameter);
+					Yii::app()->db->createCommand("UPDATE virtual_domains SET spfRec=:spfRec,mxRec=:mxRec,vrfRec=:vrfRec,lastModified=:lastModified,lastTimeChecked=:lastTimeChecked WHERE shaDomain=:sha AND globalDomain=0")->execute($parameter);
 				}
 
 
