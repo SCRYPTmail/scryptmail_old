@@ -137,9 +137,18 @@ function renderMessage(body, meta, datas) {
 	}
 	activePage = 'readEmail';
 	functionTracer='renderMessage 12';
-	body['body']['text'] = from64(body['body']['text']);
+	try {
+		body['body']['text'] = from64(body['body']['text']);
+	}catch (err) {
+		body['body']['text'] ='error';
+	}
+	
 	functionTracer='renderMessage 13';
+		try {
 	body['body']['html'] = from64(body['body']['html']);
+		}catch (err) {
+		body['body']['html'] ='error';
+		}
 	functionTracer='renderMessage 14';
 	body['to'] = from64(body['to']);
 	functionTracer='renderMessage 15';
