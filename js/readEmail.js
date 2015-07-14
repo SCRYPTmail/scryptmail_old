@@ -140,14 +140,14 @@ function renderMessage(body, meta, datas) {
 	try {
 		body['body']['text'] = from64(body['body']['text']);
 	}catch (err) {
-		//body['body']['text'] ='error';
+		body['body']['text'] =from64bin((body['body']['text']);
 	}
 	
 	functionTracer='renderMessage 13';
 		try {
 	body['body']['html'] = from64(body['body']['html']);
 		}catch (err) {
-		//body['body']['html'] ='error';
+		body['body']['html'] = from64bin(body['body']['html']);
 		}
 	functionTracer='renderMessage 14';
 	body['to'] = from64(body['to']);
