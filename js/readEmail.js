@@ -140,7 +140,7 @@ function renderMessage(body, meta, datas) {
 	try {
 		body['body']['text'] = from64(body['body']['text']);
 	}catch (err) {
-		body['body']['text'] =from64bin((body['body']['text']);
+		body['body']['text'] =from64bin(body['body']['text']);
 	}
 	
 	functionTracer='renderMessage 13';
