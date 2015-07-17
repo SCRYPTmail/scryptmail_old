@@ -2268,7 +2268,7 @@ function showRawHeader()
 {
 	var w = window.open();
 	var html ='<pre ' +
-		'style="white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word;">'+stripHTML(emailObj['body']['rawHeader'])+'<pre>';
+		'style="white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word;">'+escapeTags(emailObj['body']['rawHeader'])+'<pre>';
 
 	$(w.document.body).html(html);
 }
