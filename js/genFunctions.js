@@ -1039,7 +1039,7 @@ function emailSelection(object, container) {
 	container.parent().attr('title', object.text.replace('<', ' <'));
 	//container.parent().attr('data-placement', 'bottom');
 	//container.parent().attr('data-original-title', object.text.replace('<', ' <'));
-	return object.text;
+	return filterXSS(object.text);
 }
 
 function tagSelection(object, container) {
@@ -1857,7 +1857,7 @@ function renderMessages() {
 
 			var el = ['<div class="checkbox" id="msg_' + index + '"><label><input type="checkbox" class="checkbox style-2" '+ (value['checked'] ? 'checked="checked"' : '') +'><span ' + (ismobile ? 'style="margin-top:-22px;"' : '') + '></span> </label></div>',
 				'<div id="' + index + '"' + (!value['opened'] ? 'class="unread"' : '') + '>' + ((value['status'] == 'warning') ? '<i class="fa fa-warning text-warning"></i>' : '') +  frField + value['from'] + '</div>',
-				tag+'<div ' + (!value['opened'] ? 'class="unread"' : '') + '><span>' + ((value['subject'] !== undefined) ? value['subject'] : '[No Subject]') + '</span> - ' + ((value['body'] !== undefined) ? value['body'].toString() : '') + '</div>',
+				tag+'<div ' + (!value['opened'] ? 'class="unread"' : '') + '><span>' + ((value['subject'] !== undefined) ? escapeTags(value['subject']) : '[No Subject]') + '</span> - ' + ((value['body'] !== undefined) ? escapeTags(value['body'].toString()) : '') + '</div>',
 				(value['attachment'] != '') ? '<div><i class="fa fa-paperclip fa-lg"></i></div>' : '',
 				new Date(parseInt(value['timeSent'] + '000')).getTime()];
 			dataSet.push(el);
