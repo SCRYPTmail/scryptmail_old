@@ -212,8 +212,15 @@ class Crawler extends CFormModel
 		$body['body']['text'] = base64_decode($body['body']['text']);
 
 		if (isset($body['attachment']) && is_array($body['attachment'])) {
+
+			$warningHTML="<br/><br/><span style='color:red;'>Please exercise <b>EXTREME</b> caution when downloading file or <b>DO NOT DOWNLOAD</b> if sender is unknown. We strongly recommend to scan them with antivirus after download.</span><br/>";
+			$warningPlain="Please exercise EXTREME caution when downloading file or DO NOT DOWNLOAD if sender is unknown. We strongly recommend to scan them with antivirus after download.";
+
 			$attach[]="<br><br>Email Attachments:<br>";
+			$attach[]=$warningHTML;
+
 			$attachtxt[]='\n\r\n\rEmail Attachments:';
+			$attachtxt[]='\n\r\n\r'.$warningPlain.'\n\r\n\r';
 			foreach ($body['attachment'] as $fileN => $frow) {
 				$attach[]=base64_decode($frow['name']).' <a href="https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].'"  target="_blank">Download</a> It will be stored on our server for 4 weeks.';
 				$attachtxt[]=base64_decode($frow['name']).'https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].' It will be stored on our server for 4 weeks.';
