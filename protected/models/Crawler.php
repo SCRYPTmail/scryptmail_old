@@ -222,8 +222,8 @@ class Crawler extends CFormModel
 			$attachtxt[]='\n\r\n\rEmail Attachments:';
 			$attachtxt[]='\n\r\n\r'.$warningPlain.'\n\r\n\r';
 			foreach ($body['attachment'] as $fileN => $frow) {
-				$attach[]=base64_decode($frow['name']).' <a href="https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].'"  target="_blank">Download</a> It will be stored on our server for 4 weeks.';
-				$attachtxt[]=base64_decode($frow['name']).'https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].' It will be stored on our server for 4 weeks.';
+				$attach[]=base64_decode($frow['name']).' <a href="https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].'"  target="_blank">Download</a> (It will be stored on our server for 4 weeks)';
+				$attachtxt[]=base64_decode($frow['name']).'https://scryptmail.com/downloadFile/'.$row['pass'].base64_decode($frow['filename']).'/name/'.$frow['name'].'-'.$frow['type'].' (It will be stored on our server for 4 weeks)';
 
 				/*
 				$body['attachment'][($fileN)]['name'] = base64_decode($frow['name']);
