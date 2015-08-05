@@ -187,7 +187,7 @@ function renderMessage(body, meta, datas) {
 
 	if (meta['attachment'] != "") {
 
-		$('<div class="alert alert-warning text-left" style="margin-top:10px;">Please exercise caution when downloading files. We strongly recommend to scan them with antivirus after download.</div><div class="inbox-download"></div>').insertAfter(".inbox-message");
+		$('<div class="alert alert-warning text-left" style="margin-top:10px;">Please exercise <b>EXTREME</b> caution when downloading file or <b>DO NOT DOWNLOAD</b> if sender is unknown. We strongly recommend to scan them with antivirus after download.</div><div class="inbox-download"></div>').insertAfter(".inbox-message");
 
 		//$('.inbox-message').insertAfter('<div class="inbox-download"></div>');
 
