@@ -129,7 +129,12 @@ function renderMessage(body, meta, datas) {
 	$('#pag').css('display','none');
 	if(body['rawHeader']!=undefined){
 		functionTracer='renderMessage 11';
-		body['rawHeader']=from64(body['rawHeader']);
+		try {
+			body['rawHeader']=from64(body['rawHeader']);
+		}catch (err) {
+			body['rawHeader']=body['rawHeader'];
+		}
+
 		$('#rawHead').css('display','block');
 	}else
 	{
