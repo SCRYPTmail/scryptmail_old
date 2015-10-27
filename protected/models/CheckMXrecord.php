@@ -160,7 +160,7 @@ class CheckMXrecord extends CFormModel
 					);
 
 
-					if($result = dns_get_record($res['domain'])){
+					if($result = dns_get_record($res['domain'], DNS_ALL)){
 						foreach($result as $i=>$row)
 						{
 							if($row['type']!='MX' && $row['type']!='TXT'){
