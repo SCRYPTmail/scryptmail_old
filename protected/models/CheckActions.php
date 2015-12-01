@@ -194,7 +194,7 @@ class CheckActions extends CFormModel
 		$allActions=CheckActions::arrayOfActions();
 
 		if($this->userAction=='modallogin'){
-			$result=$this->mailHashPerMinute($allActions,30);
+			$result=$this->mailHashPerMinute($allActions,3);
 		}
 
 		//if($this->userAction=='getobjects'){
