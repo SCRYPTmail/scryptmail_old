@@ -131,8 +131,12 @@ class CheckActions extends CFormModel
 		$param[':ipaddress']=hash('sha256',$_SERVER['REMOTE_ADDR']);
 		$param[':created']=time();
 
+		//if(Yii::app()->db->createCommand('
+		//SELECT count(userId) FROM transLimits WHERE transaction_type=:transaction_type AND emailhash=:emailHash AND ipaddress=:ipaddress AND created>:created-60
+		//')->queryScalar($param)<$maxPerMinute){
+
 		if(Yii::app()->db->createCommand('
-		SELECT count(userId) FROM transLimits WHERE transaction_type=:transaction_type AND emailhash=:emailHash AND ipaddress=:ipaddress AND created>:created-60
+		SELECT count(userId) FROM transLimits WHERE transaction_type=:transaction_type AND ipaddress=:ipaddress AND created>:created-60
 		')->queryScalar($param)<$maxPerMinute){
 
 			$param[':expire']=time()+86400;
