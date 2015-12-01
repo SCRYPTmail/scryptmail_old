@@ -126,7 +126,7 @@ class CheckActions extends CFormModel
 
 	public function mailHashPerMinute($allActions,$maxPerMinute)
 	{
-		$param[':emailHash']=$_POST['LoginForm']['username'];
+		//$param[':emailHash']=$_POST['LoginForm']['username'];
 		$param[':transaction_type']=$allActions['modallogin'];
 		$param[':ipaddress']=hash('sha256',$_SERVER['REMOTE_ADDR']);
 		$param[':created']=time();
