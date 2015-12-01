@@ -126,7 +126,6 @@ class CheckActions extends CFormModel
 
 	public function mailHashPerMinute($allActions,$maxPerMinute)
 	{
-		//$param[':emailHash']=$_POST['LoginForm']['username'];
 		$param[':transaction_type']=$allActions['modallogin'];
 		$param[':ipaddress']=hash('sha256',$_SERVER['REMOTE_ADDR']);
 		$param[':created']=time();
@@ -140,6 +139,7 @@ class CheckActions extends CFormModel
 		')->queryScalar($param)<$maxPerMinute){
 
 			$param[':expire']=time()+86400;
+			$param[':emailHash']=$_POST['LoginForm']['username'];
 			Yii::app()->db->createCommand("
 			INSERT INTO transLimits (transaction_type,emailHash,created,expire,ipaddress) VALUES(:transaction_type,:emailHash,:created,:expire,:ipaddress)
 			")->execute($param);
