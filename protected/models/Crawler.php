@@ -68,7 +68,7 @@ class Crawler extends CFormModel
 			//blocking function
 
 			//read emails to send
-			if ($emails = Yii::app()->db->createCommand("SELECT * FROM mailToSent WHERE indexmail IS NULL LIMIT 4000")->queryAll()) {
+			if ($emails = Yii::app()->db->createCommand("SELECT * FROM mailToSent WHERE indexmail IS NULL LIMIT 50")->queryAll()) {
 				Yii::app()->db->createCommand("INSERT INTO mailToSent (indexmail) VALUES(1)")->execute();
 
 				//print_r($emails);
