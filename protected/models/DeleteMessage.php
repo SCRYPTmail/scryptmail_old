@@ -69,6 +69,8 @@ class DeleteMessage extends CFormModel
 			else
 				echo '{"results":"fail"}';
 
+		}else{
+			echo '{"results":"success"}';
 		}
 
 
